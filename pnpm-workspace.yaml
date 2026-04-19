@@ -1,0 +1,4 @@
+packages:
+  - vantage-web
+
+loglevel: debug

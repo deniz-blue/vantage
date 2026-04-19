@@ -1,0 +1,16 @@
+.DS_Store
+.env
+node_modules
+.react-router
+build/
+.turbo
+dist
+.tmp
+.wrangler/
+.gradle/
+*.aab
+*.apk
+*.idsig
+manifest-checksum.txt
+.npmrc
+*.tgz
