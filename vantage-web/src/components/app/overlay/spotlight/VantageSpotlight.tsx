@@ -21,7 +21,7 @@ export const VantageSpotlight = () => {
 	const searchResults = useCacheEventsStore(
 		useShallow(state => Object.entries(state.cache.byText)
 			.filter(([text]) => text.toLowerCase().includes(query.toLowerCase()))
-			.flatMap(([, sources]) => sources)
+			.flatMap(([, sources]) => [...sources])
 		)
 	);
 
@@ -77,7 +77,7 @@ export const VantageSpotlight = () => {
 		elements.push(
 			<Spotlight.ActionsGroup label="Events">
 				{searchResults.map(source => (
-					<SplotlightEventAction
+					<SpotlightEventAction
 						key={source}
 						source={source}
 					/>
@@ -137,7 +137,7 @@ export const VantageSpotlight = () => {
 	);
 };
 
-export const SplotlightEventAction = ({ source }: { source: EventSource }) => {
+export const SpotlightEventAction = ({ source }: { source: EventSource }) => {
 	const navigate = useNavigate();
 	const t = useTranslations();
 	const query = useEventQuery(source);
