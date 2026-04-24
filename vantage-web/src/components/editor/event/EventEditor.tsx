@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { z, type ZodError } from "zod";
 import { tryCatch } from "../../../lib/util/trynull";
 import { ResolvedEventProvider } from "../../content/event/event-envelope-context";
+import { EventDetailsContent } from "../../content/event/details/EventDetailsContent";
 
 export const EventEditor = ({
 	data,
@@ -140,6 +141,8 @@ export const EventPreview = ({ data }: { data: EditAtom<EventData> }) => {
 				<EventCard
 					variant="card"
 				/>
+
+				<EventDetailsContent source={"local://null"} />
 			</ResolvedEventProvider>
 		</Stack>
 	);

@@ -1,4 +1,4 @@
-import { ScrollArea, Stack } from "@mantine/core";
+import { Box, ScrollArea, Stack } from "@mantine/core";
 import { DatePicker, MonthLevel, MonthPicker } from "@mantine/dates";
 
 export interface CalendarMobileMonthProps {
@@ -21,6 +21,7 @@ export const CalendarMobileMonth = ({
 	return (
 		<Stack w="100%" h="100%" gap={0} align="center">
 			<DatePicker
+				fullWidth
 				date={month}
 				value={day}
 				onDateChange={(date) => setMonth(date.slice(0, 7) as `${number}-${number}`)}
@@ -30,7 +31,9 @@ export const CalendarMobileMonth = ({
 			/>
 			<ScrollArea w="100%">
 				<Stack w="100%" h="100%" gap={0}>
-					{renderDay({ day })}
+					<Box p={4} pb="xl">
+						{renderDay({ day })}
+					</Box>
 				</Stack>
 			</ScrollArea>
 		</Stack>

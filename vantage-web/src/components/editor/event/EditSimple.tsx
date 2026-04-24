@@ -55,7 +55,7 @@ export const EditSimple = ({ data }: { data: EditAtom<EventData> }) => {
 				<Button
 					onClick={() => addInstance()}
 				>
-					Add Instance
+					Set Date & Time
 				</Button>
 			)}
 
@@ -68,7 +68,7 @@ export const EditSimple = ({ data }: { data: EditAtom<EventData> }) => {
 				<Button
 					onClick={() => addVenue()}
 				>
-					Add Venue
+					Set Location
 				</Button>
 			)}
 		</Stack>

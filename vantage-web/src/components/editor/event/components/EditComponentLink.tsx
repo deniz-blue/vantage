@@ -37,16 +37,14 @@ export const EditComponentLink = ({ data }: { data: EditAtom<LinkComponent> }) =
 					atom={nameAtom}
 					component={TranslationsInput}
 					set={{}}
-					setLabel="Add Link Name"
-					placeholder="Name for the link, e.g. 'Registration' or 'Livestream'"
+					placeholder="Registration / Livestream / etc."
 				/>
 			</Stack>
 
 			<Deatom
 				component={ClearableSwitch}
 				atom={disabledAtom}
-				label="Disabled"
-				description="If disabled, the link will be shown as disabled and not clickable. Useful for indicating upcoming links or temporarily unavailable links."
+				label="Always Disabled"
 				color="red"
 			/>
 

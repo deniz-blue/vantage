@@ -213,18 +213,30 @@ export const PartialDateInput = ({
 	const handleSet = useCallback(() => {
 		const newValue: PartialDate = getInsertValue?.() ?? PartialDateUtil.format(PartialDateUtil.parsedFromTemporal(Temporal.Now.plainDateTimeISO()));
 		onChange(newValue);
+		setTimeout(() => setModalOpened(true), 0);
 	}, [getInsertValue, onChange]);
 
 	return (
 		<Box>
 			<Stack gap={4}>
-				{value === undefined ? (
+				{(value === undefined && !editingRaw) ? (
 					<InputBase
 						component="button"
 						pointer
 						onClick={handleSet}
 						onMouseDown={handleSet}
 						label={label}
+						rightSection={(
+							<Tooltip label="Edit raw PartialDate string">
+								<ActionIcon
+									onClick={() => setEditingRaw(true)}
+									variant="subtle"
+									color="gray"
+								>
+									<IconPencil stroke={1.2} color="var(--mantine-color-dimmed)" />
+								</ActionIcon>
+							</Tooltip>
+						)}
 						color="gray"
 					>
 						<Text c="dimmed" inherit inline span>
@@ -274,7 +286,7 @@ export const PartialDateInput = ({
 											variant="subtle"
 											color="gray"
 										>
-											<IconPencil stroke={1.2} />
+											<IconPencil stroke={1.2} color="var(--mantine-color-dimmed)" />
 										</ActionIcon>
 									</Tooltip>
 									<Tooltip label="Remove date">
@@ -287,13 +299,14 @@ export const PartialDateInput = ({
 						>
 							<PartialDateSnippetLabel value={value} />
 						</InputBase>
-					))}
+					))
+				}
 				<Input.Description>
 					{editingRaw ? (
 						<PartialDateSnippetLabel value={value} />
 					) : value}
 				</Input.Description>
-			</Stack>
+			</Stack >
 			<Modal
 				opened={modalOpened}
 				onClose={() => setModalOpened(false)}

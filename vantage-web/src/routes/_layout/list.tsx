@@ -3,7 +3,7 @@ import { useLayersStore } from "../../db/useLayersStore";
 import { useMemo } from "react";
 import { useEventQueries } from "../../db/useEventQuery";
 import { applyEventFilters, EventFilters } from "../../lib/filter/event-filters";
-import { Accordion, ActionIcon, Button, Checkbox, Collapse, Combobox, Group, Indicator, Input, InputBase, Paper, SegmentedControl, Stack, TextInput, useCombobox } from "@mantine/core";
+import { Accordion, ActionIcon, Button, Checkbox, Collapse, Combobox, Group, Indicator, Input, InputBase, OverflowList, Paper, Popover, SegmentedControl, Stack, TextInput, useCombobox } from "@mantine/core";
 import { EventsGrid } from "../../components/content/event-grid/EventsGrid";
 import type { Layer } from "../../db/models/layer";
 import z from "zod";
@@ -88,47 +88,41 @@ function ListPage() {
 		<Stack>
 			<Paper pos="sticky" top={top} p={4} withBorder shadow="md" style={{ zIndex: 5 }}>
 				<Stack gap={0}>
-					<Group gap={4}>
-						<TextInput
-							placeholder="Search events..."
-							value={search}
-							onChange={(event) => updateSearch({ search: event.currentTarget.value })}
-							flex={1}
-						/>
-						<Indicator
-							disabled={!Object.keys(searchObject).length}
-						>
-							<ActionIcon
-								onClick={toggleExpanded}
-								size="input-sm"
-								variant="light"
-								color="gray"
-							>
-								<Accordion.Chevron style={{
-									transform: !expanded ? "rotate(0deg)" : "rotate(-180deg)",
-									transition: "transform 150ms ease",
-								}} />
-							</ActionIcon>
-						</Indicator>
-					</Group>
-					<Collapse expanded={expanded}>
-						<Group gap={4} mt={4}>
+					<OverflowList
+						gap={4}
+						data={[
+							<Stack gap={0} flex={2} miw={200}>
+								<Input.Label>
+									Search
+								</Input.Label>
+								<TextInput
+									placeholder="Search events..."
+									value={search}
+									onChange={(event) => updateSearch({ search: event.currentTarget.value })}
+									flex={1}
+								/>
+							</Stack>,
 							<Stack gap={0}>
 								<Input.Label>
 									Filters
 								</Input.Label>
-								<Group gap={4}>
-									<RelativitySelect
+								<Paper withBorder>
+									<SegmentedControl<"past" | "all" | "future">
+										data={[
+											{ label: "Past", value: "past" },
+											{ label: "All", value: "all" },
+											{ label: "Future", value: "future" },
+										]}
 										value={relativity}
 										onChange={(value) => updateSearch({ relativity: value })}
 									/>
-								</Group>
-							</Stack>
+								</Paper>
+							</Stack>,
 							<Stack gap={0}>
 								<Input.Label>
 									Sort
 								</Input.Label>
-								<Group gap={4}>
+								<Paper withBorder>
 									<SegmentedControl<SortBy>
 										data={[
 											{ label: "Name", value: "name" },
@@ -138,8 +132,8 @@ function ListPage() {
 										value={sortBy}
 										onChange={(value) => updateSearch({ sortBy: value })}
 									/>
-								</Group>
-							</Stack>
+								</Paper>
+							</Stack>,
 							<Stack gap={0}>
 								<Input.Label>
 									Actions
@@ -153,9 +147,30 @@ function ListPage() {
 										Clear Query
 									</Button>
 								</Group>
+							</Stack>,
+						]}
+						renderItem={(item) => item}
+						renderOverflow={(items) => (
+							<Stack flex={1} justify="end" align="end">
+								<Popover>
+									<Popover.Target>
+										<ActionIcon
+											size="input-sm"
+											variant="light"
+											color="gray"
+										>
+											<Accordion.Chevron />
+										</ActionIcon>
+									</Popover.Target>
+									<Popover.Dropdown>
+										<Group gap={4}>
+											{items}
+										</Group>
+									</Popover.Dropdown>
+								</Popover>
 							</Stack>
-						</Group>
-					</Collapse>
+						)}
+					/>
 				</Stack>
 			</Paper>
 
@@ -224,24 +239,3 @@ export const LayersSelect = ({
 		</Combobox>
 	);
 };
-
-export type Relativity = "past" | "future" | "all";
-export const RelativitySelect = ({
-	value,
-	onChange,
-}: {
-	value: Relativity;
-	onChange: (value: Relativity) => void;
-}) => {
-	return (
-		<SegmentedControl<Relativity>
-			data={[
-				{ label: "Past", value: "past" },
-				{ label: "All", value: "all" },
-				{ label: "Future", value: "future" },
-			]}
-			value={value}
-			onChange={onChange}
-		/>
-	)
-}

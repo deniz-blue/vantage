@@ -22,7 +22,7 @@ export const EventTimeframeBadge = (props: BoxProps) => {
 	const status = data?.status ?? "planned";
 	if (status !== "planned" && status !== "uncertain") return null;
 
-	if (!data) return null;
+	if (!data || !data.instances?.length) return null;
 
 	const ranges = data.instances?.filter(instance => !!instance.start && PartialDateUtil.has(instance.start as PartialDate, "day")) ?? [];
 

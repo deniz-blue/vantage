@@ -79,7 +79,6 @@ function EditPage() {
 	return (
 		<FormPageTemplate
 			title="Edit Event"
-			desc="Edit an existing event saved locally"
 			continueText="Save"
 			onContinue={save}
 			loading={loading}

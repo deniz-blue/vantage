@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Collapse, Group, Loader, Menu, Modal, Stack, Title } from "@mantine/core";
+import { ActionIcon, Box, Collapse, Group, Loader, Menu, Modal, Stack, Text, Title } from "@mantine/core";
 import { useEventDetailsContext } from "./event-details-context";
 import { Trans } from "../../Trans";
 import { EnvelopeErrorBadge } from "../envelope/EnvelopeErrorBadge";
@@ -7,11 +7,12 @@ import { OverLayer } from "../../../base/layout/OverLayer";
 import classes from "../card/event-card.module.css";
 import { EvntMedia } from "../../../base/media/EvntMedia";
 import { useResolvedEvent } from "../event-envelope-context";
-import { IconDotsVertical } from "@tabler/icons-react";
+import { IconDotsVertical, ReactNode } from "@tabler/icons-react";
 import { useActionsStore } from "../../../app/overlay/spotlight/useActionsStore";
 import { useShallow } from "zustand/shallow";
 import { EventTimeframeBadge } from "../badges/EventTimeframeBadge";
 import { EventStatusBadge } from "../badges/EventStatusBadge";
+import { TranslationsUtil } from "@evnt/translations";
 
 export const EventDetailsBanner = () => {
 	const { data, err } = useResolvedEvent();
@@ -19,6 +20,12 @@ export const EventDetailsBanner = () => {
 	const actions = useActionsStore(
 		useShallow(state => Object.values(state.actions).filter(a => a.category === "Event"))
 	);
+
+	let title: ReactNode = null;
+	if (!!data && !TranslationsUtil.isEmpty(data.name))
+		title = <Trans t={data.name} />;
+	else if (!!data)
+		title = <Text inherit inline span c="dimmed" fs="italic" children="<no title>" />;
 
 	const splashMediaComponents = data?.components
 		?.filter((c): c is SplashMediaComponent =>
@@ -62,7 +69,7 @@ export const EventDetailsBanner = () => {
 									<Loader size="sm" />
 								</Collapse>
 								<Title order={3}>
-									<Trans t={data?.name} />
+									{title}
 									<EventTimeframeBadge mx={4} />
 									<EventStatusBadge mx={4} />
 									<EnvelopeErrorBadge mx={4} />
@@ -71,7 +78,7 @@ export const EventDetailsBanner = () => {
 						</Stack>
 						<Stack h="100%" justify="start" align="start">
 							<Group>
-								<Menu>
+								<Menu disabled={actions.length === 0}>
 									<Menu.Target>
 										<ActionIcon
 											size="input-md"

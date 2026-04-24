@@ -1,9 +1,10 @@
 import type { Media } from "@evnt/schema";
-import { Box, Image } from "@mantine/core";
+import { Box, Center, Image } from "@mantine/core";
 import { Blurhash } from "./Blurhash";
 import { OverLayer } from "../layout/OverLayer";
 import { useState } from "react";
 import { CenteredLoader } from "../../content/base/CenteredLoader";
+import { IconPhotoOff } from "@tabler/icons-react";
 
 export const EvntMedia = ({
 	media,
@@ -12,7 +13,7 @@ export const EvntMedia = ({
 	media: Media;
 	objectFit?: React.CSSProperties["objectFit"];
 }) => {
-	const [loaded, setLoaded] = useState(false);
+	const [state, setState] = useState<"loading" | "loaded" | "error">("loading");
 
 	const srcset = media.sources.map(source => (
 		source.url + (source.dimensions?.width ? ` ${source.dimensions.width}w` : "")
@@ -26,23 +27,34 @@ export const EvntMedia = ({
 				</OverLayer>
 			)}
 
-			{!loaded && (
+			{state === "loading" && (
 				<OverLayer opacity={0.4}>
 					<CenteredLoader loaderColor="black" />
 				</OverLayer>
 			)}
 
+			{state === "error" && (
+				<OverLayer opacity={0.4}>
+					<Center h="100%">
+						<IconPhotoOff size={48} />
+					</Center>
+				</OverLayer>
+			)}
+
 			<OverLayer>
-				<Box
-					component="img"
-					src={media.sources[0]?.url}
-					srcSet={srcset}
-					style={{ objectFit }}
-					loading="lazy"
-					w="100%"
-					h="100%"
-					onLoad={() => setLoaded(true)}
-				/>
+				{state !== "error" && (
+					<Box
+						component="img"
+						src={media.sources[0]?.url}
+						srcSet={srcset}
+						style={{ objectFit }}
+						loading="lazy"
+						w="100%"
+						h="100%"
+						onLoad={() => setState("loaded")}
+						onError={() => setState("error")}
+					/>
+				)}
 			</OverLayer>
 		</Box>
 	);

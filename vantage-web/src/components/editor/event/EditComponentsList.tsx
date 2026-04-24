@@ -1,8 +1,8 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { EditAtom } from "../edit-atom";
 import type { EventComponent, EventData } from "@evnt/schema";
-import { Button, Group, Input, Menu, Paper, Stack, Text, Title } from "@mantine/core";
+import { Button, Group, Input, Menu, Modal, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconChevronDown } from "@tabler/icons-react";
 import { EditComponent } from "./EditComponent";
 import { focusAtom } from "jotai-optics";
@@ -10,6 +10,8 @@ import { EventComponentRegistry } from "./event-components";
 import { Trans } from "../../content/Trans";
 
 export const EditComponentsList = ({ data }: { data: EditAtom<EventData> }) => {
+	const [modalOpened, setModalOpened] = useState(false);
+
 	const indexes = useAtomValue(useMemo(() => atom((get) => {
 		return (get(data).components ?? []).map((_, i) => i);
 	}), [data]));
@@ -38,31 +40,43 @@ export const EditComponentsList = ({ data }: { data: EditAtom<EventData> }) => {
 				<Title order={4}>
 					Components ({indexes.length})
 				</Title>
-				<Menu>
-					<Menu.Target>
-						<Button rightSection={<IconChevronDown size={18} />}>
-							Add
-						</Button>
-					</Menu.Target>
-					<Menu.Dropdown maw="400px">
-						<Menu.Label>Add component with type...</Menu.Label>
+
+				<Modal
+					opened={modalOpened}
+					onClose={() => setModalOpened(false)}
+					title="Add component with type..."
+					centered
+				>
+					<Stack>
 						{Object.entries(EventComponentRegistry).map(([type, entry]) => {
 							const { icon: Icon, label, desc, createData } = entry;
 							return (
-							<Menu.Item
-								key={type}
-								leftSection={<Icon size={18} />}
-								onClick={() => createData && addComponent(createData)}
-							>
-								<Stack gap={0}>
-									<Input.Label><Trans t={label} /></Input.Label>
-									{desc && <Input.Description><Trans t={desc} /></Input.Description>}
-								</Stack>
-							</Menu.Item>
+								<Button
+									key={type}
+									leftSection={<Icon />}
+									onClick={() => {
+										if (createData) addComponent(createData);
+										setModalOpened(false);
+									}}
+									h="auto"
+									justify="start"
+									size="md"
+								>
+									<Stack gap={4} align="start" p={4}>
+										<Text inherit span><Trans t={label} /></Text>
+										{desc && <Text c="dimmed" fz="xs" fw="normal" inherit span><Trans t={desc} /></Text>}
+									</Stack>
+								</Button>
 							);
 						})}
-					</Menu.Dropdown>
-				</Menu>
+					</Stack>
+				</Modal>
+
+				<Button
+					onClick={() => setModalOpened(true)}
+				>
+					Add Component
+				</Button>
 			</Group>
 			{indexes.length === 0 && (
 				<Paper bg="dark" p="md" py="xl" ta="center">

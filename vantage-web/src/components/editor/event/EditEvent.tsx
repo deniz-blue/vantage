@@ -13,7 +13,10 @@ export const EditEvent = ({ data }: { data: EditAtom<EventData> }) => {
 	const isForcedToBeComplex = useAtomValue(useMemo(() => atom((get) => {
 		const event = get(data);
 		if (!event.instances || event.instances.length === 0) return false;
-		if (event.instances.length === 1 && event.instances[0]!.venueIds.length <= 1) return false;
+		if (event.instances.length === 1) {
+			if (event.instances[0].venueIds.length == 0 && !event.venues?.length) return false;
+			if (event.instances[0].venueIds.length == 1 && event.venues?.length == 1) return false;
+		};
 		return true;
 	}), [data]));
 

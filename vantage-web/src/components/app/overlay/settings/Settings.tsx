@@ -28,49 +28,9 @@ export const Settings = () => {
 				description="Used for displaying event times in your local timezone"
 			/>
 
-			<Divider label="ATProto" />
+			<Divider label="Atmosphere" />
 
 			<ATProtoSettings />
-
-			<Divider label="eventsl.ink" />
-
-			<Button
-				component="a"
-				href={EVENT_REDIRECTOR_URL + "/?" + new URLSearchParams({
-					setInstanceUrl: window.location.origin,
-					popup: "true",
-				})}
-				target="_blank"
-				rightSection={<IconExternalLink size={16} />}
-			>
-				Set this Application as Default
-			</Button>
-
-			<Divider label="Maintenance" />
-
-			{/* <Button
-				color="red"
-				onClick={() => {
-					useCacheEventsStore.setState({ cache: { byPartialDate: {}, byMonth: {}, byDay: {}, byText: {} } });
-					useCacheEventsStore.getState().init();
-				}}
-			>
-				Clear and Rebuild Cache
-			</Button> */}
-
-			<AsyncAction
-				action={() => EventsGC.deleteUntracked()}
-			>
-				{({ onClick }) => (
-					<Button
-						color="red"
-						onClick={onClick}
-					>
-						Delete Untracked Event Data
-					</Button>
-				)}
-			</AsyncAction>
-
 		</Stack>
 	);
 };

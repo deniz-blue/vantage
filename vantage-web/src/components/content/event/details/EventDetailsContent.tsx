@@ -41,14 +41,14 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 							order={{ base: 1, md: 2 }}
 						>
 							<Stack>
-								{source && (
+								{source && (source !== "local://null") && (
 									<Group gap="xs" justify="end">
 										<EventRefetchButton source={source} />
 										<EventShareButton source={source} />
 									</Group>
 								)}
 
-								{source && <LayerImportSection source={source} />}
+								{source && (source !== "local://null") && <LayerImportSection source={source} />}
 
 								<EventDetailsInstanceList />
 

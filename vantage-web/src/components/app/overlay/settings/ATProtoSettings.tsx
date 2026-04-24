@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Button, Group, Input, Menu, Paper, Stack, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Avatar, Button, Group, Input, Menu, Modal, Paper, Stack, Text, TextInput } from "@mantine/core";
 import { getAvatarOfDid, useATProtoAuthStore } from "../../../../lib/atproto/useATProtoStore";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
@@ -35,7 +35,7 @@ export const ATProtoAccountItem = ({ did }: { did: Did }) => {
 	const isCurrent = agent?.sub === did;
 
 	return (
-		<Paper w="100%">
+		<Paper w="100%" withBorder p={4}>
 			<Group gap={4} wrap="nowrap" align="center">
 				<ActionIcon
 					size="input-xs"
@@ -117,17 +117,23 @@ export const ATProtoAddAccount = () => {
 
 	return (
 		<Stack gap={4}>
-			<Stack gap={0}>
-				<Input.Label>
-					{opened ? "Identifier" : "Add Account"}
-				</Input.Label>
-				<Input.Description>
-					{opened ? "Your ATProto handle or email" : "Sign in with ATProto"}
-				</Input.Description>
-			</Stack>
-			{opened ? (
+			<Button
+				leftSection={<IconPlus size={16} />}
+				onClick={open}
+				color="gray"
+			>
+				Add Account
+			</Button>
+
+			<Modal
+				opened={opened}
+				onClose={close}
+				title="Sign in"
+				centered
+			>
 				<Stack gap={4}>
 					<TextInput
+						label="Internet Handle"
 						placeholder="example.bsky.social"
 						value={identifier}
 						onChange={e => setIdentifier(e.currentTarget.value)}
@@ -136,30 +142,23 @@ export const ATProtoAddAccount = () => {
 							if (e.key == "Enter") onSubmit();
 						}}
 						autoFocus
-						rightSection={(
-							<ActionIcon
-								disabled={!identifier}
-								loading={loading}
-								onClick={onSubmit}
-							>
-								<IconArrowRight />
-							</ActionIcon>
-						)}
-						onBlur={close}
 					/>
+
+					<Button
+						disabled={!identifier}
+						loading={loading}
+						onClick={onSubmit}
+						rightSection={<IconArrowRight />}
+						fullWidth
+					>
+						Continue
+					</Button>
+
 					{loading && (
 						<Input.Description>Redirecting...</Input.Description>
 					)}
 				</Stack>
-			) : (
-				<Button
-					leftSection={<IconPlus size={16} />}
-					onClick={open}
-					color="gray"
-				>
-					Add Account
-				</Button>
-			)}
-		</Stack>
+			</Modal>
+		</Stack >
 	);
 };
