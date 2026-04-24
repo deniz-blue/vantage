@@ -16,7 +16,7 @@
 		"@atcute/lexicons": "^1.3.0",
 		"@atcute/oauth-browser-client": "^3.0.0",
 		"@atcute/tid": "^1.1.2",
-		"@deniz-blue/vite-plugins": "^1.0.1",
+		"@deniz-blue/vite-plugins": "^1.0.3",
 		"@evnt/convert": "^0.0.4",
 		"@evnt/partial-date": "^0.0.2",
 		"@evnt/pretty": "^0.0.2",
@@ -64,7 +64,7 @@
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"typescript": "^6.0.3",
-		"vite": "^8.0.10",
+		"vite": "^8.0.8",
 		"workbox-window": "^7.4.0"
 	}
 }

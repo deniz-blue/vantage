@@ -33,4 +33,6 @@ if (typeof window !== "undefined") {
 		},
 		identityResolver,
 	});
+
+	console.log("OAuth configured", import.meta.env);
 }

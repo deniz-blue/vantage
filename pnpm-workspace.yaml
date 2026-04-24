@@ -1,5 +1,8 @@
 packages:
   - vantage-web
   - vantage-core
+allowBuilds:
+  core-js-pure: true
+  esbuild: true
 
 loglevel: debug

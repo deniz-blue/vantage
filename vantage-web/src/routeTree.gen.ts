@@ -14,6 +14,7 @@ import { Route as EmbedRouteImport } from "./routes/embed"
 import { Route as LayoutRouteRouteImport } from "./routes/_layout/route"
 import { Route as LayoutIndexRouteImport } from "./routes/_layout/index"
 import { Route as OauthCallbackRouteImport } from "./routes/oauth.callback"
+import { Route as AtpassportCallbackRouteImport } from "./routes/atpassport.callback"
 import { Route as LayoutNewRouteImport } from "./routes/_layout/new"
 import { Route as LayoutListRouteImport } from "./routes/_layout/list"
 import { Route as LayoutEventRouteImport } from "./routes/_layout/event"
@@ -42,6 +43,11 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
 const OauthCallbackRoute = OauthCallbackRouteImport.update({
   id: "/oauth/callback",
   path: "/oauth/callback",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtpassportCallbackRoute = AtpassportCallbackRouteImport.update({
+  id: "/atpassport/callback",
+  path: "/atpassport/callback",
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutNewRoute = LayoutNewRouteImport.update({
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   "/event": typeof LayoutEventRoute
   "/list": typeof LayoutListRoute
   "/new": typeof LayoutNewRoute
+  "/atpassport/callback": typeof AtpassportCallbackRoute
   "/oauth/callback": typeof OauthCallbackRoute
 }
 export interface FileRoutesByTo {
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   "/event": typeof LayoutEventRoute
   "/list": typeof LayoutListRoute
   "/new": typeof LayoutNewRoute
+  "/atpassport/callback": typeof AtpassportCallbackRoute
   "/oauth/callback": typeof OauthCallbackRoute
   "/": typeof LayoutIndexRoute
 }
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   "/_layout/event": typeof LayoutEventRoute
   "/_layout/list": typeof LayoutListRoute
   "/_layout/new": typeof LayoutNewRoute
+  "/atpassport/callback": typeof AtpassportCallbackRoute
   "/oauth/callback": typeof OauthCallbackRoute
   "/_layout/": typeof LayoutIndexRoute
 }
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | "/event"
     | "/list"
     | "/new"
+    | "/atpassport/callback"
     | "/oauth/callback"
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | "/event"
     | "/list"
     | "/new"
+    | "/atpassport/callback"
     | "/oauth/callback"
     | "/"
   id:
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | "/_layout/event"
     | "/_layout/list"
     | "/_layout/new"
+    | "/atpassport/callback"
     | "/oauth/callback"
     | "/_layout/"
   fileRoutesById: FileRoutesById
@@ -146,6 +158,7 @@ export interface RootRouteChildren {
   LayoutRouteRoute: typeof LayoutRouteRouteWithChildren
   EmbedRoute: typeof EmbedRoute
   FormRoute: typeof FormRoute
+  AtpassportCallbackRoute: typeof AtpassportCallbackRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
 }
 
@@ -184,6 +197,13 @@ declare module "@tanstack/react-router" {
       path: "/oauth/callback"
       fullPath: "/oauth/callback"
       preLoaderRoute: typeof OauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/atpassport/callback": {
+      id: "/atpassport/callback"
+      path: "/atpassport/callback"
+      fullPath: "/atpassport/callback"
+      preLoaderRoute: typeof AtpassportCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/_layout/new": {
@@ -250,6 +270,7 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutRouteRoute: LayoutRouteRouteWithChildren,
   EmbedRoute: EmbedRoute,
   FormRoute: FormRoute,
+  AtpassportCallbackRoute: AtpassportCallbackRoute,
   OauthCallbackRoute: OauthCallbackRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Button, Group, Input, Menu, Modal, Paper, Stack, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Avatar, Button, Divider, Group, Input, Menu, Modal, Paper, Stack, Text, TextInput } from "@mantine/core";
 import { getAvatarOfDid, useATProtoAuthStore } from "../../../../lib/atproto/useATProtoStore";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
@@ -115,6 +115,14 @@ export const ATProtoAddAccount = () => {
 		// unreachable code after redirect
 	};
 
+	const onAtpassport = () => {
+		setLoading(true);
+		const callbackUrl = window.location.origin + "/atpassport/callback";
+		window.location.href = "https://atpassport.net/authentication?" + new URLSearchParams({
+			callback: callbackUrl,
+		}).toString();
+	};
+
 	return (
 		<Stack gap={4}>
 			<Button
@@ -135,6 +143,7 @@ export const ATProtoAddAccount = () => {
 					<TextInput
 						label="Internet Handle"
 						placeholder="example.bsky.social"
+						name="handle"
 						value={identifier}
 						onChange={e => setIdentifier(e.currentTarget.value)}
 						onSubmit={onSubmit}
@@ -154,9 +163,15 @@ export const ATProtoAddAccount = () => {
 						Continue
 					</Button>
 
-					{loading && (
-						<Input.Description>Redirecting...</Input.Description>
-					)}
+					<Divider label="Or" my="md" />
+
+					<Button
+						loading={loading}
+						onClick={onAtpassport}
+						leftSection={<img src="https://atpassport.net/favicon.ico" width={24} height={24} />}
+					>
+						Sign in with @passport
+					</Button>
 				</Stack>
 			</Modal>
 		</Stack >
