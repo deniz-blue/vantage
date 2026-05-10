@@ -1,0 +1,54 @@
+import { createFileRoute } from "@tanstack/react-router"
+import z from "zod";
+import { EventSourceSchema } from "../../db/models/event-source";
+import { useEventQuery } from "../../db/useEventQuery";
+import { Container, Space, Stack, Text } from "@mantine/core";
+import { EventDetailsContent } from "../../components/content/event/details/EventDetailsContent";
+import { ResolvedEventProvider } from "../../components/content/event/event-envelope-context";
+import { useProvideEventActions } from "../../hooks/actions/useProvideEventActions";
+import { ResolvedEventContext } from "../../db/resolved-event";
+
+const SearchParamsSchema = z.object({
+	id: z.uuid() as z.ZodType<Vantage.EventId>,
+});
+
+export const Route = createFileRoute("/_layout/event")({
+	component: EventPage,
+	validateSearch: SearchParamsSchema,
+	staticData: {
+		spaceless: true,
+	},
+});
+
+function EventPage() {
+	const { id } = Route.useSearch();
+	const query = useEventQuery(id);
+
+	useProvideEventActions(query.data ?? undefined);
+
+	return (
+		<Stack
+			w="100%"
+			align="center"
+		>
+			<Container
+				size="md"
+				p={0}
+				w="100%"
+				mih="100dvh"
+				style={{
+					boxShadow: "0 0 50px rgba(0,0,0,0.2)",
+				}}
+			>
+				<Stack>
+					<ResolvedEventContext value={query.data ?? null}>
+						<EventDetailsContent
+							source={source}
+						/>
+					</ResolvedEventContext>
+					<Space h="20rem" />
+				</Stack>
+			</Container>
+		</Stack>
+	)
+}

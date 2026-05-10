@@ -1,6 +1,5 @@
 packages:
-  - vantage-web
-  - vantage-core
+  - packages/*
 allowBuilds:
   core-js-pure: true
   esbuild: true
