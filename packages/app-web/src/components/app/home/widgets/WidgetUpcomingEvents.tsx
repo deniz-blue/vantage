@@ -2,10 +2,10 @@ import { Box, Center, Divider, Group, ScrollArea, Stack, Text, Title } from "@ma
 import { useEventQueries } from "../../../../db/useEventQuery";
 import { useShallow } from "zustand/react/shallow";
 import { useCacheEventsStore } from "../../../../lib/cache/useCacheEventsStore";
-import { ResolvedEventProvider } from "../../../content/event/event-envelope-context";
 import { EventCard } from "../../../content/event/card/EventCard";
 import { EventContextMenu } from "../../../content/event/EventContextMenu";
 import type { PlainDateString } from "@evnt/partial-date";
+import { ResolvedEventContext } from "../../../../db/resolved-event";
 
 export const WidgetUpcomingEvents = () => {
 	const today = Temporal.Now.plainDateISO().toString() as PlainDateString;
@@ -51,22 +51,19 @@ export const WidgetUpcomingEvents = () => {
 					// mih={300}
 					align="stretch"
 				>
-					{queries.map(({ query, source }, index) => (
+					{queries.map((query, index) => (
 						<Box
 							key={index}
 							miw={300}
 							bg="dark"
 						>
-							<ResolvedEventProvider
-								value={query.data ?? { data: null }}
-							>
+							<ResolvedEventContext value={query.data ?? null}>
 								<EventCard
 									variant="card"
-									source={source}
 									loading={query.isFetching}
-									menu={<EventContextMenu source={source} />}
+									menu={<EventContextMenu />}
 								/>
-							</ResolvedEventProvider>
+							</ResolvedEventContext>
 						</Box>
 					))}
 				</Group>

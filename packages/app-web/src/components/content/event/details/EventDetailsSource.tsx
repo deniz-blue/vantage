@@ -1,21 +1,20 @@
 import { Stack, Text } from "@mantine/core";
 import { SmallTitle } from "../../base/SmallTitle";
-import { UtilEventSource, type EventSource } from "../../../../db/models/event-source";
 import { IconAt, IconBraces, IconDatabase, IconExternalLink, IconWorld } from "@tabler/icons-react";
 import { BaseSnippet } from "../../Snippet";
 import { EventLinkButtonBase } from "../link/EventLinkButtonBase";
 import { parseCanonicalResourceUri } from "@atcute/lexicons";
 import { useAtProtoHandleQuery } from "../../../../lib/atproto/useAtProtoHandleQuery";
 import { AtprotoDid } from "@atcute/lexicons/syntax";
-import { useResolvedEvent } from "../event-envelope-context";
 import { SourceComponent } from "@evnt/schema";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
-export const EventDetailsSource = ({ source }: { source?: EventSource }) => {
-	const { data } = useResolvedEvent();
+export const EventDetailsSource = () => {
+	const { data, source } = useResolvedEvent();
 
 	const sourceComponents = data?.components?.filter((c): c is SourceComponent => c.$type === "directory.evnt.component.source") ?? [];
 
-	const atUri = source && UtilEventSource.getType(source) === "at" ? parseCanonicalResourceUri(source) : null;
+	const atUri = source.type == "at" ? parseCanonicalResourceUri(source.uri) : null;
 	const handle = useAtProtoHandleQuery(atUri?.ok ? (atUri.value.repo as AtprotoDid) : undefined);
 
 	return (
@@ -35,7 +34,7 @@ export const EventDetailsSource = ({ source }: { source?: EventSource }) => {
 				</EventLinkButtonBase>
 			))}
 
-			{source && UtilEventSource.getType(source) === "local" && (
+			{source.type === "local" && (
 				<BaseSnippet icon={<IconDatabase />}>
 					<Text inline>
 						Browser/Device
@@ -43,7 +42,7 @@ export const EventDetailsSource = ({ source }: { source?: EventSource }) => {
 				</BaseSnippet>
 			)}
 
-			{source && UtilEventSource.getType(source) === "at" && (
+			{source.type === "at" && (
 				<Stack gap={4}>
 					<BaseSnippet icon={<IconAt />}>
 						<Text inline>
@@ -71,7 +70,7 @@ export const EventDetailsSource = ({ source }: { source?: EventSource }) => {
 					)}
 
 					<EventLinkButtonBase
-						url={`https://pds.ls/${source}`}
+						url={`https://pds.ls/${source.uri}`}
 						leftSection={<img src="https://pds.ls/favicon.ico" alt="PDSls" width={24} height={24} />}
 					>
 						<Text inherit span mr={4}>
@@ -81,7 +80,7 @@ export const EventDetailsSource = ({ source }: { source?: EventSource }) => {
 				</Stack>
 			)}
 
-			{source && UtilEventSource.getType(source).startsWith("http") && (
+			{source.type === "http" && (
 				<Stack gap={4}>
 					<BaseSnippet icon={<IconWorld />}>
 						<Text inline>
@@ -90,7 +89,7 @@ export const EventDetailsSource = ({ source }: { source?: EventSource }) => {
 					</BaseSnippet>
 					<EventLinkButtonBase
 						leftSection={<IconBraces />}
-						url={source}
+						url={source.url}
 					>
 						<Text inherit span mr={4}>
 							View raw data

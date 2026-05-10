@@ -1,11 +1,11 @@
 import { Alert, type BoxProps } from "@mantine/core";
 import { getEnvelopeErrorMeta } from "./envelope-error-meta";
-import { useResolvedEvent } from "../event-envelope-context";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EnvelopeErrorAlert = (props: BoxProps) => {
-	const { err } = useResolvedEvent();
-	if (!err) return null;
-	const { color, message, details, status } = getEnvelopeErrorMeta(err) ?? {};
+	const { error } = useResolvedEvent();
+	if (!error) return null;
+	const { color, message, details, status } = getEnvelopeErrorMeta(error);
 
 	return (
 		<Alert

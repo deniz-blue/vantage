@@ -1,13 +1,10 @@
 import { LanguageSelect } from "./LanguageSelect";
 import { TimezoneSelect } from "./TimezoneSelect";
-import { IconExternalLink, IconSettings } from "@tabler/icons-react";
-import { EVENT_REDIRECTOR_URL } from "../../../../constants";
 import { ATProtoSettings } from "./ATProtoSettings";
 import { Button, Divider, Stack } from "@mantine/core";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
-import { useCacheEventsStore } from "../../../../lib/cache/useCacheEventsStore";
 import { AsyncAction } from "../../../data/AsyncAction";
-import { EventsGC } from "../../../../db/gc";
+import { _migrate26may_ } from "../../../../db/migrations/26may";
 
 export const Settings = () => {
 	const language = useLocaleStore((state) => state.language);
@@ -31,6 +28,22 @@ export const Settings = () => {
 			<Divider label="Atmosphere" />
 
 			<ATProtoSettings />
+
+			<Divider label="Maintenance" />
+
+			<AsyncAction
+				action={() => _migrate26may_()}
+			>
+				{({ loading, onClick }) => (
+					<Button
+						color="red"
+						onClick={onClick}
+						loading={loading}
+					>
+						Migrate Database
+					</Button>
+				)}
+			</AsyncAction>
 		</Stack>
 	);
 };

@@ -2,44 +2,36 @@ import { useEventDetailsModal } from "../../../../hooks/app/useEventDetailsModal
 import { BaseOverlay } from "../base/BaseOverlay";
 import { EventDetailsContent } from "../../../content/event/details/EventDetailsContent";
 import { useEventQuery } from "../../../../db/useEventQuery";
-import { UtilEventSource, type EventSource } from "../../../../db/models/event-source";
-import { Affix, Button, Code, Space, Stack, Text, Transition } from "@mantine/core";
-import { RQResult } from "../../../data/RQResult";
-import { ResolvedEventProvider } from "../../../content/event/event-envelope-context";
+import { Affix, Button, Space, Transition } from "@mantine/core";
 import { useProvideEventActions } from "../../../../hooks/actions/useProvideEventActions";
 import { Link } from "@tanstack/react-router";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
+import { ResolvedEventContext } from "../../../../db/resolved-event";
 
 export const EventDetailsOverlay = () => {
 	const { close, useValue } = useEventDetailsModal();
-	const source = useValue();
+	const id = useValue();
 
 	return (
 		<BaseOverlay
-			opened={!!source}
+			opened={!!id}
 			onClose={close}
 			modalBodyProps={{ p: 0 }}
 		>
-			{source && UtilEventSource.is(source, true) ? (
-				<EventDetailsOverlayHandler source={source} />
-			) : (
-				<Stack align="center" justify="center" h="100%" ta="center">
-					<Text>
-						Invalid event source: <Code>{source}</Code>
-					</Text>
-				</Stack>
+			{id && (
+				<EventDetailsOverlayHandler id={id} />
 			)}
 
 			<Space h="10rem" />
 
-			<Transition mounted={!!source}>
+			<Transition mounted={!!id}>
 				{(styles) => (
 					<Affix
 						position={{ bottom: "sm", right: "50%" }}
 						pos="fixed"
 						style={styles}
 					>
-						{!!source && (
+						{!!id && (
 							<Button
 								variant="filled"
 								color="gray"
@@ -49,7 +41,7 @@ export const EventDetailsOverlay = () => {
 								renderRoot={(props) => (
 									<Link
 										to="/event"
-										search={{ source }}
+										search={{ id }}
 										{...props}
 									/>
 								)}
@@ -64,24 +56,17 @@ export const EventDetailsOverlay = () => {
 	);
 };
 
-export const EventDetailsOverlayHandler = ({ source }: { source: EventSource }) => {
-	const query = useEventQuery(source);
+export const EventDetailsOverlayHandler = ({ id }: { id: Vantage.EventId }) => {
+	const query = useEventQuery(id);
 
-	useProvideEventActions({
-		source,
-	});
+	useProvideEventActions(query.data);
 
 	return (
-		<RQResult query={query}>
-			{(envelope) => (
-				<ResolvedEventProvider value={envelope}>
-					<EventDetailsContent
-						source={source}
-						loading={query.isFetching}
-						withModalCloseButton
-					/>
-				</ResolvedEventProvider>
-			)}
-		</RQResult>
+		<ResolvedEventContext value={query.data ?? null}>
+			<EventDetailsContent
+				loading={query.isFetching}
+				withModalCloseButton
+			/>
+		</ResolvedEventContext>
 	);
 };

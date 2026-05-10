@@ -1,34 +1,10 @@
 import { Button, JsonInput, Stack } from "@mantine/core";
 import { modals, type ContextModalProps } from "@mantine/modals";
-import { randomId } from "@mantine/hooks";
 import { useState } from "react";
 import { prettifyError, type z } from "zod";
 import { EventDataSchema, type EventData } from "@evnt/schema";
 import { AsyncAction } from "../../data/AsyncAction";
-import { EventActions } from "../../../lib/actions/event-actions";
-
-// export interface ImportJSONModalProps<T extends z.ZodType> {
-//     schema: T;
-//     onSubmit: (data: z.infer<T>) => void;
-// };
-
-// export const openImportJSONModal = <T extends z.ZodType>(props: ImportJSONModalProps<T>) => {
-//     const modalId = randomId();
-//     modals.open({
-//         title: "Add Event JSON",
-//         size: "xl",
-//         modalId,
-//         children: (
-//             <ImportJSONModal
-//                 schema={props.schema}
-//                 onSubmit={(data) => {
-//                     props.onSubmit(data);
-//                     modals.close(modalId);
-//                 }}
-//             />
-//         ),
-//     });
-// }
+import { dbShortcuts } from "../../../db/db-shortcuts";
 
 export const ImportJSONModal = ({
 	context,
@@ -46,7 +22,7 @@ export const ImportJSONModal = ({
 			error = prettifyError(result.error);
 		}
 	} catch (e) {
-		error = ""+e;
+		error = "" + e;
 	}
 
 	return (
@@ -65,7 +41,7 @@ export const ImportJSONModal = ({
 			<AsyncAction
 				action={async () => {
 					if (!result || !result.success) return;
-					await EventActions.createLocalEvent(result.data);
+					await dbShortcuts.insertLocalEvent(JSON.stringify(result.data), { type: "directory.evnt.event" });
 					modals.close(modalId);
 				}}
 			>

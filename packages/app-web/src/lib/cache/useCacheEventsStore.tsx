@@ -1,27 +1,24 @@
 import { create } from "zustand";
-import type { EventSource } from "../../db/models/event-source";
 import type { EventData } from "@evnt/schema";
 import { PartialDateUtil, type PartialDate, type PlainDateString } from "@evnt/partial-date";
 import { immer } from "zustand/middleware/immer";
-import { useLayersStore } from "../../db/useLayersStore";
-import { EventResolver } from "../../db/event-resolver";
 import { enableMapSet } from "immer";
 
 enableMapSet();
 
 export interface CacheEventsStore {
 	cache: {
-		byText: Record<string, Set<EventSource>>;
+		byText: Record<string, Set<Vantage.EventId>>;
 
-		byPartialDate: Record<PartialDate, Set<EventSource>>;
+		byPartialDate: Record<PartialDate, Set<Vantage.EventId>>;
 
-		byWallDay: Record<PlainDateString, Set<EventSource>>;
-		byWallMonth: Record<`${number}-${number}`, Set<EventSource>>; // "YYYY-MM"
+		byWallDay: Record<PlainDateString, Set<Vantage.EventId>>;
+		byWallMonth: Record<`${number}-${number}`, Set<Vantage.EventId>>; // "YYYY-MM"
 	};
 
-	hydrateSource: (source: EventSource) => Promise<void>;
-	hydrate: (source: EventSource, data: EventData) => void;
-	uncache: (source: EventSource) => void;
+	hydrateSource: (id: Vantage.EventId) => Promise<void>;
+	hydrate: (id: Vantage.EventId, data: EventData) => void;
+	uncache: (id: Vantage.EventId) => void;
 	init: () => Promise<void>;
 };
 
@@ -34,23 +31,23 @@ export const useCacheEventsStore = create<CacheEventsStore>()(
 			byText: {},
 		},
 
-		uncache: (source: EventSource) => set((state) => {
+		uncache: (id: Vantage.EventId) => set((state) => {
 			for (const key in state.cache) {
 				for (const entry in state.cache[key as keyof CacheEventsStore["cache"]]) {
-					(state.cache as any)[key][entry].delete(source);
+					(state.cache as any)[key][entry].delete(id);
 				}
 			}
 		}),
 
-		hydrateSource: async (source: EventSource) => {
-			const data = await EventResolver.resolve(source);
-			get().uncache(source);
-			if (data?.data) {
-				get().hydrate(source, data.data);
-			}
+		hydrateSource: async (id: Vantage.EventId) => {
+			// TODO
+			get().uncache(id);
+			// if (data?.data) {
+			// 	get().hydrate(id, data.data);
+			// }
 		},
 
-		hydrate: (source: EventSource, data: EventData) => set((state) => {
+		hydrate: (id: Vantage.EventId, data: EventData) => set((state) => {
 			// == text ==
 
 			const text = [
@@ -58,7 +55,7 @@ export const useCacheEventsStore = create<CacheEventsStore>()(
 				...Object.values(data.label ?? {}),
 			].join(" ");
 			state.cache.byText[text] ||= new Set();
-			state.cache.byText[text].add(source);
+			state.cache.byText[text].add(id);
 
 			// == dates ==
 
@@ -68,7 +65,7 @@ export const useCacheEventsStore = create<CacheEventsStore>()(
 					if (!partialDate) continue;
 
 					state.cache.byPartialDate[partialDate] ||= new Set();
-					state.cache.byPartialDate[partialDate].add(source);
+					state.cache.byPartialDate[partialDate].add(id);
 
 					const parsed = PartialDateUtil.parse(partialDate);
 
@@ -79,12 +76,12 @@ export const useCacheEventsStore = create<CacheEventsStore>()(
 						case "day": {
 							const dayKey = [parsed.year, parsed.month, parsed.day].map(pad).join("-") as PlainDateString;
 							state.cache.byWallDay[dayKey] ||= new Set();
-							state.cache.byWallDay[dayKey].add(source);
+							state.cache.byWallDay[dayKey].add(id);
 						} // Fallthrough intended
 						case "month": {
 							const monthKey = `${parsed.year}-${pad(parsed.month)}` as `${number}-${number}`;
 							state.cache.byWallMonth[monthKey] ||= new Set();
-							state.cache.byWallMonth[monthKey].add(source);
+							state.cache.byWallMonth[monthKey].add(id);
 						} // Fallthrough intended
 						default: break;
 					}
@@ -93,16 +90,7 @@ export const useCacheEventsStore = create<CacheEventsStore>()(
 		}),
 
 		init: async () => {
-			console.time("Cache initialization...");
-			const all = useLayersStore.getState().allTrackedSources();
-			const { hydrate } = get();
-			for (const source of all) {
-				const data = await EventResolver.resolve(source);
-				if (data?.data) {
-					hydrate(source, data.data);
-				}
-			}
-			console.timeEnd("Cache initialization...");
+			// TODO
 		},
 	}))
 );

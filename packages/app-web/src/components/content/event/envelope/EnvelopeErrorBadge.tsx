@@ -1,12 +1,12 @@
 import { Badge, Stack, Text, Tooltip, type BoxProps } from "@mantine/core";
 import { getEnvelopeErrorMeta } from "./envelope-error-meta";
-import { useResolvedEvent } from "../event-envelope-context";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EnvelopeErrorBadge = (props: BoxProps) => {
-	const { err } = useResolvedEvent();
-	if (!err) return null;
+	const { error } = useResolvedEvent();
+	if (!error) return null;
 
-	const { color, message, details, status } = getEnvelopeErrorMeta(err);
+	const { color, message, details, status } = getEnvelopeErrorMeta(error);
 
 	return (
 		<Tooltip label={(

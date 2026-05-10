@@ -1,14 +1,14 @@
 import { EventDataSchema, type EventData } from "@evnt/schema";
 import type { EditAtom } from "../edit-atom";
-import { Button, Container, Group, JsonInput, Paper, Space, Stack, Tabs, Text, Textarea } from "@mantine/core";
+import { Button, Paper, Space, Stack, Tabs, Text, Textarea } from "@mantine/core";
 import { EditEvent } from "./EditEvent";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { EventCard } from "../../content/event/card/EventCard";
 import { useEffect, useMemo, useState } from "react";
 import { z, type ZodError } from "zod";
 import { tryCatch } from "../../../lib/util/trynull";
-import { ResolvedEventProvider } from "../../content/event/event-envelope-context";
 import { EventDetailsContent } from "../../content/event/details/EventDetailsContent";
+import { ResolvedEvent, ResolvedEventContext } from "../../../db/resolved-event";
 
 export const EventEditor = ({
 	data,
@@ -133,17 +133,25 @@ export const ValidatedAtomJsonInput = ({
 export const EventPreview = ({ data }: { data: EditAtom<EventData> }) => {
 	const snap = useAtomValue(data);
 
+	const resolved: ResolvedEvent = {
+		id: null,
+		data: snap,
+		raw: null,
+		error: null,
+		revision: {},
+		source: { type: "unknown" },
+		format: { type: "unknown" },
+	};
+
 	return (
 		<Stack>
-			<ResolvedEventProvider
-				value={{ data: snap }}
-			>
+			<ResolvedEventContext value={resolved}>
 				<EventCard
 					variant="card"
 				/>
 
-				<EventDetailsContent source={"local://null"} />
-			</ResolvedEventProvider>
+				<EventDetailsContent />
+			</ResolvedEventContext>
 		</Stack>
 	);
 }

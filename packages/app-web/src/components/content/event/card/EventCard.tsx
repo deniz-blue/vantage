@@ -1,6 +1,5 @@
 import { Box, Paper, Stack } from "@mantine/core";
 import { EventInstanceList } from "../EventInstanceList";
-import { type EventSource } from "../../../../db/models/event-source";
 import { EventCardBottom } from "./EventCardBottom";
 import { EventCardTitle } from "./EventCardTitle";
 import { EventCardBackground } from "./EventCardBackground";
@@ -11,7 +10,6 @@ import { EventStatusBadge } from "../badges/EventStatusBadge";
 
 export interface EventCardProps {
 	variant?: "horizontal" | "card" | "inline";
-	source?: EventSource;
 	menu?: React.ReactNode;
 	loading?: boolean;
 	embed?: boolean;

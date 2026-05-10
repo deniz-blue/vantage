@@ -1,19 +1,12 @@
 import { useProvideActionList } from "../../components/app/overlay/spotlight/useAction";
-import { UtilEventSource, type EventSource } from "../../db/models/event-source";
 import { handleAsyncCopy, handleCopy } from "../../lib/util/copy";
-import { EventResolver } from "../../db/event-resolver";
 import { IconBraces, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, IconQrcode, IconReload, IconShare, IconTrash } from "@tabler/icons-react";
-import { EventActions } from "../../lib/actions/event-actions";
 import { useNavigate } from "@tanstack/react-router";
 import { Code } from "@mantine/core";
 import { QRCode } from "../../lib/util/qrcode";
 import { modals } from "@mantine/modals";
-import { PDSlsIcon } from "../../lib/resources/PDSlsIcon";
 import { AsyncLoader } from "../../components/data/AsyncLoader";
-import { openConfirmModal, withConfirmation } from "../../lib/util/confirm";
-import { DataDB } from "../../db/data-db";
-import { dbShortcuts } from "../../db/db-shortcuts";
-import { ResolvedEvent, useResolvedEvent } from "../../db/resolved-event";
+import type { ResolvedEvent } from "../../db/resolved-event";
 import { EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "../../lib/resolved-utils";
 

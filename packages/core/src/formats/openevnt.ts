@@ -14,6 +14,9 @@ defineEventFormat({
 	parse: (raw) => {
 		const json = JSON.parse(raw);
 		const parsed = EventDataSchema.parse(json);
-		return { parsed };
+		return {
+			parsed,
+			error: null,
+		};
 	}
 });

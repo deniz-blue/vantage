@@ -6,14 +6,11 @@ import { Button, Container, Group, Stack, Text, Title } from "@mantine/core";
 import { CenteredLoader } from "../components/content/base/CenteredLoader";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { EventEditor } from "../components/editor/event/EventEditor";
-import { RemoteEventSourceSchema, UtilEventSource } from "../db/models/event-source";
-import { EventResolver } from "../db/event-resolver";
 import { zodValidator } from "@tanstack/zod-adapter";
 import z from "zod";
+import { fetchResolvedEventFromQuery, sourceOrDataSchema } from "./embed";
 
-const SearchParamsSchema = z.object({
-	"source": RemoteEventSourceSchema.optional(),
-	"data": EventDataSchema.optional(),
+const SearchParamsSchema = sourceOrDataSchema.extend({
 	"redirect-to": z.url().optional(),
 	"title": z.string().optional(),
 	"desc": z.string().optional(),
@@ -28,10 +25,10 @@ export const Route = createFileRoute("/form")({
 	},
 });
 
-function FormPage() {
+export function FormPage() {
 	const {
-		"source": sourceParam,
-		data: dataParam,
+		source,
+		data,
 		"redirect-to": redirectToParam = "/",
 		title: titleParam = "Form",
 		desc: descParam = "",
@@ -52,29 +49,16 @@ function FormPage() {
 	}), [dataAtom, redirectToParam, setLoading]));
 
 	const fetchData = useSetAtom(useMemo(() => atom(null, async (get, set) => {
-		if (dataParam) {
-			set(dataAtom, EventDataSchema.parse(dataParam));
-		} else if (sourceParam) {
-			setLoading(true);
-			try {
-				const source = UtilEventSource.is(sourceParam, false) ? sourceParam : null;
-				if (!source) throw new Error("Invalid event source");
-				const resolved = await EventResolver.resolve(source);
-				if (!resolved.data) throw new Error("Failed to resolve event data");
-				set(dataAtom, EventDataSchema.parse(resolved.data));
-			} catch (e) {
-				console.error("Failed to fetch event data from source", e);
-			} finally {
-				setLoading(false);
-			}
-		} else {
-			set(dataAtom, { name: {}, v: "0.1" });
-		}
-	}), [sourceParam, dataParam, setLoading]));
+		if (!source && !data) return set(dataAtom, { name: {}, v: "0.1" });
+
+		setLoading(true);
+		const resolved = await fetchResolvedEventFromQuery({ source, data });
+		set(dataAtom, resolved.data);
+	}), [source, data, setLoading]));
 
 	useEffect(() => {
 		fetchData();
-	}, [sourceParam, dataParam]);
+	}, [source, data]);
 
 	return (
 		<Container p="xs">

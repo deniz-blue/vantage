@@ -2,7 +2,7 @@ import { EventData } from "@evnt/schema";
 import { createContext, useContext } from "react";
 
 export interface ResolvedEvent {
-	id: Vantage.EventId;
+	id: Vantage.EventId | null;
 	data: EventData | null;
 	raw: string | null;
 	error: Vantage.Error | null;
@@ -15,7 +15,7 @@ export const ResolvedEventContext = createContext<ResolvedEvent | null>(null);
 export const useResolvedEvent = (): ResolvedEvent => {
 	const resolved = useContext(ResolvedEventContext);
 	if (!resolved) return {
-		id: "00000000-0000-0000-0000-000000000000",
+		id: null,
 		data: null,
 		raw: null,
 		error: {

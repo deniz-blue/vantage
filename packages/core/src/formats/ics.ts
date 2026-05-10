@@ -18,6 +18,7 @@ defineEventFormat({
 		const converted = convertFromVEvent(vEvent);
 		return {
 			parsed: converted,
+			error: null,
 		};
 	}
 });

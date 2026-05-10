@@ -1,14 +1,14 @@
 import { Group, Stack, Text } from "@mantine/core";
 import { snippetEvent } from "@evnt/pretty";
 import { Snippet } from "../Snippet";
-import { useResolvedEvent } from "./event-envelope-context";
+import { useResolvedEvent } from "../../../db/resolved-event";
 
 export const EventInstanceList = () => {
-	const { data: value } = useResolvedEvent();
+	const { data } = useResolvedEvent();
 
-	if (!value) return null;
+	if (!data) return null;
 
-	const snippets = snippetEvent(value, {
+	const snippets = snippetEvent(data, {
 		maxVenues: 3,
 		maxInstances: 5,
 		maxGroups: 5,

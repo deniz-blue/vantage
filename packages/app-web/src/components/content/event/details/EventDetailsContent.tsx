@@ -1,30 +1,29 @@
 import { ActionIcon, Box, Button, Code, Container, CopyButton, Grid, Group, Stack, Text, Tooltip } from "@mantine/core";
-import { type EventSource } from "../../../../db/models/event-source";
 import { LayerImportSection } from "./LayerImportSection";
 import { IconCheck, IconReload, IconShare } from "@tabler/icons-react";
-import { useEventQuery } from "../../../../db/useEventQuery";
 import { AsyncAction } from "../../../data/AsyncAction";
-import { EventResolver } from "../../../../db/event-resolver";
 import { EventDetailsContext } from "./event-details-context";
 import { EventDetailsBanner } from "./EventDetailsBanner";
 import { EventDetailsInstanceList } from "./EventDetailsInstanceList";
 import { EventDetailsLinks } from "./EventDetailsLinks";
 import { EnvelopeErrorAlert } from "../envelope/EnvelopeErrorAlert";
 import { EventDetailsSource } from "./EventDetailsSource";
-import { EventActions } from "../../../../lib/actions/event-actions";
 import { EventDetailsAlternatives } from "./EventDetailsAlternatives";
-import { useResolvedEvent } from "../event-envelope-context";
 import { RichTextRenderer } from "./RichTextRenderer";
 import type { Facet } from "@atcute/bluesky-richtext-segmenter";
+import { useResolvedEvent } from "../../../../db/resolved-event";
+import { EventSourceRegistry } from "@vantage/core";
+import { resolvedEventUtils } from "../../../../lib/resolved-utils";
 
 export interface EventDetailsContentProps {
-	source?: EventSource;
 	loading?: boolean;
 	withModalCloseButton?: boolean;
 }
 
 export const EventDetailsContent = (props: EventDetailsContentProps) => {
-	const { source } = props;
+	const { source } = useResolvedEvent();
+
+	const sourceMeta = EventSourceRegistry.get(source.type);
 
 	return (
 		<EventDetailsContext value={props}>
@@ -41,17 +40,12 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 							order={{ base: 1, md: 2 }}
 						>
 							<Stack>
-								{source && (source !== "local://null") && (
-									<Group gap="xs" justify="end">
-										<EventRefetchButton source={source} />
-										<EventShareButton source={source} />
-									</Group>
-								)}
-
-								{source && (source !== "local://null") && <LayerImportSection source={source} />}
-
+								<Group gap="xs" justify="end">
+									<EventRefetchButton />
+									<EventShareButton />
+								</Group>
+								<LayerImportSection />
 								<EventDetailsInstanceList />
-
 								<EventDetailsDescriptionList />
 							</Stack>
 						</Grid.Col>
@@ -61,8 +55,8 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 						>
 							<Stack>
 								<EventDetailsLinks />
-								<EventDetailsAlternatives source={source} />
-								<EventDetailsSource source={source} />
+								<EventDetailsAlternatives />
+								<EventDetailsSource />
 							</Stack>
 						</Grid.Col>
 					</Grid>
@@ -85,19 +79,22 @@ export const EventDetailsDescriptionList = () => {
 	)
 };
 
-export const EventRefetchButton = ({ source }: { source: EventSource }) => {
-	const { isFetching } = useEventQuery(source);
+export const EventRefetchButton = () => {
+	const { id } = useResolvedEvent();
 
+	if (!id) return null;
+
+	// TODO
 	return (
 		<Tooltip label={"Refetch"} withArrow>
-			<AsyncAction action={() => EventResolver.update(source)}>
+			<AsyncAction action={async () => { }}>
 				{({ loading, onClick }) => (
 					<Button
 						size="compact-sm"
 						color="gray"
 						onClick={onClick}
 						leftSection={<IconReload />}
-						loading={loading || isFetching}
+						loading={loading}
 					>
 						Refetch
 					</Button>
@@ -107,9 +104,15 @@ export const EventRefetchButton = ({ source }: { source: EventSource }) => {
 	);
 };
 
-export const EventShareButton = ({ source }: { source: EventSource }) => {
+export const EventShareButton = () => {
+	const resolved = useResolvedEvent();
+
+	const shareLink = resolvedEventUtils.shareLink(resolved);
+
+	if (!shareLink) return null;
+
 	return (
-		<CopyButton value={EventActions.getShareLink(source)}>
+		<CopyButton value={shareLink}>
 			{({ copied, copy }) => (
 				<Button
 					size="compact-sm"

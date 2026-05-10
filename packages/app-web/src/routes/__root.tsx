@@ -6,7 +6,7 @@ import { ModalsProvider } from "@mantine/modals";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { DatesProvider } from "@mantine/dates";
 import { useLocaleStore } from "../stores/useLocaleStore";
-import { useMemo, type ComponentType, type PropsWithChildren } from "react";
+import { useMemo, type PropsWithChildren } from "react";
 import { queryClient } from "../query-client";
 import { theme } from "../styles/theme";
 import { ServiceWorkerPrompt } from "../components/app/ServiceWorkerPrompt";

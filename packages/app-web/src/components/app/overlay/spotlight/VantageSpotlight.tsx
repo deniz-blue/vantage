@@ -1,18 +1,15 @@
 import { Spotlight } from "@mantine/spotlight";
 import { IconCalendar, IconSearch } from "@tabler/icons-react";
 import { useState, type ReactNode } from "react";
-import { UtilEventSource, type EventSource } from "../../../../db/models/event-source";
 import { useNavigate } from "@tanstack/react-router";
 import { useCacheEventsStore } from "../../../../lib/cache/useCacheEventsStore";
 import { useShallow } from "zustand/shallow";
 import { useEventQuery } from "../../../../db/useEventQuery";
-import { EventCardContext } from "../../../content/event/card/event-card-context";
 import { EventCardBackground } from "../../../content/event/card/EventCardBackground";
 import { Box, Loader, Paper } from "@mantine/core";
 import { useActionsStore, type Action } from "./useActionsStore";
 import { useTranslations } from "../../../../stores/useLocaleStore";
-import { EVENT_REDIRECTOR_URL } from "../../../../constants";
-import { trynull } from "../../../../lib/util/trynull";
+import { ResolvedEventContext } from "../../../../db/resolved-event";
 
 export const VantageSpotlight = () => {
 	const [query, setQuery] = useState("");
@@ -31,28 +28,28 @@ export const VantageSpotlight = () => {
 	const filteredActions = actions
 		.filter(props => props.label?.toLowerCase().includes(query.toLowerCase()));
 
-	const asUrl = trynull(() => new URL(query));
+	// const asUrl = trynull(() => new URL(query));
 
-	const maybeFromRedirector = asUrl && query.startsWith(EVENT_REDIRECTOR_URL) ? asUrl.searchParams.get("url") || asUrl.searchParams.get("at") : null;
+	// const maybeFromRedirector = asUrl && query.startsWith(EVENT_REDIRECTOR_URL) ? asUrl.searchParams.get("url") || asUrl.searchParams.get("at") : null;
 
-	if (!!maybeFromRedirector)
-		filteredActions.push({
-			label: "View Event",
-			icon: <IconCalendar />,
-			execute: () => navigate({
-				to: "/event",
-				search: { source: maybeFromRedirector },
-			}),
-		});
-	else if (UtilEventSource.is(query, false))
-		filteredActions.push({
-			label: "View Event",
-			icon: <IconCalendar />,
-			execute: () => navigate({
-				to: "/event",
-				search: { source: query },
-			}),
-		});
+	// if (!!maybeFromRedirector)
+	// 	filteredActions.push({
+	// 		label: "View Event",
+	// 		icon: <IconCalendar />,
+	// 		execute: () => navigate({
+	// 			to: "/event",
+	// 			search: { source: maybeFromRedirector },
+	// 		}),
+	// 	});
+	// else if (UtilEventSource.is(query, false))
+	// 	filteredActions.push({
+	// 		label: "View Event",
+	// 		icon: <IconCalendar />,
+	// 		execute: () => navigate({
+	// 			to: "/event",
+	// 			search: { source: query },
+	// 		}),
+	// 	});
 
 	const categorizedActions = filteredActions
 		.reduce((acc, cur) => ({
@@ -76,10 +73,10 @@ export const VantageSpotlight = () => {
 	if (!!searchResults.length)
 		elements.push(
 			<Spotlight.ActionsGroup label="Events">
-				{searchResults.map(source => (
+				{searchResults.map(id => (
 					<SpotlightEventAction
-						key={source}
-						source={source}
+						key={id}
+						id={id}
 					/>
 				))}
 			</Spotlight.ActionsGroup>
@@ -137,22 +134,16 @@ export const VantageSpotlight = () => {
 	);
 };
 
-export const SpotlightEventAction = ({ source }: { source: EventSource }) => {
+export const SpotlightEventAction = ({ id }: { id: Vantage.EventId }) => {
 	const navigate = useNavigate();
 	const t = useTranslations();
-	const query = useEventQuery(source);
+	const query = useEventQuery(id);
 
 	const label = t(query.data?.data?.name);
 
 	return (
 		<Box pos="relative" style={{ overflow: "hidden" }}>
-			<EventCardContext
-				value={{
-					data: null,
-					...query.data,
-					loading: query.isFetching,
-				}}
-			>
+			<ResolvedEventContext value={query.data ?? null}>
 				<EventCardBackground backgroundOpacity={0.5} />
 				<Spotlight.Action
 					label={label || "Loading..."}
@@ -161,11 +152,11 @@ export const SpotlightEventAction = ({ source }: { source: EventSource }) => {
 					rightSection={query.isFetching && <Loader size="xs" />}
 					onClick={() => navigate({
 						to: "/event",
-						search: { source },
+						search: { id },
 					})}
 					pos="relative"
 				/>
-			</EventCardContext>
+			</ResolvedEventContext>
 		</Box>
 	);
 };

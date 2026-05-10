@@ -16,6 +16,7 @@ defineEventFormat({
 		const converted = convertFromLexicon(json);
 		return {
 			parsed: converted,
+			error: null,
 		};
 	}
 });

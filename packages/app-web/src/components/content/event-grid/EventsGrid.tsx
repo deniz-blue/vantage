@@ -1,13 +1,13 @@
 import { SimpleGrid, Stack } from "@mantine/core";
-import type { EventQueryResult } from "../../../db/useEventQuery";
+import type { EventQuery } from "../../../db/useEventQuery";
 import { EventCard } from "../event/card/EventCard";
 import { EventContextMenu } from "../event/EventContextMenu";
-import { ResolvedEventProvider } from "../event/event-envelope-context";
+import { ResolvedEventContext } from "../../../db/resolved-event";
 
 export const EventsGrid = ({
 	queries,
 }: {
-	queries: EventQueryResult[];
+	queries: EventQuery[];
 }) => {
 	let gap = 4;
 	let itemWidth = 300;
@@ -35,18 +35,14 @@ export const EventsGrid = ({
 				data-grow
 				data-hover
 			>
-				{queries.map(({ query, source }, index) => (
-					<ResolvedEventProvider
-						key={index}
-						value={query.data ?? { data: null }}
-					>
+				{queries.map((query, index) => (
+					<ResolvedEventContext key={index} value={query.data ?? null}>
 						<EventCard
 							variant="card"
-							source={source}
 							loading={query.isFetching}
-							menu={<EventContextMenu source={source} />}
+							menu={<EventContextMenu />}
 						/>
-					</ResolvedEventProvider>
+					</ResolvedEventContext>
 				))}
 			</SimpleGrid>
 		</Stack>

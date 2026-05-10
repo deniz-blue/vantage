@@ -1,6 +1,5 @@
 import { Button, Center, CopyButton, Group, Paper, Stack, Text } from "@mantine/core";
 import { ExternalLink } from "../../base/ExternalLink";
-import { useResolvedEvent } from "../event-envelope-context";
 import type { EventInstance, PartialDate, Venue } from "@evnt/schema";
 import type { ReactNode } from "react";
 import { IconCalendar, IconCalendarQuestion, IconExternalLink, IconMapPin, IconWorld, IconWorldPin } from "@tabler/icons-react";
@@ -12,6 +11,7 @@ import { TimeRangeSnippetLabel } from "../../datetime/TimeRangeSnippetLabel";
 import { PartialDateSnippetLabel } from "../../datetime/PartialDateSnippetLabel";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { TranslationsUtil } from "@evnt/translations";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EventDetailsInstanceList = () => {
 	const { data } = useResolvedEvent();

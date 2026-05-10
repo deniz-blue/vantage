@@ -1,12 +1,14 @@
 import { parseResourceUri } from "@atcute/lexicons";
-import { UtilEventSource, type EventSource } from "../../../../db/models/event-source";
 import { Stack, Text } from "@mantine/core";
 import { EventLinkButtonBase } from "../link/EventLinkButtonBase";
 import { IconExternalLink } from "@tabler/icons-react";
 import { SmallTitle } from "../../base/SmallTitle";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
-export const EventDetailsAlternatives = ({ source }: { source?: EventSource }) => {
-	const aturiRes = source && UtilEventSource.getType(source) === "at" ? parseResourceUri(source) : null;
+export const EventDetailsAlternatives = () => {
+	const { source } = useResolvedEvent();
+
+	const aturiRes = source.type == "at" ? parseResourceUri(source.uri) : null;
 	const aturi = aturiRes?.ok ? aturiRes.value : null;
 
 	const atlinks = [];
@@ -19,7 +21,7 @@ export const EventDetailsAlternatives = ({ source }: { source?: EventSource }) =
 		});
 		atlinks.push({
 			text: "OpenMeet",
-			url: `https://platform.openmeet.net/at/${source?.replace("at://", "")}`,
+			url: `https://platform.openmeet.net/at/${aturi.repo}/${aturi.collection}/${aturi.rkey}`,
 			icon: <img src="https://platform.openmeet.net/openmeet/icons/favicon.ico" alt="OpenMeet" width={24} height={24} />,
 		});
 		atlinks.push({

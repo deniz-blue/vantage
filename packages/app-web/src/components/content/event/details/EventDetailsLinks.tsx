@@ -1,8 +1,8 @@
 import { Stack } from "@mantine/core";
 import { SmallTitle } from "../../base/SmallTitle";
 import { EventLinkButton } from "../link/EventLinkButton";
-import { useResolvedEvent } from "../event-envelope-context";
 import type { LinkComponent } from "@evnt/schema";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EventDetailsLinks = () => {
 	const { data } = useResolvedEvent();

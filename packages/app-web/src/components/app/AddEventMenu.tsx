@@ -1,14 +1,11 @@
 import { ActionIcon, Menu } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconBraces, IconCalendarPlus, IconEdit, IconFileImport, IconLink, IconPlus } from "@tabler/icons-react";
+import { IconBraces, IconCalendarPlus, IconEdit, IconFileImport, IconLink } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { useTasksStore } from "../../stores/useTasksStore";
 import ICAL from "ical.js";
-import { EventActions } from "../../lib/actions/event-actions";
-import { UtilEventSource } from "../../db/models/event-source";
-import { DataDB } from "../../db/data-db";
-import { useLayersStore } from "../../db/useLayersStore";
+import { dbShortcuts } from "../../db/db-shortcuts";
 
 export const AddEventMenu = () => {
 	const icsFileInputRef = useRef<HTMLInputElement>(null);
@@ -26,14 +23,8 @@ export const AddEventMenu = () => {
 				for (const vevent of vevents) {
 					const veventString = vevent.toString();
 					console.log("Parsed VEVENT:", veventString);
-					const source = UtilEventSource.localRandom();
-					await DataDB.put(source, {
-						data: {
-							$type: "com.apple.icalendar",
-							value: veventString,
-						}
-					});
-					useLayersStore.getState().addEventSource(source);
+					
+					await dbShortcuts.insertLocalEvent(veventString, { type: "ics" });
 				};
 			}
 		});

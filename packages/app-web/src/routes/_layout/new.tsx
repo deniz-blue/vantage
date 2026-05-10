@@ -3,15 +3,15 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { atom, useSetAtom } from "jotai";
 import { useMemo } from "react";
-import { EventActions } from "../../lib/actions/event-actions";
 import { FormPageTemplate } from "../form";
-import { Avatar, Box, Button, Group, Menu, Modal, Stack, Text } from "@mantine/core";
-import { IconChevronDown, IconDatabase, IconWorldOff } from "@tabler/icons-react";
-import type { EventSource } from "../../db/models/event-source";
+import { Avatar, Box, Button, Modal, Stack, Text } from "@mantine/core";
+import { IconDatabase } from "@tabler/icons-react";
 import { getAvatarOfDid, useATProtoAuthStore } from "../../lib/atproto/useATProtoStore";
 import type { AtprotoDid } from "@atcute/lexicons/syntax";
 import { useAtProtoHandleQuery } from "../../lib/atproto/useAtProtoHandleQuery";
 import { useDisclosure } from "@mantine/hooks";
+import { dbShortcuts } from "../../db/db-shortcuts";
+import { now } from "@atcute/tid";
 
 export const Route = createFileRoute("/_layout/new")({
 	component: NewPage,
@@ -28,20 +28,39 @@ function NewPage() {
 	const handle = useAtProtoHandleQuery(agent?.sub as AtprotoDid);
 	const navigate = useNavigate();
 
-	type Payload = { where: EventSource.Type; data: EventData };
+	type Payload = { where: "local" | "at"; data: EventData };
 	const mutation = useMutation({
 		mutationFn: async ({ where, data }: Payload) => {
-			if (where === "local") return await EventActions.createLocalEvent(data);
-			if (where === "at") return await EventActions.createATProtoEvent(data);
+			if (where === "local") return await dbShortcuts.insertLocalEvent(JSON.stringify(data), { type: "directory.evnt.event" });
+			if (where === "at") {
+				const { rpc, agent } = useATProtoAuthStore.getState();
+				if (!rpc || !agent) throw new Error("Not authenticated with ATProto");
+				const res = await rpc.post("com.atproto.repo.putRecord", {
+					input: {
+						collection: "directory.evnt.event",
+						record: {
+							...data,
+							"$type": "directory.evnt.event",
+						},
+						repo: agent.sub,
+						rkey: now(),
+					},
+				});
+				if (!res.ok) throw new Error(res.data.error + ": " + res.data.message);
+				return await dbShortcuts.insertEventMeta({
+					source: { type: "at", uri: res.data.uri },
+					format: { type: "directory.evnt.event" },
+				});
+			};
 			return null;
 		},
-		onSuccess: async (source) => {
-			if (!source) return;
-			navigate({ to: "/event", search: { source } });
+		onSuccess: async (id) => {
+			if (!id) return;
+			navigate({ to: "/event", search: { id } });
 		},
 	});
 
-	const create = useSetAtom(useMemo(() => atom(null, async (get, set, where: EventSource.Type) => {
+	const create = useSetAtom(useMemo(() => atom(null, async (get, set, where: "local" | "at") => {
 		const data = get(dataAtom);
 		if (!data) return;
 		mutation.mutate({ where, data });

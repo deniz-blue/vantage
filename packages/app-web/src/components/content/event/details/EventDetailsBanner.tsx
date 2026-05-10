@@ -6,16 +6,16 @@ import type { SplashMediaComponent } from "@evnt/schema";
 import { OverLayer } from "../../../base/layout/OverLayer";
 import classes from "../card/event-card.module.css";
 import { EvntMedia } from "../../../base/media/EvntMedia";
-import { useResolvedEvent } from "../event-envelope-context";
 import { IconDotsVertical, ReactNode } from "@tabler/icons-react";
 import { useActionsStore } from "../../../app/overlay/spotlight/useActionsStore";
 import { useShallow } from "zustand/shallow";
 import { EventTimeframeBadge } from "../badges/EventTimeframeBadge";
 import { EventStatusBadge } from "../badges/EventStatusBadge";
 import { TranslationsUtil } from "@evnt/translations";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EventDetailsBanner = () => {
-	const { data, err } = useResolvedEvent();
+	const { data } = useResolvedEvent();
 	const { loading, withModalCloseButton } = useEventDetailsContext();
 	const actions = useActionsStore(
 		useShallow(state => Object.values(state.actions).filter(a => a.category === "Event"))

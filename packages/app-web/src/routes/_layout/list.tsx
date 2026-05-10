@@ -1,27 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useLayersStore } from "../../db/useLayersStore";
-import { useMemo } from "react";
 import { useEventQueries } from "../../db/useEventQuery";
 import { applyEventFilters, EventFilters } from "../../lib/filter/event-filters";
 import { Accordion, ActionIcon, Button, Checkbox, Collapse, Combobox, Group, Indicator, Input, InputBase, OverflowList, Paper, Popover, SegmentedControl, Stack, TextInput, useCombobox } from "@mantine/core";
 import { EventsGrid } from "../../components/content/event-grid/EventsGrid";
-import type { Layer } from "../../db/models/layer";
 import z from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
-import { useDisclosure } from "@mantine/hooks";
 import { applyEventSorters, EventSorters } from "../../lib/filter/event-sorters";
 import { useLocaleStore } from "../../stores/useLocaleStore";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "../../db/drizzle";
+import { schema } from "@vantage/db";
 
 const SearchParamsSchema = z.object({
 	search: z.string().optional(),
-	layers: z.string().array().optional(),
 	relativity: z.enum(["past", "future", "all"]).optional(),
 	sortBy: z.enum(["name", "instanceStart", "none"]).optional(),
 });
 
 const defaultSearchParams = {
 	search: "",
-	layers: ["default"],
 	relativity: "future" as const,
 	sortBy: "instanceStart" as const,
 } satisfies z.infer<typeof SearchParamsSchema>;
@@ -37,12 +34,9 @@ function ListPage() {
 	const searchObject = Route.useSearch();
 	const {
 		search = defaultSearchParams.search,
-		layers: layerIds = defaultSearchParams.layers,
 		relativity = defaultSearchParams.relativity,
 		sortBy = defaultSearchParams.sortBy,
 	} = searchObject;
-
-	const [expanded, { toggle: toggleExpanded }] = useDisclosure(false);
 
 	const navigate = Route.useNavigate();
 	const userLanguage = useLocaleStore(store => store.language);
@@ -63,15 +57,16 @@ function ListPage() {
 		});
 	};
 
-	const layers = useLayersStore(store => store.layers);
+	const allIdsQuery = useQuery({
+		queryKey: ["ids"],
+		queryFn: async () => {
+			return await db.select({
+				id: schema.events.id,
+			}).from(schema.events).then(rows => rows.map(r => r.id));
+		},
+	});
 
-	const sources = useMemo(() => {
-		return Array.from(new Set(
-			Array.from(layerIds).map(id => layers[id]?.data.events || []).flat()
-		));
-	}, [layers, layerIds])
-
-	const allQueries = useEventQueries(sources);
+	const allQueries = useEventQueries(allIdsQuery.data || []);
 	const filtered = applyEventFilters(allQueries, [
 		(search && search.length > 0) ? EventFilters.Search(search) : EventFilters.None,
 		relativity === "future" ? EventFilters.AfterDate(Temporal.Now.instant()) : EventFilters.None,
@@ -91,7 +86,7 @@ function ListPage() {
 					<OverflowList
 						gap={4}
 						data={[
-							<Stack gap={0} flex={2} miw={200}>
+							(<Stack gap={0} flex={2} miw={200}>
 								<TextInput
 									label="Search"
 									placeholder="Search events..."
@@ -99,8 +94,8 @@ function ListPage() {
 									onChange={(event) => updateSearch({ search: event.currentTarget.value })}
 									flex={1}
 								/>
-							</Stack>,
-							<Stack gap={0}>
+							</Stack>),
+							(<Stack gap={0}>
 								<Input.Label htmlFor="filter-layers">
 									Filters
 								</Input.Label>
@@ -116,8 +111,8 @@ function ListPage() {
 										onChange={(value) => updateSearch({ relativity: value })}
 									/>
 								</Paper>
-							</Stack>,
-							<Stack gap={0}>
+							</Stack>),
+							(<Stack gap={0}>
 								<Input.Label>
 									Sort
 								</Input.Label>
@@ -132,8 +127,8 @@ function ListPage() {
 										onChange={(value) => updateSearch({ sortBy: value })}
 									/>
 								</Paper>
-							</Stack>,
-							<Stack gap={0}>
+							</Stack>),
+							(<Stack gap={0}>
 								<Input.Label>
 									Actions
 								</Input.Label>
@@ -146,7 +141,7 @@ function ListPage() {
 										Clear Query
 									</Button>
 								</Group>
-							</Stack>,
+							</Stack>),
 						]}
 						renderItem={(item) => item}
 						renderOverflow={(items) => (
@@ -178,63 +173,63 @@ function ListPage() {
 	)
 }
 
-export const LayersSelect = ({
-	layers,
-	onChange,
-	value,
-}: {
-	layers: Record<string, Layer>;
-	value: string[];
-	onChange: (values: string[]) => void;
-}) => {
-	const combobox = useCombobox();
+// export const LayersSelect = ({
+// 	layers,
+// 	onChange,
+// 	value,
+// }: {
+// 	layers: Record<string, Layer>;
+// 	value: string[];
+// 	onChange: (values: string[]) => void;
+// }) => {
+// 	const combobox = useCombobox();
 
-	const options = Object.keys(layers).map((layerId) => (
-		<Combobox.Option value={layerId} key={layerId}>
-			<Group gap={4} wrap="nowrap">
-				<Checkbox
-					checked={value.includes(layerId)}
-					readOnly
-				/>
+// 	const options = Object.keys(layers).map((layerId) => (
+// 		<Combobox.Option value={layerId} key={layerId}>
+// 			<Group gap={4} wrap="nowrap">
+// 				<Checkbox
+// 					checked={value.includes(layerId)}
+// 					readOnly
+// 				/>
 
-				{layerId}
-			</Group>
-		</Combobox.Option>
-	));
+// 				{layerId}
+// 			</Group>
+// 		</Combobox.Option>
+// 	));
 
-	return (
-		<Combobox
-			store={combobox}
-			onOptionSubmit={(id) => {
-				onChange(value.includes(id) ? value.filter(v => v !== id) : [...value, id]);
-			}}
-			width="max-content"
-		>
-			<Combobox.Target>
-				<Indicator
-					label={value.length}
-					size={16}
-					color="gray.7"
-					disabled={value.length <= 1}
-					offset={4}
-				>
-					<InputBase
-						component="button"
-						type="button"
-						pointer
-						rightSection={<Combobox.Chevron />}
-						rightSectionPointerEvents="none"
-						onClick={() => combobox.toggleDropdown()}
-					>
-						{value.length === 1 ? value[0] : "Layers..."}
-					</InputBase>
-				</Indicator>
-			</Combobox.Target>
-			<Combobox.Dropdown>
-				<Combobox.Options>
-					{options}
-				</Combobox.Options>
-			</Combobox.Dropdown>
-		</Combobox>
-	);
-};
+// 	return (
+// 		<Combobox
+// 			store={combobox}
+// 			onOptionSubmit={(id) => {
+// 				onChange(value.includes(id) ? value.filter(v => v !== id) : [...value, id]);
+// 			}}
+// 			width="max-content"
+// 		>
+// 			<Combobox.Target>
+// 				<Indicator
+// 					label={value.length}
+// 					size={16}
+// 					color="gray.7"
+// 					disabled={value.length <= 1}
+// 					offset={4}
+// 				>
+// 					<InputBase
+// 						component="button"
+// 						type="button"
+// 						pointer
+// 						rightSection={<Combobox.Chevron />}
+// 						rightSectionPointerEvents="none"
+// 						onClick={() => combobox.toggleDropdown()}
+// 					>
+// 						{value.length === 1 ? value[0] : "Layers..."}
+// 					</InputBase>
+// 				</Indicator>
+// 			</Combobox.Target>
+// 			<Combobox.Dropdown>
+// 				<Combobox.Options>
+// 					{options}
+// 				</Combobox.Options>
+// 			</Combobox.Dropdown>
+// 		</Combobox>
+// 	);
+// };

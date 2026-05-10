@@ -1,6 +1,6 @@
 import { Badge, type BoxProps } from "@mantine/core";
-import { useResolvedEvent } from "../event-envelope-context";
 import { IconCalendarOff, IconCalendarPause, IconCalendarQuestion, IconCalendarTime } from "@tabler/icons-react";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EventStatusBadge = (props: BoxProps) => {
 	const { data } = useResolvedEvent();

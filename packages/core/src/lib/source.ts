@@ -32,11 +32,15 @@ export const fetchEventSource = async (source: Vantage.EventSource): Promise<Eve
 	try {
 		return await meta.resolve(source as any);
 	} catch (err) {
-		return error(err as any);
+		return {
+			raw: null,
+			error: convertError(err as any),
+			revision: {},
+		};
 	}
-}
+};
 
-export const error = (err: TypeError | SyntaxError | Response | ZodError | FailedClientResponse): EventResolveResult => {
+export const convertError = (err: TypeError | SyntaxError | Response | ZodError | FailedClientResponse): Vantage.Error => {
 	const error: Vantage.Error = {
 		kind: "unknown",
 		message: err instanceof Error ? err.message : "",
@@ -53,9 +57,5 @@ export const error = (err: TypeError | SyntaxError | Response | ZodError | Faile
 		default: error.kind = "unknown"; break;
 	}
 
-	return {
-		raw: null,
-		error,
-		revision: {},
-	};
+	return error;
 };

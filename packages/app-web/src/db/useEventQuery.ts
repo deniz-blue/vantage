@@ -8,6 +8,21 @@ import { queryClient } from "../query-client";
 
 export const eventQueryKey = (id: Vantage.EventId) => ["event", id] as const;
 
+export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<ResolvedEvent> => {
+	const resolveResult = await fetchEventSource(source);
+	const parseResult = resolveResult.raw ? parseEventFormat(resolveResult.raw, format) : null;
+
+	return {
+		id: null,
+		data: parseResult ? parseResult.parsed : null,
+		raw: resolveResult.raw,
+		revision: resolveResult.revision,
+		error: resolveResult.error,
+		source,
+		format,
+	};
+};
+
 export const eventQueryFn = async (id: Vantage.EventId): Promise<ResolvedEvent> => {
 	const { source, format } = await db
 		.select()
@@ -16,29 +31,23 @@ export const eventQueryFn = async (id: Vantage.EventId): Promise<ResolvedEvent> 
 		.then(rows => rows[0]);
 
 	if (!source || !format) throw new Error(`Event with id ${id} not found`);
-	const resolveResult = await fetchEventSource(source);
-	const parseResult = resolveResult.raw ? parseEventFormat(resolveResult.raw, format) : null;
+	const resolved = await eventQueryFnNoId(source, format);
 
 	await db
 		.update(schema.eventCache)
 		.set({
 			id,
-			raw: resolveResult.raw,
-			parsed: parseResult ? parseResult.parsed : null,
-			error: resolveResult.error,
-			revision: resolveResult.revision,
+			error: resolved.error,
+			parsed: resolved.data,
+			raw: resolved.raw,
+			revision: resolved.revision,
 			updatedAt: new Date(),
 		})
 		.where(eq(schema.eventCache.id, id));
 
 	return {
+		...resolved,
 		id,
-		data: parseResult ? parseResult.parsed : null,
-		raw: resolveResult.raw,
-		revision: resolveResult.revision,
-		error: resolveResult.error,
-		source,
-		format,
 	};
 };
 
@@ -51,6 +60,7 @@ export const eventQueryOptions = (id: Vantage.EventId) => {
 };
 
 export const useEventQuery = (id: Vantage.EventId) => useQuery(eventQueryOptions(id));
+export type EventQuery = ReturnType<typeof useEventQuery>;
 
 export const useEventQueries = (ids: Vantage.EventId[]) => useQueries({
 	queries: ids.map(id => eventQueryOptions(id)),

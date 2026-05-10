@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router"
-import z from "zod";
-import { EventSourceSchema } from "../../db/models/event-source";
-import { useEventQuery } from "../../db/useEventQuery";
-import { Container, Space, Stack, Text } from "@mantine/core";
+import { eventQueryFn, eventQueryFnNoId, eventQueryKey } from "../../db/useEventQuery";
+import { Container, Space, Stack } from "@mantine/core";
 import { EventDetailsContent } from "../../components/content/event/details/EventDetailsContent";
-import { ResolvedEventProvider } from "../../components/content/event/event-envelope-context";
 import { useProvideEventActions } from "../../hooks/actions/useProvideEventActions";
 import { ResolvedEventContext } from "../../db/resolved-event";
+import { useQuery } from "@tanstack/react-query";
+import z from "zod";
+import { remoteUriToSourceFormat } from "../../lib/intent";
 
 const SearchParamsSchema = z.object({
-	id: z.uuid() as z.ZodType<Vantage.EventId>,
+	id: (z.uuid() as z.ZodType<Vantage.EventId>).optional(),
+	source: z.string().optional(),
 });
 
 export const Route = createFileRoute("/_layout/event")({
@@ -21,10 +22,20 @@ export const Route = createFileRoute("/_layout/event")({
 });
 
 function EventPage() {
-	const { id } = Route.useSearch();
-	const query = useEventQuery(id);
+	const { id, source } = Route.useSearch();
+	const query = useQuery({
+		queryKey: id ? eventQueryKey(id) : ["source", source] as const,
+		queryFn: async () => {
+			if (id) return await eventQueryFn(id);
+			if (source) {
+				const { source: eventSource, format } = remoteUriToSourceFormat(source);
+				return await eventQueryFnNoId(eventSource, format);
+			}
+			throw new Error("Either id or source must be provided");
+		},
+	});
 
-	useProvideEventActions(query.data ?? undefined);
+	useProvideEventActions(query.data);
 
 	return (
 		<Stack
@@ -42,9 +53,7 @@ function EventPage() {
 			>
 				<Stack>
 					<ResolvedEventContext value={query.data ?? null}>
-						<EventDetailsContent
-							source={source}
-						/>
+						<EventDetailsContent />
 					</ResolvedEventContext>
 					<Space h="20rem" />
 				</Stack>

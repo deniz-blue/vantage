@@ -1,0 +1,7 @@
+{
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"drizzle-kit": "^0.31.10"
+	}
+}

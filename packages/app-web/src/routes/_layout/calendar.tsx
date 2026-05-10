@@ -5,10 +5,10 @@ import { useShallow } from "zustand/shallow";
 import { useEventQueries } from "../../db/useEventQuery";
 import { EventCard, type EventCardProps } from "../../components/content/event/card/EventCard";
 import { createFileRoute } from "@tanstack/react-router";
-import { ResolvedEventProvider } from "../../components/content/event/event-envelope-context";
 import { CalendarMonth } from "../../components/calendar/CalendarMonth";
 import { CalendarMobileMonth } from "../../components/calendar/CalendarMobileMonth";
 import { Day } from "@mantine/dates";
+import { ResolvedEventContext } from "../../db/resolved-event";
 
 export const Route = createFileRoute("/_layout/calendar")({
 	component: CalendarPage,
@@ -95,17 +95,14 @@ export const DayCard = ({
 
 	return (
 		<Stack gap={0}>
-			{queries.map(({ query, source }, index) => (
-				<ResolvedEventProvider
-					key={index}
-					value={query.data ?? { data: null }}
+			{queries.map((query, index) => (
+				<ResolvedEventContext key={index} value={query.data ?? null}
 				>
 					<EventCard
 						variant={variant}
-						source={source}
 						loading={query.isFetching}
 					/>
-				</ResolvedEventProvider>
+				</ResolvedEventContext>
 			))}
 		</Stack>
 	);

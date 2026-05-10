@@ -5,7 +5,7 @@ import { OverLayer } from "../../../base/layout/OverLayer";
 import { EvntMedia } from "../../../base/media/EvntMedia";
 import { Blurhash } from "../../../base/media/Blurhash";
 import type { ReactNode } from "react";
-import { useResolvedEvent } from "../event-envelope-context";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export interface EventCardBackgroundProps {
 	backgroundDim?: number;

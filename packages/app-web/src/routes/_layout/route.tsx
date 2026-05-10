@@ -1,4 +1,4 @@
-import { ActionIcon, Anchor, AppShell, Burger, Center, Code, Container, Flex, Group, Loader, NavLink, Space, Text, Title, type ActionIconProps } from "@mantine/core";
+import { ActionIcon, Anchor, AppShell, Code, Container, Flex, Group, Loader, NavLink, Space, Text, Title } from "@mantine/core";
 import { createFileRoute, Link, Outlet, useMatches, type ErrorComponentProps } from "@tanstack/react-router"
 import { IconCalendar, IconList, IconMenu2, IconSearch, IconSettings } from "@tabler/icons-react";
 import z from "zod";
@@ -6,11 +6,9 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { SettingsDrawer } from "../../components/app/overlay/settings/SettingsDrawer";
 import { useSettingsOverlay } from "../../hooks/app/search-param-modals";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
-import { EventSourceSchema } from "../../db/models/event-source";
 import { useIsFetching } from "@tanstack/react-query";
 import { useTasksStore } from "../../stores/useTasksStore";
 import { Fragment } from "react/jsx-runtime";
-import { ViewIndexOverlay } from "../../components/app/overlay/index/ViewIndexOverlay";
 import { EventDetailsOverlay } from "../../components/app/overlay/event/EventDetailsOverlay";
 import { AddEventMenu } from "../../components/app/AddEventMenu";
 import { VantageSpotlight } from "../../components/app/overlay/spotlight/VantageSpotlight";
@@ -19,7 +17,7 @@ import { useProvideNavActions } from "../../hooks/actions/useProvideNavActions";
 
 const SearchParamsSchema = z.object({
 	settings: z.string().optional(),
-	event: EventSourceSchema.optional(),
+	event: (z.uuid() as z.ZodType<Vantage.EventId>).optional(),
 	"view-index": z.string().optional(),
 });
 
@@ -173,7 +171,6 @@ const Overlays = () => {
 				isOpen={settingsIsOpen !== undefined}
 				close={toggleSettings}
 			/>
-			<ViewIndexOverlay />
 			<EventDetailsOverlay />
 		</Fragment>
 	);

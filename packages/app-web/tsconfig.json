@@ -17,6 +17,7 @@
 		"noEmit": true,
 		"noImplicitReturns": true,
 		"strict": true,
+		"skipLibCheck": true,
 		"types": [
 			"vite/client",
 			"vite-plugin-pwa/client"

@@ -1,18 +1,16 @@
 import { ActionIcon, Menu } from "@mantine/core";
 import { IconDotsVertical } from "@tabler/icons-react";
-import { type EventSource } from "../../../db/models/event-source";
-import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
 import { EventActionFactory } from "../../../hooks/actions/useProvideEventActions";
 import type { Action } from "../../app/overlay/spotlight/useActionsStore";
+import { useResolvedEvent } from "../../../db/resolved-event";
 
-export const EventContextMenu = ({ source }: { source: EventSource }) => {
-	const noHover = useMediaQuery("(hover: none)");
-
+export const EventContextMenu = () => {
+	const resolved = useResolvedEvent();
 	const navigate = useNavigate();
 
 	const actions: Action[] = EventActionFactory.All({
-		source,
+		resolved,
 		navigate,
 	});
 

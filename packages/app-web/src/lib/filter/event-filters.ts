@@ -1,5 +1,5 @@
 import type { EventData, EventInstance, Venue, VenueType } from "@evnt/schema";
-import type { EventQueryResult } from "../../db/useEventQuery";
+import type { EventQuery } from "../../db/useEventQuery";
 import { TranslationsUtil } from "@evnt/translations";
 import { PartialDateUtil } from "@evnt/partial-date";
 
@@ -38,8 +38,8 @@ export const EventFilters = {
 	},
 } as const;
 
-export const applyEventFilters = (queries: EventQueryResult[], filters: EventFilter[]): EventQueryResult[] => {
-	return queries.filter(({ query }) => {
+export const applyEventFilters = (queries: EventQuery[], filters: EventFilter[]): EventQuery[] => {
+	return queries.filter((query) => {
 		if (!query.data || !query.data.data) return true;
 		return filters.every((filter) => filter(query.data.data!));
 	});

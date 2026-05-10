@@ -5,8 +5,8 @@ import { useEventCardContext } from "./event-card-context";
 import { Trans } from "../../Trans";
 import { Link } from "@tanstack/react-router";
 import { EnvelopeErrorBadge } from "../envelope/EnvelopeErrorBadge";
-import { useResolvedEvent } from "../event-envelope-context";
 import { TranslationsUtil } from "@evnt/translations";
+import { useResolvedEvent } from "../../../../db/resolved-event";
 
 const loaderTransition: MantineTransition = {
 	in: { opacity: 1, width: "1.5rem" },
@@ -21,12 +21,12 @@ const loadingTextTransition: MantineTransition = {
 } as const;
 
 export const EventCardTitle = () => {
-	const { data, err } = useResolvedEvent();
-	const { loading, variant, menu, embed, source } = useEventCardContext();
+	const { data, error, id } = useResolvedEvent();
+	const { loading, variant, menu, embed } = useEventCardContext();
 	const { key } = useEventDetailsModal();
 
 	let title: ReactNode = <Text inherit inline span c="dimmed" fz="sm" fs="italic" children="<no title>" />;
-	if (!!err) title = <Text inherit inline span c="dimmed" fz="sm" fs="italic" children="<unknown>" />;
+	if (!!error) title = <Text inherit inline span c="dimmed" fz="sm" fs="italic" children="<unknown>" />;
 	else if (!!loading) title = <Skeleton height="1rem" width="16ch" />;
 
 	if (!!data && !TranslationsUtil.isEmpty(data.name))
@@ -54,9 +54,9 @@ export const EventCardTitle = () => {
 							renderRoot={(props) => (
 								<Link
 									to="."
-									search={(old) => ({ ...old, [key]: source })}
+									search={(old) => ({ ...old, [key]: id })}
 									target={embed ? "_blank" : undefined}
-									disabled={!source}
+									disabled={!id}
 									{...props}
 								/>
 							)}

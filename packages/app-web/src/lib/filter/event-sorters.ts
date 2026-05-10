@@ -1,6 +1,6 @@
 import type { EventData, LanguageKey, PartialDate } from "@evnt/schema";
-import type { EventQueryResult } from "../../db/useEventQuery";
 import { TranslationsUtil } from "@evnt/translations";
+import { EventQuery } from "../../db/useEventQuery";
 
 export type EventSorter = (a: EventData, b: EventData) => number;
 
@@ -29,14 +29,14 @@ export const EventSorters = {
 	},
 } as const;
 
-export const applyEventSorters = (queries: EventQueryResult[], sorters: EventSorter[]): EventQueryResult[] => {
+export const applyEventSorters = (queries: EventQuery[], sorters: EventSorter[]): EventQuery[] => {
 	return [...queries].sort((a, b) => {
-		if (!a.query.data?.data || !b.query.data?.data) return 0;
-		if (!a.query.data?.data) return 1;
-		if (!b.query.data?.data) return -1;
+		if (!a.data?.data || !b.data?.data) return 0;
+		if (!a.data?.data) return 1;
+		if (!b.data?.data) return -1;
 
 		for (const sorter of sorters) {
-			const result = sorter(a.query.data?.data, b.query.data?.data);
+			const result = sorter(a.data?.data, b.data?.data);
 			if (result !== 0) return result;
 		}
 		return 0;
