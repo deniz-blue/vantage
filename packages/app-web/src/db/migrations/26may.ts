@@ -1,6 +1,7 @@
 import { openDB } from "idb";
 import { dbShortcuts } from "../db-shortcuts";
 import { parseResourceUri } from "@atcute/lexicons";
+import { notifications } from "@mantine/notifications";
 
 type EventSource = string;
 
@@ -40,14 +41,26 @@ export const _migrate26may_ = async () => {
 		return { type: "unknown" };
 	};
 
+	const id = "migration-26may";
+	notifications.show({
+		title: "Migration",
+		message: "Migrating database, please wait...",
+		id,
+		loading: true,
+		autoClose: false,
+		withCloseButton: false,
+	});
+
 	for (const src of srclist) {
 		const [type, data] = src.split("://");
 		switch (type) {
 			case "local": {
 				const row: { data: any } = await db.get("data", src);
+				console.log(JSON.stringify(row.data), inferEventFormat(row.data));
+				const fmt = inferEventFormat(row.data);
 				const id = await dbShortcuts.insertLocalEvent(
-					JSON.stringify(row.data),
-					inferEventFormat(row.data)
+					fmt.type == "ics" ? row.data.value : JSON.stringify(row.data),
+					fmt
 				);
 				createdIds.push(id);
 			} break;
@@ -66,6 +79,7 @@ export const _migrate26may_ = async () => {
 			case "https":
 			case "http": {
 				// what could go wrong? -deniz
+
 				const row: { data: any } = await db.get("data", src);
 				const format = inferEventFormat(row.data);
 				const id = await dbShortcuts.insertEventMeta({
@@ -75,5 +89,23 @@ export const _migrate26may_ = async () => {
 				createdIds.push(id);
 			} break;
 		}
+
+		notifications.update({
+			id,
+			title: "Migration",
+			message: `Migrating database, please wait... (${createdIds.length}/${srclist.length})`,
+			loading: true,
+			autoClose: false,
+			withCloseButton: false,
+		});
 	}
+
+	notifications.update({
+		id,
+		title: "Migration complete",
+		message: `Migration complete! ${createdIds.length}/${srclist.length} events have been migrated.`,
+		loading: false,
+		autoClose: 5000,
+		withCloseButton: true,
+	});
 };

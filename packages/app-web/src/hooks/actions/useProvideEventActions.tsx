@@ -1,14 +1,16 @@
 import { useProvideActionList } from "../../components/app/overlay/spotlight/useAction";
 import { handleAsyncCopy, handleCopy } from "../../lib/util/copy";
-import { IconBraces, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, IconQrcode, IconReload, IconShare, IconTrash } from "@tabler/icons-react";
+import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, IconQrcode, IconShare, IconTrash } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
-import { Code } from "@mantine/core";
 import { QRCode } from "../../lib/util/qrcode";
 import { modals } from "@mantine/modals";
-import { AsyncLoader } from "../../components/data/AsyncLoader";
 import type { ResolvedEvent } from "../../db/resolved-event";
 import { EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "../../lib/resolved-utils";
+import { notifications } from "@mantine/notifications";
+import { openConfirmModal } from "../../lib/util/confirm";
+import { dbShortcuts } from "../../db/db-shortcuts";
+import { PDSlsIcon } from "../../lib/resources/PDSlsIcon";
 
 export const EventActionFactory = {
 	All: ({
@@ -24,13 +26,13 @@ export const EventActionFactory = {
 			EventActionFactory.ShareLinkQRCode(resolved),
 			EventActionFactory.CopySourceHttp(resolved),
 			EventActionFactory.CopyAtUri(resolved),
-			EventActionFactory.CopyJSON(resolved),
-			EventActionFactory.ViewRawJSON(resolved),
-			EventActionFactory.ViewResolvedJSON(resolved),
+			EventActionFactory.ViewRaw(resolved),
+			EventActionFactory.ViewParsed(resolved),
+			EventActionFactory.ViewDebug(resolved),
 			// EventActionFactory.RefetchData(resolved),
 			// EventActionFactory.CopyEmbedLink(resolved),
-			// EventActionFactory.ViewOnPDS(resolved),
-			// EventActionFactory.Delete(resolved),
+			EventActionFactory.ViewOnPDS(resolved),
+			EventActionFactory.Delete(resolved),
 		],
 
 	Edit: (navigate: ReturnType<typeof useNavigate>, resolved: ResolvedEvent) => ({
@@ -110,54 +112,45 @@ export const EventActionFactory = {
 		id: "copy-event-at-uri",
 		deps: [resolved.id],
 	}),
-	CopyJSON: (resolved: ResolvedEvent) => ({
-		label: "Copy Parsed JSON",
-		category: "Event",
-		icon: <IconBraces />,
-		execute: handleAsyncCopy(
-			async (): Promise<string> => JSON.stringify(resolved.data, null, 2) ?? "",
-			"Event JSON copied to clipboard",
-		),
-		id: "copy-event-json",
-		deps: [resolved.id],
-	}),
-	ViewRawJSON: (resolved: ResolvedEvent) => ({
-		label: "View JSON (Original)",
+	ViewRaw: (resolved: ResolvedEvent) => ({
+		label: "View Original",
 		category: "Event",
 		icon: <IconJson />,
-		execute: () => modals.open({
-			size: "xl",
-			title: "JSON Data",
-			children: (
-				<Code block>
-					{resolved.raw ?? "No data"}
-				</Code>
-			),
+		execute: () => modals.openContextModal({
+			modal: "CodeBlockModal",
+			innerProps: {
+				raw: resolved.raw ?? "",
+			},
 		}),
-		id: "view-event-raw-json",
+		id: "view-event-raw",
 		deps: [resolved.id],
 	}),
-	ViewResolvedJSON: (resolved: ResolvedEvent) => ({
-		label: "View JSON (Resolved)",
+	ViewParsed: (resolved: ResolvedEvent) => ({
+		label: "View OpenEvnt JSON",
 		category: "Event",
 		icon: <IconJson />,
-		execute: () => modals.open({
-			size: "xl",
-			title: "JSON Data",
-			children: (
-				<AsyncLoader fetcher={async () => resolved.data}>
-					{(o) => (
-						<Code block>
-							{JSON.stringify(o, null, 2) ?? "No data"}
-						</Code>
-					)}
-				</AsyncLoader>
-			),
+		execute: () => modals.openContextModal({
+			modal: "CodeBlockModal",
+			innerProps: {
+				raw: JSON.stringify(resolved.data) ?? "",
+			},
 		}),
-		id: "view-event-resolved-json",
+		id: "view-event-parsed",
 		deps: [resolved.id],
 	}),
-	// TODO
+	ViewDebug: (resolved: ResolvedEvent) => ({
+		label: "Debug",
+		category: "Event",
+		icon: <IconBug />,
+		execute: () => modals.openContextModal({
+			modal: "CodeBlockModal",
+			innerProps: {
+				raw: JSON.stringify(resolved) ?? "",
+			},
+		}),
+		id: "view-event-debug",
+		deps: [resolved.id],
+	}),
 	// RefetchData: (resolved: ResolvedEvent) => ({
 	// 	label: "Refetch",
 	// 	category: "Event",
@@ -167,11 +160,12 @@ export const EventActionFactory = {
 	// 	id: "refetch-event",
 	// 	deps: [resolved.id],
 	// }),
+	// TODO
 	// CopyEmbedLink: (resolved: ResolvedEvent) => ({
 	// 	label: "Copy Embed Link",
 	// 	category: "Event",
 	// 	icon: <IconCode />,
-	// 	disabled: !UtilEventSource.isFromNetwork(resolved.source),
+	// 	disabled: !resolvedEventUtils.isSourceNetwork(resolved),
 	// 	execute: handleCopy(
 	// 		EventActions.getEmbedLink(resolved.source) ?? "",
 	// 		"Event embed link copied to clipboard",
@@ -179,31 +173,46 @@ export const EventActionFactory = {
 	// 	id: "copy-event-embed-link",
 	// 	deps: [resolved.id],
 	// }),
-	// ViewOnPDS: (resolved: ResolvedEvent) => ({
-	// 	label: "View on pds.ls",
-	// 	category: "Event",
-	// 	icon: <PDSlsIcon />,
-	// 	disabled: UtilEventSource.getType(resolved.source) !== "at",
-	// 	execute: () => window.open(`https://pds.ls/${resolved.source}`, "_blank"),
-	// 	special: {
-	// 		href: `https://pds.ls/${resolved.source}`,
-	// 	},
-	// }),
-	// Delete: (resolved: ResolvedEvent) => ({
-	// 	label: UtilEventSource.isLocal(resolved.source) ? "Delete" : "Remove",
-	// 	category: "Event",
-	// 	icon: <IconTrash />,
-	// 	disabled: UtilEventSource.isAt(resolved.source),
-	// 	execute: () => openConfirmModal(
-	// 		UtilEventSource.isLocal(resolved.source) ? "Are you sure you want to delete this event?" : "Are you sure you want to stop following this event?",
-	// 		() => EventActions.deleteEvent(resolved.source),
-	// 	),
-	// 	id: "delete-event",
-	// 	special: {
-	// 		color: "red",
-	// 	},
-	// 	deps: [resolved.id],
-	// }),
+	ViewOnPDS: (resolved: ResolvedEvent) => ({
+		label: "View on pds.ls",
+		category: "Event",
+		icon: <PDSlsIcon />,
+		disabled: resolved.source.type !== "at",
+		execute: () => window.open(`https://pds.ls/${(resolved.source as any).uri}`, "_blank"),
+		special: {
+			href: `https://pds.ls/${(resolved.source as any).uri}`,
+		},
+	}),
+	Delete: (resolved: ResolvedEvent) => ({
+		label: resolvedEventUtils.isSourceNetwork(resolved) ? "Remove" : "Delete",
+		category: "Event",
+		icon: <IconTrash />,
+		disabled: !resolved.id || resolvedEventUtils.isSourceNetwork(resolved),
+		execute: () => openConfirmModal(
+			resolvedEventUtils.isSourceNetwork(resolved) ? "Are you sure you want to stop following this event?" : "Are you sure you want to delete this event? This action cannot be undone.",
+			async () => {
+				if (!resolved.id) return;
+				const id = `delete::${resolved.id}`;
+				notifications.show({
+					id,
+					message: "Deleting event...",
+					loading: true,
+				});
+				await dbShortcuts.deleteEventMeta(resolved.id);
+				notifications.update({
+					id,
+					message: "Event deleted",
+					loading: false,
+					color: "green",
+				});
+			},
+		),
+		id: "delete-event",
+		special: {
+			color: "red",
+		},
+		deps: [resolved.id],
+	}),
 };
 
 export const useProvideEventActions = (resolved?: ResolvedEvent) => {

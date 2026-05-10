@@ -3,6 +3,7 @@ import { db } from "./drizzle";
 import { eq } from "drizzle-orm";
 import { invalidateEventQuery } from "./useEventQuery";
 import { EventMeta } from "@vantage/db/src/schema";
+import { parseEventFormat } from "@vantage/core";
 
 export const dbShortcuts = {
 	getCachedEventRaw: (id: Vantage.EventId) => db
@@ -32,9 +33,14 @@ export const dbShortcuts = {
 				source,
 				updatedAt: now,
 			});
+
+			const { error, parsed } = parseEventFormat(raw, format);
+
 			await tx.insert(schema.eventCache).values({
 				id,
 				raw,
+				parsed,
+				error,
 				revision: {},
 				updatedAt: now,
 			});
@@ -65,6 +71,20 @@ export const dbShortcuts = {
 		await db.update(schema.eventCache)
 			.set({ raw, updatedAt })
 			.where(eq(schema.eventCache.id, id));
+		invalidateEventQuery(id);
+	},
+
+	deleteEventMeta: async (id: Vantage.EventId): Promise<void> => {
+		await db.transaction(async tx => {
+			await tx.delete(schema.events).where(eq(schema.events.id, id));
+			await tx.delete(schema.eventMeta).where(eq(schema.eventMeta.id, id));
+			await tx.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
+		});
+		invalidateEventQuery(id);
+	},
+
+	deleteEventCache: async (id: Vantage.EventId): Promise<void> => {
+		await db.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
 		invalidateEventQuery(id);
 	},
 };

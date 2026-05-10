@@ -1,38 +1,59 @@
-import { Badge, Button, Group, Stack } from "@mantine/core";
+import { Badge, Button, Group, Stack, Tooltip } from "@mantine/core";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useResolvedEvent } from "../../../../db/resolved-event";
 
 export const EventCardBottom = () => {
-	const { source } = useResolvedEvent();
+	const { id, source, format } = useResolvedEvent();
 
 	return (
 		<Stack>
 			<Group gap={0} justify="space-between">
-				<Group>
+				<Group gap={4}>
 					{source.type === "local" && (
-						<Badge color="gray" size="xs" variant="outline" children="local" />
+						<Tooltip label="Saved on Browser/Device">
+							<Badge color="gray" size="xs" variant="outline" children="L" />
+						</Tooltip>
+					)}
+					{source.type === "http" && (
+						<Tooltip label="HTTP">
+							<Badge color="green" size="xs" variant="outline" children="H" />
+						</Tooltip>
 					)}
 					{source.type === "at" && (
-						<Badge color="blue" size="xs" variant="outline" children="atproto" />
+						<Tooltip label="AT Protocol">
+							<Badge color="blue" size="xs" variant="outline" children="@" />
+						</Tooltip>
+					)}
+					{format.type === "ics" && (
+						<Tooltip label="Apple iCalendar / ICS Format">
+							<Badge color="orange" size="xs" variant="outline" children="ICS" />
+						</Tooltip>
+					)}
+					{format.type === "community.lexicon.calendar.event" && (
+						<Tooltip label="Lexicon Community Event Format">
+							<Badge color="cyan" size="xs" variant="outline" children="C" />
+						</Tooltip>
 					)}
 				</Group>
 				<Group>
-					<Button
-						size="compact-sm"
-						variant="light"
-						rightSection={<IconArrowNarrowRight />}
-						color="gray"
-						renderRoot={(props) => (
-							<Link
-								to="/event"
-								search={{ source }}
-								{...props}
-							/>
-						)}
-					>
-						View
-					</Button>
+					{id && (
+						<Button
+							size="compact-sm"
+							variant="light"
+							rightSection={<IconArrowNarrowRight />}
+							color="gray"
+							renderRoot={(props) => (
+								<Link
+									to="/event"
+									search={{ id }}
+									{...props}
+								/>
+							)}
+						>
+							View
+						</Button>
+					)}
 				</Group>
 			</Group>
 		</Stack>

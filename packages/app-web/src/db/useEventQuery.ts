@@ -24,26 +24,46 @@ export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vant
 };
 
 export const eventQueryFn = async (id: Vantage.EventId): Promise<ResolvedEvent> => {
-	const { source, format } = await db
+	const [{
+		event_meta: { source, format },
+		event_cache: cached,
+	}] = await db
 		.select()
 		.from(schema.eventMeta)
-		.where(eq(schema.eventMeta.id, id))
-		.then(rows => rows[0]);
+		.leftJoin(schema.eventCache, eq(schema.eventMeta.id, schema.eventCache.id))
+		.where(eq(schema.eventMeta.id, id));
+
+	if (cached) return {
+		id,
+		data: cached?.parsed || null,
+		raw: cached?.raw || null,
+		error: cached?.error || null,
+		revision: cached?.revision || {},
+		source,
+		format,
+	};
 
 	if (!source || !format) throw new Error(`Event with id ${id} not found`);
 	const resolved = await eventQueryFnNoId(source, format);
 
-	await db
-		.update(schema.eventCache)
-		.set({
+	if (source.type !== "local") {
+		const values: schema.EventCache = {
 			id,
 			error: resolved.error,
 			parsed: resolved.data,
 			raw: resolved.raw,
 			revision: resolved.revision,
 			updatedAt: new Date(),
-		})
-		.where(eq(schema.eventCache.id, id));
+		};
+
+		await db
+			.insert(schema.eventCache)
+			.values(values)
+			.onConflictDoUpdate({
+				target: schema.eventCache.id,
+				set: values,
+			});
+	};
 
 	return {
 		...resolved,

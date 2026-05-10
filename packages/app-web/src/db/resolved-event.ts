@@ -18,10 +18,7 @@ export const useResolvedEvent = (): ResolvedEvent => {
 		id: null,
 		data: null,
 		raw: null,
-		error: {
-			kind: "unknown",
-			message: "No event data available",
-		},
+		error: null,
 		revision: {},
 		source: { type: "unknown" } as Vantage.EventSource,
 		format: { type: "unknown" } as Vantage.EventFormat,
