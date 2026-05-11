@@ -7,7 +7,6 @@
 		"target": "esnext",
 		"types": [],
 		"noUncheckedIndexedAccess": true,
-		"exactOptionalPropertyTypes": true,
 		"strict": true,
 		"jsx": "react-jsx",
 		"verbatimModuleSyntax": true,

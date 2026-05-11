@@ -2,7 +2,7 @@ import type { schema } from "@vantage/db";
 import { ZodError } from "zod";
 import type { FailedClientResponse } from "@atcute/client";
 
-export type EventResolveResult = Omit<schema.EventCache, "id" | "updatedAt" | "parsed">;
+export type EventResolveResult = Omit<schema.EventCache, "id" | "updatedAt" | "parsed" | "computed">;
 
 export interface EventSourceMeta<Type extends keyof Vantage.EventSourceMap> {
 	type: Type;
