@@ -19,7 +19,7 @@ export const useEventListQuery = (options: ListOptions) => {
 		placeholderData: data => data,
 		staleTime: 5 * 1000 * 60, // 5 minutes
 		queryFn: async () => {
-			const sqlSearch = sql`EXISTS (SELECT 1 FROM jsonb_each_text(${schema.eventCache.parsed}->'name') AS name(lang, val) WHERE val ~* ${options.search})`;
+			const sqlSearch = sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.parsed}, '$.name') WHERE value LIKE ${"%"+options.search+"%"})`;
 
 			const where = and(
 				(options.search?.length ?? 0) > 0 ? sqlSearch : undefined,

@@ -1,20 +1,18 @@
-import { PGlite } from "@electric-sql/pglite";
-import { PGliteWorker } from "@electric-sql/pglite/worker";
-import { drizzle } from "drizzle-orm/pglite";
+import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { schema } from "@vantage/db";
 import initsql from "./migrations/init.sql?raw";
-import pgLiteWorker from "./pglite.worker?worker";
+import { SQLocalDrizzle } from "sqlocal/drizzle";
 
-const client = new PGliteWorker(new pgLiteWorker());
-export const db = drizzle(client as any as PGlite, {
+export const sqlite = new SQLocalDrizzle("vantage-db.sqlite3");
+export const db = drizzle(sqlite.driver, sqlite.batchDriver, {
 	schema,
 	logger: true,
 });
 
 console.log("Initializing database...");
-await client.transaction(async tx => {
+await sqlite.transaction(async tx => {
 	for (const stmt of initsql.split(";").map(s => s.trim()).map(s => s + ";")) {
-		await tx.exec(stmt);
+		await tx.sql(stmt);
 	}
 });
 console.log("Database initialized");

@@ -1,5 +1,6 @@
-import { pgTable, timestamp, uuid, jsonb, text, primaryKey } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, primaryKey, blob, customType } from "drizzle-orm/sqlite-core";
 import type { EventData } from "@evnt/schema";
+import { sql } from "drizzle-orm";
 
 declare global {
 	namespace Vantage {
@@ -25,45 +26,58 @@ declare global {
 	}
 }
 
-export const events = pgTable("events", {
-	id: uuid("id").primaryKey().defaultRandom().$type<Vantage.EventId>(),
-	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+const uuid = (name: string) => text(name, { length: 36 });
+const timestamp = (name: string) => integer(name, { mode: "timestamp_ms" }).default(sql`now()`);
+
+// 2.45+ supports JSON mode for blob
+const jsonb = customType<{
+	data: any;
+	driverData: string;
+}>({
+	dataType: () => "blob",
+	fromDriver: (value) => JSON.parse(value),
+	toDriver: (value) => JSON.stringify(value),
 });
 
-export const tags = pgTable("tags", {
-	id: uuid("id").primaryKey().defaultRandom(),
+export const events = sqliteTable("events", {
+	id: uuid("id").primaryKey().$type<Vantage.EventId>(),
+	updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const tags = sqliteTable("tags", {
+	id: uuid("id").primaryKey().$type<Vantage.EventId>(),
 	name: text("name").notNull(),
 	color: text("color"),
-	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const tagHierarchy = pgTable("tag_hierarchy", {
+export const tagHierarchy = sqliteTable("tag_hierarchy", {
 	parentId: uuid("parent_id").notNull().references(() => tags.id, { onDelete: "cascade" }),
 	childId: uuid("child_id").notNull().references(() => tags.id, { onDelete: "cascade" }),
 }, (table) => ({
 	pk: primaryKey({ columns: [table.parentId, table.childId] }),
 }));
 
-export const eventTags = pgTable("event_tags", {
+export const eventTags = sqliteTable("event_tags", {
 	eventId: uuid("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
 	tagId: uuid("tag_id").notNull().references(() => tags.id, { onDelete: "cascade" }),
 }, (table) => ({
 	pk: primaryKey({ columns: [table.eventId, table.tagId] }),
 }));
 
-export const eventMeta = pgTable("event_meta", {
-	id: uuid("id").primaryKey().defaultRandom().$type<Vantage.EventId>().references(() => events.id, { onDelete: "cascade" }),
-	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const eventMeta = sqliteTable("event_meta", {
+	id: uuid("id").primaryKey().$type<Vantage.EventId>().references(() => events.id, { onDelete: "cascade" }),
+	updatedAt: timestamp("updated_at").notNull(),
 	source: jsonb("source").$type<Vantage.EventSource>().notNull(),
 	format: jsonb("format").$type<Vantage.EventFormat>().notNull(),
 });
 
-export const eventCache = pgTable("event_cache", {
-	id: uuid("id").primaryKey().defaultRandom().$type<Vantage.EventId>().references(() => events.id, { onDelete: "cascade" }),
-	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const eventCache = sqliteTable("event_cache", {
+	id: uuid("id").primaryKey().$type<Vantage.EventId>().references(() => events.id, { onDelete: "cascade" }),
+	updatedAt: timestamp("updated_at").notNull(),
 	raw: text("raw"),
 	parsed: jsonb("parsed").$type<EventData>(),
-	revision: jsonb("revision").$type<Vantage.Revision>().notNull(),
+	revision: jsonb("revision").$type<Vantage.Revision>().notNull().default(sql`'{}'`),
 	error: jsonb("error").$type<Vantage.Error>(),
 });
 

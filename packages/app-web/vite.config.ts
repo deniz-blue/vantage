@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, Plugin, UserConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { AtprotoOAuth } from "@deniz-blue/vite-plugins";
@@ -22,6 +22,34 @@ const icon = (size: number) => [
 	},
 ];
 
+const sqlocal = (): Plugin<UserConfig> => ({
+	name: 'vite-plugin-sqlocal',
+	enforce: 'pre',
+	config(config): UserConfig {
+		return {
+			optimizeDeps: {
+				...config.optimizeDeps,
+				exclude: [
+					...(config.optimizeDeps?.exclude ?? []),
+					"sqlocal",
+					"@sqlite.org/sqlite-wasm",
+				],
+			},
+			worker: {
+				...config.worker,
+				format: "es",
+			},
+		};
+	},
+	configureServer(server): void {
+		server.middlewares.use((_, res, next) => {
+			res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+			res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+			next();
+		});
+	},
+});
+
 export default defineConfig({
 	clearScreen: false,
 	server: {
@@ -38,10 +66,6 @@ export default defineConfig({
 		sourcemap: true,
 	},
 
-	optimizeDeps: {
-		exclude: ["@electric-sql/pglite"],
-	},
-
 	worker: {
 		format: "es",
 	},
@@ -53,6 +77,7 @@ export default defineConfig({
 			generatedRouteTree: "./src/routeTree.gen.ts",
 			quoteStyle: "double",
 		}),
+		sqlocal(),
 		react(),
 		AtprotoOAuth(),
 		VitePWA({
