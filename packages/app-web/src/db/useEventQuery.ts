@@ -56,6 +56,7 @@ export const eventQueryFn = async (id: Vantage.EventId): Promise<ResolvedEvent> 
 			updatedAt: new Date(),
 		};
 
+		// This can continue in the background maybe
 		await db
 			.insert(schema.eventCache)
 			.values(values)
@@ -75,6 +76,9 @@ export const eventQueryOptions = (id: Vantage.EventId) => {
 	return queryOptions({
 		queryKey: eventQueryKey(id),
 		networkMode: "always",
+		staleTime: 5 * 1000 * 60, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
+		placeholderData: (data) => data,
 		queryFn: async () => await eventQueryFn(id),
 	});
 };

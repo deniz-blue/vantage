@@ -1,15 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useEventQueries } from "../../db/useEventQuery";
-import { applyEventFilters, EventFilters } from "../../lib/filter/event-filters";
-import { Accordion, ActionIcon, Button, Checkbox, Collapse, Combobox, Group, Indicator, Input, InputBase, OverflowList, Paper, Popover, SegmentedControl, Stack, TextInput, useCombobox } from "@mantine/core";
+import { Accordion, ActionIcon, Button, Group, Input, OverflowList, Paper, Popover, SegmentedControl, Stack, TextInput } from "@mantine/core";
 import { EventsGrid } from "../../components/content/event-grid/EventsGrid";
 import z from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
-import { applyEventSorters, EventSorters } from "../../lib/filter/event-sorters";
 import { useLocaleStore } from "../../stores/useLocaleStore";
-import { useQuery } from "@tanstack/react-query";
-import { db } from "../../db/drizzle";
-import { schema } from "@vantage/db";
+import { useEventListQuery } from "../../db/useEventListQuery";
 
 const SearchParamsSchema = z.object({
 	search: z.string().optional(),
@@ -57,26 +53,32 @@ function ListPage() {
 		});
 	};
 
-	const allIdsQuery = useQuery({
-		queryKey: ["ids"],
-		queryFn: async () => {
-			return await db.select({
-				id: schema.events.id,
-			}).from(schema.events).then(rows => rows.map(r => r.id));
-		},
-	});
+	// const allIdsQuery = useQuery({
+	// 	queryKey: ["ids"],
+	// 	queryFn: async () => {
+	// 		return await db.select({
+	// 			id: schema.events.id,
+	// 		}).from(schema.events).then(rows => rows.map(r => r.id));
+	// 	},
+	// });
 
-	const allQueries = useEventQueries(allIdsQuery.data || []);
-	const filtered = applyEventFilters(allQueries, [
-		(search && search.length > 0) ? EventFilters.Search(search) : EventFilters.None,
-		relativity === "future" ? EventFilters.AfterDate(Temporal.Now.instant()) : EventFilters.None,
-		relativity === "past" ? EventFilters.BeforeDate(Temporal.Now.instant()) : EventFilters.None,
-	]);
-	const sorted = applyEventSorters(filtered, [
-		sortBy === "name" ? EventSorters.Name(userLanguage) : EventSorters.None,
-		sortBy === "instanceStart" ? EventSorters.InstanceStart : EventSorters.None,
-	])
-	const finalList = sorted;
+	// const allQueries = useEventQueries(allIdsQuery.data || []);
+	// const filtered = applyEventFilters(allQueries, [
+	// 	(search && search.length > 0) ? EventFilters.Search(search) : EventFilters.None,
+	// 	relativity === "future" ? EventFilters.AfterDate(Temporal.Now.instant()) : EventFilters.None,
+	// 	relativity === "past" ? EventFilters.BeforeDate(Temporal.Now.instant()) : EventFilters.None,
+	// ]);
+	// const sorted = applyEventSorters(filtered, [
+	// 	sortBy === "name" ? EventSorters.Name(userLanguage) : EventSorters.None,
+	// 	sortBy === "instanceStart" ? EventSorters.InstanceStart : EventSorters.None,
+	// ])
+	// const finalList = sorted;
+
+	const listQuery = useEventListQuery({
+		search,
+	});
+	
+	const queries = useEventQueries(listQuery.data || []);
 
 	const top = "calc(var(--app-shell-header-height, 0px) + var(--app-shell-padding) + var(--safe-area-inset-top))";
 	return (
@@ -168,7 +170,7 @@ function ListPage() {
 				</Stack>
 			</Paper>
 
-			<EventsGrid queries={finalList} />
+			<EventsGrid queries={queries} />
 		</Stack >
 	)
 }

@@ -38,6 +38,14 @@ export default defineConfig({
 		sourcemap: true,
 	},
 
+	optimizeDeps: {
+		exclude: ["@electric-sql/pglite"],
+	},
+
+	worker: {
+		format: "es",
+	},
+
 	plugins: [
 		tanstackRouter({
 			target: "react",

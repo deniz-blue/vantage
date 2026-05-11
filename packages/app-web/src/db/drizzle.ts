@@ -1,10 +1,12 @@
 import { PGlite } from "@electric-sql/pglite";
+import { PGliteWorker } from "@electric-sql/pglite/worker";
 import { drizzle } from "drizzle-orm/pglite";
 import { schema } from "@vantage/db";
 import initsql from "./migrations/init.sql?raw";
+import pgLiteWorker from "./pglite.worker?worker";
 
-const client = new PGlite("idb://vantage-pglite");
-export const db = drizzle(client, {
+const client = new PGliteWorker(new pgLiteWorker());
+export const db = drizzle(client as any as PGlite, {
 	schema,
 	logger: true,
 });

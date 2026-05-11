@@ -1,7 +1,7 @@
 import { db } from "./drizzle";
 import { schema } from "@vantage/db";
 import { eq } from "drizzle-orm";
-import { dbShortcuts } from "./db-shortcuts";
+import { invalidateEventQuery } from "./useEventQuery";
 
 export interface EventMutationParams {
 	id: Vantage.EventId;
@@ -18,6 +18,13 @@ export const eventMutationFn = async ({ id, raw }: EventMutationParams) => {
 	if (!source || !format) throw new Error(`Event with id ${id} not found`);
 
 	if (source.type !== "local") throw new Error(`Only local events can be edited`);
+	if (format.type !== "directory.evnt.event") throw new Error(`Only OpenEvnt format is supported`);
 
-	await dbShortcuts.updateLocalEvent(id, raw);
+	// TODO: this is a hack and will break the moment we support editing non-OpenEvnt formats
+
+	const updatedAt = new Date();
+	await db.update(schema.eventCache)
+		.set({ raw, parsed: JSON.parse(raw), updatedAt })
+		.where(eq(schema.eventCache.id, id));
+	invalidateEventQuery(id);
 };

@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { invalidateEventQuery } from "./useEventQuery";
 import { EventMeta } from "@vantage/db/src/schema";
 import { parseEventFormat } from "@vantage/core";
+import { invalidateEventListQueries } from "./useEventListQuery";
 
 export const dbShortcuts = {
 	getCachedEventRaw: (id: Vantage.EventId) => db
@@ -20,7 +21,7 @@ export const dbShortcuts = {
 
 	insertLocalEvent: async (raw: string, format: Vantage.EventFormat): Promise<Vantage.EventId> => {
 		const source: Vantage.EventSource = { type: "local" };
-		return await db.transaction(async tx => {
+		const id = await db.transaction(async tx => {
 			const id = crypto.randomUUID();
 			const now = new Date();
 			await tx.insert(schema.events).values({
@@ -46,10 +47,12 @@ export const dbShortcuts = {
 			});
 			return id;
 		});
+		invalidateEventListQueries();
+		return id;
 	},
 
 	insertEventMeta: async ({ source, format }: Pick<EventMeta, "source" | "format">): Promise<Vantage.EventId> => {
-		return await db.transaction(async tx => {
+		const id = await db.transaction(async tx => {
 			const now = new Date();
 			const id = crypto.randomUUID();
 			await tx.insert(schema.events).values({
@@ -64,14 +67,8 @@ export const dbShortcuts = {
 			});
 			return id;
 		});
-	},
-
-	updateLocalEvent: async (id: Vantage.EventId, raw: string): Promise<void> => {
-		const updatedAt = new Date();
-		await db.update(schema.eventCache)
-			.set({ raw, updatedAt })
-			.where(eq(schema.eventCache.id, id));
-		invalidateEventQuery(id);
+		invalidateEventListQueries();
+		return id;
 	},
 
 	deleteEventMeta: async (id: Vantage.EventId): Promise<void> => {
@@ -81,10 +78,12 @@ export const dbShortcuts = {
 			await tx.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
 		});
 		invalidateEventQuery(id);
+		invalidateEventListQueries();
 	},
 
 	deleteEventCache: async (id: Vantage.EventId): Promise<void> => {
 		await db.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
 		invalidateEventQuery(id);
+		invalidateEventListQueries();
 	},
 };
