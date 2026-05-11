@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { z, type ZodError } from "zod";
 import { tryCatch } from "../../../lib/util/trynull";
 import { EventDetailsContent } from "../../content/event/details/EventDetailsContent";
-import { ResolvedEvent, ResolvedEventContext } from "../../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 
 export const EventEditor = ({
 	data,
@@ -133,7 +133,7 @@ export const ValidatedAtomJsonInput = ({
 export const EventPreview = ({ data }: { data: EditAtom<EventData> }) => {
 	const snap = useAtomValue(data);
 
-	const resolved: ResolvedEvent = {
+	const resolved: Vantage.ResolvedEvent = {
 		id: null,
 		data: snap,
 		raw: null,

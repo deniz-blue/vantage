@@ -71,7 +71,9 @@ export const AddEventMenu = () => {
 					onClick={() => modals.openContextModal({
 						modal: "ImportURLModal",
 						innerProps: {},
-						size: "xl",
+						size: "md",
+						centered: true,
+						withCloseButton: false,
 					})}
 				>
 					From URL
@@ -81,7 +83,9 @@ export const AddEventMenu = () => {
 					onClick={() => modals.openContextModal({
 						modal: "ImportJSONModal",
 						innerProps: {},
-						size: "xl",
+						size: "md",
+						centered: true,
+						withCloseButton: false,
 					})}
 				>
 					From JSON

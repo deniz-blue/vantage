@@ -1,7 +1,7 @@
 import { Badge, Button, Group, Stack, Tooltip } from "@mantine/core";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventCardBottom = () => {
 	const { id, source, format } = useResolvedEvent();
@@ -33,6 +33,11 @@ export const EventCardBottom = () => {
 					{format.type === "community.lexicon.calendar.event" && (
 						<Tooltip label="Lexicon Community Event Format">
 							<Badge color="cyan" size="xs" variant="outline" children="C" />
+						</Tooltip>
+					)}
+					{format.type === "unknown" && (
+						<Tooltip label="Unknown Format">
+							<Badge color="yellow" size="xs" variant="outline" children="?" />
 						</Tooltip>
 					)}
 				</Group>

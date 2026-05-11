@@ -1,4 +1,4 @@
-import { defineEventFormat } from "../lib/format";
+import { defineEventFormat } from "../../lib/format";
 import { convertFromVEvent } from "@evnt/convert/icalendar";
 import ICAL from "ical.js";
 

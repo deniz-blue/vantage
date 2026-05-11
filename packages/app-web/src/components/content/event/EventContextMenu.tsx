@@ -3,7 +3,7 @@ import { IconDotsVertical } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { EventActionFactory } from "../../../hooks/actions/useProvideEventActions";
 import type { Action } from "../../app/overlay/spotlight/useActionsStore";
-import { useResolvedEvent } from "../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventContextMenu = () => {
 	const resolved = useResolvedEvent();

@@ -1,4 +1,4 @@
-import { defineEventSource } from "../lib/source";
+import { defineEventSource } from "../../lib/source";
 
 declare global {
 	namespace Vantage {

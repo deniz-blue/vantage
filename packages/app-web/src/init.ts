@@ -19,5 +19,8 @@ import.meta.glob("../node_modules/dayjs/esm/locale/*.js", { eager: true });
 // polyfills
 import "temporal-polyfill-lite/global";
 
+// database
+import "./db/drizzle";
+
 // events
 import "./init-events";

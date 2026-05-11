@@ -4,9 +4,8 @@ import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, Ico
 import { useNavigate } from "@tanstack/react-router";
 import { QRCode } from "../../lib/util/qrcode";
 import { modals } from "@mantine/modals";
-import type { ResolvedEvent } from "../../db/resolved-event";
 import { EventSourceRegistry } from "@vantage/core";
-import { resolvedEventUtils } from "../../lib/resolved-utils";
+import { resolvedEventUtils } from "@vantage/core";
 import { notifications } from "@mantine/notifications";
 import { openConfirmModal } from "../../lib/util/confirm";
 import { dbShortcuts } from "../../db/db-shortcuts";
@@ -17,7 +16,7 @@ export const EventActionFactory = {
 		resolved,
 		navigate,
 	}: {
-		resolved: ResolvedEvent;
+		resolved: Vantage.ResolvedEvent;
 		navigate: ReturnType<typeof useNavigate>;
 	}) => [
 			EventActionFactory.Edit(navigate, resolved),
@@ -35,7 +34,7 @@ export const EventActionFactory = {
 			EventActionFactory.Delete(resolved),
 		],
 
-	Edit: (navigate: ReturnType<typeof useNavigate>, resolved: ResolvedEvent) => ({
+	Edit: (navigate: ReturnType<typeof useNavigate>, resolved: Vantage.ResolvedEvent) => ({
 		label: "Edit",
 		icon: <IconEdit />,
 		disabled: !EventSourceRegistry.get(resolved.source.type)?.editable,
@@ -47,7 +46,7 @@ export const EventActionFactory = {
 			},
 		}),
 	}),
-	CopyShareLink: (resolved: ResolvedEvent) => ({
+	CopyShareLink: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Copy Share Link",
 		icon: <IconShare />,
 		disabled: !resolvedEventUtils.shareLink(resolved),
@@ -58,7 +57,7 @@ export const EventActionFactory = {
 		),
 		id: "copy-event-share-link",
 	}),
-	CopyMarkdownLink: (resolved: ResolvedEvent) => ({
+	CopyMarkdownLink: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Copy Markdown Link",
 		icon: <IconMarkdown />,
 		disabled: !resolvedEventUtils.shareLink(resolved),
@@ -74,7 +73,7 @@ export const EventActionFactory = {
 		id: "copy-event-markdown-link",
 		deps: [resolved.id],
 	}),
-	ShareLinkQRCode: (resolved: ResolvedEvent) => ({
+	ShareLinkQRCode: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Share (QR)",
 		icon: <IconQrcode />,
 		disabled: !resolvedEventUtils.shareLink(resolved),
@@ -88,7 +87,7 @@ export const EventActionFactory = {
 		id: "share-link-qrcode",
 		deps: [resolved.id],
 	}),
-	CopySourceHttp: (resolved: ResolvedEvent) => ({
+	CopySourceHttp: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Copy Source",
 		icon: <IconClipboard />,
 		disabled: resolved.source.type !== "http",
@@ -100,7 +99,7 @@ export const EventActionFactory = {
 		id: "copy-event-source",
 		deps: [resolved.id],
 	}),
-	CopyAtUri: (resolved: ResolvedEvent) => ({
+	CopyAtUri: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Copy AT URI",
 		icon: <IconClipboard />,
 		disabled: resolved.source.type !== "at",
@@ -112,12 +111,15 @@ export const EventActionFactory = {
 		id: "copy-event-at-uri",
 		deps: [resolved.id],
 	}),
-	ViewRaw: (resolved: ResolvedEvent) => ({
+	ViewRaw: (resolved: Vantage.ResolvedEvent) => ({
 		label: "View Original",
 		category: "Event",
 		icon: <IconJson />,
 		execute: () => modals.openContextModal({
 			modal: "CodeBlockModal",
+			centered: true,
+			withCloseButton: false,
+			size: "xl",
 			innerProps: {
 				raw: resolved.raw ?? "",
 			},
@@ -125,12 +127,15 @@ export const EventActionFactory = {
 		id: "view-event-raw",
 		deps: [resolved.id],
 	}),
-	ViewParsed: (resolved: ResolvedEvent) => ({
+	ViewParsed: (resolved: Vantage.ResolvedEvent) => ({
 		label: "View OpenEvnt JSON",
 		category: "Event",
 		icon: <IconJson />,
 		execute: () => modals.openContextModal({
 			modal: "CodeBlockModal",
+			centered: true,
+			withCloseButton: false,
+			size: "xl",
 			innerProps: {
 				raw: JSON.stringify(resolved.data) ?? "",
 			},
@@ -138,12 +143,15 @@ export const EventActionFactory = {
 		id: "view-event-parsed",
 		deps: [resolved.id],
 	}),
-	ViewDebug: (resolved: ResolvedEvent) => ({
+	ViewDebug: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Debug",
 		category: "Event",
 		icon: <IconBug />,
 		execute: () => modals.openContextModal({
 			modal: "CodeBlockModal",
+			centered: true,
+			withCloseButton: false,
+			size: "xl",
 			innerProps: {
 				raw: JSON.stringify(resolved) ?? "",
 			},
@@ -173,7 +181,7 @@ export const EventActionFactory = {
 	// 	id: "copy-event-embed-link",
 	// 	deps: [resolved.id],
 	// }),
-	ViewOnPDS: (resolved: ResolvedEvent) => ({
+	ViewOnPDS: (resolved: Vantage.ResolvedEvent) => ({
 		label: "View on pds.ls",
 		category: "Event",
 		icon: <PDSlsIcon />,
@@ -183,7 +191,7 @@ export const EventActionFactory = {
 			href: `https://pds.ls/${(resolved.source as any).uri}`,
 		},
 	}),
-	Delete: (resolved: ResolvedEvent) => ({
+	Delete: (resolved: Vantage.ResolvedEvent) => ({
 		label: resolvedEventUtils.isSourceNetwork(resolved) ? "Remove" : "Delete",
 		category: "Event",
 		icon: <IconTrash />,
@@ -215,7 +223,7 @@ export const EventActionFactory = {
 	}),
 };
 
-export const useProvideEventActions = (resolved?: ResolvedEvent) => {
+export const useProvideEventActions = (resolved?: Vantage.ResolvedEvent) => {
 	const navigate = useNavigate();
 	useProvideActionList(resolved ? EventActionFactory.All({
 		resolved,

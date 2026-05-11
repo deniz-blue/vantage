@@ -4,12 +4,12 @@ import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useCacheEventsStore } from "../../../../lib/cache/useCacheEventsStore";
 import { useShallow } from "zustand/shallow";
-import { useEventQuery } from "../../../../db/useEventQuery";
+import { useEventQuery } from "@vantage/core";
 import { EventCardBackground } from "../../../content/event/card/EventCardBackground";
 import { Box, Loader, Paper } from "@mantine/core";
 import { useActionsStore, type Action } from "./useActionsStore";
 import { useTranslations } from "../../../../stores/useLocaleStore";
-import { ResolvedEventContext } from "../../../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 
 export const VantageSpotlight = () => {
 	const [query, setQuery] = useState("");

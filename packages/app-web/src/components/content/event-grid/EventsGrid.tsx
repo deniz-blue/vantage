@@ -1,8 +1,8 @@
 import { SimpleGrid, Stack } from "@mantine/core";
-import type { EventQuery } from "../../../db/useEventQuery";
+import type { EventQuery } from "@vantage/core";
 import { EventCard } from "../event/card/EventCard";
 import { EventContextMenu } from "../event/EventContextMenu";
-import { ResolvedEventContext } from "../../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 
 export const EventsGrid = ({
 	queries,

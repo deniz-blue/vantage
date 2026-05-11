@@ -6,7 +6,7 @@ import { useSetAtom } from "jotai";
 import { atom } from "jotai";
 import type { EventData } from "@evnt/schema";
 import { useEffect, useMemo } from "react";
-import { useEventQuery } from "../../db/useEventQuery";
+import { useEventQuery } from "@vantage/core";
 import { useMutation } from "@tanstack/react-query";
 import z from "zod";
 import { useEditorCollapseState } from "../../components/editor/editor-states";

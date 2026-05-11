@@ -1,10 +1,9 @@
-import { schema } from "@vantage/db";
-import { db } from "./drizzle";
+import { schema, db } from "@vantage/db";
 import { eq } from "drizzle-orm";
-import { invalidateEventQuery } from "./useEventQuery";
-import { EventMeta } from "@vantage/db/src/schema";
+import { createComputedData, invalidateEventQuery } from "@vantage/core";
 import { parseEventFormat } from "@vantage/core";
-import { invalidateEventListQueries } from "./useEventListQuery";
+import { invalidateEventListQueries } from "@vantage/core";
+import { sqlite } from "./drizzle";
 
 export const dbShortcuts = {
 	getCachedEventRaw: (id: Vantage.EventId) => db
@@ -21,50 +20,51 @@ export const dbShortcuts = {
 
 	insertLocalEvent: async (raw: string, format: Vantage.EventFormat): Promise<Vantage.EventId> => {
 		const source: Vantage.EventSource = { type: "local" };
-		const id = await db.transaction(async tx => {
+		const id = await sqlite.transaction(async tx => {
 			const id = crypto.randomUUID();
-			const now = new Date();
-			await tx.insert(schema.events).values({
+			const now = Temporal.Now.instant();
+			await tx.query(db.insert(schema.events).values({
 				id,
 				updatedAt: now,
-			});
-			await tx.insert(schema.eventMeta).values({
+			}));
+			await tx.query(db.insert(schema.eventMeta).values({
 				id,
 				format,
 				source,
 				updatedAt: now,
-			});
+			}));
 
 			const { error, parsed } = parseEventFormat(raw, format);
 
-			await tx.insert(schema.eventCache).values({
+			await tx.query(db.insert(schema.eventCache).values({
 				id,
 				raw,
 				parsed,
 				error,
 				revision: {},
 				updatedAt: now,
-			});
+				computed: createComputedData(parsed),
+			}));
 			return id;
 		});
 		invalidateEventListQueries();
 		return id;
 	},
 
-	insertEventMeta: async ({ source, format }: Pick<EventMeta, "source" | "format">): Promise<Vantage.EventId> => {
-		const id = await db.transaction(async tx => {
-			const now = new Date();
+	insertEventMeta: async ({ source, format }: { source: Vantage.EventSource; format: Vantage.EventFormat }): Promise<Vantage.EventId> => {
+		const id = await sqlite.transaction(async tx => {
+			const now = Temporal.Now.instant();
 			const id = crypto.randomUUID();
-			await tx.insert(schema.events).values({
+			await tx.query(db.insert(schema.events).values({
 				id,
 				updatedAt: now,
-			});
-			await tx.insert(schema.eventMeta).values({
+			}));
+			await tx.query(db.insert(schema.eventMeta).values({
 				id,
 				format,
 				source,
 				updatedAt: now,
-			});
+			}));
 			return id;
 		});
 		invalidateEventListQueries();
@@ -72,10 +72,10 @@ export const dbShortcuts = {
 	},
 
 	deleteEventMeta: async (id: Vantage.EventId): Promise<void> => {
-		await db.transaction(async tx => {
-			await tx.delete(schema.events).where(eq(schema.events.id, id));
-			await tx.delete(schema.eventMeta).where(eq(schema.eventMeta.id, id));
-			await tx.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
+		await sqlite.transaction(async tx => {
+			await tx.query(db.delete(schema.events).where(eq(schema.events.id, id)));
+			await tx.query(db.delete(schema.eventMeta).where(eq(schema.eventMeta.id, id)));
+			await tx.query(db.delete(schema.eventCache).where(eq(schema.eventCache.id, id)));
 		});
 		invalidateEventQuery(id);
 		invalidateEventListQueries();

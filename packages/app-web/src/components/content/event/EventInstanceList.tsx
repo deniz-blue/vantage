@@ -1,7 +1,7 @@
 import { Group, Stack, Text } from "@mantine/core";
 import { snippetEvent } from "@evnt/pretty";
 import { Snippet } from "../Snippet";
-import { useResolvedEvent } from "../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventInstanceList = () => {
 	const { data } = useResolvedEvent();

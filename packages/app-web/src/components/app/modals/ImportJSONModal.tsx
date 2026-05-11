@@ -56,6 +56,12 @@ export const ImportJSONModal = ({
 					</Button>
 				)}
 			</AsyncAction>
+			<Button
+				color="gray"
+				onClick={() => modals.close(modalId)}
+			>
+				Cancel
+			</Button>
 		</Stack>
 	);
 }

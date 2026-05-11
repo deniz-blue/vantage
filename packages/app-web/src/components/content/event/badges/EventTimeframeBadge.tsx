@@ -2,7 +2,7 @@ import type { PartialDate } from "@evnt/schema";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { Badge, type BoxProps } from "@mantine/core";
 import { IconCalendarDown, IconHistory, IconHourglass } from "@tabler/icons-react";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 const getDayBounds = (start: PartialDate, end?: PartialDate) => ({
 	low: PartialDateUtil.setPrecision(start, "day", "low"),

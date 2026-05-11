@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { eventQueryFn, eventQueryFnNoId, eventQueryKey } from "../../db/useEventQuery";
+import { eventQueryFn, eventQueryFnNoId, eventQueryKey } from "@vantage/core";
 import { Container, Space, Stack } from "@mantine/core";
 import { EventDetailsContent } from "../../components/content/event/details/EventDetailsContent";
 import { useProvideEventActions } from "../../hooks/actions/useProvideEventActions";
-import { ResolvedEventContext } from "../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 import { useQuery } from "@tanstack/react-query";
 import z from "zod";
 import { remoteUriToSourceFormat } from "../../lib/intent";

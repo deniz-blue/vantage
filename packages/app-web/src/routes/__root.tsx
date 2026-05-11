@@ -7,7 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { DatesProvider } from "@mantine/dates";
 import { useLocaleStore } from "../stores/useLocaleStore";
 import { useMemo, type PropsWithChildren } from "react";
-import { queryClient } from "../query-client";
+import { queryClient } from "@vantage/core";
 import { theme } from "../styles/theme";
 import { ServiceWorkerPrompt } from "../components/app/ServiceWorkerPrompt";
 

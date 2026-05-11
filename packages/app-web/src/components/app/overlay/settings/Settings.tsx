@@ -5,10 +5,10 @@ import { Button, Divider, Stack } from "@mantine/core";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { AsyncAction } from "../../../data/AsyncAction";
 import { _migrate26may_ } from "../../../../db/migrations/26may";
-import { db } from "../../../../db/drizzle";
-import { schema } from "@vantage/db";
-import { queryClient } from "../../../../query-client";
+import { schema, db } from "@vantage/db";
+import { queryClient } from "@vantage/core";
 import { notifications } from "@mantine/notifications";
+import { sqlite } from "../../../../db/drizzle";
 
 export const Settings = () => {
 	const language = useLocaleStore((state) => state.language);
@@ -69,13 +69,13 @@ export const Settings = () => {
 
 			<AsyncAction
 				action={async () => {
-					await db.transaction(async tx => {
-						await tx.delete(schema.events);
-						await tx.delete(schema.eventMeta);
-						await tx.delete(schema.eventCache);
-						await tx.delete(schema.tags);
-						await tx.delete(schema.eventTags);
-						await tx.delete(schema.tagHierarchy);
+					await sqlite.transaction(async tx => {
+						await tx.query(db.delete(schema.eventCache));
+						await tx.query(db.delete(schema.eventMeta));
+						await tx.query(db.delete(schema.events));
+						await tx.query(db.delete(schema.eventTags));
+						await tx.query(db.delete(schema.tagHierarchy));
+						await tx.query(db.delete(schema.tags));
 					});
 					await queryClient.invalidateQueries();
 					notifications.show({ title: "Success", message: "All data has been deleted", color: "green" });

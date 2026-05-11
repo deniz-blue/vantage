@@ -1,6 +1,6 @@
 {
 	"include": [
-		"**/*",
+		"**/*", "../core/src/utils/resolved-utils.ts",
 	],
 	"compilerOptions": {
 		"moduleResolution": "Bundler",

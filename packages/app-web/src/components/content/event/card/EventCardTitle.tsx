@@ -6,7 +6,7 @@ import { Trans } from "../../Trans";
 import { Link } from "@tanstack/react-router";
 import { EnvelopeErrorBadge } from "../envelope/EnvelopeErrorBadge";
 import { TranslationsUtil } from "@evnt/translations";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 const loaderTransition: MantineTransition = {
 	in: { opacity: 1, width: "1.5rem" },

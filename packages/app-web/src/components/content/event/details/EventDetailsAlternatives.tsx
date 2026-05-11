@@ -3,7 +3,7 @@ import { Stack, Text } from "@mantine/core";
 import { EventLinkButtonBase } from "../link/EventLinkButtonBase";
 import { IconExternalLink } from "@tabler/icons-react";
 import { SmallTitle } from "../../base/SmallTitle";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventDetailsAlternatives = () => {
 	const { source } = useResolvedEvent();

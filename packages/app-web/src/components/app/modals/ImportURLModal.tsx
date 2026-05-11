@@ -1,5 +1,5 @@
 import { Button, Stack, TextInput } from "@mantine/core";
-import { type ContextModalProps } from "@mantine/modals";
+import { modals, type ContextModalProps } from "@mantine/modals";
 import { useState } from "react";
 import { AsyncAction } from "../../data/AsyncAction";
 import { parseCanonicalResourceUri } from "@atcute/lexicons";
@@ -74,6 +74,12 @@ export const ImportURLModal = ({
 					</Button>
 				)}
 			</AsyncAction>
+			<Button
+				color="gray"
+				onClick={() => modals.close(modalId)}
+			>
+				Cancel
+			</Button>
 		</Stack>
 	);
 }

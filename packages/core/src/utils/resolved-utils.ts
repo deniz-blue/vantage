@@ -1,12 +1,11 @@
-import { EventSourceRegistry } from "@vantage/core";
-import { ResolvedEvent } from "../db/resolved-event";
+import { EventSourceRegistry } from "../lib/source";
 
 export const resolvedEventUtils = {
-	isSourceNetwork(resolved: ResolvedEvent): boolean {
+	isSourceNetwork(resolved: Vantage.ResolvedEvent): boolean {
 		const meta = EventSourceRegistry.get(resolved.source.type);
 		return meta?.network ?? false;
 	},
-	shareLink(resolved: ResolvedEvent): string | null {
+	shareLink(resolved: Vantage.ResolvedEvent): string | null {
 		const meta = EventSourceRegistry.get(resolved.source.type);
 		if (!meta?.shareLink) return null;
 		return meta.shareLink(resolved.source as any);

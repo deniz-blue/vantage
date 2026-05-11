@@ -23,11 +23,26 @@ declare global {
 			status?: number;
 			issues?: any[];
 		}
+
+		interface ComputedData {
+			timeRanges?: {
+				low: number;
+				high: number;
+			}[];
+		}
 	}
 }
 
 const uuid = (name: string) => text(name, { length: 36 });
-const timestamp = (name: string) => integer(name, { mode: "timestamp_ms" }).default(sql`now()`);
+
+const timestamp = customType<{
+	data: Temporal.Instant;
+	driverData: number;
+}>({
+	dataType: () => "integer",
+	fromDriver: (value) => Temporal.Instant.fromEpochMilliseconds(value),
+	toDriver: (value) => value.epochMilliseconds,
+});
 
 // 2.45+ supports JSON mode for blob
 const jsonb = customType<{
@@ -79,6 +94,7 @@ export const eventCache = sqliteTable("event_cache", {
 	parsed: jsonb("parsed").$type<EventData>(),
 	revision: jsonb("revision").$type<Vantage.Revision>().notNull().default(sql`'{}'`),
 	error: jsonb("error").$type<Vantage.Error>(),
+	computed: jsonb("computed").$type<Vantage.ComputedData>().notNull().default(sql`'{}'`),
 });
 
 export type Tag = typeof tags.$inferSelect;

@@ -11,7 +11,7 @@ import { TimeRangeSnippetLabel } from "../../datetime/TimeRangeSnippetLabel";
 import { PartialDateSnippetLabel } from "../../datetime/PartialDateSnippetLabel";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { TranslationsUtil } from "@evnt/translations";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventDetailsInstanceList = () => {
 	const { data } = useResolvedEvent();

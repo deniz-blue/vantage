@@ -1,4 +1,4 @@
-import { defineEventFormat } from "../lib/format";
+import { defineEventFormat } from "../../lib/format";
 import { convertFromLexicon } from "@evnt/convert/community-lexicon";
 
 declare global {

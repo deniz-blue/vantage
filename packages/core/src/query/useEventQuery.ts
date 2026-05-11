@@ -1,14 +1,15 @@
 import { queryOptions, useQueries, useQuery } from "@tanstack/react-query";
-import { fetchEventSource, parseEventFormat } from "@vantage/core";
-import { db } from "./drizzle";
 import { schema } from "@vantage/db";
 import { eq } from "drizzle-orm";
-import { ResolvedEvent } from "./resolved-event";
-import { queryClient } from "../query-client";
+import { queryClient } from "./query-client";
+import { fetchEventSource } from "../lib/source";
+import { parseEventFormat } from "../lib/format";
+import { db } from "@vantage/db";
+import { createComputedData } from "../database/computed";
 
 export const eventQueryKey = (id: Vantage.EventId) => ["event", id] as const;
 
-export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<ResolvedEvent> => {
+export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<Vantage.ResolvedEvent> => {
 	const resolveResult = await fetchEventSource(source);
 	const parseResult = resolveResult.raw ? parseEventFormat(resolveResult.raw, format) : null;
 
@@ -23,15 +24,16 @@ export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vant
 	};
 };
 
-export const eventQueryFn = async (id: Vantage.EventId): Promise<ResolvedEvent> => {
-	const [{
-		event_meta: { source, format },
+export const eventQueryFn = async (id: Vantage.EventId): Promise<Vantage.ResolvedEvent> => {
+	const {
 		event_cache: cached,
-	}] = await db
+		event_meta: { source, format },
+	} = await db
 		.select()
 		.from(schema.eventMeta)
 		.leftJoin(schema.eventCache, eq(schema.eventMeta.id, schema.eventCache.id))
-		.where(eq(schema.eventMeta.id, id));
+		.where(eq(schema.eventMeta.id, id))
+		.then(rows => rows[0]!);
 
 	if (cached) return {
 		id,
@@ -53,7 +55,8 @@ export const eventQueryFn = async (id: Vantage.EventId): Promise<ResolvedEvent> 
 			parsed: resolved.data,
 			raw: resolved.raw,
 			revision: resolved.revision,
-			updatedAt: new Date(),
+			updatedAt: Temporal.Now.instant(),
+			computed: createComputedData(resolved.data),
 		};
 
 		// This can continue in the background maybe
@@ -90,11 +93,13 @@ export const useEventQueries = (ids: Vantage.EventId[]) => useQueries({
 	queries: ids.map(id => eventQueryOptions(id)),
 });
 
+// TODO(WebOnly)
 export const queryChangeBroadcastChannel = new BroadcastChannel("vantage:event-query-changes");
 queryChangeBroadcastChannel.onmessage = (event) => {
 	const { id } = event.data as { id: Vantage.EventId };
 	queryClient.invalidateQueries({ queryKey: eventQueryKey(id) });
 };
+
 export const invalidateEventQuery = (id: Vantage.EventId) => {
 	queryChangeBroadcastChannel.postMessage({ id });
 	queryClient.invalidateQueries({ queryKey: eventQueryKey(id) });

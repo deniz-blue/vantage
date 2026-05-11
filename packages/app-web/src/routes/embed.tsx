@@ -6,15 +6,15 @@ import { EventCard } from "../components/content/event/card/EventCard";
 import { useQuery } from "@tanstack/react-query";
 import { RemoteUriSchema, remoteUriToSourceFormat } from "../lib/intent";
 import { parseEventFormat } from "@vantage/core";
-import { ResolvedEvent, ResolvedEventContext } from "../db/resolved-event";
-import { eventQueryFnNoId } from "../db/useEventQuery";
+import { ResolvedEventContext } from "@vantage/core";
+import { eventQueryFnNoId } from "@vantage/core";
 
 export const sourceOrDataSchema = z.object({
 	source: RemoteUriSchema.optional(),
 	data: z.unknown().optional(),
 });
 
-export const fetchResolvedEventFromQuery = async (search: z.infer<typeof sourceOrDataSchema>): Promise<ResolvedEvent> => {
+export const fetchResolvedEventFromQuery = async (search: z.infer<typeof sourceOrDataSchema>): Promise<Vantage.ResolvedEvent> => {
 	if (search.data) {
 		const raw = JSON.stringify(search.data);
 		const format: Vantage.EventFormat = { type: "directory.evnt.event" };

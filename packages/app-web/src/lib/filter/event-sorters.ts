@@ -1,6 +1,6 @@
 import type { EventData, LanguageKey, PartialDate } from "@evnt/schema";
 import { TranslationsUtil } from "@evnt/translations";
-import { EventQuery } from "../../db/useEventQuery";
+import { EventQuery } from "@vantage/core";
 
 export type EventSorter = (a: EventData, b: EventData) => number;
 

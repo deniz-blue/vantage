@@ -1,28 +1,19 @@
 import { Box, Center, Divider, Group, ScrollArea, Stack, Text, Title } from "@mantine/core";
-import { useEventQueries } from "../../../../db/useEventQuery";
-import { useShallow } from "zustand/react/shallow";
-import { useCacheEventsStore } from "../../../../lib/cache/useCacheEventsStore";
+import { useEventListQuery, useEventQueries } from "@vantage/core";
 import { EventCard } from "../../../content/event/card/EventCard";
 import { EventContextMenu } from "../../../content/event/EventContextMenu";
-import type { PlainDateString } from "@evnt/partial-date";
-import { ResolvedEventContext } from "../../../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 
 export const WidgetUpcomingEvents = () => {
-	const today = Temporal.Now.plainDateISO().toString() as PlainDateString;
+	const currentTimeRoundedMinute = Math.floor(Date.now() / (60 * 1000)) * (60 * 1000);
 
-	const firstFiveUpcomingEvents = useCacheEventsStore(
-		useShallow(state => {
-			const keys = Object.keys(state.cache.byWallDay) as PlainDateString[];
-			const upcomingKeys = keys.filter(key => key >= today).sort().slice(0, 5);
-			const events = upcomingKeys
-				.map((key) => state.cache.byWallDay[key]!)
-				.map(set => [...set])
-				.flat();
-			return [...new Set(events)];
-		})
-	);
+	const ids = useEventListQuery({
+		afterTimestamp: currentTimeRoundedMinute,
+		limit: 10,
+		orderBy: "instanceStart",
+	});
 
-	const queries = useEventQueries(firstFiveUpcomingEvents);
+	const queries = useEventQueries(ids.data || []);
 
 	return (
 		<Stack gap={4}>

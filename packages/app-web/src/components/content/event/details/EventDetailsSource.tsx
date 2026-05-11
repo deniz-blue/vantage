@@ -7,7 +7,7 @@ import { parseCanonicalResourceUri } from "@atcute/lexicons";
 import { useAtProtoHandleQuery } from "../../../../lib/atproto/useAtProtoHandleQuery";
 import { AtprotoDid } from "@atcute/lexicons/syntax";
 import { SourceComponent } from "@evnt/schema";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventDetailsSource = () => {
 	const { data, source } = useResolvedEvent();

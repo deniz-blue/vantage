@@ -1,4 +1,4 @@
-import { defineEventSource } from "../lib/source";
+import { defineEventSource } from "../../lib/source";
 import { parseCanonicalResourceUri, type AtprotoDid } from "@atcute/lexicons/syntax";
 import { CompositeDidDocumentResolver, PlcDidDocumentResolver, WebDidDocumentResolver } from "@atcute/identity-resolver";
 import { Client } from "@atcute/client";

@@ -1,6 +1,6 @@
 import { Badge, Stack, Text, Tooltip, type BoxProps } from "@mantine/core";
 import { getEnvelopeErrorMeta } from "./envelope-error-meta";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EnvelopeErrorBadge = (props: BoxProps) => {
 	const { error } = useResolvedEvent();

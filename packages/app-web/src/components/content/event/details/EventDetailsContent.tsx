@@ -11,9 +11,9 @@ import { EventDetailsSource } from "./EventDetailsSource";
 import { EventDetailsAlternatives } from "./EventDetailsAlternatives";
 import { RichTextRenderer } from "./RichTextRenderer";
 import type { Facet } from "@atcute/bluesky-richtext-segmenter";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 import { EventSourceRegistry } from "@vantage/core";
-import { resolvedEventUtils } from "../../../../lib/resolved-utils";
+import { resolvedEventUtils } from "@vantage/core";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;

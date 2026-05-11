@@ -12,7 +12,7 @@ import { useShallow } from "zustand/shallow";
 import { EventTimeframeBadge } from "../badges/EventTimeframeBadge";
 import { EventStatusBadge } from "../badges/EventStatusBadge";
 import { TranslationsUtil } from "@evnt/translations";
-import { useResolvedEvent } from "../../../../db/resolved-event";
+import { useResolvedEvent } from "@vantage/core";
 
 export const EventDetailsBanner = () => {
 	const { data } = useResolvedEvent();

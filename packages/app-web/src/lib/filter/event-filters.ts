@@ -1,5 +1,5 @@
 import type { EventData, EventInstance, Venue, VenueType } from "@evnt/schema";
-import type { EventQuery } from "../../db/useEventQuery";
+import type { EventQuery } from "@vantage/core";
 import { TranslationsUtil } from "@evnt/translations";
 import { PartialDateUtil } from "@evnt/partial-date";
 

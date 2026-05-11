@@ -1,12 +1,12 @@
 import { useEventDetailsModal } from "../../../../hooks/app/useEventDetailsModal";
 import { BaseOverlay } from "../base/BaseOverlay";
 import { EventDetailsContent } from "../../../content/event/details/EventDetailsContent";
-import { useEventQuery } from "../../../../db/useEventQuery";
+import { useEventQuery } from "@vantage/core";
 import { Affix, Button, Space, Transition } from "@mantine/core";
 import { useProvideEventActions } from "../../../../hooks/actions/useProvideEventActions";
 import { Link } from "@tanstack/react-router";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
-import { ResolvedEventContext } from "../../../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 
 export const EventDetailsOverlay = () => {
 	const { close, useValue } = useEventDetailsModal();

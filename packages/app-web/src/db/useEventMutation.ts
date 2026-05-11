@@ -1,7 +1,6 @@
-import { db } from "./drizzle";
-import { schema } from "@vantage/db";
+import { schema, db } from "@vantage/db";
 import { eq } from "drizzle-orm";
-import { invalidateEventQuery } from "./useEventQuery";
+import { createComputedData, invalidateEventQuery } from "@vantage/core";
 
 export interface EventMutationParams {
 	id: Vantage.EventId;
@@ -22,9 +21,14 @@ export const eventMutationFn = async ({ id, raw }: EventMutationParams) => {
 
 	// TODO: this is a hack and will break the moment we support editing non-OpenEvnt formats
 
-	const updatedAt = new Date();
+	const updatedAt = Temporal.Now.instant();
 	await db.update(schema.eventCache)
-		.set({ raw, parsed: JSON.parse(raw), updatedAt })
+		.set({
+			raw,
+			parsed: JSON.parse(raw),
+			updatedAt,
+			computed: createComputedData(JSON.parse(raw)),
+		})
 		.where(eq(schema.eventCache.id, id));
 	invalidateEventQuery(id);
 };

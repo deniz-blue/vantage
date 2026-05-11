@@ -1,4 +1,4 @@
-import { defineEventFormat } from "../lib/format";
+import { defineEventFormat } from "../../lib/format";
 import { EventDataSchema } from "@evnt/schema";
 
 declare global {

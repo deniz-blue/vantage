@@ -2,13 +2,13 @@ import { Box, Indicator, Stack } from "@mantine/core";
 import { useState } from "react";
 import { useCacheEventsStore } from "../../lib/cache/useCacheEventsStore";
 import { useShallow } from "zustand/shallow";
-import { useEventQueries } from "../../db/useEventQuery";
+import { useEventQueries } from "@vantage/core";
 import { EventCard, type EventCardProps } from "../../components/content/event/card/EventCard";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarMonth } from "../../components/calendar/CalendarMonth";
 import { CalendarMobileMonth } from "../../components/calendar/CalendarMobileMonth";
 import { Day } from "@mantine/dates";
-import { ResolvedEventContext } from "../../db/resolved-event";
+import { ResolvedEventContext } from "@vantage/core";
 
 export const Route = createFileRoute("/_layout/calendar")({
 	component: CalendarPage,
