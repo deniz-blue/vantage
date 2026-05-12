@@ -19,6 +19,11 @@ declare global {
 defineEventSource({
 	type: "http",
 	editable: false,
+
+	shareLink: ({ url }) => `https://eventsl.ink/e?${new URLSearchParams({
+		url,
+	})}`,
+
 	resolve: async ({ url }) => {
 		const res = await fetch(url);
 		if (!res.ok) throw res;

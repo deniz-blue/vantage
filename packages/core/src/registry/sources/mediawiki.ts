@@ -22,6 +22,14 @@ declare global {
 defineEventSource({
 	type: "mediawiki",
 	network: true,
+
+	shareLink: ({ url, title }) => {
+		const endpoint = new URL(`rest.php/v1/page/${title}`, url);
+		return `https://eventsl.ink/e?${new URLSearchParams({
+			url: endpoint.toString(),
+		})}`;
+	},
+
 	resolve: async ({ url, title }) => {
 		const endpoint = new URL(`rest.php/v1/page/${title}`, url);
 		const res = await fetch(endpoint);

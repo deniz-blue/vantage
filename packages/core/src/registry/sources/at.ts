@@ -31,6 +31,9 @@ export const didDocumentResolver = new CompositeDidDocumentResolver({
 defineEventSource({
 	type: "at",
 	editable: false,
+
+	shareLink: ({ uri }) => `https://eventsl.ink/e?at=${uri}`,
+
 	resolve: async ({ uri }) => {
 		const parsed = parseCanonicalResourceUri(uri);
 		if (!parsed.ok) throw new Error(`Invalid at-uri: ${parsed.error}`);

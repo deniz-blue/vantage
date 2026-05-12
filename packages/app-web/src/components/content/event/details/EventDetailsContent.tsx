@@ -14,6 +14,7 @@ import type { Facet } from "@atcute/bluesky-richtext-segmenter";
 import { useResolvedEvent } from "@vantage/core";
 import { EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
+import { SmallTitle } from "../../base/SmallTitle";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
@@ -75,7 +76,13 @@ export const EventDetailsDescriptionList = () => {
 	if (!bskyRichTextComp) return null;
 
 	return (
-		<RichTextRenderer content={bskyRichTextComp.text} facets={bskyRichTextComp.facets ?? []} />
+		<Stack gap="0" component="section">
+			<SmallTitle>
+				description
+			</SmallTitle>
+
+			<RichTextRenderer content={bskyRichTextComp.text} facets={bskyRichTextComp.facets ?? []} />
+		</Stack>
 	)
 };
 

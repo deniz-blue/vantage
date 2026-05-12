@@ -1,6 +1,6 @@
 import { Stack, Text } from "@mantine/core";
 import { SmallTitle } from "../../base/SmallTitle";
-import { IconAt, IconBraces, IconDatabase, IconExternalLink, IconWorld } from "@tabler/icons-react";
+import { IconAt, IconBraces, IconBrandWikipedia, IconDatabase, IconExternalLink, IconQuestionMark, IconWorld } from "@tabler/icons-react";
 import { BaseSnippet } from "../../Snippet";
 import { EventLinkButtonBase } from "../link/EventLinkButtonBase";
 import { parseCanonicalResourceUri } from "@atcute/lexicons";
@@ -10,7 +10,7 @@ import { SourceComponent } from "@evnt/schema";
 import { useResolvedEvent } from "@vantage/core";
 
 export const EventDetailsSource = () => {
-	const { data, source } = useResolvedEvent();
+	const { data, source, format } = useResolvedEvent();
 
 	const sourceComponents = data?.components?.filter((c): c is SourceComponent => c.$type === "directory.evnt.component.source") ?? [];
 
@@ -33,6 +33,14 @@ export const EventDetailsSource = () => {
 					</Text> <IconExternalLink size={14} />
 				</EventLinkButtonBase>
 			))}
+
+			{source.type === "unknown" && (
+				<BaseSnippet icon={<IconQuestionMark />}>
+					<Text inline>
+						Unknown
+					</Text>
+				</BaseSnippet>
+			)}
 
 			{source.type === "local" && (
 				<BaseSnippet icon={<IconDatabase />}>
@@ -96,6 +104,60 @@ export const EventDetailsSource = () => {
 						</Text> <IconExternalLink size={14} />
 					</EventLinkButtonBase>
 				</Stack>
+			)}
+
+			{source.type === "mediawiki" && (
+				<Stack gap={4}>
+					<BaseSnippet icon={<IconBrandWikipedia />}>
+						<Text inline>
+							MediaWiki
+						</Text>
+					</BaseSnippet>
+					<EventLinkButtonBase
+						leftSection={<IconBraces />}
+						url={new URL(`/index.php?action=view&title=${source.title}`, source.url).toString()}
+					>
+						<Text inherit span mr={4}>
+							View Page
+						</Text> <IconExternalLink size={14} />
+					</EventLinkButtonBase>
+				</Stack>
+			)}
+
+			<SmallTitle mt="xs">
+				format
+			</SmallTitle>
+
+			{format.type === "unknown" && (
+				<BaseSnippet icon={<IconQuestionMark />}>
+					<Text inline>
+						Unknown
+					</Text>
+				</BaseSnippet>
+			)}
+
+			{format.type === "directory.evnt.event" && (
+				<BaseSnippet icon={<IconBraces />}>
+					<Text inline>
+						Open Evnt
+					</Text>
+				</BaseSnippet>
+			)}
+
+			{format.type === "ics" && (
+				<BaseSnippet icon={<IconBraces />}>
+					<Text inline>
+						iCalendar (ICS)
+					</Text>
+				</BaseSnippet>
+			)}
+
+			{format.type === "community.lexicon.calendar.event" && (
+				<BaseSnippet icon={<IconBraces />}>
+					<Text inline>
+						Community Lexicon
+					</Text>
+				</BaseSnippet>
 			)}
 		</Stack>
 	)
