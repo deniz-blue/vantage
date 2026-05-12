@@ -31,7 +31,7 @@ export const EventActionFactory = {
 			// EventActionFactory.RefetchData(resolved),
 			// EventActionFactory.CopyEmbedLink(resolved),
 			EventActionFactory.ViewOnPDS(resolved),
-			EventActionFactory.Delete(resolved),
+			EventActionFactory.Delete(navigate, resolved),
 		],
 
 	Edit: (navigate: ReturnType<typeof useNavigate>, resolved: Vantage.ResolvedEvent) => ({
@@ -191,11 +191,11 @@ export const EventActionFactory = {
 			href: `https://pds.ls/${(resolved.source as any).uri}`,
 		},
 	}),
-	Delete: (resolved: Vantage.ResolvedEvent) => ({
-		label: resolvedEventUtils.isSourceNetwork(resolved) ? "Remove" : "Delete",
+	Delete: (navigate: ReturnType<typeof useNavigate>, resolved: Vantage.ResolvedEvent) => ({
+		label: resolvedEventUtils.isSourceNetwork(resolved) ? "Stop Following" : "Delete",
 		category: "Event",
 		icon: <IconTrash />,
-		disabled: !resolved.id || resolvedEventUtils.isSourceNetwork(resolved),
+		disabled: !resolved.id,
 		execute: () => openConfirmModal(
 			resolvedEventUtils.isSourceNetwork(resolved) ? "Are you sure you want to stop following this event?" : "Are you sure you want to delete this event? This action cannot be undone.",
 			async () => {
@@ -211,7 +211,7 @@ export const EventActionFactory = {
 					id,
 					message: "Event deleted",
 					loading: false,
-					color: "green",
+					color: "red",
 				});
 			},
 		),

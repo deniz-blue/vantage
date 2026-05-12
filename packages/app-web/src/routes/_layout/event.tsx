@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { eventQueryFn, eventQueryFnNoId, eventQueryKey } from "@vantage/core";
+import { eventQueryFn, eventQueryFnNoId, eventQueryKey, inferSourceFormat } from "@vantage/core";
 import { Container, Space, Stack } from "@mantine/core";
 import { EventDetailsContent } from "../../components/content/event/details/EventDetailsContent";
 import { useProvideEventActions } from "../../hooks/actions/useProvideEventActions";
 import { ResolvedEventContext } from "@vantage/core";
 import { useQuery } from "@tanstack/react-query";
 import z from "zod";
-import { remoteUriToSourceFormat } from "../../lib/intent";
 
 const SearchParamsSchema = z.object({
 	id: (z.uuid() as z.ZodType<Vantage.EventId>).optional(),
@@ -28,7 +27,7 @@ function EventPage() {
 		queryFn: async () => {
 			if (id) return await eventQueryFn(id);
 			if (source) {
-				const { source: eventSource, format } = remoteUriToSourceFormat(source);
+				const { source: eventSource, format } = await inferSourceFormat(source);
 				return await eventQueryFnNoId(eventSource, format);
 			}
 			throw new Error("Either id or source must be provided");

@@ -10,6 +10,8 @@ import { Box, Loader, Paper } from "@mantine/core";
 import { useActionsStore, type Action } from "./useActionsStore";
 import { useTranslations } from "../../../../stores/useLocaleStore";
 import { ResolvedEventContext } from "@vantage/core";
+import { trynull } from "../../../../lib/util/trynull";
+import { EVENT_REDIRECTOR_URL } from "../../../../constants";
 
 export const VantageSpotlight = () => {
 	const [query, setQuery] = useState("");
@@ -28,28 +30,28 @@ export const VantageSpotlight = () => {
 	const filteredActions = actions
 		.filter(props => props.label?.toLowerCase().includes(query.toLowerCase()));
 
-	// const asUrl = trynull(() => new URL(query));
+	const asUrl = trynull(() => new URL(query));
 
-	// const maybeFromRedirector = asUrl && query.startsWith(EVENT_REDIRECTOR_URL) ? asUrl.searchParams.get("url") || asUrl.searchParams.get("at") : null;
+	const maybeFromRedirector = asUrl && query.startsWith(EVENT_REDIRECTOR_URL) ? asUrl.searchParams.get("url") || asUrl.searchParams.get("at") : null;
 
-	// if (!!maybeFromRedirector)
-	// 	filteredActions.push({
-	// 		label: "View Event",
-	// 		icon: <IconCalendar />,
-	// 		execute: () => navigate({
-	// 			to: "/event",
-	// 			search: { source: maybeFromRedirector },
-	// 		}),
-	// 	});
-	// else if (UtilEventSource.is(query, false))
-	// 	filteredActions.push({
-	// 		label: "View Event",
-	// 		icon: <IconCalendar />,
-	// 		execute: () => navigate({
-	// 			to: "/event",
-	// 			search: { source: query },
-	// 		}),
-	// 	});
+	if (!!maybeFromRedirector)
+		filteredActions.push({
+			label: "View Event",
+			icon: <IconCalendar />,
+			execute: () => navigate({
+				to: "/event",
+				search: { source: maybeFromRedirector },
+			}),
+		});
+	else if (query.startsWith("http://") || query.startsWith("https://") || query.startsWith("at://"))
+		filteredActions.push({
+			label: "View Event",
+			icon: <IconCalendar />,
+			execute: () => navigate({
+				to: "/event",
+				search: { source: query },
+			}),
+		});
 
 	const categorizedActions = filteredActions
 		.reduce((acc, cur) => ({

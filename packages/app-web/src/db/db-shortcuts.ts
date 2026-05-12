@@ -1,5 +1,5 @@
 import { schema, db } from "@vantage/db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { createComputedData, invalidateEventQuery } from "@vantage/core";
 import { parseEventFormat } from "@vantage/core";
 import { invalidateEventListQueries } from "@vantage/core";
@@ -85,5 +85,13 @@ export const dbShortcuts = {
 		await db.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
 		invalidateEventQuery(id);
 		invalidateEventListQueries();
+	},
+
+	eventMetaExists: async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<boolean> => {
+		const rows = await db
+			.select({ id: schema.eventMeta.id })
+			.from(schema.eventMeta)
+			.where(and(eq(schema.eventMeta.source, source), eq(schema.eventMeta.format, format)));
+		return rows.length > 0;
 	},
 };

@@ -4,8 +4,8 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { Center, Stack, Text } from "@mantine/core";
 import { EventCard } from "../components/content/event/card/EventCard";
 import { useQuery } from "@tanstack/react-query";
-import { RemoteUriSchema, remoteUriToSourceFormat } from "../lib/intent";
-import { parseEventFormat } from "@vantage/core";
+import { RemoteUriSchema } from "../lib/intent";
+import { inferSourceFormat, parseEventFormat } from "@vantage/core";
 import { ResolvedEventContext } from "@vantage/core";
 import { eventQueryFnNoId } from "@vantage/core";
 
@@ -32,7 +32,7 @@ export const fetchResolvedEventFromQuery = async (search: z.infer<typeof sourceO
 
 	if (!search.source) throw new Error("Either source or data must be provided");
 
-	const { source, format } = remoteUriToSourceFormat(search.source);
+	const { source, format } = await inferSourceFormat(search.source);
 	return await eventQueryFnNoId(source, format);
 };
 

@@ -25,6 +25,11 @@ export const EventCardBottom = () => {
 							<Badge color="blue" size="xs" variant="outline" children="@" />
 						</Tooltip>
 					)}
+					{source.type === "mediawiki" && (
+						<Tooltip label="MediaWiki">
+							<Badge color="purple" size="xs" variant="outline" children="W" />
+						</Tooltip>
+					)}
 					{format.type === "ics" && (
 						<Tooltip label="Apple iCalendar / ICS Format">
 							<Badge color="orange" size="xs" variant="outline" children="ICS" />
