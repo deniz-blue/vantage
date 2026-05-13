@@ -62,11 +62,12 @@ export function EmbedPage() {
 			<ResolvedEventContext value={query.data ?? null}>
 				<EventCard
 					loading={query?.isLoading ?? false}
+					embedSource={search.source}
 					variant="card"
 					embed
 				/>
 			</ResolvedEventContext>
-			<style children="html, body, #root { height: 100%; margin: 0; }" />
+			<style children="html, body, #root { height: 100%; margin: 0; background: transparent !important; }" />
 		</Stack>
 	)
 }

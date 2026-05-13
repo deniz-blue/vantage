@@ -2,8 +2,10 @@ import { Badge, Button, Group, Stack, Tooltip } from "@mantine/core";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useResolvedEvent } from "@vantage/core";
+import { useEventCardContext } from "./event-card-context";
 
 export const EventCardBottom = () => {
+	const { embedSource } = useEventCardContext();
 	const { id, source, format } = useResolvedEvent();
 
 	return (
@@ -47,7 +49,7 @@ export const EventCardBottom = () => {
 					)}
 				</Group>
 				<Group>
-					{id && (
+					{(id || embedSource) && (
 						<Button
 							size="compact-sm"
 							variant="light"
@@ -56,7 +58,8 @@ export const EventCardBottom = () => {
 							renderRoot={(props) => (
 								<Link
 									to="/event"
-									search={{ id }}
+									search={embedSource ? { source: embedSource } : { id }}
+									target={embedSource ? "_blank" : undefined}
 									{...props}
 								/>
 							)}

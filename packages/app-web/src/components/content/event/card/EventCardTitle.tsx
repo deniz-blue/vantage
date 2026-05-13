@@ -22,7 +22,7 @@ const loadingTextTransition: MantineTransition = {
 
 export const EventCardTitle = () => {
 	const { data, error, id } = useResolvedEvent();
-	const { loading, variant, menu, embed } = useEventCardContext();
+	const { loading, variant, menu, embed, embedSource } = useEventCardContext();
 	const { key } = useEventDetailsModal();
 
 	let title: ReactNode = <Text inherit inline span c="dimmed" fz="sm" fs="italic" children="<no title>" />;
@@ -51,11 +51,20 @@ export const EventCardTitle = () => {
 						<Anchor
 							c="unset"
 							inherit
-							renderRoot={(props) => (
+							renderRoot={(props) => embed ? (
+								<Link
+									to="/event"
+									search={{
+										source: embedSource,
+									}}
+									target="_blank"
+									disabled={!embedSource}
+									{...props}
+								/>
+							) : (
 								<Link
 									to="."
 									search={(old) => ({ ...old, [key]: id })}
-									target={embed ? "_blank" : undefined}
 									disabled={!id}
 									{...props}
 								/>

@@ -13,6 +13,7 @@ export interface EventCardProps {
 	menu?: React.ReactNode;
 	loading?: boolean;
 	embed?: boolean;
+	embedSource?: string;
 	fullHeight?: boolean;
 };
 
@@ -21,12 +22,13 @@ export const EventCard = (props: EventCardProps) => {
 		<Paper
 			p={props.variant == "inline" ? 0 : "xs"}
 			px={props.variant == "inline" ? 1 : undefined}
+			radius="md"
 			withBorder
 			w="100%"
 			h={props.fullHeight ? "100%" : props.variant === "card" ? "100%" : undefined}
 			shadow="xs"
 			pos="relative"
-			style={{ overflow: "hidden" }}
+			style={{ overflow: "clip" }}
 			className={classes.card}
 		>
 			<EventCardContext value={props}>
