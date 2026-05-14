@@ -1,5 +1,5 @@
 {
-	"name": "@vantage/core",
+	"name": "@vantage/atproto",
 	"private": true,
 	"main": "src/index.ts",
 	"devDependencies": {
@@ -12,15 +12,7 @@
 		"@atcute/identity": "^1.1.4",
 		"@atcute/identity-resolver": "^1.2.2",
 		"@atcute/lexicons": "^1.3.0",
-		"@evnt/convert": "^0.0.4",
-		"@evnt/partial-date": "^0.0.2",
 		"@evnt/schema": "^0.0.9",
-		"@tanstack/react-query": "^5.100.9",
-		"@vantage/db": "workspace:*",
-		"@vantage/atproto": "workspace:*",
-		"drizzle-orm": "^0.45.2",
-		"ical.js": "^2.2.1",
-		"react": "^19.2.6",
-		"zod": "^4.3.6"
+		"react": "^19.2.6"
 	}
 }
