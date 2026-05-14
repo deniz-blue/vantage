@@ -78,11 +78,11 @@ export const EventActionFactory = {
 		icon: <IconQrcode />,
 		disabled: !resolvedEventUtils.shareLink(resolved),
 		category: "Event",
-		execute: () => modals.open({
-			size: "md",
-			children: (
-				<QRCode value={resolvedEventUtils.shareLink(resolved)!} />
-			),
+		execute: () => modals.openContextModal({
+			modal: "QRCodeModal",
+			innerProps: {
+				value: resolvedEventUtils.shareLink(resolved)!,
+			},
 		}),
 		id: "share-link-qrcode",
 		deps: [resolved.id],
@@ -117,9 +117,6 @@ export const EventActionFactory = {
 		icon: <IconJson />,
 		execute: () => modals.openContextModal({
 			modal: "CodeBlockModal",
-			centered: true,
-			withCloseButton: false,
-			size: "xl",
 			innerProps: {
 				raw: resolved.raw ?? "",
 			},

@@ -1,4 +1,4 @@
-import { createTheme, DEFAULT_THEME, type ActionIconProps, type ButtonProps, type TooltipProps } from "@mantine/core";
+import { createTheme, DEFAULT_THEME, Modal, type ActionIcon, type Button, type Tooltip } from "@mantine/core";
 
 export const theme = createTheme({
 	fontFamily: "Lexend, " + DEFAULT_THEME.fontFamily,
@@ -6,12 +6,12 @@ export const theme = createTheme({
 		ActionIcon: {
 			defaultProps: {
 				variant: "light",
-			} as ActionIconProps,
+			} as ActionIcon.Props,
 		},
 		Button: {
 			defaultProps: {
 				variant: "light",
-			} as ButtonProps,
+			} as Button.Props,
 		},
 		Tooltip: {
 			defaultProps: {
@@ -21,7 +21,14 @@ export const theme = createTheme({
 				color: "gray",
 				opacity: 0.9,
 				multiline: true,
-			} as TooltipProps,
+			} as Tooltip.Props,
+		},
+		Modal: {
+			defaultProps: {
+				centered: true,
+				size: "lg",
+				withCloseButton: false,
+			} as Modal.Props,
 		},
 	},
 });

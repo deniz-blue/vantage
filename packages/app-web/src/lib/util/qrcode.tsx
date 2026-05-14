@@ -56,7 +56,13 @@ export const createQRCode = (text: string, opts?: QrOpts & {
 	return uri;
 };
 
-export const QRCode = ({ value }: { value: string }) => {
+export const QRCode = ({
+	value,
+	ref,
+}: {
+	value: string;
+	ref?: React.Ref<HTMLImageElement>;
+}) => {
 	const qrCodeSrc = createQRCode(value, {
 		desiredSize: 128,
 	});
@@ -64,10 +70,12 @@ export const QRCode = ({ value }: { value: string }) => {
 		<img
 			src={qrCodeSrc}
 			alt={value}
+			ref={ref}
 			style={{
 				imageRendering: "pixelated",
 				width: "100%",
 				height: "auto",
+				borderRadius: "var(--mantine-radius-default)",
 			}}
 		/>
 	);
