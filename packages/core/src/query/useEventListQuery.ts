@@ -25,14 +25,18 @@ export const useEventListQuery = (options: ListOptions) => {
 		queryFn: async () => {
 			const sqlSearch = sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.parsed}, '$.name') WHERE value LIKE ${"%"+options.search+"%"})`;
 
+			const timeRangeSearch = (options.beforeTimestamp || options.afterTimestamp) ? sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.computed}, '$.timeRanges') WHERE 1=1
+				${options.beforeTimestamp ? sql`AND json_extract(value, '$.high') < ${options.beforeTimestamp}` : sql``}
+				${options.afterTimestamp ? sql`AND json_extract(value, '$.low') > ${options.afterTimestamp}` : sql``}
+			)` : undefined;
+
 			const where = and(
 				(options.search?.length ?? 0) > 0 ? sqlSearch : undefined,
 				(options.error === true) ? sql`${schema.eventCache.error} IS NOT NULL` : undefined,
 				(options.error === false) ? sql`${schema.eventCache.error} IS NULL` : undefined,
 				(options.sourceType) ? sql`json_extract(${schema.eventMeta.source}, '$.type') = ${options.sourceType}` : undefined,
 				(options.formatType) ? sql`json_extract(${schema.eventMeta.format}, '$.type') = ${options.formatType}` : undefined,
-				(options.beforeTimestamp) ? sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.computed}, '$.timeRanges') WHERE json_extract(value, '$.high') < ${options.beforeTimestamp})` : undefined,
-				(options.afterTimestamp) ? sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.computed}, '$.timeRanges') WHERE json_extract(value, '$.low') > ${options.afterTimestamp})` : undefined,
+				timeRangeSearch,
 			);
 
 			let orderBy: SQL[] = [];

@@ -16,6 +16,7 @@ import { EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
 import { SmallTitle } from "../../base/SmallTitle";
 import { EventDetailsRevision } from "./EventDetailsRevision";
+import { dbShortcuts } from "../../../../db/db-shortcuts";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
@@ -93,10 +94,9 @@ export const EventRefetchButton = () => {
 
 	if (!id) return null;
 
-	// TODO
 	return (
 		<Tooltip label={"Refetch"} withArrow>
-			<AsyncAction action={async () => { }}>
+			<AsyncAction action={async () => await dbShortcuts.refetchEvent(id)}>
 				{({ loading, onClick }) => (
 					<Button
 						size="compact-sm"

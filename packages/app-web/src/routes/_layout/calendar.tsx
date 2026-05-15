@@ -2,7 +2,7 @@ import { Box, Indicator, Stack } from "@mantine/core";
 import { useState } from "react";
 import { useCacheEventsStore } from "../../lib/cache/useCacheEventsStore";
 import { useShallow } from "zustand/shallow";
-import { useEventQueries } from "@vantage/core";
+import { useEventListQuery, useEventQueries } from "@vantage/core";
 import { EventCard, type EventCardProps } from "../../components/content/event/card/EventCard";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarMonth } from "../../components/calendar/CalendarMonth";
@@ -87,11 +87,14 @@ export const DayCard = ({
 	day: `${number}-${number}-${number}`;
 	variant?: EventCardProps["variant"];
 }) => {
-	const sources = useCacheEventsStore(
-		useShallow(store => [...(store.cache.byWallDay[day] ?? [])])
-	);
+	const lowTimestamp = Temporal.PlainDate.from(day).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds;
+	const highTimestamp = Temporal.PlainDate.from(day).add({ days: 1 }).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds - 1;
+	const ids = useEventListQuery({
+		beforeTimestamp: highTimestamp,
+		afterTimestamp: lowTimestamp,
+	});
 
-	const queries = useEventQueries(sources);
+	const queries = useEventQueries(ids.data ?? []);
 
 	return (
 		<Stack gap={0}>

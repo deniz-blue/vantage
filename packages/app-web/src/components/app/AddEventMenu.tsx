@@ -1,6 +1,6 @@
 import { ActionIcon, Menu } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconBraces, IconBrandBluesky, IconCalendarPlus, IconEdit, IconFileImport, IconLink } from "@tabler/icons-react";
+import { IconBraces, IconBrandBluesky, IconBrandWikipedia, IconCalendarPlus, IconEdit, IconFileImport, IconLink } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { useTasksStore } from "../../stores/useTasksStore";
@@ -98,6 +98,15 @@ export const AddEventMenu = () => {
 					})}
 				>
 					From Atmosphere
+				</Menu.Item>
+				<Menu.Item
+					leftSection={<IconBrandWikipedia />}
+					onClick={() => modals.openContextModal({
+						modal: "ImportWikiModal",
+						innerProps: {},
+					})}
+				>
+					From Wiki
 				</Menu.Item>
 			</Menu.Dropdown>
 		</Menu>

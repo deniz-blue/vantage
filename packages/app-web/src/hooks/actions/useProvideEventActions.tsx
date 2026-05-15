@@ -1,6 +1,6 @@
 import { useProvideActionList } from "../../components/app/overlay/spotlight/useAction";
 import { handleAsyncCopy, handleCopy } from "../../lib/util/copy";
-import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, IconQrcode, IconShare, IconTrash } from "@tabler/icons-react";
+import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, IconQrcode, IconReload, IconShare, IconTrash } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { QRCode } from "../../lib/util/qrcode";
 import { modals } from "@mantine/modals";
@@ -28,7 +28,7 @@ export const EventActionFactory = {
 			EventActionFactory.ViewRaw(resolved),
 			EventActionFactory.ViewParsed(resolved),
 			EventActionFactory.ViewDebug(resolved),
-			// EventActionFactory.RefetchData(resolved),
+			EventActionFactory.RefetchData(resolved),
 			// EventActionFactory.CopyEmbedLink(resolved),
 			EventActionFactory.ViewOnPDS(resolved),
 			EventActionFactory.Delete(navigate, resolved),
@@ -156,15 +156,15 @@ export const EventActionFactory = {
 		id: "view-event-debug",
 		deps: [resolved.id],
 	}),
-	// RefetchData: (resolved: ResolvedEvent) => ({
-	// 	label: "Refetch",
-	// 	category: "Event",
-	// 	icon: <IconReload />,
-	// 	disabled: !UtilEventSource.isFromNetwork(resolved.source),
-	// 	execute: () => EventResolver.update(resolved.source),
-	// 	id: "refetch-event",
-	// 	deps: [resolved.id],
-	// }),
+	RefetchData: (resolved: Vantage.ResolvedEvent) => ({
+		label: "Refetch",
+		category: "Event",
+		icon: <IconReload />,
+		disabled: !resolved.id || !resolvedEventUtils.isSourceNetwork(resolved),
+		execute: () => dbShortcuts.refetchEvent(resolved.id!),
+		id: "refetch-event",
+		deps: [resolved.id],
+	}),
 	// TODO
 	// CopyEmbedLink: (resolved: ResolvedEvent) => ({
 	// 	label: "Copy Embed Link",

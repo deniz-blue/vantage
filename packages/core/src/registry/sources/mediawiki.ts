@@ -60,3 +60,22 @@ defineEventSource({
 		};
 	},
 });
+
+export const mediawiki = {
+	searchPages: async (url: string, query: string, limit: number = 10): Promise<string[]> => {
+		const endpoint = new URL(`rest.php/v1/search/page?${new URLSearchParams([
+			["q", query],
+			["limit", limit.toString()],
+		])}`, url);
+		const res = await fetch(endpoint);
+		if (!res.ok) throw res;
+		const json = await res.json() as {
+			pages: {
+				id: number;
+				key: string;
+				title: string;
+			}[];
+		};
+		return json.pages.map(page => page.key);
+	},
+};

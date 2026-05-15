@@ -2,12 +2,61 @@ import { queryOptions, useQueries, useQuery } from "@tanstack/react-query";
 import { schema } from "@vantage/db";
 import { eq } from "drizzle-orm";
 import { queryClient } from "./query-client";
-import { fetchEventSource } from "../lib/source";
-import { parseEventFormat } from "../lib/format";
+import { fetchEventSource, type EventResolveResult } from "../lib/source";
+import { parseEventFormat, type EventParseResult } from "../lib/format";
 import { db } from "@vantage/db";
 import { createComputedData } from "../database/computed";
+import type { EventData } from "@evnt/schema";
 
 export const eventQueryKey = (id: Vantage.EventId) => ["event", id] as const;
+
+// experimental
+export const eventQueryFnX = async ({
+	id,
+	source,
+	sourceResult,
+	format,
+	parseResult,
+	raw,
+	parsed,
+}: {
+	id?: Vantage.EventId | null;
+	source?: Vantage.EventSource;
+	sourceResult?: EventResolveResult;
+	format?: Vantage.EventFormat;
+	parseResult?: EventParseResult;
+	raw?: string | null;
+	parsed?: EventData;
+}): Promise<Vantage.ResolvedEvent> => {
+	id ??= null;
+	source ??= { type: "unknown" };
+	format ??= (!raw && !!parsed) ? { type: "directory.evnt.event" } : { type: "unknown" };
+	raw ??= (parsed && (!format || format.type === "directory.evnt.event")) ? JSON.stringify(parsed) : (sourceResult?.raw ?? null);
+
+	if (!parsed && !raw && source && source.type !== "unknown" && !sourceResult) {
+		const resolveResult = await fetchEventSource(source);
+		sourceResult = resolveResult;
+		raw = resolveResult.raw;
+	};
+
+	if (!parsed && raw && format.type !== "unknown" && !parseResult) {
+		parseResult = parseEventFormat(raw, format);
+	};
+
+	const data = parsed ?? parseResult?.parsed ?? null;
+	const error = sourceResult?.error || parseResult?.error || null;
+	const revision = sourceResult?.revision ?? {};
+
+	return {
+		id,
+		error,
+		raw,
+		data,
+		format,
+		source,
+		revision,
+	};
+};
 
 export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<Vantage.ResolvedEvent> => {
 	const resolveResult = await fetchEventSource(source);
@@ -48,14 +97,19 @@ export const eventQueryFn = async (id: Vantage.EventId): Promise<Vantage.Resolve
 		event_meta: { source, format },
 	} = result;
 
-	if (cached) return {
-		id,
-		data: cached?.parsed || null,
-		raw: cached?.raw || null,
-		error: cached?.error || null,
-		revision: cached?.revision || {},
-		source,
-		format,
+	if (cached) {
+		const now = Temporal.Now.instant();
+		const maxAge = Temporal.Duration.from({ minutes: 5 });
+
+		if (true) return {
+			id,
+			data: cached?.parsed || null,
+			raw: cached?.raw || null,
+			error: cached?.error || null,
+			revision: cached?.revision || {},
+			source,
+			format,
+		};
 	};
 
 	const resolved = await eventQueryFnNoId(source, format);
