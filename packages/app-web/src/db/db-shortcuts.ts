@@ -18,6 +18,11 @@ export const dbShortcuts = {
 		.where(eq(schema.eventCache.id, id))
 		.then(rows => rows[0]?.parsed || null),
 
+	getFromMeta: (source: Vantage.EventSource, format: Vantage.EventFormat) => db
+		.select()
+		.from(schema.eventMeta)
+		.where(and(eq(schema.eventMeta.source, source), eq(schema.eventMeta.format, format))),
+
 	insertLocalEvent: async (raw: string, format: Vantage.EventFormat): Promise<Vantage.EventId> => {
 		const source: Vantage.EventSource = { type: "local" };
 		const id = await sqlite.transaction(async tx => {
@@ -85,13 +90,5 @@ export const dbShortcuts = {
 		await db.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
 		invalidateEventQuery(id);
 		invalidateEventListQueries();
-	},
-
-	eventMetaExists: async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<boolean> => {
-		const rows = await db
-			.select({ id: schema.eventMeta.id })
-			.from(schema.eventMeta)
-			.where(and(eq(schema.eventMeta.source, source), eq(schema.eventMeta.format, format)));
-		return rows.length > 0;
 	},
 };

@@ -22,3 +22,13 @@ div[data-hover] .card:hover .dim {
 div[data-grow] .card:hover {
 	transform: scale(1.02);
 }
+
+a.title {
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+a.title:hover {
+	text-decoration: underline;
+}

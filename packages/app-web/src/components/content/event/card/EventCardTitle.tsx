@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { useEventDetailsModal } from "../../../../hooks/app/useEventDetailsModal";
-import { Anchor, Group, Loader, Skeleton, Stack, Text, Transition, type MantineTransition } from "@mantine/core";
+import { Anchor, Box, Group, Loader, Skeleton, Stack, Text, Transition, type MantineTransition } from "@mantine/core";
 import { useEventCardContext } from "./event-card-context";
 import { Trans } from "../../Trans";
 import { Link } from "@tanstack/react-router";
 import { EnvelopeErrorBadge } from "../envelope/EnvelopeErrorBadge";
 import { TranslationsUtil } from "@evnt/translations";
 import { useResolvedEvent } from "@vantage/core";
+import classes from "./event-card.module.css";
 
 const loaderTransition: MantineTransition = {
 	in: { opacity: 1, width: "1.5rem" },
@@ -48,9 +49,10 @@ export const EventCardTitle = () => {
 						>
 							{(styles) => <Loader size="xs" style={styles} />}
 						</Transition>
-						<Anchor
+						<Box
 							c="unset"
-							inherit
+							component={embed ? "a" : "div"}
+							className={classes.title}
 							renderRoot={(props) => embed ? (
 								<Link
 									to="/event"
@@ -82,7 +84,7 @@ export const EventCardTitle = () => {
 							>
 								{title}
 							</Text>
-						</Anchor>
+						</Box>
 					</Group>
 					<EnvelopeErrorBadge />
 				</Group>

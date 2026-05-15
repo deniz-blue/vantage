@@ -1,6 +1,6 @@
 import type { Did } from "@atcute/lexicons";
 import { useQuery } from "@tanstack/react-query";
-import { didDocumentResolver } from "./atproto-services";
+import { didDocumentResolver } from "@vantage/atproto";
 import { getAtprotoHandle } from "@atcute/identity";
 
 export const useAtProtoHandleQuery = (did?: Did<"plc" | "web">) => {

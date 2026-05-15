@@ -1,6 +1,6 @@
 import { ActionIcon, Menu } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconBraces, IconCalendarPlus, IconEdit, IconFileImport, IconLink } from "@tabler/icons-react";
+import { IconBraces, IconBrandBluesky, IconCalendarPlus, IconEdit, IconFileImport, IconLink } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { useTasksStore } from "../../stores/useTasksStore";
@@ -89,6 +89,15 @@ export const AddEventMenu = () => {
 					onClick={() => icsFileInputRef.current?.click()}
 				>
 					From .ics
+				</Menu.Item>
+				<Menu.Item
+					leftSection={<IconBrandBluesky />}
+					onClick={() => modals.openContextModal({
+						modal: "ImportAtModal",
+						innerProps: {},
+					})}
+				>
+					From Atmosphere
 				</Menu.Item>
 			</Menu.Dropdown>
 		</Menu>

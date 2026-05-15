@@ -15,6 +15,7 @@ import { useResolvedEvent } from "@vantage/core";
 import { EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
 import { SmallTitle } from "../../base/SmallTitle";
+import { EventDetailsRevision } from "./EventDetailsRevision";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
@@ -56,8 +57,9 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 						>
 							<Stack>
 								<EventDetailsLinks />
-								<EventDetailsAlternatives />
 								<EventDetailsSource />
+								<EventDetailsAlternatives />
+								{/* <EventDetailsRevision /> */}
 							</Stack>
 						</Grid.Col>
 					</Grid>

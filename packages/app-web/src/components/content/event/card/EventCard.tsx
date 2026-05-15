@@ -1,4 +1,4 @@
-import { Box, Paper, Stack } from "@mantine/core";
+import { Box, BoxProps, Paper, polymorphic, Stack } from "@mantine/core";
 import { EventInstanceList } from "../EventInstanceList";
 import { EventCardBottom } from "./EventCardBottom";
 import { EventCardTitle } from "./EventCardTitle";
@@ -8,7 +8,7 @@ import classes from "./event-card.module.css";
 import { EventTimeframeBadge } from "../badges/EventTimeframeBadge";
 import { EventStatusBadge } from "../badges/EventStatusBadge";
 
-export interface EventCardProps {
+export interface EventCardProps extends BoxProps {
 	variant?: "horizontal" | "card" | "inline";
 	menu?: React.ReactNode;
 	loading?: boolean;
@@ -17,7 +17,7 @@ export interface EventCardProps {
 	fullHeight?: boolean;
 };
 
-export const EventCard = (props: EventCardProps) => {
+export const EventCard = polymorphic<"div", EventCardProps>((props: EventCardProps) => {
 	return (
 		<Paper
 			p={props.variant == "inline" ? 0 : "xs"}
@@ -29,7 +29,8 @@ export const EventCard = (props: EventCardProps) => {
 			shadow="xs"
 			pos="relative"
 			style={{ overflow: "clip" }}
-			className={classes.card}
+			c="unset"
+			{...props}
 		>
 			<EventCardContext value={props}>
 				<EventCardBackground />
@@ -60,6 +61,6 @@ export const EventCard = (props: EventCardProps) => {
 			</EventCardContext>
 		</Paper>
 	);
-};
+});
 
 

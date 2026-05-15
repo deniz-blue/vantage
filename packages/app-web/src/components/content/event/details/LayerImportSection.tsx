@@ -12,17 +12,43 @@ export const LayerImportSection = () => {
 
 	const unknown = source.type == "unknown" || format.type == "unknown";
 
-	const existsQuery = useQuery({
+	const existing = useQuery({
 		queryKey: ["exists", { source, format }],
 		enabled: !id && !unknown,
 		queryFn: async () => {
-			return await dbShortcuts.eventMetaExists(source, format);
+			return await dbShortcuts.getFromMeta(source, format);
 		},
 	});
 
 	return (
-		<Stack>
-			<Collapse expanded={!id && !unknown && existsQuery.data === false}>
+		<Stack gap={0}>
+			<Collapse expanded={!id && !unknown && (existing.data?.length ?? 0) > 0}>
+				<Button
+					fullWidth
+					onClick={() => {
+						const existingId = existing.data?.[0].id;
+						if (existingId) {
+							navigate({
+								to: "/event",
+								search: { id: existingId },
+								replace: true,
+							});
+						}
+					}}
+					color="blue"
+					h="auto"
+				>
+					<Stack gap={4} py={4}>
+						<Text span inherit>
+							View in My Events
+						</Text>
+						<Text size="xs" fw="normal" span inherit>
+							This event is already in your list
+						</Text>
+					</Stack>
+				</Button>
+			</Collapse>
+			<Collapse expanded={!id && !unknown && (existing.data?.length ?? 0) === 0}>
 				<AsyncAction action={async () => {
 					const id = await dbShortcuts.insertEventMeta({ source, format });
 					notifications.show({
@@ -33,6 +59,7 @@ export const LayerImportSection = () => {
 					navigate({
 						to: "/event",
 						search: { id },
+						replace: true,
 					});
 				}}>
 					{({ loading, onClick }) => (

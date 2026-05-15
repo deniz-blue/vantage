@@ -35,6 +35,7 @@
 		"@tanstack/react-router": "^1.168.23",
 		"@tanstack/react-router-devtools": "^1.166.13",
 		"@tanstack/zod-adapter": "^1.166.9",
+		"@vantage/atproto": "workspace:*",
 		"@vantage/core": "workspace:*",
 		"@vantage/db": "workspace:*",
 		"@vitejs/plugin-react": "^6.0.1",
