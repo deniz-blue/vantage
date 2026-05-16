@@ -2,9 +2,7 @@ import { Spotlight } from "@mantine/spotlight";
 import { IconCalendar, IconSearch } from "@tabler/icons-react";
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useCacheEventsStore } from "../../../../lib/cache/useCacheEventsStore";
-import { useShallow } from "zustand/shallow";
-import { useEventQuery } from "@vantage/core";
+import { useEventListQuery, useEventQuery } from "@vantage/core";
 import { EventCardBackground } from "../../../content/event/card/EventCardBackground";
 import { Box, Loader, Paper } from "@mantine/core";
 import { useActionsStore, type Action } from "./useActionsStore";
@@ -17,12 +15,12 @@ export const VantageSpotlight = () => {
 	const [query, setQuery] = useState("");
 	const navigate = useNavigate();
 	const providedActions = useActionsStore(state => state.actions);
-	const searchResults = useCacheEventsStore(
-		useShallow(state => Object.entries(state.cache.byText)
-			.filter(([text]) => text.toLowerCase().includes(query.toLowerCase()))
-			.flatMap(([, sources]) => [...sources])
-		)
-	);
+	
+	const searchResults = useEventListQuery({
+		limit: 10,
+		search: query,
+		enabled: query.length > 0,
+	});
 
 	const actions: Action[] = [];
 	actions.push(...Object.values(providedActions));
@@ -72,10 +70,10 @@ export const VantageSpotlight = () => {
 		</Spotlight.ActionsGroup>
 	));
 
-	if (!!searchResults.length)
+	if (!!searchResults.data?.length)
 		elements.push(
 			<Spotlight.ActionsGroup label="Events">
-				{searchResults.map(id => (
+				{searchResults.data.map(id => (
 					<SpotlightEventAction
 						key={id}
 						id={id}
