@@ -1,6 +1,6 @@
 import type { schema } from "@vantage/db";
 import { ZodError } from "zod";
-import type { FailedClientResponse } from "@atcute/client";
+import { ClientResponseError, type FailedClientResponse } from "@atcute/client";
 
 export type EventResolveResult = Omit<schema.EventCache, "id" | "updatedAt" | "parsed" | "computed">;
 
@@ -53,6 +53,7 @@ export const convertError = (err: TypeError | SyntaxError | Response | ZodError 
 		case err instanceof SyntaxError: error.kind = "json-parse"; break;
 		case err instanceof Response: error.kind = "fetch"; error.status = err.status; break;
 		case err instanceof ZodError: error.kind = "validation"; error.issues = err.issues; break;
+		case err instanceof ClientResponseError: error.kind = "xrpc"; error.message = err.message; error.status = err.status; break;
 		case (!(err as FailedClientResponse).ok && !!(err as FailedClientResponse).data): error.kind = "xrpc"; error.message = (err as FailedClientResponse).data.message ?? "Unknown error"; break;
 		default: error.kind = "unknown"; break;
 	}

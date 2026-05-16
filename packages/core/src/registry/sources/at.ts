@@ -3,6 +3,7 @@ import { type CanonicalResourceUri } from "@atcute/lexicons/syntax";
 import { CompositeDidDocumentResolver, PlcDidDocumentResolver, WebDidDocumentResolver } from "@atcute/identity-resolver";
 import type { } from "@atcute/atproto";
 import { repoGetRecordUri } from "@vantage/atproto";
+import { ok } from "@atcute/client";
 
 declare global {
 	namespace Vantage {
@@ -34,16 +35,14 @@ defineEventSource({
 
 	resolve: async ({ uri }) => {
 		const res = await repoGetRecordUri(uri);
-
-		if (!res.ok) throw res;
-
-		const raw = JSON.stringify(res.data.value);
+		const data = ok(res);
+		const raw = JSON.stringify(data.value);
 
 		return {
 			raw,
 			error: null,
 			revision: {
-				cid: res.data.cid,
+				cid: data.cid,
 				etag: res.headers.get("ETag") ?? undefined,
 				lastModifiedHeader: res.headers.get("Last-Modified") ?? undefined,
 			},

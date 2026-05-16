@@ -9,6 +9,7 @@ import { schema, db } from "@vantage/db";
 import { queryClient } from "@vantage/core";
 import { notifications } from "@mantine/notifications";
 import { sqlite } from "../../../../db/drizzle";
+import { withConfirmation } from "../../../../lib/util/confirm";
 
 export const Settings = () => {
 	const language = useLocaleStore((state) => state.language);
@@ -84,7 +85,7 @@ export const Settings = () => {
 				{({ loading, onClick }) => (
 					<Button
 						color="red"
-						onClick={onClick}
+						onClick={withConfirmation("Are you sure you want to delete all data? This action cannot be undone.", onClick)}
 						loading={loading}
 					>
 						Delete Everything

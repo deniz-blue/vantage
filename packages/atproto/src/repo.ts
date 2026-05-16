@@ -2,7 +2,7 @@ import type { CanonicalResourceUri } from "@atcute/lexicons";
 import { parseCanonicalResourceUri, type AtprotoDid, type Nsid } from "@atcute/lexicons/syntax";
 import { getPdsEndpoint } from "@atcute/identity";
 import { didDocumentResolver } from "./services";
-import { Client, simpleFetchHandler } from "@atcute/client";
+import { Client, ok, simpleFetchHandler } from "@atcute/client";
 import type { } from "@atcute/atproto";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
@@ -53,9 +53,7 @@ export const useInfiniteRepoListRecords = (repo?: AtprotoDid | null, collection?
 		enabled: !!repo && !!collection,
 		queryFn: async ({ pageParam }) => {
 			if (!repo || !collection) throw new Error("Repo and collection are required");
-			const res = await repoListRecords(repo, collection, { limit: 50, cursor: pageParam });
-			if (!res.ok) throw new Error(res.data.message || res.data.error);
-			return res.data;
+			return ok(await repoListRecords(repo, collection, { limit: 50, cursor: pageParam }));
 		},
 		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (lastPage) => lastPage.cursor,

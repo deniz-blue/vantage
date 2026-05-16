@@ -51,9 +51,8 @@ export const EventCardTitle = () => {
 						</Transition>
 						<Box
 							c="unset"
-							component={embed ? "a" : "div"}
 							className={classes.title}
-							renderRoot={(props) => embed ? (
+							renderRoot={(props) => (!id && !embedSource) ? (<Box {...props} />) : (embed ? (
 								<Link
 									to="/event"
 									search={{
@@ -70,7 +69,7 @@ export const EventCardTitle = () => {
 									disabled={!id}
 									{...props}
 								/>
-							)}
+							))}
 						>
 							<Text
 								fw={variant == "inline" ? undefined : "bold"}
