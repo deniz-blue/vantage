@@ -1,4 +1,38 @@
-import { parseCanonicalResourceUri } from "@atcute/lexicons";
+import { parseCanonicalResourceUri, type CanonicalResourceUri } from "@atcute/lexicons";
+import { eventQueryFnNoId } from "../query/useEventQuery";
+import { parseEventFormat } from "../lib/format";
+
+export const eventQueryFnDataOrSourceStr = async ({
+	data,
+	source,
+}: {
+	data?: unknown;
+	source?: string;
+}): Promise<Vantage.ResolvedEvent> => {
+	if (data) {
+		const raw = JSON.stringify(data);
+		const format: Vantage.EventFormat = { type: "directory.evnt.event" };
+		const { parsed, error } = parseEventFormat(raw, format);
+		return {
+			id: null,
+			data: parsed,
+			raw,
+			error,
+			revision: {},
+			source: { type: "unknown" },
+			format,
+		};
+	}
+
+	if (!source) throw new Error("Either source or data must be provided");
+
+	return await eventQueryFnInferFromStr(source);
+};
+
+export const eventQueryFnInferFromStr = async (str: string) => {
+	const { source, format } = await inferSourceFormat(str);
+	return await eventQueryFnNoId(source, format);
+};
 
 export const inferSourceFormat = async (str: string): Promise<{
 	source: Vantage.EventSource;
@@ -18,14 +52,13 @@ export const inferSourceFormat = async (str: string): Promise<{
 	}
 
 	if (str.startsWith("at://")) {
-		const p = parseCanonicalResourceUri(str);
-		if (!p.ok) throw new Error("Invalid AT URI");
-		if (p.value.collection !== "directory.evnt.event" && p.value.collection !== "community.lexicon.calendar.event") {
-			throw new Error("Unsupported collection: " + p.value.collection);
+		const { collection } = parseCanonicalResourceUri(str);
+		if (collection !== "directory.evnt.event" && collection !== "community.lexicon.calendar.event") {
+			throw new Error("Unsupported collection: " + collection);
 		}
 		return {
-			format: { type: p.value.collection },
-			source: { type: "at", uri: str },
+			format: { type: collection },
+			source: { type: "at", uri: str as CanonicalResourceUri },
 		};
 	} else if (str.startsWith("http://") || str.startsWith("https://")) {
 		let source: Vantage.EventSource = { type: "http", url: str };

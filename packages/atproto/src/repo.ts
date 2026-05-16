@@ -18,9 +18,7 @@ export const repoClient = async (repo: AtprotoDid) => {
 };
 
 export const repoGetRecordUri = async (aturi: CanonicalResourceUri) => {
-	const parsed = parseCanonicalResourceUri(aturi);
-	if (!parsed.ok) throw new Error(`Invalid at-uri: ${parsed.error}`);
-	const { repo, collection, rkey } = parsed.value;
+	const { repo, collection, rkey } = parseCanonicalResourceUri(aturi);
 	return await repoGetRecord(repo as AtprotoDid, collection, rkey);
 };
 

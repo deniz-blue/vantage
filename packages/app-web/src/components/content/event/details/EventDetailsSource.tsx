@@ -15,7 +15,7 @@ export const EventDetailsSource = () => {
 	const sourceComponents = data?.components?.filter((c): c is SourceComponent => c.$type === "directory.evnt.component.source") ?? [];
 
 	const atUri = source.type == "at" ? parseCanonicalResourceUri(source.uri) : null;
-	const handle = useAtProtoHandleQuery(atUri?.ok ? (atUri.value.repo as AtprotoDid) : undefined);
+	const handle = useAtProtoHandleQuery(atUri?.repo as AtprotoDid);
 
 	return (
 		<Stack gap={0} component="section">
@@ -58,13 +58,13 @@ export const EventDetailsSource = () => {
 						</Text>
 					</BaseSnippet>
 
-					{atUri && atUri.ok && (
+					{atUri && (
 						<EventLinkButtonBase
-							url={`https://stargraph.link/user/${atUri.value.repo}`}
+							url={`https://stargraph.link/user/${atUri.repo}`}
 							leftSection={(
 								<img
-									src={`https://blobs.blue/${atUri.value.repo}/avatar-thumb`}
-									alt={`Avatar of user ${atUri.value.repo}`}
+									src={`https://blobs.blue/${atUri.repo}/avatar-thumb`}
+									alt={`Avatar of user ${atUri.repo}`}
 									width={24}
 									height={24}
 									style={{ borderRadius: "50%" }}
@@ -72,7 +72,7 @@ export const EventDetailsSource = () => {
 							)}
 						>
 							<Text inherit span mr={4}>
-								{handle.isSuccess ? handle.data : atUri.value.repo}
+								{handle.isSuccess ? handle.data : atUri.repo}
 							</Text> <IconExternalLink size={14} />
 						</EventLinkButtonBase>
 					)}

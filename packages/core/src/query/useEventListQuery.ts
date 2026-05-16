@@ -13,17 +13,25 @@ export interface ListOptions {
 	afterTimestamp?: number;
 	limit?: number;
 	offset?: number;
-}
+};
+
+export interface ListQueryOptions extends ListOptions {
+	enabled?: boolean;
+};
 
 export const eventListQueryKey = (options: ListOptions) => ["list", options] as const;
 
-export const useEventListQuery = (options: ListOptions) => {
+export const useEventListQuery = ({
+	enabled,
+	...options
+}: ListQueryOptions) => {
 	return useQuery({
 		queryKey: eventListQueryKey(options),
 		placeholderData: data => data,
 		staleTime: 5 * 1000 * 60, // 5 minutes
+		enabled,
 		queryFn: async () => {
-			const sqlSearch = sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.parsed}, '$.name') WHERE value LIKE ${"%"+options.search+"%"})`;
+			const sqlSearch = sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.parsed}, '$.name') WHERE value LIKE ${"%" + options.search + "%"})`;
 
 			const timeRangeSearch = (options.beforeTimestamp || options.afterTimestamp) ? sql`EXISTS (SELECT 1 FROM json_each(${schema.eventCache.computed}, '$.timeRanges') WHERE 1=1
 				${options.beforeTimestamp ? sql`AND json_extract(value, '$.high') < ${options.beforeTimestamp}` : sql``}

@@ -1,13 +1,10 @@
-import { Box, Indicator, Stack } from "@mantine/core";
+import { Box, Indicator, Paper, Stack, Text } from "@mantine/core";
 import { useState } from "react";
-import { useCacheEventsStore } from "../../lib/cache/useCacheEventsStore";
-import { useShallow } from "zustand/shallow";
 import { useEventListQuery, useEventQueries } from "@vantage/core";
 import { EventCard, type EventCardProps } from "../../components/content/event/card/EventCard";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarMonth } from "../../components/calendar/CalendarMonth";
 import { CalendarMobileMonth } from "../../components/calendar/CalendarMobileMonth";
-import { Day } from "@mantine/dates";
 import { ResolvedEventContext } from "@vantage/core";
 
 export const Route = createFileRoute("/_layout/calendar")({
@@ -61,21 +58,27 @@ export const DayButton = ({
 }: {
 	day: `${number}-${number}-${number}`;
 }) => {
-	const sources = useCacheEventsStore(
-		useShallow(store => [...(store.cache.byWallDay[day] ?? [])])
-	);
+	const ids = useEventListQuery({
+		beforeTimestamp: Temporal.PlainDate.from(day).add({ days: 1 }).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds,
+		afterTimestamp: Temporal.PlainDate.from(day).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds,
+	});
 
 	return (
 		<Indicator
-			label={sources.length}
+			label={ids.data?.length ?? 0}
 			size={16}
-			offset={4}
-			disabled={sources.length === 0}
+			position="bottom-center"
+			offset={{ x: 0, y: -4 }}
+			disabled={ids.data?.length === 0}
+			showZero={false}
+			color="var(--mantine-color-blue-light)"
 		>
-			<Day
+			<Paper
 				component="div"
-				date={day}
-			/>
+				bg="transparent"
+			>
+				<Text>{day.slice(8)}</Text>
+			</Paper>
 		</Indicator>
 	);
 };

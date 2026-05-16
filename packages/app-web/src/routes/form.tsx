@@ -1,16 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { EditAtom } from "../components/editor/edit-atom";
-import { EventDataSchema, type EventData } from "@evnt/schema";
+import { type EventData } from "@evnt/schema";
 import { Button, Container, Group, Stack, Text, Title } from "@mantine/core";
 import { CenteredLoader } from "../components/content/base/CenteredLoader";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { EventEditor } from "../components/editor/event/EventEditor";
 import { zodValidator } from "@tanstack/zod-adapter";
 import z from "zod";
-import { fetchResolvedEventFromQuery, sourceOrDataSchema } from "./embed";
+import { eventQueryFnDataOrSourceStr } from "@vantage/core";
+import { RemoteUriSchema } from "../lib/intent";
 
-const SearchParamsSchema = sourceOrDataSchema.extend({
+const SearchParamsSchema = z.object({
+	source: RemoteUriSchema.optional(),
+	data: z.unknown().optional(),
 	"redirect-to": z.url().optional(),
 	"title": z.string().optional(),
 	"desc": z.string().optional(),
@@ -52,7 +55,7 @@ export function FormPage() {
 		if (!source && !data) return set(dataAtom, { name: {}, v: "0.1" });
 
 		setLoading(true);
-		const resolved = await fetchResolvedEventFromQuery({ source, data });
+		const resolved = await eventQueryFnDataOrSourceStr({ source, data });
 		set(dataAtom, resolved.data);
 	}), [source, data, setLoading]));
 

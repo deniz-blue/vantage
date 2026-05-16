@@ -30,7 +30,10 @@ export const EventCard = polymorphic<"div", EventCardProps>((props: EventCardPro
 			pos="relative"
 			style={{ overflow: "clip" }}
 			c="unset"
+			className={[classes.card, props.className].filter(Boolean).join(" ")}
 			{...props}
+			// @ts-ignore
+			loading={undefined}
 		>
 			<EventCardContext value={props}>
 				<EventCardBackground />

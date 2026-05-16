@@ -1,22 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useEventQueries } from "@vantage/core";
-import { Accordion, ActionIcon, Button, Group, Input, OverflowList, Paper, Popover, SegmentedControl, Stack, TextInput } from "@mantine/core";
+import { EventFormatRegistry, EventSourceRegistry, useEventQueries } from "@vantage/core";
+import { Accordion, ActionIcon, Autocomplete, Button, CloseButton, Group, Input, OverflowList, Paper, Popover, SegmentedControl, Stack, TextInput, Tooltip } from "@mantine/core";
 import { EventsGrid } from "../../components/content/event-grid/EventsGrid";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { useEventListQuery } from "@vantage/core";
 import z from "zod";
+import { IconFilterOff } from "@tabler/icons-react";
 
 const SearchParamsSchema = z.object({
 	search: z.string().optional(),
 	relativity: z.enum(["past", "future", "all"]).optional(),
 	sortBy: z.enum(["name", "instanceStart", "none"]).optional(),
+	hasError: z.boolean().optional(),
+	sourceType: z.string().optional(),
+	formatType: z.string().optional(),
 });
 
 const defaultSearchParams = {
 	search: "",
 	relativity: "future" as const,
 	sortBy: "instanceStart" as const,
+	formatType: "",
+	sourceType: "",
+	hasError: undefined,
 } satisfies z.infer<typeof SearchParamsSchema>;
 
 export const Route = createFileRoute("/_layout/list")({
@@ -32,6 +39,9 @@ function ListPage() {
 		search = defaultSearchParams.search,
 		relativity = defaultSearchParams.relativity,
 		sortBy = defaultSearchParams.sortBy,
+		formatType = defaultSearchParams.formatType,
+		sourceType = defaultSearchParams.sourceType,
+		hasError = defaultSearchParams.hasError,
 	} = searchObject;
 
 	const navigate = Route.useNavigate();
@@ -60,9 +70,125 @@ function ListPage() {
 		beforeTimestamp: relativity === "past" ? currentTimeRoundedMinute : undefined,
 		afterTimestamp: relativity === "future" ? currentTimeRoundedMinute : undefined,
 		orderBy: sortBy,
+		formatType,
+		sourceType,
+		error: hasError,
 	});
 
 	const queries = useEventQueries(listQuery.data || []);
+
+	const searchOptions = [
+		{
+			label: "Search",
+			control: (
+				<Stack gap={0} flex={2} miw={200}>
+					<TextInput
+						placeholder="Search events..."
+						value={search}
+						onChange={(event) => updateSearch({ search: event.currentTarget.value })}
+						flex={1}
+					/>
+				</Stack>
+			),
+		},
+		{
+			label: "Time",
+			control: (
+				<Paper withBorder>
+					<SegmentedControl<"past" | "all" | "future">
+						id="filter-relativity"
+						data={[
+							{ label: "Past", value: "past" },
+							{ label: "All", value: "all" },
+							{ label: "Future", value: "future" },
+						]}
+						value={relativity}
+						onChange={(value) => updateSearch({ relativity: value })}
+					/>
+				</Paper>
+			),
+		},
+		{
+			label: "Sort",
+			control: (
+				<Paper withBorder>
+					<SegmentedControl<SortBy>
+						data={[
+							{ label: "Name", value: "name" },
+							{ label: "Date", value: "instanceStart" },
+						]}
+						value={sortBy}
+						onChange={(value) => updateSearch({ sortBy: value })}
+					/>
+				</Paper>
+			),
+		},
+		{
+			label: "Error",
+			control: (
+				<Paper withBorder>
+					<SegmentedControl<"null" | "true" | "false">
+						data={[
+							{ label: "ERR", value: "true" },
+							{ label: "-", value: "null" },
+							{ label: "OK", value: "false" },
+						]}
+						value={hasError === undefined ? "null" : hasError ? "true" : "false"}
+						onChange={(value) => updateSearch({ hasError: value === "null" ? undefined : value === "true" })}
+					/>
+				</Paper>
+			),
+		},
+		{
+			label: "Source",
+			control: (
+				<Autocomplete
+					placeholder="Source"
+					w={120}
+					data={Array.from(EventSourceRegistry.keys())}
+					value={sourceType}
+					onChange={(value) => updateSearch({ sourceType: value })}
+					rightSection={sourceType && <CloseButton onClick={() => updateSearch({ sourceType: "" })} />}
+				/>
+			),
+		},
+		{
+			label: "Format",
+			control: (
+				<Autocomplete
+					placeholder="Format"
+					data={Array.from(EventFormatRegistry.keys())}
+					value={formatType}
+					onChange={(value) => updateSearch({ formatType: value })}
+					rightSection={formatType && <CloseButton onClick={() => updateSearch({ formatType: "" })} />}
+				/>
+			),
+		},
+		{
+			label: "Reset",
+			control: (
+				<Tooltip label="Clear search and filters">
+					<ActionIcon
+						onClick={() => updateSearch(defaultSearchParams)}
+						variant="light"
+						color="gray"
+						size="input-sm"
+					>
+						<IconFilterOff />
+					</ActionIcon>
+				</Tooltip>
+			),
+		},
+	];
+
+	const overflowItems = searchOptions.map((option) => (
+		<Stack key={option.label} gap={0}>
+			<Input.Label>
+				{option.label}
+			</Input.Label>
+			{option.control}
+		</Stack>
+	));
 
 	const top = "calc(var(--app-shell-header-height, 0px) + var(--app-shell-padding) + var(--safe-area-inset-top))";
 	return (
@@ -71,64 +197,7 @@ function ListPage() {
 				<Stack gap={0}>
 					<OverflowList
 						gap={4}
-						data={[
-							(<Stack gap={0} flex={2} miw={200}>
-								<TextInput
-									label="Search"
-									placeholder="Search events..."
-									value={search}
-									onChange={(event) => updateSearch({ search: event.currentTarget.value })}
-									flex={1}
-								/>
-							</Stack>),
-							(<Stack gap={0}>
-								<Input.Label htmlFor="filter-layers">
-									Filters
-								</Input.Label>
-								<Paper withBorder>
-									<SegmentedControl<"past" | "all" | "future">
-										id="filter-relativity"
-										data={[
-											{ label: "Past", value: "past" },
-											{ label: "All", value: "all" },
-											{ label: "Future", value: "future" },
-										]}
-										value={relativity}
-										onChange={(value) => updateSearch({ relativity: value })}
-									/>
-								</Paper>
-							</Stack>),
-							(<Stack gap={0}>
-								<Input.Label>
-									Sort
-								</Input.Label>
-								<Paper withBorder>
-									<SegmentedControl<SortBy>
-										data={[
-											{ label: "Name", value: "name" },
-											{ label: "Date", value: "instanceStart" },
-											{ label: "None", value: "none" },
-										]}
-										value={sortBy}
-										onChange={(value) => updateSearch({ sortBy: value })}
-									/>
-								</Paper>
-							</Stack>),
-							(<Stack gap={0}>
-								<Input.Label>
-									Actions
-								</Input.Label>
-								<Group gap={4}>
-									<Button
-										onClick={() => updateSearch(defaultSearchParams)}
-										variant="light"
-										color="gray"
-									>
-										Clear Query
-									</Button>
-								</Group>
-							</Stack>),
-						]}
+						data={overflowItems}
 						renderItem={(item) => item}
 						renderOverflow={(items) => (
 							<Stack flex={1} justify="end" align="end">

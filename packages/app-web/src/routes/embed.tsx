@@ -5,7 +5,7 @@ import { Center, Stack, Text } from "@mantine/core";
 import { EventCard } from "../components/content/event/card/EventCard";
 import { useQuery } from "@tanstack/react-query";
 import { RemoteUriSchema } from "../lib/intent";
-import { inferSourceFormat, parseEventFormat } from "@vantage/core";
+import { eventQueryFnDataOrSourceStr, inferSourceFormat, parseEventFormat } from "@vantage/core";
 import { ResolvedEventContext } from "@vantage/core";
 import { eventQueryFnNoId } from "@vantage/core";
 
@@ -13,28 +13,6 @@ export const sourceOrDataSchema = z.object({
 	source: RemoteUriSchema.optional(),
 	data: z.unknown().optional(),
 });
-
-export const fetchResolvedEventFromQuery = async (search: z.infer<typeof sourceOrDataSchema>): Promise<Vantage.ResolvedEvent> => {
-	if (search.data) {
-		const raw = JSON.stringify(search.data);
-		const format: Vantage.EventFormat = { type: "directory.evnt.event" };
-		const { parsed, error } = parseEventFormat(raw, format);
-		return {
-			id: null,
-			data: parsed,
-			raw,
-			error,
-			revision: {},
-			source: { type: "unknown" },
-			format,
-		};
-	}
-
-	if (!search.source) throw new Error("Either source or data must be provided");
-
-	const { source, format } = await inferSourceFormat(search.source);
-	return await eventQueryFnNoId(source, format);
-};
 
 export const Route = createFileRoute("/embed")({
 	component: EmbedPage,
@@ -46,7 +24,7 @@ export function EmbedPage() {
 
 	const query = useQuery({
 		queryKey: ["embed-event-data", JSON.stringify(search.data)],
-		queryFn: () => fetchResolvedEventFromQuery(search),
+		queryFn: () => eventQueryFnDataOrSourceStr(search),
 	});
 
 	if (query.error) return (
