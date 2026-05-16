@@ -1,8 +1,9 @@
-import { Box, Center, Divider, Group, ScrollArea, Stack, Text, Title } from "@mantine/core";
+import { Anchor, Box, Center, Divider, Group, ScrollArea, Stack, Text, Title } from "@mantine/core";
 import { useEventListQuery, useEventQueries } from "@vantage/core";
 import { EventCard } from "../../../content/event/card/EventCard";
 import { EventContextMenu } from "../../../content/event/EventContextMenu";
 import { ResolvedEventContext } from "@vantage/core";
+import { Link } from "@tanstack/react-router";
 
 export const WidgetUpcomingEvents = () => {
 	const currentTimeRoundedMinute = Math.floor(Date.now() / (60 * 1000)) * (60 * 1000);
@@ -17,15 +18,28 @@ export const WidgetUpcomingEvents = () => {
 
 	return (
 		<Stack gap={4}>
-			<Divider
-				labelPosition="left"
-				variant="dashed"
-				label={(
-					<Title order={4}>
-						Upcoming Events
-					</Title>
-				)}
-			/>
+			<Group gap={4}>
+				<Title order={4} c="dimmed">
+					Upcoming Events
+				</Title>
+				<Divider
+					labelPosition="left"
+					variant="dashed"
+					flex="1"
+				/>
+				<Anchor
+					inline
+					inherit
+					renderRoot={(props) => (
+						<Link
+							to="/list"
+							{...props}
+						/>
+					)}
+				>
+					View All
+				</Anchor>
+			</Group>
 			{queries.length === 0 && (
 				<Center ta="center" w="100%">
 					<Text
@@ -39,7 +53,6 @@ export const WidgetUpcomingEvents = () => {
 			<ScrollArea.Autosize maw="100%" scrollbars="x" offsetScrollbars p={4}>
 				<Group
 					wrap="nowrap"
-					// mih={300}
 					align="stretch"
 				>
 					{queries.map((query, index) => (
