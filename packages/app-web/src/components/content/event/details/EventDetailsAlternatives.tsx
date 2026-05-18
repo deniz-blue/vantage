@@ -8,8 +8,7 @@ import { useResolvedEvent } from "@vantage/core";
 export const EventDetailsAlternatives = () => {
 	const { source } = useResolvedEvent();
 
-	const aturiRes = source.type == "at" ? parseResourceUri(source.uri) : null;
-	const aturi = aturiRes?.ok ? aturiRes.value : null;
+	const aturi = source.type == "at" ? parseResourceUri(source.uri) : null;
 
 	const atlinks = [];
 

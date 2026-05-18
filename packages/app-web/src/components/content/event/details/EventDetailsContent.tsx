@@ -1,6 +1,6 @@
-import { ActionIcon, Box, Button, Code, Container, CopyButton, Grid, Group, Stack, Text, Tooltip } from "@mantine/core";
+import { Button, Container, CopyButton, Grid, Group, Stack, Tooltip } from "@mantine/core";
 import { LayerImportSection } from "./LayerImportSection";
-import { IconCheck, IconReload, IconShare } from "@tabler/icons-react";
+import { IconCheck, IconPencil, IconReload, IconShare } from "@tabler/icons-react";
 import { AsyncAction } from "../../../data/AsyncAction";
 import { EventDetailsContext } from "./event-details-context";
 import { EventDetailsBanner } from "./EventDetailsBanner";
@@ -12,10 +12,10 @@ import { EventDetailsAlternatives } from "./EventDetailsAlternatives";
 import { RichTextRenderer } from "./RichTextRenderer";
 import type { Facet } from "@atcute/bluesky-richtext-segmenter";
 import { useResolvedEvent } from "@vantage/core";
-import { EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
 import { SmallTitle } from "../../base/SmallTitle";
 import { dbShortcuts } from "../../../../db/db-shortcuts";
+import { Link } from "@tanstack/react-router";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
@@ -25,44 +25,42 @@ export interface EventDetailsContentProps {
 export const EventDetailsContent = (props: EventDetailsContentProps) => {
 	const { source } = useResolvedEvent();
 
-	const sourceMeta = EventSourceRegistry.get(source.type);
-
 	return (
 		<EventDetailsContext value={props}>
-			<Stack gap="xs">
+			<Stack gap={0}>
 				<EventDetailsBanner />
 				<Container w="100%">
-					<Stack>
+					<Stack gap={0}>
 						<EnvelopeErrorAlert my="xs" />
-					</Stack>
-
-					<Grid>
-						<Grid.Col
-							span={{ base: 12, md: "auto" }}
-							order={{ base: 1, md: 2 }}
-						>
-							<Stack>
-								<Group gap="xs" justify="end">
-									<EventRefetchButton />
-									<EventShareButton />
-								</Group>
+						<Group py="xs" gap="xs" justify="end">
+							<EventRefetchButton />
+							<EventShareButton />
+							<EventEditButton />
+						</Group>
+						<Grid>
+							<Grid.Col
+								span={{ base: 12, xs: "auto" }}
+								order={{ base: 2, xs: 1 }}
+							>
 								<LayerImportSection />
-								<EventDetailsInstanceList />
-								<EventDetailsDescriptionList />
-							</Stack>
-						</Grid.Col>
-						<Grid.Col
-							span={{ base: 12, md: 4 }}
-							order={{ base: 2, md: 1 }}
-						>
-							<Stack>
-								<EventDetailsLinks />
-								<EventDetailsSource />
-								<EventDetailsAlternatives />
-								{/* <EventDetailsRevision /> */}
-							</Stack>
-						</Grid.Col>
-					</Grid>
+								<Stack>
+									<EventDetailsInstanceList />
+									<EventDetailsDescriptionList />
+								</Stack>
+							</Grid.Col>
+							<Grid.Col
+								span={{ base: 12, xs: 4 }}
+								order={{ base: 1, xs: 2 }}
+							>
+								<Stack>
+									<EventDetailsLinks />
+									<EventDetailsSource />
+									<EventDetailsAlternatives />
+									{/* <EventDetailsRevision /> */}
+								</Stack>
+							</Grid.Col>
+						</Grid>
+					</Stack>
 				</Container>
 			</Stack>
 		</EventDetailsContext>
@@ -132,5 +130,28 @@ export const EventShareButton = () => {
 				</Button>
 			)}
 		</CopyButton>
+	);
+};
+
+export const EventEditButton = () => {
+	const { source, id } = useResolvedEvent();
+
+	if (source.type !== "local" || !id) return null;
+
+	return (
+		<Button
+			size="compact-sm"
+			color="gray"
+			leftSection={<IconPencil />}
+			renderRoot={(props) => (
+				<Link
+					to="/edit"
+					search={{ id }}
+					{...props}
+				/>
+			)}
+		>
+			Edit
+		</Button>
 	);
 };
