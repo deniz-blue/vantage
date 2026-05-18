@@ -139,8 +139,8 @@ export const EventPreview = ({ data }: { data: EditAtom<EventData> }) => {
 		raw: null,
 		error: null,
 		revision: {},
-		source: { type: "unknown" },
-		format: { type: "unknown" },
+		source: { type: "local" },
+		format: { type: "directory.evnt.event" },
 	};
 
 	return (

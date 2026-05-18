@@ -7,15 +7,41 @@ import { IconCalendar, IconCalendarQuestion, IconCheck, IconClock, IconClockQues
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { TimezoneSelect } from "../../app/overlay/settings/TimezoneSelect";
 
-export const usePartialDateInputStates = ({
+export const usePartialDateTextInput = ({
 	value,
 	onChange,
-	focusOnTimePicker,
 }: {
 	value: PartialDate | undefined;
 	onChange: (value: PartialDate | undefined) => void;
-	focusOnTimePicker?: () => void;
 }) => {
+	const [textInputValue, setTextInputValue] = useState<string>(value ?? "");
+	useEffect(() => setTextInputValue(value ?? ""), [value]);
+
+	const onTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const v = e.currentTarget.value;
+		setTextInputValue(v);
+		if (PartialDateUtil.isValid(v)) {
+			onChange(v as PartialDate);
+			// setCalendarDate(partialDateAsCalendarDate(v));
+			// setCalendarLevel(calendarLevelOf(v));
+		};
+	};
+
+	return {
+		textInputValue,
+		onTextInputChange,
+	};
+};
+
+export const usePartialDateCalendarInput = ({
+	value,
+	onChange,
+}: {
+	value: PartialDate | undefined;
+	onChange: (value: PartialDate | undefined) => void;
+}) => {
+	const timePickerRef = useRef<HTMLInputElement | null>(null);
+
 	const [calendarCollapsed, setCalendarCollapsed] = useState(!!value && PartialDateUtil.has(value, "day"));
 
 	const calendarLevelOf = (v: PartialDate | undefined): CalendarLevel => {
@@ -23,8 +49,8 @@ export const usePartialDateInputStates = ({
 		switch (PartialDateUtil.getPrecision(v)) {
 			case "time":
 			case "day": return "month";
-			case "month": return "year";
-			case "year": return "decade";
+			case "month": return "month";
+			case "year": return "year";
 		}
 	};
 
@@ -101,7 +127,7 @@ export const usePartialDateInputStates = ({
 				const parsed = PartialDateUtil.parse(value);
 				onChange(v + (parsed.precision == "time" ? `T${pad(parsed.hour)}:${pad(parsed.minute)}` : "") + "[UTC]" as PartialDate.YearMonthDay | PartialDate.YearMonthDayTime);
 				setCalendarCollapsed(true);
-				setTimeout(() => focusOnTimePicker?.(), 0);
+				setTimeout(() => timePickerRef.current?.focus(), 0);
 			}
 
 			return level;
@@ -136,21 +162,6 @@ export const usePartialDateInputStates = ({
 		};
 	}
 
-	// == Text Input ==
-
-	const [textInputValue, setTextInputValue] = useState<string>(value ?? "");
-	useEffect(() => setTextInputValue(value ?? ""), [value]);
-
-	const onTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const v = e.currentTarget.value;
-		setTextInputValue(v);
-		if (PartialDateUtil.isValid(v)) {
-			onChange(v as PartialDate);
-			setCalendarDate(partialDateAsCalendarDate(v));
-			setCalendarLevel(calendarLevelOf(v));
-		};
-	};
-
 	return {
 		calendarCollapsed,
 		setCalendarCollapsed,
@@ -164,9 +175,7 @@ export const usePartialDateInputStates = ({
 
 		timePickerValue,
 		onTimePickerChange,
-
-		textInputValue,
-		onTextInputChange,
+		timePickerRef,
 	};
 };
 
@@ -181,34 +190,8 @@ export const PartialDateInput = ({
 	getInsertValue?: () => PartialDate;
 	label?: ReactNode;
 }) => {
-	const timePickerHoursRef = useRef<HTMLInputElement | null>(null);
-
-	const {
-		calendarCollapsed,
-		setCalendarCollapsed,
-		calendarLevel,
-		calendarDate,
-		onCalendarDateChange,
-		onCalendarLevelChange,
-		onCalendarValueChange,
-		calendarValueFor,
-
-		timePickerValue,
-		onTimePickerChange,
-
-		textInputValue,
-		onTextInputChange,
-	} = usePartialDateInputStates({
-		value,
-		onChange,
-		focusOnTimePicker: () =>
-			timePickerHoursRef.current?.focus(),
-	});
-
 	const [modalOpened, setModalOpened] = useState(false);
 	const [editingRaw, setEditingRaw] = useState(false);
-
-	const userLanguage = useLocaleStore(store => store.language);
 
 	const handleSet = useCallback(() => {
 		const newValue: PartialDate = getInsertValue?.() ?? PartialDateUtil.format(PartialDateUtil.parsedFromTemporal(Temporal.Now.plainDateTimeISO()));
@@ -220,85 +203,27 @@ export const PartialDateInput = ({
 		<Box>
 			<Stack gap={4}>
 				{(value === undefined && !editingRaw) ? (
-					<InputBase
-						component="button"
-						pointer
-						onClick={handleSet}
-						onMouseDown={handleSet}
+					<PartialDateInputBaseUnset
+						onAutoSet={handleSet}
+						onEditRaw={() => setEditingRaw(true)}
 						label={label}
-						rightSection={(
-							<Tooltip label="Edit raw PartialDate string">
-								<ActionIcon
-									onClick={() => setEditingRaw(true)}
-									variant="subtle"
-									color="gray"
-								>
-									<IconPencil stroke={1.2} color="var(--mantine-color-dimmed)" />
-								</ActionIcon>
-							</Tooltip>
-						)}
-						color="gray"
-					>
-						<Text c="dimmed" inherit inline span>
-							Click to Set
-						</Text>
-					</InputBase>
+					/>
 				) : (
 					editingRaw ? (
-						<TextInput
-							value={textInputValue}
-							onChange={onTextInputChange}
-							rightSection={(
-								<Group gap={4} wrap="nowrap" >
-									<Tooltip label="Done">
-										<ActionIcon
-											onClick={() => setEditingRaw(false)}
-											disabled={!PartialDateUtil.isValid(textInputValue)}
-											variant="subtle"
-											color="green"
-										>
-											<IconCheck stroke={1.2} />
-										</ActionIcon>
-									</Tooltip>
-								</Group>
-							)}
-							error={textInputValue && !PartialDateUtil.isValid(textInputValue) ? "Invalid PartialDate string" : undefined}
-							autoFocus
-							onKeyDown={(e) => {
-								if ((e.key === "Enter" && PartialDateUtil.isValid(textInputValue)) || e.key === "Escape")
-									setEditingRaw(false);
-							}}
+						<PartialDateInputBaseRaw
+							value={value}
+							onChange={onChange}
 							label={label}
-							placeholder="Enter raw PartialDate string"
+							onExit={() => setEditingRaw(false)}
 						/>
 					) : (
-						<InputBase
-							component="button"
+						<PartialDateInputBase
 							label={label}
-							onClick={() => setModalOpened(true)}
-							pointer
-							rightSectionWidth="auto"
-							rightSection={(
-								<Group gap={4} wrap="nowrap" >
-									<Tooltip label="Edit raw PartialDate string">
-										<ActionIcon
-											onClick={() => setEditingRaw(true)}
-											variant="subtle"
-											color="gray"
-										>
-											<IconPencil stroke={1.2} color="var(--mantine-color-dimmed)" />
-										</ActionIcon>
-									</Tooltip>
-									<Tooltip label="Remove date">
-										<CloseButton
-											onClick={() => onChange(undefined)}
-										/>
-									</Tooltip>
-								</Group>
-							)}
-						>
-							<PartialDateSnippetLabel value={value} />
-						</InputBase>
+							onEditRaw={() => setEditingRaw(true)}
+							onOpenModal={() => setModalOpened(true)}
+							value={value}
+							onChange={onChange}
+						/>
 					))
 				}
 				<Input.Description>
@@ -306,148 +231,319 @@ export const PartialDateInput = ({
 						<PartialDateSnippetLabel value={value} />
 					) : value}
 				</Input.Description>
-			</Stack >
+			</Stack>
 			<Modal
 				opened={modalOpened}
 				onClose={() => setModalOpened(false)}
 				withCloseButton={false}
 				size="auto"
 			>
-				<Stack gap="md">
-					<Stack gap={4}>
-						<Group justify="center">
-							<Input.Label>
-								{label}
-							</Input.Label>
-						</Group>
-						<Group justify="center" gap={4}>
-							<IconCalendar />
-							<PartialDateSnippetLabel value={value} />
-						</Group>
-						<Group grow gap={4} my={4}>
-							{(["year", "month", "day", "time"] as PartialDate.Precision[]).map((precision) => (
-								<Badge
-									key={precision}
-									variant="light"
-									color={(!!value && PartialDateUtil.has(value, /* Stupid TS */ precision as any)) ? "blue" : "gray"}
-									size="xs"
-								>
-									{precision.charAt(0).toUpperCase() + precision.slice(1)}
-								</Badge>
-							))}
-						</Group>
-					</Stack>
-
-					<Stack gap={4}>
-						<Input.Label>
-							Date <Text c="dimmed" inline span inherit>(Local)</Text>
-						</Input.Label>
-
-						<Collapse expanded={calendarCollapsed}>
-							<InputBase
-								miw="260px"
-								w="100%"
-								component="button"
-								onClick={() => setCalendarCollapsed(false)}
-								leftSection={value && PartialDateUtil.has(value, "day") ? <IconCalendar /> : <IconCalendarQuestion />}
-								children={value && PartialDateUtil.has(value, "day") ? PartialDateUtil.asPlainDate(value).toLocaleString(userLanguage, {
-									dateStyle: "full",
-								}) : "!"}
-							/>
-						</Collapse>
-
-						<Collapse expanded={!calendarCollapsed}>
-							<Paper withBorder bg="dark.6">
-								{calendarLevel === "decade" && (
-									<YearPicker
-										date={calendarDate}
-										value={calendarValueFor("decade")}
-										onDateChange={onCalendarDateChange}
-										onChange={onCalendarValueChange}
-									/>
-								)}
-								{calendarLevel === "year" && (
-									<MonthPicker
-										date={calendarDate}
-										value={calendarValueFor("year")}
-										onDateChange={onCalendarDateChange}
-										onChange={onCalendarValueChange}
-										level="year"
-										onLevelChange={onCalendarLevelChange}
-									/>
-								)}
-								{calendarLevel === "month" && (
-									<DatePicker
-										level="month"
-										date={calendarDate}
-										value={calendarValueFor("month")}
-										highlightToday
-										onDateChange={onCalendarDateChange}
-										onChange={onCalendarValueChange}
-										onLevelChange={onCalendarLevelChange}
-									/>
-								)}
-
-							</Paper>
-						</Collapse>
-
-						<Collapse expanded={!!value && PartialDateUtil.getPrecision(value) === "year"}>
-							<Input.Description>
-								Month, day and time marked as unknown
-							</Input.Description>
-						</Collapse>
-
-						<Collapse expanded={!!value && PartialDateUtil.getPrecision(value) === "month"}>
-							<Input.Description>
-								Day and time marked as unknown
-							</Input.Description>
-						</Collapse>
-					</Stack>
-
-					<Collapse expanded={!!value && PartialDateUtil.has(value, "day")}>
-						<Stack gap={4}>
-							<Input.Label>
-								Time <Text c="dimmed" inline span inherit>(Local)</Text>
-							</Input.Label>
-							<TimePicker
-								format="24h"
-								value={timePickerValue}
-								onChange={onTimePickerChange}
-								hoursRef={timePickerHoursRef}
-								clearable
-								style={{ flex: 1 }}
-								leftSection={!!value && PartialDateUtil.has(value, "time") ? <IconClock /> : <IconClockQuestion />}
-							/>
-							<Collapse expanded={!!value && !PartialDateUtil.has(value, "time")}>
-								<Input.Description>
-									Time marked as unknown
-								</Input.Description>
-							</Collapse>
-						</Stack>
-					</Collapse>
-
-					<TimezoneSelect
-						label="Timezone"
-						value={(value ? PartialDateUtil.parse(value).timezone : null) ?? "UTC"}
-						leftSection={<IconWorld />}
-						onChange={(tz) => {
-							if (!value) return;
-							onChange(PartialDateUtil.withTimezone(value, tz));
-						}}
-					/>
-
-					<Group>
-						<Button
-							onClick={() => setModalOpened(false)}
-							color="green"
-							mt="md"
-							fullWidth
-						>
-							Done
-						</Button>
-					</Group>
-				</Stack>
+				<PartialDateInputModalContent
+					value={value}
+					onChange={onChange}
+					label={label}
+					onClose={() => setModalOpened(false)}
+				/>
 			</Modal>
 		</Box >
+	);
+};
+
+export const PartialDateInputBaseUnset = ({
+	onAutoSet,
+	onEditRaw,
+	label,
+}: {
+	onAutoSet?: () => void;
+	onEditRaw?: () => void;
+	label?: ReactNode;
+}) => {
+	return (
+		<InputBase
+			component="button"
+			pointer
+			onClick={onAutoSet}
+			onMouseDown={onAutoSet}
+			label={label}
+			rightSection={(
+				<Tooltip label="Edit raw PartialDate string">
+					<ActionIcon
+						onClick={onEditRaw}
+						variant="subtle"
+						color="gray"
+					>
+						<IconPencil stroke={1.2} color="var(--mantine-color-dimmed)" />
+					</ActionIcon>
+				</Tooltip>
+			)}
+			color="gray"
+		>
+			<Text c="dimmed" inherit inline span>
+				Click to Set
+			</Text>
+		</InputBase>
+	);
+};
+
+export const PartialDateInputBaseRaw = ({
+	value,
+	onChange,
+	label,
+	onExit,
+}: {
+	value: PartialDate | undefined;
+	onChange: (value: PartialDate | undefined) => void;
+	label?: ReactNode;
+	onExit?: () => void;
+}) => {
+	const {
+		textInputValue,
+		onTextInputChange,
+	} = usePartialDateTextInput({
+		value,
+		onChange,
+	});
+
+	return (
+		<TextInput
+			value={textInputValue}
+			onChange={onTextInputChange}
+			rightSection={(
+				<Group gap={4} wrap="nowrap" >
+					<Tooltip label="Done">
+						<ActionIcon
+							onClick={onExit}
+							disabled={!PartialDateUtil.isValid(textInputValue)}
+							variant="subtle"
+							color="green"
+						>
+							<IconCheck stroke={1.2} />
+						</ActionIcon>
+					</Tooltip>
+				</Group>
+			)}
+			error={textInputValue && !PartialDateUtil.isValid(textInputValue) ? "Invalid PartialDate string" : undefined}
+			autoFocus
+			onKeyDown={(e) => {
+				if ((e.key === "Enter" && PartialDateUtil.isValid(textInputValue)) || e.key === "Escape")
+					onExit?.();
+			}}
+			label={label}
+			placeholder="Enter raw PartialDate string"
+		/>
+	);
+};
+
+export const PartialDateInputBase = ({
+	label,
+	onChange,
+	onEditRaw,
+	onOpenModal,
+	value,
+}: {
+	label?: ReactNode;
+	onEditRaw: () => void;
+	onOpenModal: () => void;
+	value: PartialDate | undefined;
+	onChange: (value: PartialDate | undefined) => void;
+}) => {
+	return (
+		<InputBase
+			component="button"
+			label={label}
+			onClick={onOpenModal}
+			pointer
+			rightSectionWidth="auto"
+			rightSection={
+				(
+					<Group gap={4} wrap="nowrap" >
+						<Tooltip label="Edit raw PartialDate string">
+							<ActionIcon
+								onClick={onEditRaw}
+								variant="subtle"
+								color="gray"
+							>
+								<IconPencil stroke={1.2} color="var(--mantine-color-dimmed)" />
+							</ActionIcon>
+						</Tooltip>
+						<Tooltip label="Remove date">
+							<CloseButton
+								onClick={() => onChange(undefined)}
+							/>
+						</Tooltip>
+					</Group>
+				)}
+		>
+			<PartialDateSnippetLabel value={value} />
+		</InputBase>
+	);
+};
+
+export const PartialDateInputModalContent = ({
+	value,
+	onChange,
+	label,
+	onClose,
+}: {
+	value: PartialDate | undefined;
+	onChange: (value: PartialDate | undefined) => void;
+	label?: ReactNode;
+	onClose: () => void;
+}) => {
+	const userLanguage = useLocaleStore(store => store.language);
+
+	const {
+		calendarCollapsed,
+		calendarDate,
+		calendarLevel,
+		calendarValueFor,
+		onCalendarDateChange,
+		onCalendarLevelChange,
+		onCalendarValueChange,
+		onTimePickerChange,
+		setCalendarCollapsed,
+		timePickerValue,
+		timePickerRef,
+	} = usePartialDateCalendarInput({
+		value,
+		onChange,
+	});
+
+	return (
+		<Stack gap="md">
+			<Stack gap={4}>
+				<Group justify="center">
+					<Input.Label>
+						{label}
+					</Input.Label>
+				</Group>
+				<Group justify="center" gap={4}>
+					<IconCalendar />
+					<PartialDateSnippetLabel value={value} />
+				</Group>
+				<Group grow gap={4} my={4}>
+					{(["year", "month", "day", "time"] as PartialDate.Precision[]).map((precision) => (
+						<Badge
+							key={precision}
+							variant="light"
+							color={(!!value && PartialDateUtil.has(value, /* Stupid TS */ precision as any)) ? "blue" : "gray"}
+							size="xs"
+						>
+							{precision.charAt(0).toUpperCase() + precision.slice(1)}
+						</Badge>
+					))}
+				</Group>
+			</Stack>
+
+			<Stack gap={4}>
+				<Input.Label>
+					Date <Text c="dimmed" inline span inherit>(Local)</Text>
+				</Input.Label>
+
+				<Collapse expanded={calendarCollapsed}>
+					<InputBase
+						miw="260px"
+						w="100%"
+						component="button"
+						onClick={() => setCalendarCollapsed(false)}
+						leftSection={value && PartialDateUtil.has(value, "day") ? <IconCalendar /> : <IconCalendarQuestion />}
+						children={value && PartialDateUtil.has(value, "day") ? PartialDateUtil.asPlainDate(value).toLocaleString(userLanguage, {
+							dateStyle: "full",
+						}) : "!"}
+					/>
+				</Collapse>
+
+				<Collapse expanded={!calendarCollapsed}>
+					<Paper withBorder bg="dark.6">
+						{calendarLevel === "decade" && (
+							<YearPicker
+								date={calendarDate}
+								value={calendarValueFor("decade")}
+								onDateChange={onCalendarDateChange}
+								onChange={onCalendarValueChange}
+							/>
+						)}
+						{calendarLevel === "year" && (
+							<MonthPicker
+								date={calendarDate}
+								value={calendarValueFor("year")}
+								onDateChange={onCalendarDateChange}
+								onChange={onCalendarValueChange}
+								level="year"
+								onLevelChange={onCalendarLevelChange}
+							/>
+						)}
+						{calendarLevel === "month" && (
+							<DatePicker
+								level="month"
+								date={calendarDate}
+								value={calendarValueFor("month")}
+								highlightToday
+								onDateChange={onCalendarDateChange}
+								onChange={onCalendarValueChange}
+								onLevelChange={onCalendarLevelChange}
+							/>
+						)}
+
+					</Paper>
+				</Collapse>
+
+				<Collapse expanded={!!value && PartialDateUtil.getPrecision(value) === "year"}>
+					<Input.Description>
+						Month, day and time marked as unknown
+					</Input.Description>
+				</Collapse>
+
+				<Collapse expanded={!!value && PartialDateUtil.getPrecision(value) === "month"}>
+					<Input.Description>
+						Day and time marked as unknown
+					</Input.Description>
+				</Collapse>
+			</Stack>
+
+			<Collapse expanded={!!value && PartialDateUtil.has(value, "day")}>
+				<Stack gap={4}>
+					<Input.Label>
+						Time <Text c="dimmed" inline span inherit>(Local)</Text>
+					</Input.Label>
+					<TimePicker
+						format="24h"
+						value={timePickerValue}
+						onChange={onTimePickerChange}
+						hoursRef={timePickerRef}
+						clearable
+						style={{ flex: 1 }}
+						leftSection={!!value && PartialDateUtil.has(value, "time") ? <IconClock /> : <IconClockQuestion />}
+					/>
+					<Collapse expanded={!!value && !PartialDateUtil.has(value, "time")}>
+						<Input.Description>
+							Time marked as unknown
+						</Input.Description>
+					</Collapse>
+				</Stack>
+			</Collapse>
+
+			<TimezoneSelect
+				label="Timezone"
+				value={(value ? PartialDateUtil.parse(value).timezone : null) ?? "UTC"}
+				leftSection={<IconWorld />}
+				showUTC
+				onChange={(tz) => {
+					if (!value) return;
+					onChange(PartialDateUtil.withTimezone(value, tz));
+				}}
+			/>
+
+			<Group>
+				<Button
+					onClick={onClose}
+					color="green"
+					mt="md"
+					fullWidth
+				>
+					Done
+				</Button>
+			</Group>
+		</Stack>
 	);
 };

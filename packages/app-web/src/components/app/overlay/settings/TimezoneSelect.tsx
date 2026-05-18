@@ -6,6 +6,7 @@ export const TimezoneSelect = ({
 	value,
 	onChange,
 	showDetected = true,
+	showUTC,
 	label,
 	description,
 	leftSection,
@@ -13,6 +14,7 @@ export const TimezoneSelect = ({
 	value: string | undefined;
 	onChange: (value: string) => void;
 	showDetected?: boolean;
+	showUTC?: boolean;
 	label?: React.ReactNode;
 	description?: React.ReactNode;
 	leftSection?: React.ReactNode;
@@ -33,6 +35,7 @@ export const TimezoneSelect = ({
 				onSearchChange={setSearchValue}
 				onFocus={() => setSearchValue("")}
 				value={value ?? "UTC"}
+				placeholder={value ?? "UTC"}
 				onChange={(value) => {
 					onChange(value ?? "UTC");
 					setSearchValue("");
@@ -50,6 +53,20 @@ export const TimezoneSelect = ({
 						inherit
 					>
 						{intlResolvedTz}
+					</Anchor>
+				</Input.Description>
+			)}
+			{(showUTC && value !== "UTC") && (
+				<Input.Description>
+					Set to <Anchor
+						component="button"
+						type="button"
+						onClick={() => {
+							onChange("UTC");
+						}}
+						inherit
+					>
+						UTC
 					</Anchor>
 				</Input.Description>
 			)}
