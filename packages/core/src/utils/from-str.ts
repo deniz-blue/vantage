@@ -1,6 +1,8 @@
-import { parseCanonicalResourceUri, type CanonicalResourceUri } from "@atcute/lexicons";
+import { parseResourceUri, type CanonicalResourceUri } from "@atcute/lexicons";
 import { eventQueryFnNoId } from "../query/useEventQuery";
 import { parseEventFormat } from "../lib/format";
+import { isDid, isHandle } from "@atcute/lexicons/syntax";
+import { handleResolver } from "@vantage/atproto";
 
 export const eventQueryFnDataOrSourceStr = async ({
 	data,
@@ -30,7 +32,9 @@ export const eventQueryFnDataOrSourceStr = async ({
 };
 
 export const eventQueryFnInferFromStr = async (str: string) => {
+	console.log("Inferring event from string:", str);
 	const { source, format } = await inferSourceFormat(str);
+	console.log("Inferred source and format:", source, format);
 	return await eventQueryFnNoId(source, format);
 };
 
@@ -52,13 +56,20 @@ export const inferSourceFormat = async (str: string): Promise<{
 	}
 
 	if (str.startsWith("at://")) {
-		const { collection } = parseCanonicalResourceUri(str);
-		if (collection !== "directory.evnt.event" && collection !== "community.lexicon.calendar.event") {
+		const { repo, collection, rkey } = parseResourceUri(str);
+		if (collection !== "directory.evnt.event" && collection !== "community.lexicon.calendar.event")
 			throw new Error("Unsupported collection: " + collection);
+
+		if (!rkey) throw new Error("Missing rkey in at URI");
+
+		let did = repo;
+		if (!isDid(repo) && isHandle(repo)) {
+			did = await handleResolver.resolve(repo);
 		}
+
 		return {
 			format: { type: collection },
-			source: { type: "at", uri: str as CanonicalResourceUri },
+			source: { type: "at", uri: `at://${did}/${collection}/${rkey}` as CanonicalResourceUri },
 		};
 	} else if (str.startsWith("http://") || str.startsWith("https://")) {
 		let source: Vantage.EventSource = { type: "http", url: str };

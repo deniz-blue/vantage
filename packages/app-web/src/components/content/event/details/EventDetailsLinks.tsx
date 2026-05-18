@@ -17,7 +17,7 @@ export const EventDetailsLinks = () => {
 			<SmallTitle>
 				links
 			</SmallTitle>
-			<Stack gap={4}>
+			<Stack gap={0}>
 				{links.map((link, index) => (
 					<EventLinkButton key={index} value={link} />
 				))}

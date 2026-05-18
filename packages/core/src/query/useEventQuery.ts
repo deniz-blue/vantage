@@ -40,7 +40,7 @@ export const eventQueryFnX = async ({
 	};
 
 	if (!parsed && raw && format.type !== "unknown" && !parseResult) {
-		parseResult = parseEventFormat(raw, format);
+		parseResult = parseEventFormat(raw, format, source);
 	};
 
 	const data = parsed ?? parseResult?.parsed ?? null;
@@ -60,7 +60,7 @@ export const eventQueryFnX = async ({
 
 export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<Vantage.ResolvedEvent> => {
 	const resolveResult = await fetchEventSource(source);
-	const parseResult = resolveResult.raw ? parseEventFormat(resolveResult.raw, format) : null;
+	const parseResult = resolveResult.raw ? parseEventFormat(resolveResult.raw, format, source) : null;
 
 	return {
 		id: null,

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { eventQueryFn, eventQueryFnNoId, eventQueryKey, inferSourceFormat } from "@vantage/core";
+import { eventQueryFn, eventQueryFnInferFromStr, eventQueryKey } from "@vantage/core";
 import { Container, Space, Stack } from "@mantine/core";
 import { EventDetailsContent } from "../../components/content/event/details/EventDetailsContent";
 import { useProvideEventActions } from "../../hooks/actions/useProvideEventActions";
@@ -26,10 +26,7 @@ function EventPage() {
 		queryKey: id ? eventQueryKey(id) : ["source", source] as const,
 		queryFn: async () => {
 			if (id) return await eventQueryFn(id);
-			if (source) {
-				const { source: eventSource, format } = await inferSourceFormat(source);
-				return await eventQueryFnNoId(eventSource, format);
-			}
+			if (source) return await eventQueryFnInferFromStr(source);
 			throw new Error("Either id or source must be provided");
 		},
 	});

@@ -6,7 +6,11 @@ export type EventParseResult = {
 	error: Vantage.Error | null;
 };
 
-export type EventParser<Format extends keyof Vantage.EventFormatMap> = (raw: string, fmt: Extract<Vantage.EventFormat, { type: Format }>) => EventParseResult;
+export type EventParser<Format extends keyof Vantage.EventFormatMap> = (
+	raw: string,
+	fmt: Extract<Vantage.EventFormat, { type: Format }>,
+	ctx?: { source?: Vantage.EventSource },
+) => EventParseResult;
 
 export type EventFormat<Format extends keyof Vantage.EventFormatMap> = {
 	type: Format;
@@ -19,7 +23,7 @@ export const defineEventFormat = <Type extends keyof Vantage.EventFormatMap>(fmt
 	EventFormatRegistry.set(fmt.type, fmt);
 };
 
-export const parseEventFormat = (raw: string, fmt: Vantage.EventFormat): EventParseResult => {
+export const parseEventFormat = (raw: string, fmt: Vantage.EventFormat, src?: Vantage.EventSource): EventParseResult => {
 	const format = EventFormatRegistry.get(fmt.type);
 
 	if (!format) return {
@@ -31,7 +35,7 @@ export const parseEventFormat = (raw: string, fmt: Vantage.EventFormat): EventPa
 	};
 
 	try {
-		return format.parse(raw, fmt);
+		return format.parse(raw, fmt, { source: src });
 	} catch (e) {
 		return {
 			parsed: null,
