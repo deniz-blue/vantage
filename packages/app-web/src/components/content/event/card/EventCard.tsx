@@ -36,7 +36,9 @@ export const EventCard = polymorphic<"div", EventCardProps>((props: EventCardPro
 			loading={undefined}
 		>
 			<EventCardContext value={props}>
-				<EventCardBackground />
+				{props.variant !== "inline" && (
+					<EventCardBackground />
+				)}
 				<Box pos="relative" style={{ zIndex: 1 }} h="100%">
 					<Stack gap={4} h="100%" justify="space-between">
 						<Stack>

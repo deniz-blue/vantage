@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_layout")({
 })
 
 function LayoutPage() {
-	const [isNavbarOpened, { toggle: toggleNavbar }] = useDisclosure();
+	// const [isNavbarOpened, { toggle: toggleNavbar }] = useDisclosure();
 
 	const spaceless = useMatches({
 		select: (matches) => matches.some((match) => match.staticData?.spaceless),
@@ -45,11 +45,11 @@ function LayoutPage() {
 			header={{
 				height: "calc(60px + env(safe-area-inset-top, 0px))",
 			}}
-			navbar={{ width: 300, breakpoint: "sm", collapsed: { desktop: true, mobile: !isNavbarOpened } }}
+			// navbar={{ width: 300, breakpoint: "sm", collapsed: { desktop: true, mobile: !isNavbarOpened } }}
 			mb="env(safe-area-inset-bottom, 0px)"
 			padding={spaceless ? 0 : "xs"}
 		>
-			<AppShell.Navbar>
+			{/* <AppShell.Navbar>
 				<NavLink
 					leftSection={<IconList />}
 					label="List View"
@@ -62,11 +62,11 @@ function LayoutPage() {
 					component={Link}
 					to="/calendar"
 				/>
-			</AppShell.Navbar>
+			</AppShell.Navbar> */}
 			<AppShell.Header pt="env(safe-area-inset-top, 0px)">
 				<Group gap={0} p="xs" align="center" h="100%" w="100%" justify="space-between">
 					<Group gap={4}>
-						<ActionIcon
+						{/* <ActionIcon
 							color="gray"
 							variant="transparent"
 							aria-label="Toggle navigation menu"
@@ -75,7 +75,7 @@ function LayoutPage() {
 							hiddenFrom="sm"
 						>
 							<IconMenu2 />
-						</ActionIcon>
+						</ActionIcon> */}
 						<Logo />
 						<Group gap={4}>
 							<Link to="/list">

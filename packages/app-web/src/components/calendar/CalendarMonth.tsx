@@ -1,114 +1,127 @@
 import { ActionIcon, Box, Group, Paper, ScrollArea, SimpleGrid, Stack, Text, Tooltip } from "@mantine/core";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { getMonthDays } from "@mantine/dates";
-import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
-import type { PropsWithChildren } from "react";
+import { useEffect, useState, type PropsWithChildren } from "react";
+import { useCalendarStore } from "./useCalendarStore";
+import { Carousel } from "@mantine/carousel";
+import type { EmblaCarouselType } from "embla-carousel";
+import { SmallEventsList } from "./SmallEventsList";
 
-export interface CalendarMonthProps {
-	month: `${number}-${number}`;
-	setMonth: (month: `${number}-${number}`) => void;
-	renderDay: (props: { day: `${number}-${number}-${number}` }) => React.ReactNode;
-}
+export const CalendarMonth = () => {
+	const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
 
-export const CalendarMonth = ({
-	month,
-	setMonth,
-	renderDay,
-}: CalendarMonthProps) => {
+	const date = useCalendarStore((state) => state.date);
+	const nextDate = Temporal.PlainDate.from(date).add({ months: 1 }).toString();
+	const prevDate = Temporal.PlainDate.from(date).add({ months: -1 }).toString();
+
+	useEffect(() => {
+		if (!embla) return;
+		const update = () => {
+			console.log(embla.scrollProgress());
+			const progress = embla.scrollProgress();
+			if (progress <= 0.0001) {
+				useCalendarStore.getState().viewDelta(-1);
+			} else if (progress >= 0.9999) {
+				useCalendarStore.getState().viewDelta(1);
+			};
+		};
+		embla.on("scroll", update);
+		return () => {
+			embla.off("scroll", update);
+		};
+	}, [embla]);
+
+	useEffect(() => {
+		if (!embla) return;
+		embla.scrollTo(1, true);
+	}, [date, embla]);
+
+	return (
+		<Carousel
+			withControls={false}
+			slideSize="100%"
+			h="100%"
+			height="100%"
+			getEmblaApi={setEmbla}
+		>
+			<Carousel.Slide h="100%">
+				<CalendarMonthContent date={prevDate} />
+			</Carousel.Slide>
+			<Carousel.Slide h="100%">
+				<CalendarMonthContent date={date} />
+			</Carousel.Slide>
+			<Carousel.Slide h="100%">
+				<CalendarMonthContent date={nextDate} />
+			</Carousel.Slide>
+		</Carousel>
+	);
+};
+
+export const CalendarMonthContent = ({ date }: { date: string }) => {
 	const userLanguage = useLocaleStore(store => store.language);
-
 	const dates = getMonthDays({
-		month,
+		month: date,
 		firstDayOfWeek: 1,
 		consistentWeeks: true,
 	}) as (`${number}-${number}-${number}`)[][];
 
 	return (
-		<Stack w="100%" h="100%" gap={0}>
-			<Paper p="xs" withBorder w="100%" radius={0}>
-				<Group justify="space-between">
-					<Stack gap={0}>
-						<Text>
-							{new Date(month).toLocaleString("default", { month: "long", year: "numeric" })}
-						</Text>
-						<Text fz="xs" c="dimmed">
-							{month}
-						</Text>
-					</Stack>
-					<Group gap={4}>
-						{[-1, +1].map(dir => (
-							<Tooltip label={dir === -1 ? "Previous month" : "Next month"} key={dir}>
-								<ActionIcon
-									size="input-sm"
-									color="gray"
-									onClick={() => {
-										let [p1, p2] = month.split("-").map(Number) as [year: number, month: number];
-										p2 += dir;
-										if (p2 < 1) {
-											p2 = 12;
-											p1 -= 1;
-										} else if (p2 > 12) {
-											p2 = 1;
-											p1 += 1;
-										};
-										setMonth(`${p1.toString()}-${p2.toString().padStart(2, "0")}` as `${number}-${number}`);
-									}}
-								>
-									{dir === -1 ? <IconArrowLeft /> : <IconArrowRight />}
-								</ActionIcon>
-							</Tooltip>
+		<Box w="100%" h="100%" p="xs" pt={0}>
+			<Paper w="100%" h="100%" withBorder radius="md" style={{ overflow: "clip" }}>
+				<Stack w="100%" h="100%" gap={0}>
+					<SimpleGrid cols={7} spacing={0}>
+						{[...Array(7).keys()].map((d) => (
+							<Paper withBorder radius={0} key={d} style={{ borderRight: "unset", borderTop: "unset", borderBottom: "unset" }}>
+								<Text ta="center" fw={500} c="dimmed">
+									{new Intl.DateTimeFormat(userLanguage, { weekday: "short" }).format(new Date(2021, 0, d + 4))}
+								</Text>
+							</Paper>
 						))}
-					</Group>
-				</Group>
+					</SimpleGrid>
+
+					<SimpleGrid
+						cols={7}
+						spacing={0}
+						verticalSpacing={0}
+						w="100%"
+						style={{
+							flex: 1,
+							display: "grid",
+							gridTemplateRows: "repeat(6, 1fr)",
+							minHeight: 0,
+						}}
+					>
+						{dates.map(row => (
+							row.map(day => (
+								<Paper
+									withBorder
+									key={day}
+									radius={0}
+									w="100%"
+									style={{
+										overflow: "clip",
+										minHeight: 0,
+										display: "flex",
+										borderRight: "unset",
+										borderBottom: "unset",
+									}}
+									pos="relative"
+								>
+									<CalendarMonthDay
+										day={day}
+										isCurrentMonth={day.slice(0, 7) === date.slice(0, 7)}
+									>
+										<SmallEventsList
+											day={day}
+										/>
+									</CalendarMonthDay>
+								</Paper>
+							))
+						))}
+					</SimpleGrid>
+				</Stack>
 			</Paper>
-
-			<SimpleGrid cols={7} spacing={0}>
-				{[...Array(7).keys()].map((d) => (
-					<Paper withBorder radius={0} key={d}>
-						<Text ta="center" fw={500} c="dimmed">
-							{new Intl.DateTimeFormat(userLanguage, { weekday: "short" }).format(new Date(2021, 0, d + 4))}
-						</Text>
-					</Paper>
-				))}
-			</SimpleGrid>
-
-			<SimpleGrid
-				cols={7}
-				spacing={0}
-				verticalSpacing={0}
-				w="100%"
-				style={{
-					flex: 1,
-					display: "grid",
-					gridTemplateRows: "repeat(6, 1fr)",
-					minHeight: 0,
-				}}
-			>
-				{dates.map(row => (
-					row.map(day => (
-						<Paper
-							withBorder
-							key={day}
-							radius={0}
-							w="100%"
-							style={{
-								overflow: "clip",
-								minHeight: 0,
-								display: "flex",
-							}}
-							pos="relative"
-						>
-							<CalendarMonthDay
-								day={day}
-								isCurrentMonth={day.slice(0, 7) === month}
-							>
-								{renderDay({ day })}
-							</CalendarMonthDay>
-						</Paper>
-					))
-				))}
-			</SimpleGrid>
-		</Stack>
+		</Box>
 	)
 };
 
@@ -123,11 +136,11 @@ export const CalendarMonthDay = ({
 	const isToday = Temporal.Now.plainDateISO().toString() === day;
 
 	return (
-		<Stack gap={0} w="100%" h="100%" align="center">
+		<Stack gap={0} w="100%" h="100%">
 			<Text
-				ta="center"
 				c={isCurrentMonth ? (isToday ? "blue" : undefined) : "dimmed"}
-				fz="xs"
+				fz="sm"
+				p={4}
 				fw="bold"
 				span
 			>

@@ -1,5 +1,6 @@
 import { Box, ScrollArea, Stack } from "@mantine/core";
 import { DatePicker, MonthLevel, MonthPicker } from "@mantine/dates";
+import { useCalendarStore } from "./useCalendarStore";
 
 export interface CalendarMobileMonthProps {
 	month: `${number}-${number}`;
@@ -10,29 +11,24 @@ export interface CalendarMobileMonthProps {
 	renderDayButton?: (props: { day: `${number}-${number}-${number}` }) => React.ReactNode;
 }
 
-export const CalendarMobileMonth = ({
-	month,
-	setMonth,
-	day,
-	setDay,
-	renderDay,
-	renderDayButton,
-}: CalendarMobileMonthProps) => {
+export const CalendarMobileMonth = () => {
+	const date = useCalendarStore((state) => state.date);
+
 	return (
 		<Stack w="100%" h="100%" gap={0} align="center">
 			<DatePicker
 				fullWidth
-				date={month}
-				value={day}
-				onDateChange={(date) => setMonth(date.slice(0, 7) as `${number}-${number}`)}
-				onChange={(date) => setDay(date as `${number}-${number}-${number}`)}
-				renderDay={(day) => renderDayButton?.({ day: day as `${number}-${number}-${number}` }) ?? null}
+				date={date}
+				value={date}
+				onDateChange={(date) => useCalendarStore.setState({ date: date as `${number}-${number}-${number}` })}
+				onChange={(date) => useCalendarStore.setState({ date: date as `${number}-${number}-${number}` })}
+				renderDay={undefined}
 				level="month"
 			/>
 			<ScrollArea w="100%">
 				<Stack w="100%" h="100%" gap={0}>
 					<Box p={4} pb="xl">
-						{renderDay({ day })}
+						meow
 					</Box>
 				</Stack>
 			</ScrollArea>
