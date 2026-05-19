@@ -1,17 +1,17 @@
 import type { Media } from "@evnt/schema";
-import { Box, Center, Image } from "@mantine/core";
+import { Box, Skeleton } from "@mantine/core";
 import { Blurhash } from "./Blurhash";
 import { OverLayer } from "../layout/OverLayer";
-import { useState } from "react";
-import { CenteredLoader } from "../../content/base/CenteredLoader";
-import { IconPhotoOff } from "@tabler/icons-react";
+import { ReactNode, useState } from "react";
 
 export const EvntMedia = ({
 	media,
 	objectFit = "cover",
+	coverElement,
 }: {
 	media: Media;
 	objectFit?: React.CSSProperties["objectFit"];
+	coverElement?: ReactNode;
 }) => {
 	const [state, setState] = useState<"loading" | "loaded" | "error">("loading");
 
@@ -29,15 +29,7 @@ export const EvntMedia = ({
 
 			{state === "loading" && (
 				<OverLayer opacity={0.4}>
-					<CenteredLoader loaderColor="black" />
-				</OverLayer>
-			)}
-
-			{state === "error" && (
-				<OverLayer opacity={0.4}>
-					<Center h="100%">
-						<IconPhotoOff size={48} />
-					</Center>
+					<Skeleton w="100%" h="100%" />
 				</OverLayer>
 			)}
 
@@ -56,6 +48,10 @@ export const EvntMedia = ({
 					/>
 				)}
 			</OverLayer>
+
+			{!!coverElement && state === "loaded" && (
+				coverElement
+			)}
 		</Box>
 	);
 };

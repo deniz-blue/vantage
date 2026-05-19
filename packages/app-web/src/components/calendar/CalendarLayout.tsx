@@ -1,8 +1,9 @@
-import { ActionIcon, Box, Button, Group, Paper, Stack, Text, Tooltip } from "@mantine/core";
-import { useCalendarStore } from "./useCalendarStore";
+import { ActionIcon, Box, Button, Group, Paper, SegmentedControl, Stack, Text, Tooltip } from "@mantine/core";
+import { CalendarStore, useCalendarStore } from "./useCalendarStore";
 import { CalendarMonth } from "./CalendarMonth";
 import { CalendarMobileMonth } from "./CalendarMobileMonth";
 import { IconArrowLeft, IconArrowRight, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { CalendarTimeline } from "./CalendarTimeline";
 
 export const CalendarLayout = () => {
 	const view = useCalendarStore((state) => state.view);
@@ -20,22 +21,38 @@ export const CalendarLayout = () => {
 		</Tooltip>
 	));
 
+	const monthButton = (
+		<Button
+			color="gray"
+			size="xs"
+		>
+			{new Date(date).toLocaleString("default", { month: "long", year: "numeric" })}
+		</Button>
+	);
+
 	return (
 		<Stack gap={0} w="100%" h="100%">
-			<Paper p="xs" w="100%" radius={0}>
+			<Paper p="xs" w="100%" h="var(--app-shell-header-height)" radius={0}>
 				<Group justify="space-between">
-					<Group gap={4}>
-						{prevButton}
-						<Button
-							color="gray"
-							size="xs"
-						>
-							{new Date(date).toLocaleString("default", { month: "long", year: "numeric" })}
-						</Button>
-						{nextButton}
+					<Group gap={0}>
+						{view === "month" && (
+							<Group gap={4}>
+								{prevButton}
+								{monthButton}
+								{nextButton}
+							</Group>
+						)}
 					</Group>
 					<Group gap={4}>
-
+						<SegmentedControl<CalendarStore["view"]>
+							size="sm"
+							data={[
+								{ label: "Month", value: "month" },
+								{ label: "Timeline", value: "timeline" },
+							]}
+							value={view}
+							onChange={(value) => useCalendarStore.setState({ view: value })}
+						/>
 					</Group>
 				</Group>
 			</Paper>
@@ -43,8 +60,9 @@ export const CalendarLayout = () => {
 			{view === "month" && (
 				<CalendarMonth />
 			)}
-			{view === "month-mobile" && (
-				<CalendarMobileMonth />
+
+			{view === "timeline" && (
+				<CalendarTimeline />
 			)}
 		</Stack>
 	)

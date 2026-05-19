@@ -1,0 +1,7 @@
+.mantine-Spotlight-action:hover {
+	background-color: var(--mantine-color-blue-light-hover) !important;
+}
+
+.mantine-Spotlight-action[data-selected] {
+	background-color: var(--mantine-color-blue-light) !important;
+}

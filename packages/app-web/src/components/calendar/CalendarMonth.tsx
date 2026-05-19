@@ -17,7 +17,7 @@ export const CalendarMonth = () => {
 	useEffect(() => {
 		if (!embla) return;
 		const update = () => {
-			console.log(embla.scrollProgress());
+			// console.log(embla.scrollProgress());
 			const progress = embla.scrollProgress();
 			if (progress <= 0.0001) {
 				useCalendarStore.getState().viewDelta(-1);

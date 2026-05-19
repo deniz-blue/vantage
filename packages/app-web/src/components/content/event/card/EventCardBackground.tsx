@@ -1,10 +1,7 @@
-import type { EventComponent, SplashMediaComponent } from "@evnt/schema";
+import type { SplashMediaComponent } from "@evnt/schema";
 import classes from "./event-card.module.css";
-import { useEventCardContext } from "./event-card-context";
 import { OverLayer } from "../../../base/layout/OverLayer";
 import { EvntMedia } from "../../../base/media/EvntMedia";
-import { Blurhash } from "../../../base/media/Blurhash";
-import type { ReactNode } from "react";
 import { useResolvedEvent } from "@vantage/core";
 
 export interface EventCardBackgroundProps {
@@ -13,7 +10,6 @@ export interface EventCardBackgroundProps {
 };
 
 export const EventCardBackground = (props: EventCardBackgroundProps) => {
-	const { variant } = useEventCardContext();
 	const { data } = useResolvedEvent();
 
 	const backgroundMedia = data?.components
@@ -21,23 +17,22 @@ export const EventCardBackground = (props: EventCardBackgroundProps) => {
 			c.$type === "directory.evnt.component.splashMedia" && (c as SplashMediaComponent).roles.includes("background"))
 		?.media;
 
-	let backgroundElement: ReactNode = null;
-	if (variant !== "inline" && backgroundMedia)
-		backgroundElement = <EvntMedia media={backgroundMedia} objectFit="cover" />;
-	else if (variant === "inline" && backgroundMedia?.presentation?.blurhash)
-		backgroundElement = <Blurhash hash={backgroundMedia.presentation.blurhash} />;
-
 	return (
 		<OverLayer style={{ opacity: props.backgroundOpacity }}>
-			{backgroundElement && (
+			{backgroundMedia && (
 				<OverLayer>
-					{backgroundElement}
+					<EvntMedia
+						media={backgroundMedia}
+						objectFit="cover"
+						coverElement={(
+							<OverLayer
+								className={classes.dim}
+								style={{ "--dim": props.backgroundDim ?? (!backgroundMedia ? 0.05 : undefined) }}
+							/>
+						)}
+					/>
 				</OverLayer>
 			)}
-			<OverLayer
-				className={classes.dim}
-				style={{ "--dim": props.backgroundDim ?? (!backgroundMedia ? 0.05 : undefined) }}
-			/>
 		</OverLayer>
 	)
 };
