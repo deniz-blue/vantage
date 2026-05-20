@@ -16,6 +16,7 @@ import { resolvedEventUtils } from "@vantage/core";
 import { SmallTitle } from "../../base/SmallTitle";
 import { dbShortcuts } from "../../../../db/db-shortcuts";
 import { Link } from "@tanstack/react-router";
+import { EventDetailsRSVP } from "./EventDetailsRSVP";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
@@ -40,7 +41,7 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 						<Grid>
 							<Grid.Col
 								span={{ base: 12, xs: "auto" }}
-								order={{ base: 2, xs: 1 }}
+								// order={{ base: 2, xs: 1 }}
 							>
 								<LayerImportSection />
 								<Stack>
@@ -50,10 +51,11 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 							</Grid.Col>
 							<Grid.Col
 								span={{ base: 12, xs: 4 }}
-								order={{ base: 1, xs: 2 }}
+								// order={{ base: 1, xs: 2 }}
 							>
 								<Stack>
 									<EventDetailsLinks />
+									<EventDetailsRSVP />
 									<EventDetailsSource />
 									<EventDetailsAlternatives />
 									{/* <EventDetailsRevision /> */}

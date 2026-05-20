@@ -32,9 +32,15 @@ importers:
       '@atcute/jetstream':
         specifier: ^2.0.0
         version: 2.0.0(@atcute/lexicons@2.0.0)(react@19.2.6)(typescript@6.0.3)
+      '@atcute/lexicon-community':
+        specifier: ^2.0.0
+        version: 2.0.0(@atcute/lexicons@2.0.0)
       '@atcute/lexicons':
         specifier: ^2.0.0
         version: 2.0.0
+      '@atcute/microcosm':
+        specifier: ^2.0.0
+        version: 2.0.0(@atcute/lexicons@2.0.0)
       '@atcute/oauth-browser-client':
         specifier: ^4.0.0
         version: 4.0.0(@atcute/identity-resolver@2.0.0(@atcute/identity@2.0.0(@atcute/lexicons@2.0.0)(typescript@6.0.3))(@atcute/lexicons@2.0.0)(typescript@6.0.3))(@atcute/lexicons@2.0.0)(typescript@6.0.3)
@@ -358,8 +364,18 @@ packages:
     peerDependencies:
       '@atcute/lexicons': ^2.0.0
 
+  '@atcute/lexicon-community@2.0.0':
+    resolution: {integrity: sha512-pnF3qf1EfFmZ18LGMPlrQXVYtzO6J7R47WOlXsjtK25lWSOpyKCEKYcYi8D1xDI1ipDJOokyV8cha/VE83msJg==}
+    peerDependencies:
+      '@atcute/lexicons': ^2.0.0
+
   '@atcute/lexicons@2.0.0':
     resolution: {integrity: sha512-fIlwP+TPEAGoF5aU5s+f8N5sOjOu8Mww/sQL1B57Dp2hj3G/EWG9XwOHPokzycBCgXx+UxIIrzZCGy8whsVDZw==}
+
+  '@atcute/microcosm@2.0.0':
+    resolution: {integrity: sha512-G5m9ctgVOsa3QSKYLbDMjufBSsGB8Wloht28xj9cmEL/R6w4LWglu5scqSFa6h9NojnwN37h62b7wWzTd10icQ==}
+    peerDependencies:
+      '@atcute/lexicons': ^2.0.0
 
   '@atcute/multibase@1.2.0':
     resolution: {integrity: sha512-ZK2GRra+qIYq9nNuQB52m2ul0hOmCQEtPobGfTSUxm7pF0OGEkWGkWHugFhNEDVzHzTwPxHp6VGotdZFue4lYQ==}
@@ -4021,12 +4037,21 @@ snapshots:
       - react
       - typescript
 
+  '@atcute/lexicon-community@2.0.0(@atcute/lexicons@2.0.0)':
+    dependencies:
+      '@atcute/atproto': 4.0.0(@atcute/lexicons@2.0.0)
+      '@atcute/lexicons': 2.0.0
+
   '@atcute/lexicons@2.0.0':
     dependencies:
       '@atcute/uint8array': 1.1.2
       '@atcute/util-text': 1.3.1
       '@standard-schema/spec': 1.1.0
       esm-env: 1.2.2
+
+  '@atcute/microcosm@2.0.0(@atcute/lexicons@2.0.0)':
+    dependencies:
+      '@atcute/lexicons': 2.0.0
 
   '@atcute/multibase@1.2.0':
     dependencies:
