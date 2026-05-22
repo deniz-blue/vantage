@@ -20,12 +20,15 @@ export const PartialDateSnippetLabel = ({
 
 		const parsed = PartialDateUtil.parse(value);
 
+		const currentYear = new Date().getFullYear();
+
 		const fmt = new Intl.DateTimeFormat(language || userLanguage, {
-			year: "numeric",
+			year: parsed.year !== currentYear ? "numeric" : undefined,
 			month: PartialDateUtil.has(parsed, "month") ? "long" : undefined,
 			day: PartialDateUtil.has(parsed, "day") ? "numeric" : undefined,
 			hour: PartialDateUtil.has(parsed, "time") ? "numeric" : undefined,
 			minute: PartialDateUtil.has(parsed, "time") ? "numeric" : undefined,
+			weekday: PartialDateUtil.has(parsed, "day") ? "long" : undefined,
 			calendar: "iso8601",
 			hour12: false,
 			timeZone: parsed.timezone,

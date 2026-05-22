@@ -65,7 +65,7 @@ export const EventDetailsOverlayHandler = ({ id }: { id: Vantage.EventId }) => {
 		<ResolvedEventContext value={query.data ?? null}>
 			<EventDetailsContent
 				loading={query.isFetching}
-				withModalCloseButton
+				inModal
 			/>
 		</ResolvedEventContext>
 	);

@@ -37,8 +37,9 @@ export const LayerImportSection = () => {
 					}}
 					color="blue"
 					h="auto"
+					mb="xs"
 				>
-					<Stack gap={4} py={4}>
+					<Stack gap={4} my="xs">
 						<Text span inherit>
 							View in My Events
 						</Text>
@@ -69,8 +70,9 @@ export const LayerImportSection = () => {
 							loading={loading}
 							color="green"
 							h="auto"
+							mb="xs"
 						>
-							<Stack gap={4} py={4}>
+							<Stack gap={4} my={4}>
 								<Text span inherit>
 									Add to My Events
 								</Text>

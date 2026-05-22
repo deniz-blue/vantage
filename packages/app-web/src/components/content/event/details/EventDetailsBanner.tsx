@@ -16,7 +16,7 @@ import { useResolvedEvent } from "@vantage/core";
 
 export const EventDetailsBanner = () => {
 	const { data } = useResolvedEvent();
-	const { loading, withModalCloseButton } = useEventDetailsContext();
+	const { loading, inModal } = useEventDetailsContext();
 	const actions = useActionsStore(
 		useShallow(state => Object.values(state.actions).filter(a => a.category === "Event"))
 	);
@@ -37,7 +37,7 @@ export const EventDetailsBanner = () => {
 	return (
 		<Stack
 			pos="sticky"
-			style={{ top: !bannerMedia ? "var(--app-shell-header-height)" : 0, zIndex: 1 }}
+			style={{ top: (!bannerMedia && !inModal) ? "var(--app-shell-header-height)" : 0, zIndex: 1 }}
 		>
 			<Paper pos="relative" style={{ overflow: "hidden" }} shadow="xs" radius={0}>
 				<OverLayer>
@@ -56,7 +56,7 @@ export const EventDetailsBanner = () => {
 					mt={bannerMedia ? "var(--app-shell-header-height, 0px)" : 0}
 					p="xs"
 				>
-					<Group gap={4} justify="space-between" align="center">
+					<Group gap={4} justify="space-between" align="center" wrap="nowrap">
 						<Group gap={4} wrap="nowrap" align="center">
 							<Collapse expanded={!!loading} orientation="horizontal">
 								<Loader size="sm" />
@@ -91,7 +91,7 @@ export const EventDetailsBanner = () => {
 									))}
 								</Menu.Dropdown>
 							</Menu>
-							{withModalCloseButton && <Modal.CloseButton />}
+							{inModal && <Modal.CloseButton />}
 						</Group>
 					</Group>
 				</Stack>

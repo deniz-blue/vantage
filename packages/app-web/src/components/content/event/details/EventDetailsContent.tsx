@@ -20,7 +20,7 @@ import { EventDetailsRSVP } from "./EventDetailsRSVP";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
-	withModalCloseButton?: boolean;
+	inModal?: boolean;
 }
 
 export const EventDetailsContent = (props: EventDetailsContentProps) => {
