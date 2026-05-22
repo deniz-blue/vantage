@@ -6,6 +6,7 @@ import { useProvideEventActions } from "../../hooks/actions/useProvideEventActio
 import { ResolvedEventContext } from "@vantage/core";
 import { useQuery } from "@tanstack/react-query";
 import z from "zod";
+import classes from "./event.module.css";
 
 const SearchParamsSchema = z.object({
 	id: (z.uuid() as z.ZodType<Vantage.EventId>).optional(),
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/_layout/event")({
 
 function EventPage() {
 	const { id, source } = Route.useSearch();
+
 	const query = useQuery({
 		queryKey: id ? eventQueryKey(id) : ["source", source] as const,
 		queryFn: async () => {
@@ -37,21 +39,17 @@ function EventPage() {
 		<Stack
 			w="100%"
 			align="center"
+			className={classes.main}
 		>
 			<Container
+				className={classes.container}
 				size="md"
-				p={0}
-				w="100%"
-				mih="100dvh"
-				style={{
-					boxShadow: "0 0 50px rgba(0,0,0,0.2)",
-				}}
 			>
 				<Stack>
 					<ResolvedEventContext value={query.data ?? null}>
 						<EventDetailsContent />
 					</ResolvedEventContext>
-					<Space h="20rem" />
+					<Space h="40vh" />
 				</Stack>
 			</Container>
 		</Stack>
