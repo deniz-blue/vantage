@@ -53,12 +53,14 @@ export namespace MediaWiki {
 		source: string;
 		comment: string | null;
 		latest?: PageRevision;
+		token?: string;
 	};
 };
 
 defineEventSource({
 	type: "mediawiki",
 	network: true,
+	editable: true,
 
 	shareLink: ({ url, title }) => {
 		const endpoint = new URL(`rest.php/v1/page/${title}`, url);
@@ -86,6 +88,16 @@ defineEventSource({
 });
 
 export const mediawiki = {
+	getCsrfToken: async (url: string): Promise<string> => {
+		const endpoint = new URL(`api.php?${new URLSearchParams({ action: "query", meta: "tokens", type: "csrf", format: "json" })}`, url);
+		const res = await fetch(endpoint);
+		if (!res.ok) throw res;
+		const data = await res.json() as {
+			query: { tokens: { csrftoken: string } };
+		};
+		return data.query.tokens.csrftoken;
+	},
+
 	getPage: async (url: string, title: string): Promise<MediaWiki.Page> => {
 		const endpoint = new URL(`rest.php/v1/page/${title}`, url);
 		const res = await fetch(endpoint);

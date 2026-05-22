@@ -1,14 +1,15 @@
 import { schema, db } from "@vantage/db";
 import { eq } from "drizzle-orm";
-import { createComputedData, invalidateEventQuery } from "@vantage/core";
+import { createComputedData, invalidateEventQuery, mediawiki } from "@vantage/core";
 
 export interface EventMutationParams {
 	id: Vantage.EventId;
 	raw: string;
+	mediawikiComment?: string;
 };
 
 // for use with useMutation
-export const eventMutationFn = async ({ id, raw }: EventMutationParams) => {
+export const eventMutationFn = async ({ id, raw, mediawikiComment }: EventMutationParams) => {
 	const [{ source, format }] = await db
 		.select()
 		.from(schema.eventMeta)
@@ -16,19 +17,33 @@ export const eventMutationFn = async ({ id, raw }: EventMutationParams) => {
 
 	if (!source || !format) throw new Error(`Event with id ${id} not found`);
 
-	if (source.type !== "local") throw new Error(`Only local events can be edited`);
 	if (format.type !== "directory.evnt.event") throw new Error(`Only OpenEvnt format is supported`);
 
 	// TODO: this is a hack and will break the moment we support editing non-OpenEvnt formats
 
-	const updatedAt = Temporal.Now.instant();
-	await db.update(schema.eventCache)
-		.set({
-			raw,
-			parsed: JSON.parse(raw),
-			updatedAt,
-			computed: createComputedData(JSON.parse(raw)),
-		})
-		.where(eq(schema.eventCache.id, id));
+	if (source.type === "local") {
+		const updatedAt = Temporal.Now.instant();
+		await db.update(schema.eventCache)
+			.set({
+				raw,
+				parsed: JSON.parse(raw),
+				updatedAt,
+				computed: createComputedData(JSON.parse(raw)),
+			})
+			.where(eq(schema.eventCache.id, id));
+	} else if (source.type === "mediawiki") {
+		const cached = await db.select().from(schema.eventCache).where(eq(schema.eventCache.id, id)).get();
+		const latest = cached?.revision.revisionId;
+		const csrfToken = await mediawiki.getCsrfToken(source.url);
+		await mediawiki.updatePage(source.url, source.title, {
+			source: raw,
+			comment: mediawikiComment ?? "Updated via Vantage",
+			token: csrfToken,
+			latest:  latest ? { id: latest } : undefined,
+		});
+	} else {
+		throw new Error("Unsupported source");
+	}
+
 	invalidateEventQuery(id);
 };

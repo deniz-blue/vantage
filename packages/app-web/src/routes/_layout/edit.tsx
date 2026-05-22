@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import z from "zod";
 import { useEditorCollapseState } from "../../components/editor/editor-states";
 import { eventMutationFn } from "../../db/useEventMutation";
+import { notifications } from "@mantine/notifications";
 
 const RouteSearchSchema = z.object({
 	id: z.uuid() as z.ZodType<Vantage.EventId>,
@@ -63,6 +64,14 @@ function EditPage() {
 					id,
 				},
 			})
+		},
+		onError: (error) => {
+			console.error("Failed to save event", error);
+			notifications.show({
+				title: "Failed to save event",
+				message: error instanceof Error ? error.message : "An unknown error occurred",
+				color: "red",
+			});
 		},
 	});
 
