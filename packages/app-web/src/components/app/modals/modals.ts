@@ -2,6 +2,7 @@ import { CodeBlockModal } from "./CodeBlockModal";
 import { ImportAtModal } from "./ImportAtModal";
 import { ImportJSONModal } from "./ImportJSONModal";
 import { ImportURLModal } from "./ImportURLModal";
+import { ImportWebDAVModal } from "./ImportWebDAVModal";
 import { ImportWikiModal } from "./ImportWikiModal";
 import { QRCodeModal } from "./QRCodeModal";
 
@@ -12,6 +13,7 @@ export const contextModals: Record<string, React.FC<any>> = {
 	QRCodeModal,
 	ImportAtModal,
 	ImportWikiModal,
+	ImportWebDAVModal,
 } as const;
 
 declare module '@mantine/modals' {

@@ -108,6 +108,15 @@ export const AddEventMenu = () => {
 				>
 					From Wiki
 				</Menu.Item>
+				<Menu.Item
+					leftSection={<IconLink />}
+					onClick={() => modals.openContextModal({
+						modal: "ImportWebDAVModal",
+						innerProps: {},
+					})}
+				>
+					From WebDAV
+				</Menu.Item>
 			</Menu.Dropdown>
 		</Menu>
 	)

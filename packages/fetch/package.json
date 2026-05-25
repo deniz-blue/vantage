@@ -1,12 +1,11 @@
 {
-	"name": "@vantage/db",
+	"name": "@vantage/fetch",
 	"private": true,
 	"main": "src/index.ts",
 	"devDependencies": {
 		"typescript": "^6.0.3"
 	},
 	"dependencies": {
-		"@evnt/schema": "^0.0.9",
-		"drizzle-orm": "^0.45.2"
+		"@vantage/db": "workspace:*"
 	}
 }

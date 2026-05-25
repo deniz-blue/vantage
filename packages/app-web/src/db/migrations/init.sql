@@ -33,4 +33,8 @@ CREATE TABLE IF NOT EXISTS "event_cache" (
 	"error" blob,
 	"computed" blob DEFAULT '{}' NOT NULL
 );
-
+CREATE TABLE IF NOT EXISTS "credentials" (
+	"id" text PRIMARY KEY NOT NULL,
+	"updated_at" integer DEFAULT (strftime('%s', 'now') * 1000) NOT NULL,
+	"data" blob NOT NULL
+);

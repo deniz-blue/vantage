@@ -30,6 +30,11 @@ declare global {
 				high: number;
 			}[];
 		}
+
+		interface CredentialTypeMap { }
+		type Credential = {
+			[Ty in keyof CredentialTypeMap]: CredentialTypeMap[Ty] & { type: Ty };
+		}[keyof CredentialTypeMap];
 	}
 }
 
@@ -95,6 +100,12 @@ export const eventCache = sqliteTable("event_cache", {
 	revision: jsonb("revision").$type<Vantage.Revision>().notNull().default(sql`'{}'`),
 	error: jsonb("error").$type<Vantage.Error>(),
 	computed: jsonb("computed").$type<Vantage.ComputedData>().notNull().default(sql`'{}'`),
+});
+
+export const credentials = sqliteTable("credentials", {
+	id: uuid("id").primaryKey(),
+	data: jsonb("data").$type<Vantage.Credential>().notNull(),
+	updatedAt: timestamp("updated_at").notNull(),
 });
 
 export type Tag = typeof tags.$inferSelect;

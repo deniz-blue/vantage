@@ -22,7 +22,7 @@
 		"@evnt/convert": "^0.0.4",
 		"@evnt/partial-date": "^0.0.2",
 		"@evnt/pretty": "^0.0.2",
-		"@evnt/schema": "github:openevnt/evnt#beta&path:packages/schema",
+		"@evnt/schema": "^0.0.9",
 		"@evnt/translations": "^0.0.2",
 		"@mantine/carousel": "^9.2.1",
 		"@mantine/core": "9.2.1",

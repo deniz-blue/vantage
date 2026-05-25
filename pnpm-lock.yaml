@@ -289,6 +289,9 @@ importers:
       '@vantage/db':
         specifier: workspace:*
         version: link:../db
+      '@vantage/fetch':
+        specifier: workspace:*
+        version: link:../fetch
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2
@@ -317,6 +320,16 @@ importers:
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  packages/fetch:
+    dependencies:
+      '@vantage/db':
+        specifier: workspace:*
+        version: link:../db
     devDependencies:
       typescript:
         specifier: ^6.0.3
