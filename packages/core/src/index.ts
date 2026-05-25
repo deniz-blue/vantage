@@ -1,6 +1,8 @@
 export * from "./lib/format"
 export * from "./lib/source"
 export * from "./lib/resolved-event"
+export * from "./lib/resolved-event-utils"
+export * from "./lib/resolve"
 
 export * from "./lib/unknown"
 export * from "./registry/formats/openevnt"

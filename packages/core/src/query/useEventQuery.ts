@@ -7,6 +7,7 @@ import { parseEventFormat, type EventParseResult } from "../lib/format";
 import { db } from "@vantage/db";
 import { createComputedData } from "../database/computed";
 import type { EventData } from "@evnt/schema";
+import { EventResolver, asyncPipe } from "../lib/resolve";
 
 export const eventQueryKey = (id: Vantage.EventId) => ["event", id] as const;
 
@@ -59,21 +60,23 @@ export const eventQueryFnX = async ({
 };
 
 export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<Vantage.ResolvedEvent> => {
-	const resolveResult = await fetchEventSource(source);
-	const parseResult = resolveResult.raw ? parseEventFormat(resolveResult.raw, format, source) : null;
-
-	return {
-		id: null,
-		data: parseResult ? parseResult.parsed : null,
-		raw: resolveResult.raw,
-		revision: resolveResult.revision,
-		error: resolveResult.error,
-		source,
-		format,
-	};
+	return await asyncPipe(
+		EventResolver.fetchIfNeeded,
+		EventResolver.parseIfNeeded,
+	)(EventResolver.new({ source, format }));
 };
 
 export const eventQueryFn = async (id: Vantage.EventId): Promise<Vantage.ResolvedEvent> => {
+	let resolved = await EventResolver.selectFromDatabase(EventResolver.new({ id }));
+	const mustFetch = EventResolver.mustFetch(resolved);
+	const mustParse = EventResolver.mustParse(resolved);
+	if (mustFetch) resolved = await EventResolver.fetch(resolved);
+	if (mustParse) resolved = await EventResolver.parse(resolved); 
+	if ((mustFetch || mustParse) && resolved.source.type !== "local") await EventResolver.upsertToDatabase(resolved);
+	return resolved;
+};
+
+export const eventQueryFnOld = async (id: Vantage.EventId): Promise<Vantage.ResolvedEvent> => {
 	const result = await db
 		.select()
 		.from(schema.eventMeta)

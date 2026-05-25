@@ -1,4 +1,4 @@
-import { ActionIcon, Anchor, AppShell, Code, Container, Flex, Group, Loader, NavLink, Space, Text, Title } from "@mantine/core";
+import { ActionIcon, Anchor, AppShell, Code, Container, Flex, Group, Loader, NavLink, polymorphic, Space, Text, Title } from "@mantine/core";
 import { createFileRoute, Link, Outlet, useMatches, type ErrorComponentProps } from "@tanstack/react-router"
 import { IconCalendar, IconList, IconMenu2, IconSearch, IconSettings } from "@tabler/icons-react";
 import z from "zod";
@@ -14,6 +14,8 @@ import { AddEventMenu } from "../../components/app/AddEventMenu";
 import { VantageSpotlight } from "../../components/app/overlay/spotlight/VantageSpotlight";
 import { spotlight } from "@mantine/spotlight";
 import { useProvideNavActions } from "../../hooks/actions/useProvideNavActions";
+import { linkOptions } from "@tanstack/react-router";
+import { createLink } from "@tanstack/react-router";
 
 const SearchParamsSchema = z.object({
 	settings: z.string().optional(),
@@ -78,24 +80,23 @@ function LayoutPage() {
 						</ActionIcon> */}
 						<Logo />
 						<Group gap={4}>
-							<Link to="/list">
-								{({ isActive }) => (
-									<NavButton
-										icon={<IconList />}
-										isActive={isActive}
-										aria-label="List View"
-									/>
-								)}
-							</Link>
-							<Link to="/calendar">
-								{({ isActive }) => (
-									<NavButton
-										icon={<IconCalendar />}
-										isActive={isActive}
-										aria-label="Calendar View"
-									/>
-								)}
-							</Link>
+							{linkOptions([
+								{
+									to: "/list",
+									icon: <IconList />,
+									ariaLabel: "List View",
+								},
+								{
+									to: "/calendar",
+									icon: <IconCalendar />,
+									ariaLabel: "Calendar View",
+								},
+							]).map((option) => (
+								<NavButton
+									key={option.to}
+									{...option}
+								/>
+							))}
 						</Group>
 					</Group>
 					<Group gap={4}>
@@ -141,7 +142,7 @@ function LayoutPage() {
 	)
 }
 
-const NavButton = ({
+const NavButton = createLink(({
 	icon,
 	isActive,
 	...props
@@ -159,7 +160,7 @@ const NavButton = ({
 			{icon}
 		</ActionIcon>
 	);
-};
+});
 
 const Overlays = () => {
 	const { toggle: toggleSettings, useValue } = useSettingsOverlay();
