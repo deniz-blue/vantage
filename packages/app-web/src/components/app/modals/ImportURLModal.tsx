@@ -3,7 +3,7 @@ import { modals, type ContextModalProps } from "@mantine/modals";
 import { useState } from "react";
 import { AsyncAction } from "../../data/AsyncAction";
 import { dbShortcuts } from "../../../db/db-shortcuts";
-import { inferSourceFormat } from "@vantage/core";
+import { EventsManager, inferSourceFormat } from "@vantage/core";
 
 export const ImportURLModal = ({
 	context,
@@ -26,7 +26,7 @@ export const ImportURLModal = ({
 			<AsyncAction
 				action={async () => {
 					try {
-						await dbShortcuts.insertEventMeta(await inferSourceFormat(url));
+						await EventsManager.addEvent(await inferSourceFormat(url));
 						context.closeModal(modalId);
 					} catch (error) {
 						setError("" + error);

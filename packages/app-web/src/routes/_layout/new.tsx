@@ -7,11 +7,12 @@ import { FormPageTemplate } from "../form";
 import { Avatar, Box, Button, Modal, Stack, Text } from "@mantine/core";
 import { IconDatabase } from "@tabler/icons-react";
 import { getAvatarOfDid, useATProtoAuthStore } from "../../lib/atproto/useATProtoStore";
-import type { AtprotoDid } from "@atcute/lexicons/syntax";
+import type { AtprotoDid, CanonicalResourceUri } from "@atcute/lexicons/syntax";
 import { useAtProtoHandleQuery } from "../../lib/atproto/useAtProtoHandleQuery";
 import { useDisclosure } from "@mantine/hooks";
 import { dbShortcuts } from "../../db/db-shortcuts";
 import { now } from "@atcute/tid";
+import { EventsManager } from "@vantage/core";
 
 export const Route = createFileRoute("/_layout/new")({
 	component: NewPage,
@@ -31,7 +32,14 @@ function NewPage() {
 	type Payload = { where: "local" | "at"; data: EventData };
 	const mutation = useMutation({
 		mutationFn: async ({ where, data }: Payload) => {
-			if (where === "local") return await dbShortcuts.insertLocalEvent(JSON.stringify(data), { type: "directory.evnt.event" });
+			if (where === "local") return await EventsManager.addEventWithCache({
+				source: { type: "local" },
+				format: { type: "directory.evnt.event" },
+				raw: JSON.stringify(data),
+				parsed: data,
+				error: null,
+			});
+			
 			if (where === "at") {
 				const { rpc, agent } = useATProtoAuthStore.getState();
 				if (!rpc || !agent) throw new Error("Not authenticated with ATProto");
@@ -47,8 +55,8 @@ function NewPage() {
 					},
 				});
 				if (!res.ok) throw new Error(res.data.error + ": " + res.data.message);
-				return await dbShortcuts.insertEventMeta({
-					source: { type: "at", uri: res.data.uri },
+				return await EventsManager.addEvent({
+					source: { type: "at", uri: res.data.uri as CanonicalResourceUri },
 					format: { type: "directory.evnt.event" },
 				});
 			};

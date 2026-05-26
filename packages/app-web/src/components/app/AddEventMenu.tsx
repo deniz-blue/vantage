@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { useTasksStore } from "../../stores/useTasksStore";
 import ICAL from "ical.js";
-import { dbShortcuts } from "../../db/db-shortcuts";
+import { asyncPipe, EventResolver, EventsManager } from "@vantage/core";
 
 export const AddEventMenu = () => {
 	const icsFileInputRef = useRef<HTMLInputElement>(null);
@@ -22,9 +22,22 @@ export const AddEventMenu = () => {
 				const vevents = comp.getAllSubcomponents("vevent");
 				for (const vevent of vevents) {
 					const veventString = vevent.toString();
-					console.log("Parsed VEVENT:", veventString);
-					
-					await dbShortcuts.insertLocalEvent(veventString, { type: "ics" });
+
+					const resolved = await asyncPipe(
+						EventResolver.parse,
+					)(EventResolver.new({
+						source: { type: "local" },
+						format: { type: "ics" },
+						raw: veventString,
+					}));
+
+					await EventsManager.addEventWithCache({
+						source: resolved.source,
+						format: resolved.format,
+						raw: resolved.raw,
+						parsed: resolved.data,
+						error: resolved.error,
+					});
 				};
 			}
 		});

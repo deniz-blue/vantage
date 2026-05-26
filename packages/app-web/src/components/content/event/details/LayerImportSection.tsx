@@ -1,6 +1,6 @@
 import { Button, Collapse, Stack, Text } from "@mantine/core";
 import { AsyncAction } from "../../../data/AsyncAction";
-import { useResolvedEvent } from "@vantage/core";
+import { EventsManager, useResolvedEvent } from "@vantage/core";
 import { useQuery } from "@tanstack/react-query";
 import { dbShortcuts } from "../../../../db/db-shortcuts";
 import { notifications } from "@mantine/notifications";
@@ -51,7 +51,7 @@ export const LayerImportSection = () => {
 			</Collapse>
 			<Collapse expanded={!id && !unknown && (existing.data?.length ?? 0) === 0}>
 				<AsyncAction action={async () => {
-					const id = await dbShortcuts.insertEventMeta({ source, format });
+					const id = await EventsManager.addEvent({ source, format });
 					notifications.show({
 						title: "Event Added",
 						message: "The event has been added to your list and is now available offline.",

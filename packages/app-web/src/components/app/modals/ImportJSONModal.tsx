@@ -4,7 +4,7 @@ import { useState } from "react";
 import { prettifyError, type z } from "zod";
 import { EventDataSchema, type EventData } from "@evnt/schema";
 import { AsyncAction } from "../../data/AsyncAction";
-import { dbShortcuts } from "../../../db/db-shortcuts";
+import { EventsManager } from "@vantage/core";
 
 export const ImportJSONModal = ({
 	context,
@@ -41,7 +41,13 @@ export const ImportJSONModal = ({
 			<AsyncAction
 				action={async () => {
 					if (!result || !result.success) return;
-					await dbShortcuts.insertLocalEvent(JSON.stringify(result.data), { type: "directory.evnt.event" });
+					await EventsManager.addEventWithCache({
+						source: { type: "local" },
+						format: { type: "directory.evnt.event" },
+						parsed: result.data,
+						raw: json,
+						error: null,
+					});
 					modals.close(modalId);
 				}}
 			>

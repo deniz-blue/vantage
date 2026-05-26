@@ -4,7 +4,7 @@ import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, Ico
 import { useNavigate } from "@tanstack/react-router";
 import { QRCode } from "../../lib/util/qrcode";
 import { modals } from "@mantine/modals";
-import { EventSourceRegistry } from "@vantage/core";
+import { EventsManager, EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
 import { notifications } from "@mantine/notifications";
 import { openConfirmModal } from "../../lib/util/confirm";
@@ -203,7 +203,7 @@ export const EventActionFactory = {
 					message: "Deleting event...",
 					loading: true,
 				});
-				await dbShortcuts.deleteEventMeta(resolved.id);
+				await EventsManager.removeEvent(resolved.id);
 				notifications.update({
 					id,
 					message: "Event deleted",

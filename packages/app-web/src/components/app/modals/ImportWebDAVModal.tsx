@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AsyncAction } from "../../data/AsyncAction";
 import { dbShortcuts } from "../../../db/db-shortcuts";
 import { useQuery } from "@tanstack/react-query";
-import { webdav } from "@vantage/core";
+import { EventsManager, webdav } from "@vantage/core";
 
 export const ImportWebDAVModal = ({
 	context,
@@ -50,7 +50,7 @@ export const ImportWebDAVModal = ({
 			<AsyncAction
 				action={async () => {
 					try {
-						await dbShortcuts.insertEventMeta({
+						await EventsManager.addEvent({
 							format: { type: "directory.evnt.event" },
 							source: {
 								type: "webdav",

@@ -1,7 +1,8 @@
 import { openDB } from "idb";
 import { dbShortcuts } from "../db-shortcuts";
-import { parseResourceUri } from "@atcute/lexicons";
+import { CanonicalResourceUri, parseResourceUri } from "@atcute/lexicons";
 import { notifications } from "@mantine/notifications";
+import { EventResolver, EventsManager } from "@vantage/core";
 
 type EventSource = string;
 
@@ -57,21 +58,33 @@ export const _migrate26may_ = async () => {
 			case "local": {
 				const row: { data: any } = await db.get("data", src);
 				console.log(JSON.stringify(row.data), inferEventFormat(row.data));
-				const fmt = inferEventFormat(row.data);
-				const id = await dbShortcuts.insertLocalEvent(
-					fmt.type == "ics" ? row.data.value : JSON.stringify(row.data),
-					fmt
-				);
+				const format = inferEventFormat(row.data);
+
+				const raw = format.type == "ics" ? row.data.value : JSON.stringify(row.data);
+				const source: Vantage.EventSource = { type: "local" };
+				const { error, data } = await EventResolver.parse(EventResolver.new({
+					source,
+					format,
+					raw,
+				}));
+
+				const id = await EventsManager.addEventWithCache({
+					raw,
+					parsed: data,
+					error,
+					source,
+					format,
+				});
+				
 				createdIds.push(id);
 			} break;
 			case "at": {
 				const p = parseResourceUri(src);
-				if (!p.ok) continue;
 				let format: Vantage.EventFormat = { type: "unknown" };
-				if (p.value.collection === "directory.evnt.event") format = { type: "directory.evnt.event" };
-				if (p.value.collection === "community.lexicon.calendar.event") format = { type: "community.lexicon.calendar.event" };
-				const id = await dbShortcuts.insertEventMeta({
-					source: { type: "at", uri: src },
+				if (p.collection === "directory.evnt.event") format = { type: "directory.evnt.event" };
+				if (p.collection === "community.lexicon.calendar.event") format = { type: "community.lexicon.calendar.event" };
+				const id = await EventsManager.addEvent({
+					source: { type: "at", uri: src as CanonicalResourceUri },
 					format,
 				});
 				createdIds.push(id);
@@ -82,7 +95,7 @@ export const _migrate26may_ = async () => {
 
 				const row: { data: any } = await db.get("data", src);
 				const format = inferEventFormat(row.data);
-				const id = await dbShortcuts.insertEventMeta({
+				const id = await EventsManager.addEvent({
 					source: { type: "http", url: src },
 					format,
 				});

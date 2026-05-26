@@ -14,7 +14,7 @@ export * from "./registry/sources/local"
 export * from "./registry/sources/mediawiki"
 export * from "./registry/sources/webdav"
 
-export * from "./database/create-insert"
+export * from "./database/event-manager"
 export * from "./database/computed"
 
 export * from "./query/query-client"
