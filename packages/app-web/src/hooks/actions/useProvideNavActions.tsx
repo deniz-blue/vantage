@@ -1,6 +1,7 @@
-import { IconCalendar, IconCalendarPlus, IconHome, IconList, IconSettings } from "@tabler/icons-react";
+import { IconCalendar, IconCalendarPlus, IconHome, IconList, IconSettings, IconTag } from "@tabler/icons-react";
 import { useProvideAction } from "../../components/app/overlay/spotlight/useAction";
 import { useNavigate } from "@tanstack/react-router";
+import { modals } from "@mantine/modals";
 
 export const useProvideNavActions = () => {
 	const navigate = useNavigate();
@@ -31,6 +32,17 @@ export const useProvideNavActions = () => {
 		category: "Navigation",
 		icon: <IconCalendarPlus />,
 		execute: () => navigate({ to: "/new" }),
+	});
+
+	useProvideAction({
+		label: "Manage Tags",
+		category: "Navigation",
+		icon: <IconTag />,
+		execute: () => modals.openContextModal({
+			modal: "ManageTagsModal",
+			innerProps: {},
+		}),
+		id: "manage-tags",
 	});
 
 	useProvideAction({

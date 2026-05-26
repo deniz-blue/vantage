@@ -17,6 +17,7 @@ import { SmallTitle } from "../../base/SmallTitle";
 import { dbShortcuts } from "../../../../db/db-shortcuts";
 import { Link } from "@tanstack/react-router";
 import { EventDetailsRSVP } from "./EventDetailsRSVP";
+import { EventTags } from "../badges/EventTags";
 
 export interface EventDetailsContentProps {
 	loading?: boolean;
@@ -24,8 +25,6 @@ export interface EventDetailsContentProps {
 }
 
 export const EventDetailsContent = (props: EventDetailsContentProps) => {
-	const { source } = useResolvedEvent();
-
 	return (
 		<EventDetailsContext value={props}>
 			<Stack gap={0}>
@@ -33,15 +32,20 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 				<Container w="100%">
 					<Stack gap={0}>
 						<EnvelopeErrorAlert my="xs" />
-						<Group py="xs" gap="xs" justify="end">
-							<EventRefetchButton />
-							<EventShareButton />
-							<EventEditButton />
+						<Group gap={4} py="xs" justify="space-between" wrap="nowrap">
+							<Group gap={4}>
+								<EventTags withIcon withEditButton />
+							</Group>
+							<Group gap={4} wrap="nowrap">
+								<EventRefetchButton />
+								<EventShareButton />
+								<EventEditButton />
+							</Group>
 						</Group>
 						<Grid>
 							<Grid.Col
 								span={{ base: 12, xs: "auto" }}
-								// order={{ base: 2, xs: 1 }}
+							// order={{ base: 2, xs: 1 }}
 							>
 								<LayerImportSection />
 								<Stack>
@@ -51,7 +55,7 @@ export const EventDetailsContent = (props: EventDetailsContentProps) => {
 							</Grid.Col>
 							<Grid.Col
 								span={{ base: 12, xs: 4 }}
-								// order={{ base: 1, xs: 2 }}
+							// order={{ base: 1, xs: 2 }}
 							>
 								<Stack>
 									<EventDetailsLinks />

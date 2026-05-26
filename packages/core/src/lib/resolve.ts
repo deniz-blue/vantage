@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { createComputedData } from "../database/computed";
 
 export const asyncPipe = <T>(...fns: ((arg: T) => Promise<T>)[]) =>
-	fns.reduce((first, second) => (input) => first(input).then(second));
+	fns.reduce((first, second) => (input) => first(input).then((x) => second(x)));
 
 export const EventResolver = new class {
 	// Factory

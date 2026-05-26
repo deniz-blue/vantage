@@ -3,6 +3,7 @@ import { IconArrowNarrowRight } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useResolvedEvent } from "@vantage/core";
 import { useEventCardContext } from "./event-card-context";
+import { EventTags } from "../badges/EventTags";
 
 export const EventCardBottom = () => {
 	const { embedSource } = useEventCardContext();
@@ -10,8 +11,8 @@ export const EventCardBottom = () => {
 
 	return (
 		<Stack>
-			<Group gap={0} justify="space-between">
-				<Group gap={4}>
+			<Group gap={0} justify="space-between" wrap="nowrap">
+				<Group gap={4} wrap="nowrap">
 					{source.type === "local" && (
 						<Tooltip label="Saved on Browser/Device">
 							<Badge color="gray" size="xs" variant="outline" children="L" />
@@ -48,7 +49,9 @@ export const EventCardBottom = () => {
 						</Tooltip>
 					)}
 				</Group>
-				<Group>
+				<Group wrap="nowrap">
+					<EventTags hideEmpty />
+
 					{(id || embedSource) && (
 						<Button
 							size="compact-sm"

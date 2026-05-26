@@ -1,4 +1,7 @@
 import { CodeBlockModal } from "./CodeBlockModal";
+import { EditEventTagsModal } from "./EditEventTagsModal";
+import { EditTagModal } from "./EditTagModal";
+import { ManageTagsModal } from "./ManageTagsModal";
 import { ImportAtModal } from "./ImportAtModal";
 import { ImportJSONModal } from "./ImportJSONModal";
 import { ImportURLModal } from "./ImportURLModal";
@@ -14,6 +17,9 @@ export const contextModals: Record<string, React.FC<any>> = {
 	ImportAtModal,
 	ImportWikiModal,
 	ImportWebDAVModal,
+	EditEventTagsModal,
+	EditTagModal,
+	ManageTagsModal,
 } as const;
 
 declare module '@mantine/modals' {

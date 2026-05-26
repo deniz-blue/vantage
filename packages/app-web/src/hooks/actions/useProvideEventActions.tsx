@@ -19,6 +19,7 @@ export const EventActionFactory = {
 		resolved: Vantage.ResolvedEvent;
 		navigate: ReturnType<typeof useNavigate>;
 	}) => [
+			EventActionFactory.EditTags(resolved),
 			EventActionFactory.Edit(navigate, resolved),
 			EventActionFactory.CopyShareLink(resolved),
 			EventActionFactory.CopyMarkdownLink(resolved),
@@ -216,6 +217,20 @@ export const EventActionFactory = {
 		special: {
 			color: "red",
 		},
+		deps: [resolved.id],
+	}),
+	EditTags: (resolved: Vantage.ResolvedEvent) => ({
+		label: "Edit Event Tags",
+		category: "Event",
+		icon: <IconEdit />,
+		disabled: !resolved.id,
+		execute: () => modals.openContextModal({
+			modal: "EditEventTagsModal",
+			innerProps: {
+				eventId: resolved.id!,
+			},
+		}),
+		id: "edit-event-tags",
 		deps: [resolved.id],
 	}),
 };

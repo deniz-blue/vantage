@@ -2,6 +2,7 @@ import { LanguageSelect } from "./LanguageSelect";
 import { TimezoneSelect } from "./TimezoneSelect";
 import { ATProtoSettings } from "./ATProtoSettings";
 import { Button, Divider, Stack } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { AsyncAction } from "../../../data/AsyncAction";
 import { _migrate26may_ } from "../../../../db/migrations/26may";
@@ -10,6 +11,7 @@ import { queryClient } from "@vantage/core";
 import { notifications } from "@mantine/notifications";
 import { sqlite } from "../../../../db/drizzle";
 import { withConfirmation } from "../../../../lib/util/confirm";
+import { IconBrandGithub, IconBug } from "@tabler/icons-react";
 
 export const Settings = () => {
 	const language = useLocaleStore((state) => state.language);
@@ -34,6 +36,38 @@ export const Settings = () => {
 
 			<ATProtoSettings />
 
+			<Divider label="Tags" />
+
+
+			<Button
+				onClick={() => modals.openContextModal({
+					modal: "ManageTagsModal",
+					innerProps: {},
+				})}
+			>
+				Manage Tags
+			</Button>
+
+			<Divider label="Development" />
+
+			<Button
+				component="a"
+				href="https://github.com/deniz-blue/vantage"
+				target="_blank"
+				leftSection={<IconBrandGithub />}
+			>
+				Source Code
+			</Button>
+
+			<Button
+				component="a"
+				href="https://github.com/deniz-blue/vantage/issues"
+				target="_blank"
+				leftSection={<IconBug />}
+			>
+				Report Issue
+			</Button>
+
 			<Divider label="Maintenance" />
 
 			<AsyncAction
@@ -44,26 +78,10 @@ export const Settings = () => {
 			>
 				{({ loading, onClick }) => (
 					<Button
-						color="red"
 						onClick={onClick}
 						loading={loading}
 					>
 						Migrate Database
-					</Button>
-				)}
-			</AsyncAction>
-
-			<AsyncAction
-				action={async () => {
-					console.log(await db.select().from(schema.eventCache));
-				}}
-			>
-				{({ loading, onClick }) => (
-					<Button
-						onClick={onClick}
-						loading={loading}
-					>
-						Dump Cache to Console
 					</Button>
 				)}
 			</AsyncAction>

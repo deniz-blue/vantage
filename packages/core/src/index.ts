@@ -16,6 +16,8 @@ export * from "./registry/sources/webdav"
 
 export * from "./database/event-manager"
 export * from "./database/computed"
+export * from "./database/event-tag-manager"
+export * from "./database/tags-manager"
 
 export * from "./query/query-client"
 export * from "./query/useEventQuery"

@@ -23,9 +23,7 @@ export const AddEventMenu = () => {
 				for (const vevent of vevents) {
 					const veventString = vevent.toString();
 
-					const resolved = await asyncPipe(
-						EventResolver.parse,
-					)(EventResolver.new({
+					const resolved = await EventResolver.parse(EventResolver.new({
 						source: { type: "local" },
 						format: { type: "ics" },
 						raw: veventString,

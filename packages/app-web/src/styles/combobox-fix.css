@@ -1,0 +1,15 @@
+.mantine-Combobox-option[data-combobox-selected] {
+	background-color: rgb(0 0 0 / 20%);
+	position: relative;
+}
+
+.mantine-Combobox-option[data-combobox-selected]::before {
+	content: "";
+	position: absolute;
+	border: 5px solid var(--mantine-color-blue-light);
+	border-radius: var(--mantine-radius-md);
+}
+
+.mantine-Combobox-option[data-combobox-active] {
+	
+}

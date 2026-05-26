@@ -61,8 +61,8 @@ export const eventQueryFnX = async ({
 
 export const eventQueryFnNoId = async (source: Vantage.EventSource, format: Vantage.EventFormat): Promise<Vantage.ResolvedEvent> => {
 	return await asyncPipe(
-		EventResolver.fetchIfNeeded,
-		EventResolver.parseIfNeeded,
+		EventResolver.fetchIfNeeded.bind(EventResolver),
+		EventResolver.parseIfNeeded.bind(EventResolver),
 	)(EventResolver.new({ source, format }));
 };
 
