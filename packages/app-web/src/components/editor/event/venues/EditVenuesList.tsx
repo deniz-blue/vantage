@@ -1,5 +1,5 @@
 import type { EventData, Venue } from "@evnt/schema";
-import type { EditAtom } from "../edit-atom";
+import type { EditAtom } from "../../edit-atom";
 import { Button, Center, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useMemo, type ReactNode } from "react";

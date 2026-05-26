@@ -1,16 +1,16 @@
 import type { EventData, Venue, VenueType } from "@evnt/schema";
-import { Deatom, type EditAtom } from "../edit-atom";
+import { Deatom, type EditAtom } from "../../edit-atom";
 import { Button, Group, Input, SegmentedControl, Stack, Text, type SegmentedControlProps } from "@mantine/core";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useMemo, type ComponentType } from "react";
 import { IconMapPin, IconQuestionMark, IconWorld } from "@tabler/icons-react";
-import { TranslationsInput } from "../../base/input/TranslationsInput";
+import { TranslationsInput } from "../../../base/input/TranslationsInput";
 import { focusAtom } from "jotai-optics";
 import { EditVenuePhysical } from "./EditVenuePhysical";
 import { EditVenueOnline } from "./EditVenueOnline";
-import { Snippet } from "../../content/Snippet";
+import { Snippet } from "../../../content/Snippet";
 import { snippetVenue } from "@evnt/pretty";
-import { CollapsiblePaper } from "../CollapsiblePaper";
+import { CollapsiblePaper } from "../../CollapsiblePaper";
 
 export const EditVenue = ({
 	venue,

@@ -14,7 +14,7 @@
 		"@atcute/lexicons": "^2.0.0",
 		"@evnt/convert": "^0.0.4",
 		"@evnt/partial-date": "^0.0.2",
-		"@evnt/schema": "^0.0.9",
+		"@evnt/schema": "^0.0.9-next.0",
 		"@tanstack/react-query": "^5.100.10",
 		"@vantage/atproto": "workspace:*",
 		"@vantage/db": "workspace:*",

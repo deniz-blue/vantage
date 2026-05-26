@@ -1,9 +1,9 @@
-import { Group, Input, SegmentedControl, Stack, Text } from "@mantine/core";
+import { Collapse, Group, Input, SegmentedControl, Stack, Text } from "@mantine/core";
 import { EditEventDetails } from "./EditEventDetails";
-import { EditEventInstanceList } from "./EditEventInstanceList";
+import { EditEventInstanceList } from "./instances/EditEventInstanceList";
 import type { EventData } from "@evnt/schema";
 import type { EditAtom } from "../edit-atom";
-import { EditVenuesList } from "./EditVenuesList";
+import { EditVenuesList } from "./venues/EditVenuesList";
 import { EditComponentsList } from "./EditComponentsList";
 import { useMemo, useState } from "react";
 import { atom, useAtomValue } from "jotai";
@@ -26,7 +26,7 @@ export const EditEvent = ({ data }: { data: EditAtom<EventData> }) => {
 		<Stack gap="xl">
 			<EditEventDetails data={data} />
 
-			{!isForcedToBeComplex && (
+			<Collapse expanded={!isForcedToBeComplex}>
 				<Group justify="space-between" align="center" wrap="nowrap" gap="xs">
 					<Stack gap={0}>
 						<Input.Label>Editing mode:</Input.Label>
@@ -43,18 +43,20 @@ export const EditEvent = ({ data }: { data: EditAtom<EventData> }) => {
 						onChange={(value) => setEditingMode(value)}
 					/>
 				</Group>
-			)}
+			</Collapse>
 
-			{editingMode === "simple" && !isForcedToBeComplex ? (
-				<>
-					<EditSimple data={data} />
-				</>
-			) : (
-				<>
-					<EditEventInstanceList data={data} />
-					<EditVenuesList data={data} />
-				</>
-			)}
+			<Stack gap="xl">
+				{editingMode === "simple" && !isForcedToBeComplex ? (
+					<>
+						<EditSimple data={data} />
+					</>
+				) : (
+					<>
+						<EditEventInstanceList data={data} />
+						<EditVenuesList data={data} />
+					</>
+				)}
+			</Stack>
 
 			<EditComponentsList data={data} />
 		</Stack>

@@ -1,4 +1,4 @@
-import type { LanguageKey, Translations } from "@evnt/schema";
+import type { LanguageCode, Translations } from "@evnt/schema";
 import { useLocaleStore, useTranslations } from "../../../stores/useLocaleStore";
 import { Accordion, ActionIcon, Box, CloseButton, Group, Indicator, Input, Popover, Stack, Text, TextInput, Tooltip, type TextInputProps } from "@mantine/core";
 import { useMemo, useRef, useState } from "react";
@@ -20,17 +20,17 @@ export const TranslationsInput = ({
 	const userLanguage = useLocaleStore((state) => state.language);
 	const t = useTranslations();
 
-	const inputRefs = useRef<Map<LanguageKey, HTMLInputElement>>(new Map());
-	const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey | null>(null); // null means userLanguage
+	const inputRefs = useRef<Map<LanguageCode, HTMLInputElement>>(new Map());
+	const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode | null>(null); // null means userLanguage
 	const [popoverOpened, { open, close }] = useDisclosure(false);
 	const [newLang, setNewLang] = useState("");
 
 	const filteredValue = useMemo(() => {
-		return Object.fromEntries(Object.entries(value).filter((pair): pair is [LanguageKey, string] => typeof pair[1] == "string"));
+		return Object.fromEntries(Object.entries(value).filter((pair): pair is [LanguageCode, string] => typeof pair[1] == "string"));
 	}, [value]);
 
 	const listLanguages = useMemo(() => {
-		const set = new Set<LanguageKey | null>(Object.keys(filteredValue));
+		const set = new Set<LanguageCode | null>(Object.keys(filteredValue));
 		set.add(null);
 		return Array.from(set);
 	}, [filteredValue]);
@@ -142,18 +142,18 @@ export const TranslationsInput = ({
 							<TextInput
 								placeholder="Translation..."
 								flex="1"
-								disabled={!newLang || !!value[newLang as LanguageKey]}
+								disabled={!newLang || !!value[newLang as LanguageCode]}
 								key={`input-${newLang}`}
 								onFocus={() => {
 									if (!newLang) return;
 
-									if (typeof value[newLang as LanguageKey] !== "string") {
-										onChange({ ...value, [newLang as LanguageKey]: "" });
+									if (typeof value[newLang as LanguageCode] !== "string") {
+										onChange({ ...value, [newLang as LanguageCode]: "" });
 									};
 
 									setNewLang("");
 									setTimeout(() => {
-										inputRefs.current.get(newLang as LanguageKey)?.focus();
+										inputRefs.current.get(newLang as LanguageCode)?.focus();
 									}, 0);
 								}}
 								value=""

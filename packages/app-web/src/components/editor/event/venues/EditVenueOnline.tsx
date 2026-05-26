@@ -1,7 +1,7 @@
 import type { OnlineVenue } from "@evnt/schema";
-import { DeatomOptional, type EditAtom } from "../edit-atom";
+import { DeatomOptional, type EditAtom } from "../../edit-atom";
 import { Input, Stack, Text } from "@mantine/core";
-import { ClearableTextInput } from "../../base/input/ClearableTextInput";
+import { ClearableTextInput } from "../../../base/input/ClearableTextInput";
 import { focusAtom } from "jotai-optics";
 import { useMemo } from "react";
 

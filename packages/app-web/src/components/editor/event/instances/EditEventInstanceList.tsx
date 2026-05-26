@@ -3,7 +3,7 @@ import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { EditEventInstance } from "./EditEventInstance";
 import { focusAtom } from "jotai-optics";
-import type { EditAtom } from "../edit-atom";
+import type { EditAtom } from "../../edit-atom";
 import { useMemo } from "react";
 
 export const EditEventInstanceList = ({ data }: { data: EditAtom<EventData> }) => {

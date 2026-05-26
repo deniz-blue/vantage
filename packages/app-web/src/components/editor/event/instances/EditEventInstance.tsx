@@ -1,17 +1,18 @@
 import type { EventData, EventInstance } from "@evnt/schema";
-import { Box, Collapse, Combobox, Group, Input, Pill, PillsInput, SimpleGrid, Stack, useCombobox } from "@mantine/core";
-import { Deatom, type EditAtom } from "../edit-atom";
-import { PartialDateInput } from "../../base/input/PartialDateInput";
+import { Box, Chip, Collapse, Combobox, Group, Input, Pill, PillsInput, SimpleGrid, Stack, useCombobox } from "@mantine/core";
+import { Deatom, type EditAtom } from "../../edit-atom";
+import { PartialDateInput } from "../../../base/input/PartialDateInput";
 import { focusAtom } from "jotai-optics";
 import { IconCheck } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { Snippet } from "../../content/Snippet";
+import { Snippet } from "../../../content/Snippet";
 import { snippetInstance, snippetVenue } from "@evnt/pretty";
-import { CollapsiblePaper } from "../CollapsiblePaper";
-import { useLocaleStore } from "../../../stores/useLocaleStore";
+import { CollapsiblePaper } from "../../CollapsiblePaper";
+import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { TranslationsUtil } from "@evnt/translations";
+import { EditEventActivityList } from "./EditActivityList";
 
 export const EditEventInstance = ({
 	data,
@@ -40,6 +41,7 @@ export const EditEventInstance = ({
 
 	const startAtom = useMemo(() => focusAtom(instance, o => o.prop("start")), [instance]);
 	const endAtom = useMemo(() => focusAtom(instance, o => o.prop("end")), [instance]);
+	const activitiesAtom = useMemo(() => focusAtom(instance, o => o.prop("activities").valueOr([])), [instance]);
 
 	return (
 		<CollapsiblePaper
@@ -73,6 +75,8 @@ export const EditEventInstance = ({
 					</Stack>
 				))}
 			</SimpleGrid>
+
+			<EditEventActivityList data={instance} />
 		</CollapsiblePaper>
 	);
 };
@@ -105,52 +109,84 @@ export const EditEventInstanceVenues = ({
 		}
 	}), [venueIdsAtom]));
 
-	const [search, setSearch] = useState("");
+	// const [search, setSearch] = useState("");
 
-	const combobox = useCombobox({
-		onDropdownClose: () => combobox.resetSelectedOption(),
-		onDropdownOpen: () => combobox.updateSelectedOptionIndex("active"),
-	});
+	// const combobox = useCombobox({
+	// 	onDropdownClose: () => combobox.resetSelectedOption(),
+	// 	onDropdownOpen: () => combobox.updateSelectedOptionIndex("active"),
+	// });
 
-	const pills = venueIds.map((venueId) => {
-		const venue = allVenues.find((v) => v.id === venueId);
-		if (!venue) return null;
+	// const pills = venueIds.map((venueId) => {
+	// 	const venue = allVenues.find((v) => v.id === venueId);
+	// 	if (!venue) return null;
 
+	// 	const snippet = snippetVenue(venue);
+
+	// 	return (
+	// 		<Pill
+	// 			key={venueId}
+	// 			withRemoveButton
+	// 			onRemove={() => removeVenueId(venueId)}
+	// 		>
+	// 			<Group gap={4} align="center" h="100%" wrap="nowrap">
+	// 				<Snippet.Icon icon={snippet.icon} props={{ size: 16 }} />
+	// 				<Snippet.Label label={snippet.label} />
+	// 			</Group>
+	// 		</Pill>
+	// 	);
+	// });
+
+	const chips = allVenues.map((venue) => {
 		const snippet = snippetVenue(venue);
 
 		return (
-			<Pill
-				key={venueId}
-				withRemoveButton
-				onRemove={() => removeVenueId(venueId)}
+			<Chip
+				key={venue.id}
+				checked={venueIds.includes(venue.id)}
+				onChange={() => toggleVenueId(venue.id)}
+				variant="light"
 			>
 				<Group gap={4} align="center" h="100%" wrap="nowrap">
 					<Snippet.Icon icon={snippet.icon} props={{ size: 16 }} />
 					<Snippet.Label label={snippet.label} />
 				</Group>
-			</Pill>
+			</Chip>
 		);
 	});
 
-	const options = allVenues
-		.filter((venue) => TranslationsUtil.search(venue.name, search))
-		.map((venue) => (
-			<Combobox.Option value={venue.id} key={venue.id} active={venueIds.includes(venue.id)}>
-				<Group gap={4}>
-					<Box w={24}>
-						{venueIds.includes(venue.id) ? <IconCheck style={{ verticalAlign: "middle" }} /> : null}
-					</Box>
-					<Snippet snippet={snippetVenue(venue)} />
-				</Group>
-			</Combobox.Option>
-		));
+	// const options = allVenues
+	// 	.filter((venue) => TranslationsUtil.search(venue.name, search))
+	// 	.map((venue) => (
+	// 		<Combobox.Option value={venue.id} key={venue.id} active={venueIds.includes(venue.id)}>
+	// 			<Group gap={4}>
+	// 				<Box w={24}>
+	// 					{venueIds.includes(venue.id) ? <IconCheck style={{ verticalAlign: "middle" }} /> : null}
+	// 				</Box>
+	// 				<Snippet snippet={snippetVenue(venue)} />
+	// 			</Group>
+	// 		</Combobox.Option>
+	// 	));
 
 	return (
 		<Stack gap={4}>
-			<Combobox store={combobox} onOptionSubmit={toggleVenueId}>
-				<Combobox.DropdownTarget>
+			{/* <Combobox store={combobox} onOptionSubmit={toggleVenueId}>
+				<Combobox.DropdownTarget> */}
 					<Stack gap={4}>
-						<PillsInput
+						<Input.Label>
+							Venues
+						</Input.Label>
+						{!allVenues.length && (
+							<Input.Description>
+								Add venues in the "Venues" section first.
+							</Input.Description>
+						)}
+						<Group gap={4}>
+							<Chip.Group>
+								{chips}
+							</Chip.Group>
+						</Group>
+
+						{/* <PillsInput
 							label="Venues"
 							onClick={() => combobox.openDropdown()}
 						>
@@ -176,7 +212,7 @@ export const EditEventInstanceVenues = ({
 									/>
 								</Combobox.EventsTarget>
 							</Pill.Group>
-						</PillsInput>
+						</PillsInput> */}
 
 						<Collapse expanded={!venueIds.length}>
 							<Input.Description>
@@ -184,14 +220,14 @@ export const EditEventInstanceVenues = ({
 							</Input.Description>
 						</Collapse>
 					</Stack>
-				</Combobox.DropdownTarget>
+				{/* </Combobox.DropdownTarget>
 
 				<Combobox.Dropdown>
 					<Combobox.Options>
 						{options.length > 0 ? options : <Combobox.Empty>Nothing found...</Combobox.Empty>}
 					</Combobox.Options>
 				</Combobox.Dropdown>
-			</Combobox>
+			</Combobox> */}
 		</Stack>
 	);
 };

@@ -3,8 +3,8 @@ import { DeatomOptional, type EditAtom } from "../edit-atom";
 import { Button, Stack } from "@mantine/core";
 import { useMemo } from "react";
 import { focusAtom } from "jotai-optics";
-import { EditEventInstance } from "./EditEventInstance";
-import { EditVenue } from "./EditVenue";
+import { EditEventInstance } from "./instances/EditEventInstance";
+import { EditVenue } from "./venues/EditVenue";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 
 export const EditSimple = ({ data }: { data: EditAtom<EventData> }) => {

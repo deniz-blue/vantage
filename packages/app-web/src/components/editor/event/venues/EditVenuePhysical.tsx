@@ -1,13 +1,13 @@
 import type { Address, PhysicalVenue } from "@evnt/schema";
-import { Deatom, DeatomOptional, type EditAtom } from "../edit-atom";
+import { Deatom, DeatomOptional, type EditAtom } from "../../edit-atom";
 import { Button, Grid, Group, Input, Select, SimpleGrid, Stack, Text, Tooltip } from "@mantine/core";
-import { ClearableTextInput } from "../../base/input/ClearableTextInput";
+import { ClearableTextInput } from "../../../base/input/ClearableTextInput";
 import { focusAtom } from "jotai-optics";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
-import COUNTRY_CODES from "../../../lib/resources/country-codes.json";
-import { UtilCountryCode } from "../../../lib/util/country-code";
-import { useLocaleStore } from "../../../stores/useLocaleStore";
+import COUNTRY_CODES from "../../../../lib/resources/country-codes.json";
+import { UtilCountryCode } from "../../../../lib/util/country-code";
+import { useLocaleStore } from "../../../../stores/useLocaleStore";
 
 export const EditVenuePhysical = ({ data }: { data: EditAtom<PhysicalVenue> }) => {
 	// const hasAddress = useAtomValue(useMemo(() => atom((get) => !!get(data).address), [data]));
