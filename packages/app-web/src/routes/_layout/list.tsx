@@ -65,7 +65,7 @@ function ListPage() {
 
 	const currentTimeRoundedMinute = Math.floor(Date.now() / (60 * 1000)) * (60 * 1000);
 
-	const listQuery = useEventListQuery({
+	const { events, rowsQuery } = useEventListQuery({
 		search,
 		beforeTimestamp: relativity === "past" ? currentTimeRoundedMinute : undefined,
 		afterTimestamp: relativity === "future" ? currentTimeRoundedMinute : undefined,
@@ -74,8 +74,6 @@ function ListPage() {
 		sourceType,
 		error: hasError,
 	});
-
-	const queries = useEventQueries(listQuery.data || []);
 
 	const searchOptions = [
 		{
@@ -223,7 +221,7 @@ function ListPage() {
 				</Stack>
 			</Paper>
 
-			<EventsGrid queries={queries} />
+			<EventsGrid queries={events} />
 		</Stack >
 	)
 }

@@ -9,16 +9,14 @@ export const SmallEventsList = ({
 }) => {
 	const lowTimestamp = Temporal.PlainDate.from(day).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds;
 	const highTimestamp = Temporal.PlainDate.from(day).add({ days: 1 }).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds - 1;
-	const ids = useEventListQuery({
+	const { events } = useEventListQuery({
 		beforeTimestamp: highTimestamp,
 		afterTimestamp: lowTimestamp,
 	});
 
-	const queries = useEventQueries(ids.data ?? []);
-
 	return (
 		<Stack gap={0}>
-			{queries.map((query, index) => (
+			{events.map((query, index) => (
 				<ResolvedEventContext key={index} value={query.data ?? null}
 				>
 					<EventCard

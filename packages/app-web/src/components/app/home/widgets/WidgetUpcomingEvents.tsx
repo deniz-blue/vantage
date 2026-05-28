@@ -8,13 +8,11 @@ import { Link } from "@tanstack/react-router";
 export const WidgetUpcomingEvents = () => {
 	const currentTimeRoundedMinute = Math.floor(Date.now() / (60 * 1000)) * (60 * 1000);
 
-	const ids = useEventListQuery({
+	const { events } = useEventListQuery({
 		afterTimestamp: currentTimeRoundedMinute,
 		limit: 10,
 		orderBy: "instanceStart",
 	});
-
-	const queries = useEventQueries(ids.data || []);
 
 	return (
 		<Stack gap={4}>
@@ -40,7 +38,7 @@ export const WidgetUpcomingEvents = () => {
 					View All
 				</Anchor>
 			</Group>
-			{queries.length === 0 && (
+			{events.length === 0 && (
 				<Center ta="center" w="100%">
 					<Text
 						c="dimmed"
@@ -55,7 +53,7 @@ export const WidgetUpcomingEvents = () => {
 					wrap="nowrap"
 					align="stretch"
 				>
-					{queries.map((query, index) => (
+					{events.map((query, index) => (
 						<Box
 							key={index}
 							miw={300}

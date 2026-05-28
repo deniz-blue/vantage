@@ -32,18 +32,18 @@ export const DayButton = ({
 }: {
 	day: `${number}-${number}-${number}`;
 }) => {
-	const ids = useEventListQuery({
+	const { events } = useEventListQuery({
 		beforeTimestamp: Temporal.PlainDate.from(day).add({ days: 1 }).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds,
 		afterTimestamp: Temporal.PlainDate.from(day).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds,
 	});
 
 	return (
 		<Indicator
-			label={ids.data?.length ?? 0}
+			label={events.length ?? 0}
 			size={16}
 			position="bottom-center"
 			offset={{ x: 0, y: -4 }}
-			disabled={ids.data?.length === 0}
+			disabled={events.length === 0}
 			showZero={false}
 			color="var(--mantine-color-blue-light)"
 		>
@@ -66,16 +66,14 @@ export const DayCard = ({
 }) => {
 	const lowTimestamp = Temporal.PlainDate.from(day).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds;
 	const highTimestamp = Temporal.PlainDate.from(day).add({ days: 1 }).toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds - 1;
-	const ids = useEventListQuery({
+	const { events } = useEventListQuery({
 		beforeTimestamp: highTimestamp,
 		afterTimestamp: lowTimestamp,
 	});
 
-	const queries = useEventQueries(ids.data ?? []);
-
 	return (
 		<Stack gap={0}>
-			{queries.map((query, index) => (
+			{events.map((query, index) => (
 				<ResolvedEventContext key={index} value={query.data ?? null}
 				>
 					<EventCard

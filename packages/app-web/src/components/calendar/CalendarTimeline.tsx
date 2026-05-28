@@ -16,18 +16,16 @@ export const CalendarTimeline = () => {
 	const lowTimestamp = lowDate.toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds;
 	const highTimestamp = highDate.toZonedDateTime({ timeZone: "UTC" }).toInstant().epochMilliseconds;
 
-	const ids = useEventListQuery({
+	const { events, rowsQuery } = useEventListQuery({
 		afterTimestamp: lowTimestamp,
 		beforeTimestamp: highTimestamp,
 		orderBy: "instanceStart",
 	});
 
-	const events = useEventQueries(ids.data ?? []);
-
 	const [prevButton, nextButton] = [-1, +1].map(dir => (
 		<Button
 			size="lg"
-			loading={ids.isFetching}
+			loading={rowsQuery.isFetching}
 			onClick={() => {
 				if (dir === -1) {
 					setLowDate(d => d.subtract({ months: 6 }));

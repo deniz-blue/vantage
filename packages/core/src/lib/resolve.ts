@@ -34,6 +34,24 @@ export const EventResolver = new class {
 		};
 	}
 
+	fromDatabase(resolved: Vantage.ResolvedEvent, result: { event_meta: schema.EventMeta; event_cache: schema.EventCache | null }): Vantage.ResolvedEvent {
+		const {
+			event_meta: { source, format },
+			event_cache: cached,
+		} = result;
+
+		return {
+			...resolved,
+			id: result.event_meta.id,
+			source,
+			format,
+			data: cached?.parsed || null,
+			raw: cached?.raw || null,
+			error: cached?.error || null,
+			revision: cached?.revision || {},
+		};
+	}
+
 	convertError(err: TypeError | SyntaxError | Response | ZodError | ClientResponseError): Vantage.Error {
 		const error: Vantage.Error = {
 			kind: "unknown",
@@ -88,20 +106,7 @@ export const EventResolver = new class {
 
 		if (!result) return resolved;
 
-		const {
-			event_meta: { source, format },
-			event_cache: cached,
-		} = result;
-
-		return {
-			...resolved,
-			source,
-			format,
-			data: cached?.parsed || null,
-			raw: cached?.raw || null,
-			error: cached?.error || null,
-			revision: cached?.revision || {},
-		};
+		return EventResolver.fromDatabase(resolved, result);
 	}
 
 	async upsertToDatabase(resolved: Vantage.ResolvedEvent): Promise<Vantage.ResolvedEvent> {

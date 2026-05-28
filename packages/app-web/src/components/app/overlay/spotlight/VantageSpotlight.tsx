@@ -2,7 +2,7 @@ import { Spotlight } from "@mantine/spotlight";
 import { IconCalendar, IconSearch } from "@tabler/icons-react";
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useEventListQuery, useEventQuery } from "@vantage/core";
+import { useEventListQuery, useEventQuery, useResolvedEvent } from "@vantage/core";
 import { EventCardBackground } from "../../../content/event/card/EventCardBackground";
 import { Box, Loader, Paper } from "@mantine/core";
 import { useActionsStore, type Action } from "./useActionsStore";
@@ -15,8 +15,8 @@ export const VantageSpotlight = () => {
 	const [query, setQuery] = useState("");
 	const navigate = useNavigate();
 	const providedActions = useActionsStore(state => state.actions);
-	
-	const searchResults = useEventListQuery({
+
+	const { events: searchResults } = useEventListQuery({
 		limit: 10,
 		search: query,
 		enabled: query.length > 0,
@@ -70,14 +70,13 @@ export const VantageSpotlight = () => {
 		</Spotlight.ActionsGroup>
 	));
 
-	if (!!searchResults.data?.length)
+	if (!!searchResults.length)
 		elements.push(
 			<Spotlight.ActionsGroup label="Events">
-				{searchResults.data.map(id => (
-					<SpotlightEventAction
-						key={id}
-						id={id}
-					/>
+				{searchResults.map((query) => (
+					<ResolvedEventContext value={query.data ?? null}>
+						<SpotlightEventAction />
+					</ResolvedEventContext>
 				))}
 			</Spotlight.ActionsGroup>
 		);
@@ -134,29 +133,26 @@ export const VantageSpotlight = () => {
 	);
 };
 
-export const SpotlightEventAction = ({ id }: { id: Vantage.EventId }) => {
+export const SpotlightEventAction = () => {
+	const { data, id } = useResolvedEvent();
 	const navigate = useNavigate();
 	const t = useTranslations();
-	const query = useEventQuery(id);
 
-	const label = t(query.data?.data?.name);
+	const label = t(data?.name);
 
 	return (
 		<Box pos="relative" style={{ overflow: "hidden" }}>
-			<ResolvedEventContext value={query.data ?? null}>
-				<EventCardBackground backgroundOpacity={0.5} />
-				<Spotlight.Action
-					label={label || "Loading..."}
-					description="Event"
-					leftSection={<IconCalendar />}
-					rightSection={query.isFetching && <Loader size="xs" />}
-					onClick={() => navigate({
-						to: "/event",
-						search: { id },
-					})}
-					pos="relative"
-				/>
-			</ResolvedEventContext>
+			<EventCardBackground backgroundOpacity={0.5} />
+			<Spotlight.Action
+				label={label || "Loading..."}
+				description="Event"
+				leftSection={<IconCalendar />}
+				onClick={() => navigate({
+					to: "/event",
+					search: { id },
+				})}
+				pos="relative"
+			/>
 		</Box>
 	);
 };
