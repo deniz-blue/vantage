@@ -116,16 +116,17 @@ export const usePartialDateCalendarInput = ({
 			console.log("Value change", level, v);
 
 			setCalendarDate(v);
+			const { timezone } = PartialDateUtil.parse(value);
 
 			if (level === "decade") {
-				onChange(v.slice(0, 4) + "[UTC]" as PartialDate.YearOnly);
+				onChange(`${v.slice(0, 4)}[${timezone}]` as PartialDate.YearOnly);
 				return "year";
 			} else if (level === "year") {
-				onChange(v.slice(0, 7) + "[UTC]" as PartialDate.YearMonth);
+				onChange(`${v.slice(0, 7)}[${timezone}]` as PartialDate.YearMonth);
 				return "month";
 			} else if (level === "month") {
 				const parsed = PartialDateUtil.parse(value);
-				onChange(v + (parsed.precision == "time" ? `T${pad(parsed.hour)}:${pad(parsed.minute)}` : "") + "[UTC]" as PartialDate.YearMonthDay | PartialDate.YearMonthDayTime);
+				onChange(`${v}${parsed.precision == "time" ? `T${pad(parsed.hour)}:${pad(parsed.minute)}` : ""}[${timezone}]` as PartialDate.YearMonthDay | PartialDate.YearMonthDayTime);
 				setCalendarCollapsed(true);
 				setTimeout(() => timePickerRef.current?.focus(), 0);
 			}
