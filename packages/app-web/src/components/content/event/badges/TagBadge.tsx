@@ -16,7 +16,7 @@ export const TagBadge = ({
 					tt="unset"
 					color={tag.color ?? "gray"}
 					variant="light"
-					style={{ cursor: "pointer" }}
+					style={{ cursor: "pointer", textWrap: "nowrap", textOverflow: "clip" }}
 				>
 					{tag.name}
 				</Badge>

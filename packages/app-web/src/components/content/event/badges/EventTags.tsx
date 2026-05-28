@@ -27,13 +27,14 @@ export const EventTags = ({
 	if (!tags.data?.length && hideEmpty) return null;
 
 	return (
-		<Group gap={4} wrap="nowrap">
+		<Group gap={4} wrap="nowrap" style={{ overflow: "auto" }}>
 			{withIcon && <IconTags size={14} />}
 
 			<OverflowList
 				gap={4}
 				data={tags.data ?? []}
 				maxRows={1}
+				flex="1"
 				renderItem={(tag) => <TagBadge key={tag.id} tag={tag} />}
 				renderOverflow={(items) => (
 					<Popover>

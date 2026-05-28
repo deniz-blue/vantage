@@ -1,8 +1,7 @@
 import { useProvideActionList } from "../../components/app/overlay/spotlight/useAction";
 import { handleAsyncCopy, handleCopy } from "../../lib/util/copy";
-import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconMarkdown, IconQrcode, IconReload, IconShare, IconTrash } from "@tabler/icons-react";
+import { IconBug, IconClipboard, IconCode, IconEdit, IconJson, IconLabel, IconMarkdown, IconQrcode, IconReload, IconShare, IconTags, IconTrash } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
-import { QRCode } from "../../lib/util/qrcode";
 import { modals } from "@mantine/modals";
 import { EventsManager, EventSourceRegistry } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
@@ -225,7 +224,7 @@ export const EventActionFactory = {
 	EditTags: (resolved: Vantage.ResolvedEvent) => ({
 		label: "Edit Event Tags",
 		category: "Event",
-		icon: <IconEdit />,
+		icon: <IconTags />,
 		disabled: !resolved.id,
 		execute: () => modals.openContextModal({
 			modal: "EditEventTagsModal",
