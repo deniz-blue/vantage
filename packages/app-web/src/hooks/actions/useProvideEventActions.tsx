@@ -15,9 +15,11 @@ export const EventActionFactory = {
 	All: ({
 		resolved,
 		navigate,
+		onDeleteSuccess,
 	}: {
 		resolved: Vantage.ResolvedEvent;
 		navigate: ReturnType<typeof useNavigate>;
+		onDeleteSuccess?: () => void | Promise<void>;
 	}) => [
 			EventActionFactory.EditTags(resolved),
 			EventActionFactory.Edit(navigate, resolved),
@@ -32,7 +34,7 @@ export const EventActionFactory = {
 			EventActionFactory.RefetchData(resolved),
 			// EventActionFactory.CopyEmbedLink(resolved),
 			EventActionFactory.ViewOnPDS(resolved),
-			EventActionFactory.Delete(navigate, resolved),
+			EventActionFactory.Delete(navigate, resolved, onDeleteSuccess),
 		],
 
 	Edit: (navigate: ReturnType<typeof useNavigate>, resolved: Vantage.ResolvedEvent) => ({
@@ -189,7 +191,7 @@ export const EventActionFactory = {
 			href: `https://pds.ls/${(resolved.source as any).uri}`,
 		},
 	}),
-	Delete: (navigate: ReturnType<typeof useNavigate>, resolved: Vantage.ResolvedEvent) => ({
+	Delete: (navigate: ReturnType<typeof useNavigate>, resolved: Vantage.ResolvedEvent, onDeleteSuccess?: () => void | Promise<void>) => ({
 		label: resolvedEventUtils.isSourceNetwork(resolved) ? "Stop Following" : "Delete",
 		category: "Event",
 		icon: <IconTrash />,
@@ -211,6 +213,7 @@ export const EventActionFactory = {
 					loading: false,
 					color: "red",
 				});
+				await onDeleteSuccess?.();
 			},
 		),
 		id: "delete-event",
@@ -240,5 +243,9 @@ export const useProvideEventActions = (resolved?: Vantage.ResolvedEvent) => {
 	useProvideActionList(resolved ? EventActionFactory.All({
 		resolved,
 		navigate,
+		onDeleteSuccess: () => navigate({
+			to: "/",
+			replace: true,
+		}),
 	}) : []);
 };

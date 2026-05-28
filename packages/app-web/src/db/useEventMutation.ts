@@ -1,6 +1,6 @@
 import { schema, db } from "@vantage/db";
 import { eq } from "drizzle-orm";
-import { createComputedData, invalidateEventQuery, mediawiki } from "@vantage/core";
+import { createComputedData, invalidateEventListQueries, invalidateEventQuery, mediawiki } from "@vantage/core";
 
 export interface EventMutationParams {
 	id: Vantage.EventId;
@@ -46,4 +46,5 @@ export const eventMutationFn = async ({ id, raw, mediawikiComment }: EventMutati
 	}
 
 	invalidateEventQuery(id);
+	invalidateEventListQueries();
 };

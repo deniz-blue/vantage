@@ -11,7 +11,7 @@ import { EventDetailsSource } from "./EventDetailsSource";
 import { EventDetailsAlternatives } from "./EventDetailsAlternatives";
 import { RichTextRenderer } from "./RichTextRenderer";
 import type { Facet } from "@atcute/bluesky-richtext-segmenter";
-import { useResolvedEvent } from "@vantage/core";
+import { ResolvedEventUtils, useResolvedEvent } from "@vantage/core";
 import { resolvedEventUtils } from "@vantage/core";
 import { SmallTitle } from "../../base/SmallTitle";
 import { dbShortcuts } from "../../../../db/db-shortcuts";
@@ -93,13 +93,14 @@ export const EventDetailsDescriptionList = () => {
 };
 
 export const EventRefetchButton = () => {
-	const { id } = useResolvedEvent();
+	const resolved = useResolvedEvent();
 
-	if (!id) return null;
+	if (!ResolvedEventUtils.isNetworkSource(resolved)) return null;
+	if (!resolved.id) return null;
 
 	return (
 		<Tooltip label={"Refetch"} withArrow>
-			<AsyncAction action={async () => await dbShortcuts.refetchEvent(id)}>
+			<AsyncAction action={async () => await dbShortcuts.refetchEvent(resolved.id!)}>
 				{({ loading, onClick }) => (
 					<Button
 						size="compact-sm"
