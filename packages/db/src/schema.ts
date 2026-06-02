@@ -1,6 +1,7 @@
 import { sqliteTable, text, integer, primaryKey, blob, customType } from "drizzle-orm/sqlite-core";
 import type { EventData } from "@evnt/schema";
 import { sql } from "drizzle-orm";
+import { jsonb, timestamp, uuid } from "./drizzle-helpers";
 
 declare global {
 	namespace Vantage {
@@ -37,27 +38,6 @@ declare global {
 		}[keyof CredentialTypeMap];
 	}
 }
-
-const uuid = (name: string) => text(name, { length: 36 });
-
-const timestamp = customType<{
-	data: Temporal.Instant;
-	driverData: number;
-}>({
-	dataType: () => "integer",
-	fromDriver: (value) => Temporal.Instant.fromEpochMilliseconds(value),
-	toDriver: (value) => value.epochMilliseconds,
-});
-
-// 2.45+ supports JSON mode for blob
-const jsonb = customType<{
-	data: any;
-	driverData: string;
-}>({
-	dataType: () => "blob",
-	fromDriver: (value) => JSON.parse(value),
-	toDriver: (value) => JSON.stringify(value),
-});
 
 export const events = sqliteTable("events", {
 	id: uuid("id").primaryKey().$type<Vantage.EventId>(),
