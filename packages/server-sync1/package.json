@@ -1,16 +1,23 @@
 {
 	"name": "server-sync1",
 	"type": "module",
+	"scripts": {
+		"start": "tsx src/entry.node.ts",
+		"dev": "tsx watch src/entry.node.ts"
+	},
 	"dependencies": {
+		"@hono/node-server": "^2.0.4",
 		"@hono/zod-validator": "^0.8.0",
 		"@vantage/core": "workspace:*",
 		"@vantage/db": "workspace:*",
 		"better-sqlite3": "^12.10.0",
+		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.2",
 		"hono": "^4.12.23",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
-		"@types/better-sqlite3": "^7.6.13"
+		"@types/better-sqlite3": "^7.6.13",
+		"tsx": "^4.22.4"
 	}
 }
