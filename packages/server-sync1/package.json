@@ -5,6 +5,7 @@
 		"start": "tsx src/entry.node.ts",
 		"dev": "tsx watch src/entry.node.ts"
 	},
+	"packageManager": "pnpm@11.5.1",
 	"dependencies": {
 		"@hono/node-server": "^2.0.4",
 		"@hono/zod-validator": "^0.8.0",
