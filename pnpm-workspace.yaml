@@ -1,7 +1,9 @@
 packages:
   - packages/*
 allowBuilds:
+  better-sqlite3: true
   core-js-pure: true
   esbuild: true
+  msgpackr-extract: true
 
 loglevel: debug

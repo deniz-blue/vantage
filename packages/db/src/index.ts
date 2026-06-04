@@ -1,10 +1,8 @@
-import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import * as schema from "./schema";
 import * as dz from "./drizzle-helpers";
+import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
-export interface IVantageDrizzle extends BaseSQLiteDatabase<
-	"async",
-	{ rows?: unknown[] },
+export interface IVantageDrizzle extends SqliteRemoteDatabase<
 	typeof schema
 > { };
 

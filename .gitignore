@@ -4,7 +4,6 @@ node_modules
 .react-router
 build/
 .turbo
-dist
 .tmp
 .wrangler/
 .gradle/
@@ -14,3 +13,7 @@ dist
 manifest-checksum.txt
 .npmrc
 *.tgz
+.expo/
+dist/
+web-build/
+expo-env.d.ts
