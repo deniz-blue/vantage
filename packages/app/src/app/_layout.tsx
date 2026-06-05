@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import * as ExpoLexendFonts from "@expo-google-fonts/lexend";
-import { Box } from "../components/Box";
+import { Box } from "../components/base/Box";
 import { Colors } from "../theme/colors";
 
 SplashScreen.preventAutoHideAsync();

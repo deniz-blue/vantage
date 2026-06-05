@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Colors } from "../../theme/colors";
+import { Icon } from "../../components/base/Icon";
 
 export default function TabLayout() {
 	return (
@@ -19,18 +20,21 @@ export default function TabLayout() {
 				name="index"
 				options={{
 					title: "Home",
+					tabBarIcon: ({ focused }) => <Icon name="home" c={focused ? "Primary" : "Gray0"} />,
 				}}
 			/>
 			<Tabs.Screen
 				name="list"
 				options={{
 					title: "List",
+					tabBarIcon: ({ focused }) => <Icon name="list" c={focused ? "Primary" : "Gray0"} />,
 				}}
 			/>
 			<Tabs.Screen
 				name="settings"
 				options={{
 					title: "Settings",
+					tabBarIcon: ({ focused }) => <Icon name="settings" c={focused ? "Primary" : "Gray0"} />,
 				}}
 			/>
 		</Tabs>
