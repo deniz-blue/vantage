@@ -1,2 +1,8 @@
+import { Platform } from "react-native";
 import "temporal-polyfill-lite";
-import "expo-router/entry";
+
+if (Platform.OS === "web") {
+	import("./init-web");
+} else {
+	import("./init-native");
+}

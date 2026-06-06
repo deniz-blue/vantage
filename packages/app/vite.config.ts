@@ -2,7 +2,7 @@ import { defineConfig, Plugin, UserConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { AtprotoOAuth } from "@deniz-blue/vite-plugins";
 import { PWAManifest } from "./vite.pwa";
-import { rnw } from "vite-plugin-rnw";
+import reactNativeWeb from "vite-plugin-react-native-web";
 
 const SERVER_HOST = "127.0.0.1";
 const SERVER_PORT = 5173;
@@ -10,7 +10,7 @@ const SERVER_PORT = 5173;
 const sqlocal = (): Plugin<UserConfig> => ({
 	name: "vite-plugin-sqlocal",
 	enforce: "pre",
-	config(config): UserConfig {
+	config(config: UserConfig): UserConfig {
 		return {
 			optimizeDeps: {
 				...config.optimizeDeps,
@@ -57,7 +57,7 @@ export default defineConfig({
 
 	plugins: [
 		sqlocal(),
-		rnw(),
+		reactNativeWeb(),
 		AtprotoOAuth(),
 		VitePWA({
 			registerType: "prompt",

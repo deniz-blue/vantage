@@ -4,7 +4,7 @@
 		"slug": "app",
 		"version": "1.0.0",
 		"orientation": "portrait",
-		"icon": "./assets/icon512.png",
+		"icon": "./public/icon512.png",
 		"userInterfaceStyle": "dark",
 		"backgroundColor": "#242424",
 		"ios": {
@@ -22,7 +22,7 @@
 		"web": {
 			"output": "single",
 			"bundler": "webpack",
-			"favicon": "./assets/favicon.ico"
+			"favicon": "./public/favicon.ico"
 		},
 		"plugins": [
 			"expo-router",
