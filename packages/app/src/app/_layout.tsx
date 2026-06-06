@@ -1,34 +1,42 @@
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as ExpoLexendFonts from "@expo-google-fonts/lexend";
-import { Box } from "../components/base/Box";
-import { Colors } from "../theme/colors";
+import { queryClient } from "@vantage/core";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { initDb } from "../init-db";
 
 SplashScreen.preventAutoHideAsync();
 
 const { useFonts, ...fonts } = ExpoLexendFonts;
 
 export default function RootLayout() {
-	const [loaded] = useFonts(fonts);
+	const [fontsLoaded] = useFonts(fonts);
+	const [dbReady, setDbReady] = useState(false);
 
 	useEffect(() => {
-		if (loaded) SplashScreen.hide();
-	}, [loaded]);
+		(async () => {
+			await initDb();
+			setDbReady(true);
+		})();
+	}, []);
+
+	const isReady = fontsLoaded && dbReady;
+
+	useEffect(() => {
+		if (isReady) SplashScreen.hide();
+	}, [isReady]);
+
+	if (!isReady) return null;
 
 	return (
-		<Box
-			style={{
-				flex: 1,
-				backgroundColor: Colors.Background,
-			}}
-		>
+		<QueryClientProvider client={queryClient}>
 			<Stack>
 				<Stack.Screen
 					name="(tabs)"
 					options={{ headerShown: false }}
 				/>
 			</Stack>
-		</Box>
+		</QueryClientProvider>
 	);
 }

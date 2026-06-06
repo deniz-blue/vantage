@@ -1,10 +1,9 @@
 import * as schema from "./schema";
 import * as dz from "./drizzle-helpers";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
+import type { ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
 
-export interface IVantageDrizzle extends SqliteRemoteDatabase<
-	typeof schema
-> { };
+export type IVantageDrizzle = SqliteRemoteDatabase<typeof schema> | ExpoSQLiteDatabase<typeof schema>;
 
 export let db: IVantageDrizzle;
 
