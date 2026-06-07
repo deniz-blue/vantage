@@ -1,63 +1,31 @@
-import { defineConfig, Plugin, UserConfig } from "vite";
+import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { AtprotoOAuth } from "@deniz-blue/vite-plugins";
 import { PWAManifest } from "./vite.pwa";
-import reactNativeWeb from "vite-plugin-react-native-web";
+import { sqlocal } from "./vite.sqlocal";
 
-const SERVER_HOST = "127.0.0.1";
-const SERVER_PORT = 5173;
+/*
+ Tried both vite-plugin-react-native-web and vite-plugin-rnw
+ Both are giving issues
+ I hope this issue is reproducible, and also goodluck
 
-const sqlocal = (): Plugin<UserConfig> => ({
-	name: "vite-plugin-sqlocal",
-	enforce: "pre",
-	config(config: UserConfig): UserConfig {
-		return {
-			optimizeDeps: {
-				...config.optimizeDeps,
-				exclude: [
-					...(config.optimizeDeps?.exclude ?? []),
-					"sqlocal",
-					"@sqlite.org/sqlite-wasm",
-				],
-			},
-			worker: {
-				...config.worker,
-				format: "es",
-			},
-		};
-	},
-	configureServer(server): void {
-		server.middlewares.use((_, res, next) => {
-			res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
-			res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-			next();
-		});
-	},
-});
+ PS: If vite dev server does start, it'll bind on 127.0.0.1 instead of 0.0.0.0 (atproto requirement)
+*/
+
+/// Uncomment for repro of your choice
+const rnw = () => ({ name: "rnw" });
+// import rnw from "vite-plugin-react-native-web";
+// import { rnw } from "vite-plugin-rnw";
 
 export default defineConfig({
 	clearScreen: false,
-	server: {
-		host: SERVER_HOST,
-		port: SERVER_PORT,
-		forwardConsole: true,
-	},
-
-	resolve: {
-		tsconfigPaths: true,
-	},
-
-	build: {
-		sourcemap: true,
-	},
-
-	worker: {
-		format: "es",
-	},
+	resolve: { tsconfigPaths: true },
+	build: { sourcemap: true },
+	server: { forwardConsole: true },
 
 	plugins: [
 		sqlocal(),
-		reactNativeWeb(),
+		rnw(),
 		AtprotoOAuth(),
 		VitePWA({
 			registerType: "prompt",
