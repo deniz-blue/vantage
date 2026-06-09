@@ -15,7 +15,7 @@
 		"@evnt/convert": "^0.0.4",
 		"@evnt/partial-date": "^0.0.2",
 		"@evnt/schema": "^0.0.9-next.0",
-		"@tanstack/react-query": "^5.100.10",
+		"@tanstack/react-query": "^5.101.0",
 		"@vantage/atproto": "workspace:*",
 		"@vantage/db": "workspace:*",
 		"@vantage/fetch": "workspace:*",

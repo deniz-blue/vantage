@@ -34,7 +34,7 @@
 		"@mantine/schedule": "9.3.0",
 		"@mantine/spotlight": "9.3.0",
 		"@tabler/icons-react": "^3.44.0",
-		"@tanstack/react-query": "^5.100.14",
+		"@tanstack/react-query": "^5.101.0",
 		"@tanstack/react-router": "^1.170.8",
 		"@tanstack/react-router-devtools": "^1.167.0",
 		"@tanstack/zod-adapter": "^1.167.0",

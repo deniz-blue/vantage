@@ -3,5 +3,10 @@
 	"type": "module",
 	"dependencies": {
 		"drizzle-kit": "^0.31.10"
+	},
+	"pnpm": {
+		"overrides": {
+			"@tanstack/react-query": "^5.101.0"
+		}
 	}
 }

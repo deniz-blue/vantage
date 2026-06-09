@@ -14,7 +14,7 @@
 		"@atcute/identity-resolver": "^2.0.0",
 		"@atcute/lexicons": "^2.0.0",
 		"@evnt/schema": "^0.0.9-next.0",
-		"@tanstack/react-query": "^5.100.10",
+		"@tanstack/react-query": "^5.101.0",
 		"react": "^19.2.6"
 	}
 }
