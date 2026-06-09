@@ -1,4 +1,4 @@
-import { ActionIcon, Anchor, AppShell, Code, Container, Flex, Group, Loader, NavLink, polymorphic, Space, Text, Title } from "@mantine/core";
+import { ActionIcon, Anchor, AppShell, Button, Code, Container, Flex, Group, Loader, NavLink, polymorphic, Space, Text, Title } from "@mantine/core";
 import { createFileRoute, Link, Outlet, useMatches, type ErrorComponentProps } from "@tanstack/react-router"
 import { IconCalendar, IconList, IconMenu2, IconSearch, IconSettings } from "@tabler/icons-react";
 import z from "zod";
@@ -7,8 +7,9 @@ import { SettingsDrawer } from "../../components/app/overlay/settings/SettingsDr
 import { useSettingsOverlay } from "../../hooks/app/search-param-modals";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { useIsFetching } from "@tanstack/react-query";
+import { registerSW } from "virtual:pwa-register";
 import { useTasksStore } from "../../stores/useTasksStore";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment, useEffect, useState } from "react";
 import { EventDetailsOverlay } from "../../components/app/overlay/event/EventDetailsOverlay";
 import { AddEventMenu } from "../../components/app/AddEventMenu";
 import { VantageSpotlight } from "../../components/app/overlay/spotlight/VantageSpotlight";
@@ -245,6 +246,21 @@ export function ErrorBoundary({ error, reset, info }: ErrorComponentProps) {
 
 	if (info?.componentStack) codeContent += `\n\nComponent Stack:\n${info.componentStack}`;
 
+	const [updateAvailable, setUpdateAvailable] = useState(false);
+	const [refresh, setRefresh] = useState<(() => void) | null>(null);
+
+	useEffect(() => {
+		try {
+			const refreshFn = registerSW({
+				onNeedRefresh: () => setUpdateAvailable(true),
+				onOfflineReady: () => {},
+				onRegisteredSW: () => {},
+				onRegisterError: () => {},
+			});
+			setRefresh(() => refreshFn);
+		} catch {}
+	}, []);
+
 	return (
 		<Container my="xl" size="sm" py="xl">
 			<Title>
@@ -258,6 +274,21 @@ export function ErrorBoundary({ error, reset, info }: ErrorComponentProps) {
 			<Text>
 				{title}
 			</Text>
+
+			{updateAvailable && (
+				<>
+					<Text c="green" fw="bold" mt="md">
+						A new version of the app is available!
+					</Text>
+					<Button
+						color="green"
+						onClick={() => refresh?.()}
+						mt="xs"
+					>
+						Update and Reload
+					</Button>
+				</>
+			)}
 
 			<Code block>
 				{codeContent}
