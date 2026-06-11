@@ -28,7 +28,7 @@ export default function List() {
 
 	if (isLoading) {
 		return (
-			<Box style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+			<Box flex={1} justify="center" align="center">
 				<ActivityIndicator size="large" color={Colors.Primary} />
 			</Box>
 		);
