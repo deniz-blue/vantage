@@ -3,7 +3,7 @@
 	"private": true,
 	"main": "src/index.ts",
 	"devDependencies": {
-		"@types/react": "^19.2.14",
+		"@types/react": "^19.2.15",
 		"typescript": "^6.0.3"
 	},
 	"dependencies": {
@@ -21,7 +21,7 @@
 		"@vantage/fetch": "workspace:*",
 		"drizzle-orm": "^0.45.2",
 		"ical.js": "^2.2.1",
-		"react": "^19.2.6",
+		"react": "^19.2.7",
 		"zod": "^4.3.6"
 	}
 }

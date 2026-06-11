@@ -1,0 +1,13 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 10f1304afc1f86b0d1fe08ca3ce0933147d08a42..b5796ab1cc6d80f62e770080801fd22f095a75ca 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -395,7 +395,7 @@ async function sqlite3InitModule(moduleArg = {}) {
+ 	var wasmBinaryFile;
+ 	function findWasmBinary() {
+ 		if (Module["locateFile"]) return locateFile("sqlite3.wasm");
+-		return new URL("sqlite3.wasm", import.meta.url).href;
++		return new URL("sqlite3.wasm", (import.meta.url || self.location.href)).href;
+ 	}
+ 	function getBinarySync(file) {
+ 		if (file == wasmBinaryFile && wasmBinary) return new Uint8Array(wasmBinary);
