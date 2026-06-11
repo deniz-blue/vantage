@@ -1,9 +1,9 @@
 import { useResolvedEvent } from "@vantage/core";
 import { TranslationsUtil } from "@evnt/translations";
 import { TouchableOpacity, View } from "react-native";
-import { Box } from "./Box";
-import { Text } from "./Text";
-import { Colors } from "../theme/colors";
+import { Box } from "../base/Box";
+import { Text } from "../base/Text";
+import { Colors } from "../../theme/colors";
 
 // === Badge Colors by source type ===
 

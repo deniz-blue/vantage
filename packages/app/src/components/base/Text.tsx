@@ -1,5 +1,5 @@
 import { TextProps as RNTextProps, Text as RNText } from "react-native";
-import { Colors } from "../theme/colors";
+import { Colors } from "../../theme/colors";
 
 export interface TextProps extends RNTextProps {
 

@@ -28,6 +28,13 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
+				name="new"
+				options={{
+					title: "+",
+					tabBarLabel: "New",
+				}}
+			/>
+			<Tabs.Screen
 				name="settings"
 				options={{
 					title: "Settings",

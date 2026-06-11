@@ -1,8 +1,8 @@
 import { FlatList, ActivityIndicator, View, RefreshControl } from "react-native";
 import { ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
-import { Box } from "../../components/Box";
-import { Text } from "../../components/Text";
-import { EventCard } from "../../components/EventCard";
+import { Box } from "../../components/base/Box";
+import { Text } from "../../components/base/Text";
+import { EventCard } from "../../components/event/EventCard";
 import { Colors } from "../../theme/colors";
 
 const PAGE_SIZE = 20;

@@ -44,7 +44,7 @@
 		"start": "expo start",
 		"android": "expo start --android",
 		"ios": "expo start --ios",
-		"web": "expo start --web",
+		"web": "BROWSER=none expo start --web",
 		"export-web": "expo export --platform web && node scripts/copy-wasm.mjs"
 	},
 	"private": true

@@ -1,5 +1,5 @@
-import { Box } from "../../components/Box";
-import { Text } from "../../components/Text";
+import { Box } from "../../components/base/Box";
+import { Text } from "../../components/base/Text";
 
 export default function Settings() {
 	return (
