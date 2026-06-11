@@ -6,6 +6,9 @@ import "temporal-polyfill-lite/global";
 
 // == Services ==
 import "./lib/init-db";
+import { initializeDatabase } from "@vantage/db";
 
-// == Entry Point ==
-import "expo-router/entry";
+// == Entry Point (loaded after migration completes) ==
+initializeDatabase().then(() => {
+	import("expo-router/entry");
+});

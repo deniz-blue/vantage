@@ -6,14 +6,12 @@ export interface TextProps extends RNTextProps {
 };
 
 export const Text = (props: TextProps) => {
-	const style: TextProps["style"] = {
-		color: Colors.Text,
-	};
+	const { style: propStyle, ...rest } = props;
 
 	return (
 		<RNText
-			style={[style, props.style]}
-			{...props}
+			style={[{ color: Colors.Text }, propStyle]}
+			{...rest}
 		/>
 	);
 };

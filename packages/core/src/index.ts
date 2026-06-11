@@ -22,6 +22,7 @@ export * from "./database/tags-manager"
 export * from "./query/query-client"
 export * from "./query/useEventQuery"
 export * from "./query/useEventListQuery"
+export * from "./query/useEventListInfiniteQuery"
 
 export * from "./utils/resolved-utils"
 export * from "./utils/from-str"
