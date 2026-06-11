@@ -1,7 +1,7 @@
-import type { EventData } from "@evnt/schema";
+import type { OpenEvnt } from "@evnt/types";
 import { PartialDateUtil } from "@evnt/partial-date";
 
-export const createComputedData = (parsed?: EventData | null): Vantage.ComputedData => {
+export const createComputedData = (parsed?: OpenEvnt | null): Vantage.ComputedData => {
 	if (!parsed) return {};
 
 	const timeRanges: { low: number; high: number }[] = [];

@@ -1,5 +1,5 @@
 import { defineEventFormat } from "../../lib/format";
-import { EventDataSchema } from "@evnt/schema";
+import { OpenEvntSchema } from "@evnt/schema";
 
 declare global {
 	namespace Vantage {
@@ -13,7 +13,7 @@ defineEventFormat({
 	type: "directory.evnt.event",
 	parse: (raw) => {
 		const json = JSON.parse(raw);
-		const parsed = EventDataSchema.parse(json);
+		const parsed = OpenEvntSchema.parse(json);
 		return {
 			parsed,
 			error: null,

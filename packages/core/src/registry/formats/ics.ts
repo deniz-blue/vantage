@@ -1,6 +1,5 @@
 import { defineEventFormat } from "../../lib/format";
-import { convertFromVEvent } from "@evnt/convert/icalendar";
-import ICAL from "ical.js";
+import { icalendar } from "@evnt/convert";
 
 declare global {
 	namespace Vantage {
@@ -13,12 +12,15 @@ declare global {
 defineEventFormat({
 	type: "ics",
 	parse: (raw) => {
-		const jCalData = ICAL.parse(raw);
-		const vEvent = new ICAL.Component(jCalData);
-		const converted = convertFromVEvent(vEvent);
-		return {
-			parsed: converted,
-			error: null,
-		};
+		try {
+			if (!icalendar.from) throw new Error("ICS converter does not support `from`");
+			const parsed = icalendar.from(raw);
+			return { parsed, error: null };
+		} catch (e: any) {
+			return {
+				parsed: null,
+				error: { kind: "parse-error", message: e.message ?? "Failed to parse ICS" },
+			};
+		}
 	}
 });

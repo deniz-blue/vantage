@@ -6,7 +6,8 @@
 		"typescript": "^6.0.3"
 	},
 	"dependencies": {
-		"@evnt/schema": "^0.0.9-next.0",
+		"@evnt/schema": "^0.1.0",
+		"@evnt/types": "^0.1.0",
 		"drizzle-orm": "^0.45.2"
 	}
 }

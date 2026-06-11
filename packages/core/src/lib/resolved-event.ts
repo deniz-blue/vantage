@@ -1,11 +1,11 @@
-import type { EventData } from "@evnt/schema";
+import type { OpenEvnt } from "@evnt/types";
 import { createContext, useContext } from "react";
 
 declare global {
 	namespace Vantage {
 		interface ResolvedEvent {
 			id: Vantage.EventId | null;
-			data: EventData | null;
+			data: OpenEvnt | null;
 			raw: string | null;
 			error: Vantage.Error | null;
 			revision: Vantage.Revision;

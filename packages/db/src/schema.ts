@@ -1,5 +1,5 @@
 import { sqliteTable, text, integer, primaryKey, blob, customType } from "drizzle-orm/sqlite-core";
-import type { EventData } from "@evnt/schema";
+import type { OpenEvnt } from "@evnt/types";
 import { sql } from "drizzle-orm";
 import { jsonb, timestamp, uuid } from "./drizzle-helpers";
 
@@ -76,7 +76,7 @@ export const eventCache = sqliteTable("event_cache", {
 	id: uuid("id").primaryKey().$type<Vantage.EventId>().references(() => events.id, { onDelete: "cascade" }),
 	updatedAt: timestamp("updated_at").notNull(),
 	raw: text("raw"),
-	parsed: jsonb("parsed").$type<EventData>(),
+	parsed: jsonb("parsed").$type<OpenEvnt>(),
 	revision: jsonb("revision").$type<Vantage.Revision>().notNull().default(sql`'{}'`),
 	error: jsonb("error").$type<Vantage.Error>(),
 	computed: jsonb("computed").$type<Vantage.ComputedData>().notNull().default(sql`'{}'`),

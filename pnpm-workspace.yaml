@@ -8,5 +8,14 @@ allowBuilds:
 
 loglevel: debug
 
+minimumReleaseAgeExclude:
+  - '@evnt/builder@0.1.0'
+  - '@evnt/convert@0.1.0'
+  - '@evnt/partial-date@0.1.0'
+  - '@evnt/pretty@0.1.0'
+  - '@evnt/schema@0.1.0'
+  - '@evnt/translations@0.1.0'
+  - '@evnt/types@0.1.0'
+
 patchedDependencies:
   '@sqlite.org/sqlite-wasm@3.51.2-build9': patches/@sqlite.org__sqlite-wasm@3.51.2-build9.patch

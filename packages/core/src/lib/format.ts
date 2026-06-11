@@ -1,8 +1,8 @@
-import type { EventData } from "@evnt/schema";
+import type { OpenEvnt } from "@evnt/types";
 import { convertError } from "./source";
 
 export type EventParseResult = {
-	parsed: EventData | null;
+	parsed: OpenEvnt | null;
 	error: Vantage.Error | null;
 };
 

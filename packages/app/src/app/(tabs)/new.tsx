@@ -1,8 +1,7 @@
 import { useState, useCallback } from "react";
 import { ScrollView, View, Alert } from "react-native";
 import { useRouter } from "expo-router";
-import type { PartialDate } from "@evnt/partial-date";
-import type { EventData } from "@evnt/schema";
+import type { PartialDate, OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
@@ -40,7 +39,7 @@ export default function NewEventPage() {
 		try {
 			const partialDate = dateToPartialDate(date);
 
-			const eventData: EventData = {
+			const eventData: OpenEvnt = {
 				v: "0.1",
 				name: { en: name.trim() },
 				...(label.trim() ? { label: { en: label.trim() } } : {}),
