@@ -5,9 +5,8 @@ import { schema, setupDatabase } from "@vantage/db";
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { SQLocalDrizzle } from "sqlocal/drizzle";
 
-export const initDb = async () => {
-	const sqlite = new SQLocalDrizzle(":localStorage:");
-	const database = drizzle(sqlite.driver, sqlite.batchDriver, { schema, logger: true });
+const sqlite = new SQLocalDrizzle(":localStorage:");
 
-	setupDatabase(database);
-};
+setupDatabase(
+	drizzle(sqlite.driver, sqlite.batchDriver, { schema, logger: true }),
+);
