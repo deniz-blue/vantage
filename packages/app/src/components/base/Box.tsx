@@ -1,6 +1,7 @@
 import { DimensionValue, ViewStyle, View, ViewProps } from "react-native";
 
 import { Spacing as SpacingVals, type SpacingName } from "../../theme/spacing";
+import { resolveColor } from "../../theme/colors";
 
 export type Spacing = SpacingName | DimensionValue;
 
@@ -91,7 +92,7 @@ export const Box = (props: BoxProps) => {
 			else if (key == "m") computed.margin = resolve(props.m);
 		} break;
 
-		case key == "bg": computed.backgroundColor = props.bg as any; break;
+		case key == "bg": computed.backgroundColor = props.bg ? resolveColor(props.bg as string) : undefined; break;
 		case key == "op": computed.opacity = props.op as any; break;
 		case key == "radius": computed.borderRadius = props.radius as any; break;
 		case key == "rtl": computed.borderTopLeftRadius = props.rtl as any; break;
