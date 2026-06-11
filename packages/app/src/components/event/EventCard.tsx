@@ -55,50 +55,35 @@ export const EventCard = ({ onPress }: EventCardProps) => {
 		: null;
 
 	return (
-		<TouchableOpacity onPress={onPress} disabled={!onPress}>
+		<TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.7}>
 			<Box
-				style={{
-					backgroundColor: Colors.BackgroundLight,
-					borderRadius: 8,
-					padding: 12,
-					marginHorizontal: 8,
-					marginVertical: 4,
-					borderWidth: error ? 1 : 0,
-					borderColor: error ? "#f44336" : undefined,
-				}}
+				bg={Colors.BackgroundLight}
+				radius={8}
+				p="sm"
+				mx="sm"
+				my={4}
+				style={error ? { borderWidth: 1, borderColor: "#f44336" } : undefined}
 			>
 				{/* Header row: name + badges */}
-				<View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+				<Box direction="row" align="center" gap={6}>
 					{/* Name */}
-					<View style={{ flex: 1 }}>
-						<Text
-							style={{
-								fontWeight: "bold",
-								fontSize: 16,
-							}}
-							numberOfLines={1}
-						>
+					<Box flex={1}>
+						<Text style={{ fontWeight: "bold", fontSize: 16 }} numberOfLines={1}>
 							{name ?? "<no title>"}
 						</Text>
 						{label && (
-							<Text
-								style={{
-									fontSize: 13,
-									color: Colors.TextDimmed,
-								}}
-								numberOfLines={1}
-							>
+							<Text style={{ fontSize: 13, color: Colors.TextDimmed }} numberOfLines={1}>
 								{label}
 							</Text>
 						)}
-					</View>
+					</Box>
 
 					{/* Badges */}
-					<View style={{ flexDirection: "row", gap: 4 }}>
+					<Box direction="row" gap={4}>
 						<Badge text={sourceLabel[sourceType] ?? "?"} color={sourceColor[sourceType] ?? "#888"} />
 						<Badge text={formatLabel[formatType] ?? "?"} color={formatColor[formatType] ?? "#888"} />
-					</View>
-				</View>
+					</Box>
+				</Box>
 
 				{/* Error indicator */}
 				{error && (

@@ -1,4 +1,5 @@
 import { FlatList, ActivityIndicator, View, RefreshControl } from "react-native";
+import { useRouter } from "expo-router";
 import { ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
@@ -8,6 +9,7 @@ import { Colors } from "../../theme/colors";
 const PAGE_SIZE = 20;
 
 export default function List() {
+	const router = useRouter();
 	const {
 		events,
 		fetchNextPage,
@@ -38,36 +40,41 @@ export default function List() {
 		<FlatList
 			data={events}
 			keyExtractor={(_item, index) => String(index)}
-			renderItem={({ item }) => (
-				<ResolvedEventContext value={item.data ?? null}>
-					<EventCard />
-				</ResolvedEventContext>
-			)}
+			renderItem={({ item }) => {
+				const eventId = item.data?.id;
+				return (
+					<ResolvedEventContext.Provider value={item.data ?? null}>
+						<EventCard
+							onPress={eventId ? () => router.push(`/event/${eventId}`) : undefined}
+						/>
+					</ResolvedEventContext.Provider>
+				);
+			}}
 			onEndReached={handleEndReached}
 			onEndReachedThreshold={0.3}
 			ListHeaderComponent={
-				<View style={{ paddingHorizontal: 8, paddingTop: 8, paddingBottom: 4 }}>
+				<Box px="sm" pt="sm" pb={4}>
 					<Text style={{ fontSize: 24, fontWeight: "bold" }}>
 						Events
 					</Text>
 					<Text style={{ fontSize: 13, color: Colors.TextDimmed }}>
 						{events.length} event{events.length !== 1 ? "s" : ""}
 					</Text>
-				</View>
+				</Box>
 			}
 			ListFooterComponent={
 				isFetchingNextPage ? (
-					<View style={{ padding: 16, alignItems: "center" }}>
+					<Box p="md" align="center">
 						<ActivityIndicator size="small" color={Colors.Primary} />
-					</View>
+					</Box>
 				) : null
 			}
 			ListEmptyComponent={
-				<View style={{ padding: 32, alignItems: "center" }}>
+				<Box p="lg" align="center">
 					<Text style={{ color: Colors.TextDimmed, fontSize: 16 }}>
 						No events found
 					</Text>
-				</View>
+				</Box>
 			}
 			refreshControl={
 				<RefreshControl
@@ -76,7 +83,7 @@ export default function List() {
 					tintColor={Colors.Primary}
 				/>
 			}
-			contentContainerStyle={{ paddingBottom: 16 }}
+			contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 8 }}
 			initialNumToRender={10}
 			maxToRenderPerBatch={10}
 			windowSize={5}
