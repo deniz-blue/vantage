@@ -6,6 +6,7 @@ import { LanguageSelect } from "../../components/settings/LanguageSelect";
 import { TimezoneSelect } from "../../components/settings/TimezoneSelect";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { Colors } from "../../theme/colors";
+import { Spacing } from "../../theme/spacing";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
@@ -16,13 +17,13 @@ export default function Settings() {
 	return (
 		<ScrollView
 			style={{ flex: 1, backgroundColor: Colors.Background }}
-			contentContainerStyle={{ padding: 16, gap: 8 }}
+			contentContainerStyle={{ padding: Spacing.md, gap: 8 }}
 		>
-			<Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 8 }}>
+			<Text fz={24} fw="bold" mb="sm">
 				Settings
 			</Text>
 
-			<Text style={{ fontSize: 13, color: Colors.TextDimmed, fontWeight: "600", marginTop: 8 }}>
+			<Text fz={13} c={Colors.TextDimmed} fw="600" mt="md">
 				Localization
 			</Text>
 

@@ -9,6 +9,7 @@ import { Button } from "../../components/base/Button";
 import { TextInput } from "../../components/base/TextInput";
 import { DateInput, emptyDate, dateToPartialDate } from "../../components/form/DateInput";
 import { Colors } from "../../theme/colors";
+import { Spacing } from "../../theme/spacing";
 
 // === Status options ===
 
@@ -69,10 +70,10 @@ export default function NewEventPage() {
 	return (
 		<ScrollView
 			style={{ flex: 1, backgroundColor: Colors.Background }}
-			contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+			contentContainerStyle={{ padding: Spacing.md, paddingBottom: 40 }}
 			keyboardShouldPersistTaps="handled"
 		>
-			<Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 24 }}>
+			<Text fz={28} fw="bold" mb="lg">
 				New Event
 			</Text>
 
@@ -93,7 +94,7 @@ export default function NewEventPage() {
 				/>
 
 				<Box gap={8}>
-					<Text style={{ fontSize: 13, color: Colors.TextDimmed }}>
+					<Text fz={13} c={Colors.TextDimmed}>
 						Status
 					</Text>
 					<View style={{ flexDirection: "row", gap: 8 }}>
@@ -113,7 +114,7 @@ export default function NewEventPage() {
 				</Box>
 
 				<Box gap={8}>
-					<Text style={{ fontSize: 13, color: Colors.TextDimmed }}>
+					<Text fz={13} c={Colors.TextDimmed}>
 						Date & Time
 					</Text>
 					<DateInput value={date} onChange={setDate} />

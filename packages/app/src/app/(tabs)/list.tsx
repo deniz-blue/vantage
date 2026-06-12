@@ -8,6 +8,7 @@ import { EmptyState } from "../../components/base/EmptyState";
 import { Fab } from "../../components/base/Fab";
 import { EventCard } from "../../components/event/EventCard";
 import { Colors } from "../../theme/colors";
+import { Spacing } from "../../theme/spacing";
 
 const FAB_SIZE = 56;
 
@@ -55,11 +56,11 @@ export default function List() {
 				onEndReached={handleEndReached}
 				onEndReachedThreshold={0.3}
 				ListHeaderComponent={
-					<Box px="sm" pt="sm" pb={4}>
-						<Text style={{ fontSize: 24, fontWeight: "bold" }}>
+					<Box px="md" pt="md" pb={4}>
+						<Text fz={24} fw="bold">
 							Events
 						</Text>
-						<Text style={{ fontSize: 13, color: Colors.TextDimmed }}>
+						<Text fz={13} c={Colors.TextDimmed}>
 							{events.length} event{events.length !== 1 ? "s" : ""}
 						</Text>
 					</Box>
@@ -81,7 +82,7 @@ export default function List() {
 						tintColor={Colors.Primary}
 					/>
 				}
-				contentContainerStyle={{ paddingBottom: 16 + FAB_SIZE + 16, paddingHorizontal: 8 }}
+				contentContainerStyle={{ paddingBottom: Spacing.md + FAB_SIZE + Spacing.md, paddingHorizontal: Spacing.md }}
 				initialNumToRender={10}
 				maxToRenderPerBatch={10}
 				windowSize={5}
