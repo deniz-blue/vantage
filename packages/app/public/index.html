@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#242424" />
+    <title>%WEB_TITLE%</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        overflow: hidden;
+        background-color: #242424;
+      }
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root">
+      <div id="splash"
+        style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;">
+        <div class="splash-spinner"></div>
+      </div>
+    </div>
+
+    <style>
+
+      .splash-spinner {
+        box-sizing: border-box;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </body>
+</html>
