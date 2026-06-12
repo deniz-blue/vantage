@@ -39,7 +39,7 @@ export default function List() {
 	}
 
 	return (
-		<Box flex={1}>
+		<Box flex={1} px="md">
 			<FlatList
 				data={events}
 				keyExtractor={(_item, index) => String(index)}
@@ -56,7 +56,7 @@ export default function List() {
 				onEndReached={handleEndReached}
 				onEndReachedThreshold={0.3}
 				ListHeaderComponent={
-					<Box px="md" pt="md" pb={4}>
+					<Box pt="md" pb={4}>
 						<Text fz={24} fw="bold">
 							Events
 						</Text>
@@ -82,7 +82,7 @@ export default function List() {
 						tintColor={Colors.Primary}
 					/>
 				}
-				contentContainerStyle={{ paddingBottom: Spacing.md + FAB_SIZE + Spacing.md, paddingHorizontal: Spacing.md }}
+				contentContainerStyle={{ paddingBottom: Spacing.md + FAB_SIZE + Spacing.md }}
 				initialNumToRender={10}
 				maxToRenderPerBatch={10}
 				windowSize={5}

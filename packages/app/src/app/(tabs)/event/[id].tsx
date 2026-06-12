@@ -36,12 +36,14 @@ export default function EventDetail() {
 				/>
 			) : (
 				<ResolvedEventContext.Provider value={resolved}>
-					<ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-						<EventHeader />
-						<EventMetaBar />
-						<EventDate />
-						<EventError />
-						<EventRawData />
+					<ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+						<Box px="md" pt="md" gap={16}>
+							<EventHeader />
+							<EventMetaBar />
+							<EventDate />
+							<EventError />
+							<EventRawData />
+						</Box>
 					</ScrollView>
 				</ResolvedEventContext.Provider>
 			)}

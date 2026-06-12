@@ -9,7 +9,6 @@ import { Button } from "../../components/base/Button";
 import { TextInput } from "../../components/base/TextInput";
 import { DateInput, emptyDate, dateToPartialDate } from "../../components/form/DateInput";
 import { Colors } from "../../theme/colors";
-import { Spacing } from "../../theme/spacing";
 
 // === Status options ===
 
@@ -68,14 +67,17 @@ export default function NewEventPage() {
 	}, [name, label, status, date, canSave, saving, router]);
 
 	return (
-		<ScrollView
-			style={{ flex: 1, backgroundColor: Colors.Background }}
-			contentContainerStyle={{ padding: Spacing.md, paddingBottom: 40 }}
-			keyboardShouldPersistTaps="handled"
-		>
-			<Text fz={28} fw="bold" mb="lg">
-				New Event
-			</Text>
+		<Box flex={1} px="md">
+			<ScrollView
+				style={{ flex: 1, backgroundColor: Colors.Background }}
+				contentContainerStyle={{ paddingBottom: 40 }}
+				keyboardShouldPersistTaps="handled"
+			>
+				<Box pt="md">
+					<Text fz={24} fw="bold" mb="lg">
+						New Event
+					</Text>
+				</Box>
 
 			<Box gap={16}>
 				<TextInput
@@ -131,5 +133,6 @@ export default function NewEventPage() {
 				</Button>
 			</Box>
 		</ScrollView>
+		</Box>
 	);
 }

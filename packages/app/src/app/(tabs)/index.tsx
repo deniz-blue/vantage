@@ -9,7 +9,7 @@ export default function IndexPage() {
 	return (
 		<Box flex={1}>
 			<Box px="md" pt="md" pb={4}>
-				<Text fz={28} fw="bold">
+				<Text fz={24} fw="bold">
 					Vantage
 				</Text>
 				<Text fz={13} c="TextDimmed">
