@@ -2,52 +2,57 @@ import {
 	TouchableOpacity,
 	type TouchableOpacityProps,
 	ActivityIndicator,
-	ViewStyle,
+	type ViewStyle,
 } from "react-native";
 import { Text } from "./Text";
+import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
 
+const VARIANT_STYLES: Record<string, { bg: string; border: string; text: string }> = {
+	filled: { bg: Colors.Primary, border: "transparent", text: "#fff" },
+	light: { bg: Colors.PrimaryLight + "33", border: "transparent", text: Colors.Primary },
+	subtle: { bg: "transparent", border: "transparent", text: Colors.Primary },
+	outline: { bg: "transparent", border: Colors.Primary, text: Colors.Primary },
+	default: { bg: Colors.BackgroundLight, border: "transparent", text: Colors.Text },
+};
+
+const SIZE_STYLES: Record<string, { pv: number; ph: number; fz: number }> = {
+	sm: { pv: 6, ph: 12, fz: 13 },
+	md: { pv: 10, ph: 16, fz: 15 },
+	lg: { pv: 14, ph: 20, fz: 17 },
+};
+
 export interface ButtonProps extends Omit<TouchableOpacityProps, "children"> {
-	children: string;
-	variant?: "filled" | "light" | "subtle" | "outline";
+	children: React.ReactNode;
+	variant?: keyof typeof VARIANT_STYLES;
 	color?: string;
-	size?: "sm" | "md" | "lg";
+	size?: keyof typeof SIZE_STYLES;
 	loading?: boolean;
 	fullWidth?: boolean;
+	leftSection?: React.ReactNode;
+	rightSection?: React.ReactNode;
 }
 
 export const Button = ({
 	children,
 	variant = "filled",
-	color = Colors.Primary,
+	color,
 	size = "md",
 	loading = false,
 	fullWidth = false,
 	disabled,
+	leftSection,
+	rightSection,
 	style,
 	...rest
 }: ButtonProps) => {
 	const isDisabled = disabled || loading;
 
-	const bgColor = variant === "filled"
-		? color
-		: "transparent";
+	const vs = VARIANT_STYLES[variant] ?? VARIANT_STYLES.filled!;
+	const ss = SIZE_STYLES[size] ?? SIZE_STYLES.md!;
 
-	const borderColor = variant === "outline"
-		? color
-		: "transparent";
-
-	const textColor = variant === "filled"
-		? "#fff"
-		: color;
-
-	const paddings: Record<string, ViewStyle> = {
-		sm: { paddingVertical: 6, paddingHorizontal: 12 },
-		md: { paddingVertical: 10, paddingHorizontal: 16 },
-		lg: { paddingVertical: 14, paddingHorizontal: 20 },
-	};
-
-	const fontSize = { sm: 13, md: 15, lg: 17 };
+	const bgColor = color && variant === "filled" ? color : vs.bg;
+	const textColor = color && variant !== "filled" ? color : vs.text;
 
 	return (
 		<TouchableOpacity
@@ -58,31 +63,29 @@ export const Button = ({
 					backgroundColor: isDisabled ? Colors.BackgroundLight : bgColor,
 					borderRadius: 8,
 					borderWidth: variant === "outline" ? 1.5 : 0,
-					borderColor: isDisabled ? "transparent" : borderColor,
+					borderColor: isDisabled ? "transparent" : vs.border,
 					alignItems: "center",
 					justifyContent: "center",
 					flexDirection: "row",
 					gap: 8,
 					opacity: isDisabled ? 0.4 : 1,
 				},
-				paddings[size],
+				{ paddingVertical: ss.pv, paddingHorizontal: ss.ph },
 				fullWidth ? { width: "100%" } : undefined,
 				style as ViewStyle,
 			]}
 			{...rest}
 		>
-			{loading && (
-				<ActivityIndicator size="small" color={textColor} />
+			{leftSection}
+			{loading && <ActivityIndicator size="small" color={textColor} />}
+			{typeof children === "string" ? (
+				<Text fz={ss.fz} fw="600" c={isDisabled ? Colors.TextDimmed : textColor}>
+					{children}
+				</Text>
+			) : (
+				<Box flex={1}>{children}</Box>
 			)}
-			<Text
-				style={{
-					fontSize: fontSize[size],
-					fontWeight: "600",
-					color: isDisabled ? Colors.TextDimmed : textColor,
-				}}
-			>
-				{children}
-			</Text>
+			{rightSection}
 		</TouchableOpacity>
 	);
 };
