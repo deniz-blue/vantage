@@ -60,8 +60,6 @@ export const EventCard = ({ onPress }: EventCardProps) => {
 				bg={Colors.BackgroundLight}
 				radius={8}
 				p="sm"
-				mx="sm"
-				my={4}
 				style={error ? { borderWidth: 1, borderColor: "#f44336" } : undefined}
 			>
 				{/* Header row: name + badges */}

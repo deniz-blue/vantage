@@ -4,6 +4,8 @@ import {
 	View,
 } from "react-native";
 import { Text } from "./Text";
+import { Sizing } from "../../theme/sizing";
+import { Spacing } from "../../theme/spacing";
 import { Colors } from "../../theme/colors";
 
 export interface TextInputProps extends Omit<RNTextInputProps, "placeholderTextColor"> {
@@ -31,10 +33,10 @@ export const TextInput = ({
 					{
 						backgroundColor: Colors.BackgroundLight,
 						color: Colors.Text,
-						borderRadius: 8,
-						paddingHorizontal: 14,
-						paddingVertical: 12,
-						fontSize: 17,
+						borderRadius: Spacing.Radius,
+						paddingHorizontal: Sizing.inputPaddingH,
+						paddingVertical: Sizing.inputPaddingV,
+						fontSize: Sizing.inputFontSize,
 						borderWidth: 1,
 						borderColor: error ? "#f44336" : "transparent",
 					},

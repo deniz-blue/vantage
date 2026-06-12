@@ -1,15 +1,17 @@
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import { ResolvedEventContext, useResolvedEvent, useEventQuery } from "@vantage/core";
-import { Colors } from "../../../theme/colors";
-import { Box } from "../../../components/base/Box";
-import { Text } from "../../../components/base/Text";
-import { Badge } from "../../../components/base/Badge";
-import { Card } from "../../../components/base/Card";
-import { EmptyState } from "../../../components/base/EmptyState";
+import { Colors } from "../../../../theme/colors";
+import { Box } from "../../../../components/base/Box";
+import { Text } from "../../../../components/base/Text";
+import { Badge } from "../../../../components/base/Badge";
+import { Card } from "../../../../components/base/Card";
+import { EmptyState } from "../../../../components/base/EmptyState";
+import { Button } from "../../../../components/base/Button";
 
 export default function EventDetail() {
 	const { id } = useLocalSearchParams<{ id: string }>();
+	const router = useRouter();
 	const { data: resolved, isLoading, isError, error } = useEventQuery(id as any);
 
 	const title = resolved?.data?.name
@@ -41,6 +43,13 @@ export default function EventDetail() {
 							<EventHeader />
 							<EventMetaBar />
 							<EventDate />
+							<Button
+								variant="outline"
+								size="sm"
+								onPress={() => router.push(`/event/${id}/edit`)}
+							>
+								Edit Event
+							</Button>
 							<EventError />
 							<EventRawData />
 						</Box>

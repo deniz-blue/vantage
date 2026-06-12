@@ -3,7 +3,7 @@ import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Divider } from "../../components/base/Divider";
 import { LanguageSelect } from "../../components/settings/LanguageSelect";
-import { TimezoneSelect } from "../../components/settings/TimezoneSelect";
+import { TimezoneSelect } from "../../components/base/TimezoneSelect";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { Colors } from "../../theme/colors";
 

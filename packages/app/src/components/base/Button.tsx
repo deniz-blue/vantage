@@ -7,19 +7,20 @@ import {
 import { Text } from "./Text";
 import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
+import { Sizing } from "../../theme/sizing";
 
 const VARIANT_STYLES: Record<string, { bg: string; border: string; text: string }> = {
+	default: { bg: Colors.BackgroundLight, border: "transparent", text: Colors.Text },
+	subtle: { bg: "transparent", border: "transparent", text: Colors.Primary },
 	filled: { bg: Colors.Primary, border: "transparent", text: "#fff" },
 	light: { bg: Colors.PrimaryLight + "33", border: "transparent", text: Colors.Primary },
-	subtle: { bg: "transparent", border: "transparent", text: Colors.Primary },
 	outline: { bg: "transparent", border: Colors.Primary, text: Colors.Primary },
-	default: { bg: Colors.BackgroundLight, border: "transparent", text: Colors.Text },
 };
 
 const SIZE_STYLES: Record<string, { pv: number; ph: number; fz: number }> = {
-	sm: { pv: 6, ph: 12, fz: 13 },
-	md: { pv: 10, ph: 16, fz: 15 },
-	lg: { pv: 14, ph: 20, fz: 17 },
+	sm: { pv: Sizing.buttonPaddingV.sm, ph: Sizing.buttonPaddingH.sm, fz: Sizing.fontSizeSm },
+	md: { pv: Sizing.buttonPaddingV.md, ph: Sizing.buttonPaddingH.md, fz: Sizing.fontSizeMd },
+	lg: { pv: Sizing.buttonPaddingV.lg, ph: Sizing.buttonPaddingH.lg, fz: Sizing.fontSizeLg },
 };
 
 export interface ButtonProps extends Omit<TouchableOpacityProps, "children"> {
