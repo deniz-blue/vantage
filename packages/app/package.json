@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"main": "src/init.ts",
 	"dependencies": {
+		"@atcute/bluesky-richtext-segmenter": "^3.0.0",
 		"@ecrindigital/facetpack": "^0.2.0",
 		"@evnt/convert": "^0.1.0",
 		"@evnt/partial-date": "^0.1.0",
@@ -19,6 +20,7 @@
 		"@vantage/db": "workspace:*",
 		"drizzle-orm": "^0.45.2",
 		"expo": "~56.0.8",
+		"expo-clipboard": "^56.0.4",
 		"expo-constants": "~56.0.16",
 		"expo-font": "~56.0.5",
 		"expo-linking": "~56.0.13",

@@ -1,10 +1,24 @@
+import { ScrollView } from "react-native";
 import { Box } from "../../base/Box";
-import { EventError } from "./EventError";
-import { EventHeader } from "./EventHeader";
+import { EventDetailsError } from "./EventDetailsError";
+import { EventDetailsBanner } from "./EventDetailsBanner";
+import { EventDetailsInstanceList } from "./EventDetailsInstanceList";
+import { EventDetailsActions } from "./EventDetailsActions";
+import { EventDetailsLinks } from "./EventDetailsLinks";
+import { EventDetailsRichtext } from "./EventDetailsRichtext";
+import { EventDetailsSource } from "./EventDetailsSource";
+import { Spacing } from "../../../theme/spacing";
 
 export const EventDetails = () => (
-	<Box flex={1}>
-		<EventError />
-		<EventHeader />
-	</Box>
+	<ScrollView style={{ flex: 1 }}>
+		<Box px="md" pb="md" gap={Spacing.md}>
+			<EventDetailsError />
+			<EventDetailsBanner />
+			<EventDetailsInstanceList />
+			<EventDetailsActions />
+			<EventDetailsRichtext />
+			<EventDetailsLinks />
+			<EventDetailsSource />
+		</Box>
+	</ScrollView>
 );
