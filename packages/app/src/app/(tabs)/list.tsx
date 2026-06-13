@@ -6,7 +6,7 @@ import { Text } from "../../components/base/Text";
 import { Loader } from "../../components/base/Loader";
 import { EmptyState } from "../../components/base/EmptyState";
 import { Fab } from "../../components/base/Fab";
-import { EventCard } from "../../components/event/EventCard";
+import { EventCard } from "../../components/event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { Spacing } from "../../theme/spacing";
 
@@ -82,7 +82,7 @@ export default function List() {
 						tintColor={Colors.Primary}
 					/>
 				}
-				contentContainerStyle={{ paddingBottom: Spacing.md + FAB_SIZE + Spacing.md }}
+				contentContainerStyle={{ paddingBottom: Spacing.md + FAB_SIZE + Spacing.md, gap: Spacing.sm }}
 				initialNumToRender={10}
 				maxToRenderPerBatch={10}
 				windowSize={5}
