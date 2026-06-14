@@ -1,40 +1,35 @@
 import type { ReactNode } from "react";
-import { TouchableOpacity, type TouchableOpacityProps, type ViewStyle } from "react-native";
+import { TouchableOpacity } from "react-native";
+import { Box, type BoxProps } from "./Box";
 import { Colors } from "../../theme/colors";
 import { Sizing } from "../../theme/sizing";
 
-export interface ActionIconProps extends Omit<TouchableOpacityProps, "children"> {
+export interface ActionIconProps extends BoxProps {
 	children: ReactNode;
 	color?: string;
 	disabled?: boolean;
+	onPress?: () => void;
 }
 
-export const ActionIcon = ({
-	children,
-	color = Colors.Primary,
-	disabled,
-	style,
-	...rest
-}: ActionIconProps) => {
+export const ActionIcon = (props: ActionIconProps) => {
+	const { children, color = Colors.Primary, disabled, onPress, ...boxProps } = props;
+
 	return (
-		<TouchableOpacity
+		<Box
+			component={TouchableOpacity}
+			w={Sizing.md}
+			h={Sizing.md}
+			radius={Sizing.radiusSm}
+			bg={Colors.BackgroundLight}
+			align="center"
+			justify="center"
+			op={disabled ? 0.4 : undefined}
 			activeOpacity={0.7}
 			disabled={disabled}
-			style={[
-				{
-					width: Sizing.md,
-					height: Sizing.md,
-					borderRadius: Sizing.radiusSm,
-					alignItems: "center",
-					justifyContent: "center",
-					backgroundColor: Colors.BackgroundLight,
-					opacity: disabled ? 0.4 : 1,
-				} as ViewStyle,
-				style as ViewStyle,
-			]}
-			{...rest}
+			onPress={onPress}
+			{...boxProps as any}
 		>
 			{children}
-		</TouchableOpacity>
+		</Box>
 	);
 };

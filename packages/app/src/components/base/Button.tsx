@@ -1,11 +1,6 @@
-import {
-	TouchableOpacity,
-	type TouchableOpacityProps,
-	ActivityIndicator,
-	type ViewStyle,
-} from "react-native";
+import { TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "./Text";
-import { Box } from "./Box";
+import { Box, type BoxProps } from "./Box";
 import { Colors } from "../../theme/colors";
 import { Sizing } from "../../theme/sizing";
 
@@ -23,7 +18,7 @@ const SIZE_STYLES: Record<string, { pv: number; ph: number; fz: number }> = {
 	lg: { pv: Sizing.buttonPaddingV.lg, ph: Sizing.buttonPaddingH.lg, fz: Sizing.fontSizeLg },
 };
 
-export interface ButtonProps extends Omit<TouchableOpacityProps, "children"> {
+export interface ButtonProps extends BoxProps {
 	children: React.ReactNode;
 	variant?: keyof typeof VARIANT_STYLES;
 	color?: string;
@@ -32,21 +27,26 @@ export interface ButtonProps extends Omit<TouchableOpacityProps, "children"> {
 	fullWidth?: boolean;
 	leftSection?: React.ReactNode;
 	rightSection?: React.ReactNode;
+	onPress?: () => void;
+	disabled?: boolean;
 }
 
-export const Button = ({
-	children,
-	variant = "filled",
-	color,
-	size = "md",
-	loading = false,
-	fullWidth = false,
-	disabled,
-	leftSection,
-	rightSection,
-	style,
-	...rest
-}: ButtonProps) => {
+export const Button = (props: ButtonProps) => {
+	const {
+		children,
+		variant = "filled",
+		color,
+		size = "md",
+		loading = false,
+		fullWidth = false,
+		leftSection,
+		rightSection,
+		onPress,
+		disabled,
+		style,
+		...boxProps
+	} = props;
+
 	const isDisabled = disabled || loading;
 
 	const vs = VARIANT_STYLES[variant] ?? VARIANT_STYLES.filled!;
@@ -56,26 +56,28 @@ export const Button = ({
 	const textColor = color && variant !== "filled" ? color : vs.text;
 
 	return (
-		<TouchableOpacity
+		<Box<typeof TouchableOpacity>
+			component={TouchableOpacity}
 			activeOpacity={0.7}
 			disabled={isDisabled}
+			onPress={onPress}
+			direction="row"
+			align="center"
+			justify="center"
+			gap={8}
+			radius={8}
+			p={ss.pv}
+			bg={isDisabled ? Colors.BackgroundLight : bgColor}
+			op={isDisabled ? 0.4 : undefined}
+			w={fullWidth ? "100%" : undefined}
 			style={[
 				{
-					backgroundColor: isDisabled ? Colors.BackgroundLight : bgColor,
-					borderRadius: 8,
 					borderWidth: variant === "outline" ? 1.5 : 0,
 					borderColor: isDisabled ? "transparent" : vs.border,
-					alignItems: "center",
-					justifyContent: "center",
-					flexDirection: "row",
-					gap: 8,
-					opacity: isDisabled ? 0.4 : 1,
 				},
-				{ paddingVertical: ss.pv, paddingHorizontal: ss.ph },
-				fullWidth ? { width: "100%" } : undefined,
-				style as ViewStyle,
+				style,
 			]}
-			{...rest}
+			{...(boxProps as any)}
 		>
 			{leftSection}
 			{loading && <ActivityIndicator size="small" color={textColor} />}
@@ -87,6 +89,6 @@ export const Button = ({
 				<Box flex={1}>{children}</Box>
 			)}
 			{rightSection}
-		</TouchableOpacity>
+		</Box>
 	);
 };

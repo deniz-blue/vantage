@@ -2,9 +2,11 @@ import { TouchableOpacity } from "react-native";
 import { IconWorld, IconChevronDown, IconArrowUp } from "@tabler/icons-react-native";
 import { Box } from "../base/Box";
 import { Text } from "../base/Text";
+import { ActionIcon } from "../base/ActionIcon";
 import { Button } from "../base/Button";
 import { Colors } from "../../theme/colors";
-import { formatOffset, getDetectedTz } from "./timezone-data";
+import { Sizing } from "../../theme/sizing";
+import { formatOffset, getDetectedTz } from "@vantage/intl";
 
 export interface TimezoneSelectTriggerProps {
 	value: string;
@@ -39,8 +41,13 @@ export const TimezoneSelectTrigger = ({
 		<Box>
 			<Button
 				variant="default"
+				radius={Sizing.radiusLg}
 				onPress={onOpen}
-				leftSection={<IconWorld size={20} color={Colors.Primary} />}
+				leftSection={
+					<ActionIcon bg={Colors.PrimaryLight + "33"} w={40} h={40} radius={10}>
+						<IconWorld size={20} color={Colors.Primary} />
+					</ActionIcon>
+				}
 			>
 				<Box flex={1}>
 					<Text fz={15} fw="600">

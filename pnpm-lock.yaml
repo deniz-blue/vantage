@@ -44,6 +44,12 @@ importers:
       '@expo-google-fonts/lexend':
         specifier: ^0.4.1
         version: 0.4.1
+      '@formatjs/intl-displaynames':
+        specifier: ^7.3.10
+        version: 7.3.10
+      '@formatjs/intl-supportedvaluesof':
+        specifier: ^2.3.8
+        version: 2.3.8
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.15)(react@19.2.7))
@@ -62,6 +68,9 @@ importers:
       '@vantage/db':
         specifier: workspace:*
         version: link:../db
+      '@vantage/intl':
+        specifier: workspace:*
+        version: link:../intl
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@4.20260602.1)(@types/better-sqlite3@7.6.13)(better-sqlite3@12.10.0)(expo-sqlite@56.0.4(expo@56.0.8)(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.15)(react@19.2.7))(react@19.2.7))
@@ -463,6 +472,12 @@ importers:
       '@vantage/db':
         specifier: workspace:*
         version: link:../db
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  packages/intl:
     devDependencies:
       typescript:
         specifier: ^6.0.3
@@ -2004,6 +2019,18 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@formatjs/fast-memoize@3.1.6':
+    resolution: {integrity: sha512-H5aexk1Le7T9TPmscacZ+1pR6CTa2n1wq+HDVGXhH8TzUlQQpeXzZs91dRtmFHrbeNbjPFPfQujUqm7MHgVoXQ==}
+
+  '@formatjs/intl-displaynames@7.3.10':
+    resolution: {integrity: sha512-9fcV4B9WFzzGGhYQxeMUZUN9EJcBICW0lmFKNQqQTqr2s4GjqwISa8Pn6uhdLx+9+p9U051iQKUw2Jq0NcInQQ==}
+
+  '@formatjs/intl-localematcher@0.8.10':
+    resolution: {integrity: sha512-P/IC3qws3jH+1fEs+o0RIFgXKRaQlFehjS5W0FPAqdo6hgzawLl+eD0q0JjheQ3XtoOe5n8WSYfX06KQZI/QJA==}
+
+  '@formatjs/intl-supportedvaluesof@2.3.8':
+    resolution: {integrity: sha512-webY7Ylc4CRRgxXFxZ4yRIr+9SKZyMLh+Hrsim4vG3HKSpD+T7d9XXvTdd6UDILyXf7BsqAa8l5/Nn2eENWCqw==}
 
   '@hono/node-server@2.0.4':
     resolution: {integrity: sha512-Ut3y0dMMPWy6bZ2kVfx25EOVbZlm15dhF4mOsezMlhpNHy+4MkU1qN9Y6lnruYi4wPmFzimGX2X7LF/FwHli4A==}
@@ -8083,6 +8110,20 @@ snapshots:
       tabbable: 6.4.0
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@formatjs/fast-memoize@3.1.6': {}
+
+  '@formatjs/intl-displaynames@7.3.10':
+    dependencies:
+      '@formatjs/intl-localematcher': 0.8.10
+
+  '@formatjs/intl-localematcher@0.8.10':
+    dependencies:
+      '@formatjs/fast-memoize': 3.1.6
+
+  '@formatjs/intl-supportedvaluesof@2.3.8':
+    dependencies:
+      '@formatjs/fast-memoize': 3.1.6
 
   '@hono/node-server@2.0.4(hono@4.12.23)':
     dependencies:

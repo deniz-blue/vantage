@@ -11,21 +11,25 @@ export interface ComboboxSearchProps {
 export const ComboboxSearch = ({ placeholder = "Search…" }: ComboboxSearchProps) => {
 	const ctx = useComboboxCtx();
 	return (
-		<Box p="md" style={{ borderBottomWidth: 1, borderBottomColor: Colors.BackgroundLight }}>
+		<Box
+			p="md"
+			style={{ borderBottomWidth: 1, borderBottomColor: Colors.BackgroundLight }}
+		>
 			<Box direction="row" align="center" bg={Colors.BackgroundLight} radius={10} px={12} gap={8}>
 				<IconSearch size={18} color={Colors.TextDimmed} />
-				<TextInput
-					value={ctx.search}
-					onChangeText={ctx.setSearch}
-					placeholder={placeholder}
-					placeholderTextColor={Colors.TextDimmed}
-					style={{
-						flex: 1,
-						paddingVertical: 10,
-						color: Colors.Text,
-						fontSize: 15,
-					}}
-				/>
+				<Box flex={1}>
+					<TextInput
+						value={ctx.search}
+						onChangeText={ctx.setSearch}
+						placeholder={placeholder}
+						placeholderTextColor={Colors.TextDimmed}
+						style={{
+							color: Colors.Text,
+							fontSize: 15,
+							paddingVertical: 10,
+						}}
+					/>
+				</Box>
 			</Box>
 		</Box>
 	);

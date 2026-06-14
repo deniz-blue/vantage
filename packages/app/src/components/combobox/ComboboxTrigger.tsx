@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Box } from "../base/Box";
 import { Button } from "../base/Button";
 import { Colors } from "../../theme/colors";
+import { Sizing } from "../../theme/sizing";
 import { useComboboxCtx } from "./combobox-context";
 
 export interface ComboboxTriggerProps {
@@ -16,9 +17,9 @@ export const ComboboxTrigger = ({ children }: ComboboxTriggerProps) => {
 			variant="default"
 			rightSection={<IconChevronRight size={18} color={Colors.TextDimmed} />}
 			onPress={ctx.open}
-			style={{ borderRadius: 12 }}
+			radius={Sizing.radiusLg}
 		>
-			<Box flex={1} direction="row" align="center">{children}</Box>
+			<Box flex={1} direction="row" align="center" gap={10}>{children}</Box>
 		</Button>
 	);
 };

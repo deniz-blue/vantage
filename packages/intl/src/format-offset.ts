@@ -1,4 +1,5 @@
-// === Offset computation — module-level cache ===
+// Uses Intl.DateTimeFormat which is available on Hermes (bundles ICU4C).
+// No polyfill needed — this is the one Intl API that actually works in RN.
 
 const offsetCache = new Map<string, { numeric: number; display: string }>();
 
@@ -33,31 +34,4 @@ const computeOffset = (tz: string): { numeric: number; display: string } => {
 };
 
 export const formatOffset = (tz: string): string => computeOffset(tz).display;
-
-// === Sorted & grouped timezone data (module-level) ===
-
-export const allTimezones: readonly string[] = Intl.supportedValuesOf("timeZone")
-	.map((tz) => ({ tz, offset: computeOffset(tz).numeric }))
-	.sort((a, b) => a.offset - b.offset || a.tz.localeCompare(b.tz))
-	.map(({ tz }) => tz);
-
-export const allRegions: readonly string[] = Array.from(
-	new Set(
-		allTimezones.map((tz) =>
-			tz.includes("/") ? tz.split("/")[0]! : "Other",
-		),
-	),
-).sort((a, b) => a.localeCompare(b));
-
-export const timezonesInRegion = (region: string): readonly string[] =>
-	region === "Other"
-		? allTimezones.filter((tz) => !tz.includes("/"))
-		: allTimezones.filter((tz) => tz.startsWith(region + "/"));
-
-export const getDetectedTz = (): string => {
-	try {
-		return Intl.DateTimeFormat().resolvedOptions().timeZone;
-	} catch {
-		return "UTC";
-	}
-};
+export const offsetNumeric = (tz: string): number => computeOffset(tz).numeric;

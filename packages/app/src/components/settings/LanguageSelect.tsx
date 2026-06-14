@@ -1,4 +1,5 @@
 import { IconLanguage } from "@tabler/icons-react-native";
+import { LANGUAGES } from "@vantage/intl";
 import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
@@ -11,12 +12,6 @@ import {
 	ComboboxSearch,
 	ComboboxList,
 } from "../combobox";
-const LANGUAGES = [
-	"en", "es", "fr", "de", "pt", "ru", "ja", "ko", "zh", "ar",
-	"it", "nl", "pl", "sv", "da", "no", "fi", "cs", "hu", "ro",
-	"uk", "el", "he", "hi", "th", "vi", "tr", "id", "ms", "bn",
-	"sw", "tl", "ne", "si", "my", "km", "lo", "ka", "hy", "az",
-] as const;
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
@@ -74,7 +69,7 @@ export const LanguageSelect = ({
 		>
 			<Combobox value={value} onChange={onChange}>
 				<ComboboxTrigger>
-					<ActionIcon style={{ backgroundColor: Colors.PrimaryLight + "33", width: 40, height: 40, borderRadius: 10 }}>
+					<ActionIcon bg={Colors.PrimaryLight + "33"} w={40} h={40} radius={10}>
 						<IconLanguage size={20} color={Colors.Primary} />
 					</ActionIcon>
 					<Box flex={1}>

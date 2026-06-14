@@ -17,6 +17,7 @@ export const Sizing = {
 	// === Radius ===
 	radiusSm: 8,
 	radiusMd: 10,
+	radiusLg: 12,
 
 	// === Font sizes ===
 	fontSizeSm: 13,

@@ -59,7 +59,6 @@ export const TimezoneSelect = ({
 					region={region}
 					onSelect={handleSelect}
 					onSelectRegion={handleSelectRegion}
-					onBack={() => setRegion(null)}
 				/>
 			</Sheet>
 		</>
