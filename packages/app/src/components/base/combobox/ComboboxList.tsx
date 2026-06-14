@@ -1,8 +1,8 @@
 import { useCallback, useRef, type ReactNode } from "react";
 import { LayoutChangeEvent, ScrollView, TouchableOpacity } from "react-native";
 import { IconCheck } from "@tabler/icons-react-native";
-import { Box } from "../base/Box";
-import { Colors } from "../../theme/colors";
+import { Box } from "../../base/Box";
+import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
 
 export interface ComboboxListProps<T> {

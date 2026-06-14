@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../../base/Sheet";
 import { useComboboxCtx } from "./combobox-context";
 
 export interface ComboboxSheetProps {

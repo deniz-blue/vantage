@@ -1,7 +1,7 @@
 import { TextInput } from "react-native";
 import { IconSearch } from "@tabler/icons-react-native";
-import { Box } from "../base/Box";
-import { Colors } from "../../theme/colors";
+import { Box } from "../../base/Box";
+import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
 
 export interface ComboboxSearchProps {

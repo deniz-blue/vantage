@@ -39,9 +39,11 @@ const renderLanguageItem = (code: string, selected: boolean) => (
 			<Text fz={15} fw={selected ? "600" : "400"}>
 				{getAutonym(code)}
 			</Text>
-			<Text fz={12} c={Colors.TextDimmed} mt={1}>
-				{getEnglishName(code)}
-			</Text>
+			<Box mt={1}>
+				<Text fz={12} c={Colors.TextDimmed}>
+					{getEnglishName(code)}
+				</Text>
+			</Box>
 		</Box>
 	</>
 );
@@ -76,9 +78,11 @@ export const LanguageSelect = ({
 						<Text fz={15} fw="600">
 							{getAutonym(value)}
 						</Text>
-						<Text fz={12} c={Colors.TextDimmed} mt={1}>
-							{getEnglishName(value)}
-						</Text>
+						<Box mt={1}>
+							<Text fz={12} c={Colors.TextDimmed}>
+								{getEnglishName(value)}
+							</Text>
+						</Box>
 					</Box>
 				</ComboboxTrigger>
 				<ComboboxSheet>

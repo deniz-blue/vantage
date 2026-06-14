@@ -10,7 +10,7 @@ import { EventDetailsSource } from "./EventDetailsSource";
 import { Spacing } from "../../../theme/spacing";
 
 export const EventDetails = () => (
-	<ScrollView style={{ flex: 1 }}>
+	<Box component={ScrollView} flex={1}>
 		<Box px="md" pb="md" gap={Spacing.md}>
 			<EventDetailsError />
 			<EventDetailsBanner />
@@ -20,5 +20,5 @@ export const EventDetails = () => (
 			<EventDetailsLinks />
 			<EventDetailsSource />
 		</Box>
-	</ScrollView>
+	</Box>
 );

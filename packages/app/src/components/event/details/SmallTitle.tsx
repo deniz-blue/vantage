@@ -5,7 +5,7 @@ import { Sizing } from "../../../theme/sizing";
 
 export const SmallTitle = ({ children }: PropsWithChildren) => (
 	<Box py={4}>
-		<Text fz={Sizing.fontSizeSm} fw="bold" c="TextDimmed" style={{ textTransform: "uppercase" }}>
+		<Text fz={Sizing.fontSizeSm} fw="bold" c="TextDimmed" tt="uppercase">
 			{children}
 		</Text>
 	</Box>

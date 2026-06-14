@@ -1,9 +1,9 @@
 import { IconChevronRight } from "@tabler/icons-react-native";
 import type { ReactNode } from "react";
-import { Box } from "../base/Box";
-import { Button } from "../base/Button";
-import { Colors } from "../../theme/colors";
-import { Sizing } from "../../theme/sizing";
+import { Box } from "../../base/Box";
+import { Button } from "../../base/Button";
+import { Colors } from "../../../theme/colors";
+import { Sizing } from "../../../theme/sizing";
 import { useComboboxCtx } from "./combobox-context";
 
 export interface ComboboxTriggerProps {

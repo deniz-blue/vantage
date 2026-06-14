@@ -1,4 +1,4 @@
-import { TouchableOpacity, Linking } from "react-native";
+import { Linking, TouchableOpacity } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { SourceComponent } from "@evnt/types";
 import { IconExternalLink, IconQuestionMark, IconDatabase, IconWorld, IconBraces, IconAt, IconBrandWikipedia } from "@tabler/icons-react-native";
@@ -19,7 +19,6 @@ export const EventDetailsSource = () => {
 		<Box gap={Spacing.xs}>
 			<SmallTitle>Source</SmallTitle>
 
-			{/* Source components (directory.evnt.component.source) */}
 			{sourceComponents.map((comp, i) => (
 				<TouchableOpacity key={i} onPress={() => Linking.openURL(comp.url)}>
 					<Box direction="row" gap={6} align="center" py={4}>
@@ -29,18 +28,14 @@ export const EventDetailsSource = () => {
 				</TouchableOpacity>
 			))}
 
-			{/* Source type */}
 			<SourceRow type={source.type} />
 
 			<SmallTitle>Format</SmallTitle>
 
-			{/* Format type */}
 			<FormatRow type={format.type} />
 		</Box>
 	);
 };
-
-// === Source type rows ===
 
 const sourceIcons: Record<string, React.ReactNode> = {
 	unknown: <IconQuestionMark size={20} />,
@@ -64,8 +59,6 @@ const SourceRow = ({ type }: { type: string }) => (
 		<Text fz={Sizing.fontSizeMd}>{sourceLabels[type] ?? type}</Text>
 	</Box>
 );
-
-// === Format type rows ===
 
 const formatIcons: Record<string, React.ReactNode> = {
 	unknown: <IconQuestionMark size={20} />,

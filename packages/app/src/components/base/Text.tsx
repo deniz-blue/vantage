@@ -1,26 +1,16 @@
-import type { DimensionValue, TextStyle } from "react-native";
+import type { TextStyle } from "react-native";
 import { TextProps as RNTextProps, Text as RNText } from "react-native";
 import { Colors, getThemeColor, type ThemeColor } from "../../theme/colors";
-import { Spacing, type SpacingName } from "../../theme/spacing";
-
-type Spacing = SpacingName | DimensionValue;
-
-const resolveSpacing = (v: Spacing | undefined): DimensionValue | undefined =>
-	v !== undefined ? (Spacing[v as SpacingName] ?? v) : undefined;
 
 export interface TextProps extends RNTextProps {
 	c?: ThemeColor;
 	fz?: number;
 	fw?: TextStyle["fontWeight"];
+	fst?: TextStyle["fontStyle"];
 	ta?: TextStyle["textAlign"];
 	tt?: TextStyle["textTransform"];
+	tdl?: TextStyle["textDecorationLine"];
 	lh?: number;
-	mt?: Spacing;
-	mb?: Spacing;
-	ml?: Spacing;
-	mr?: Spacing;
-	mx?: Spacing;
-	my?: Spacing;
 }
 
 export const Text = (props: TextProps) => {
@@ -28,15 +18,11 @@ export const Text = (props: TextProps) => {
 		c,
 		fz,
 		fw,
+		fst,
 		ta,
 		tt,
+		tdl,
 		lh,
-		mt,
-		mb,
-		ml,
-		mr,
-		mx,
-		my,
 		style,
 		...rest
 	} = props;
@@ -49,13 +35,11 @@ export const Text = (props: TextProps) => {
 					color: c ? getThemeColor(c) : Colors.Text,
 					fontSize: fz,
 					fontWeight: fw,
+					fontStyle: fst,
 					textAlign: ta,
 					textTransform: tt,
+					textDecorationLine: tdl,
 					lineHeight: lh,
-					marginTop: resolveSpacing(mt),
-					marginBottom: resolveSpacing(mb),
-					marginLeft: resolveSpacing(ml ?? mx),
-					marginRight: resolveSpacing(mr ?? mx),
 				},
 				style,
 			]}

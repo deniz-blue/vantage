@@ -12,8 +12,6 @@ import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { Sizing } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 
-// === Main component ===
-
 export const EventDetailsInstanceList = () => {
 	const { data } = useResolvedEvent();
 
@@ -65,8 +63,6 @@ export const EventDetailsInstanceList = () => {
 	);
 };
 
-// === MiniBoxInstance ===
-
 const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 	const language = useLocaleStore((s) => s.language);
 
@@ -79,7 +75,6 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		);
 	}
 
-	// Build icon
 	const hasDay = PartialDateUtil.has(instance.start, "day");
 	const hasMonth = PartialDateUtil.has(instance.start, "month");
 
@@ -103,7 +98,6 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		icon = <IconCalendar size={20} />;
 	}
 
-	// Build title and subtitle
 	let title: ReactNode;
 	let subtitle: ReactNode | null = null;
 
@@ -145,8 +139,6 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 	return <MiniBoxSnippet icon={icon} title={title} subtitle={subtitle} />;
 };
 
-// === PartialDate label helper ===
-
 const PartialDateLabel = ({ value }: { value: PartialDate }) => {
 	const language = useLocaleStore((s) => s.language);
 
@@ -170,8 +162,6 @@ const PartialDateLabel = ({ value }: { value: PartialDate }) => {
 	return <Text fz={Sizing.fontSizeMd}>{label}</Text>;
 };
 
-// === MiniBoxVenue ===
-
 const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 	const icon = venue.$type === "directory.evnt.venue.online"
 		? <IconWorld size={20} />
@@ -180,7 +170,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 			: <IconWorldPin size={20} />;
 
 	const title = TranslationsUtil.isEmpty(venue.name)
-		? <Text fz={Sizing.fontSizeMd} style={{ fontStyle: "italic" }} c="TextDimmed">Unnamed</Text>
+		? <Text fz={Sizing.fontSizeMd} fst="italic" c="TextDimmed">Unnamed</Text>
 		: <TransText fz={Sizing.fontSizeMd} value={venue.name} />;
 
 	const subtitle = venue.$type === "directory.evnt.venue.physical" && venue.address
@@ -204,16 +194,17 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 					{mapLinks.length > 0 && (
 						<Box direction="row" gap={4}>
 							{mapLinks.map((link, i) => (
-								<TouchableOpacity key={i} onPress={() => Linking.openURL(link)}>
-									<Box
-										bg="BackgroundLight"
-										radius={4}
-										px="xs"
-										py={2}
-									>
-										<Text fz={11} c="Primary">{i === 0 ? "Google Maps" : "OpenStreetMap"}</Text>
-									</Box>
-								</TouchableOpacity>
+								<Box
+									key={i}
+									component={TouchableOpacity}
+									bg="BackgroundLight"
+									radius={4}
+									px="xs"
+									py={2}
+									onPress={() => Linking.openURL(link)}
+								>
+									<Text fz={11} c="Primary">{i === 0 ? "Google Maps" : "OpenStreetMap"}</Text>
+								</Box>
 							))}
 						</Box>
 					)}
@@ -223,23 +214,23 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 	);
 };
 
-// === Utility components ===
-
 const AddressLabel = ({ address }: { address: { addr?: string; countryCode?: string } }) => {
 	const str = [address.addr, address.countryCode].filter(Boolean).join(", ");
 	return <>{str}</>;
 };
 
 const UrlLabel = ({ url }: { url: string }) => (
-	<TouchableOpacity onPress={() => Linking.openURL(url)}>
-		<Box direction="row" gap={4} align="center">
-			<Text fz={Sizing.fontSizeSm} c="Primary" numberOfLines={1}>{url}</Text>
-			<IconExternalLink size={14} color="Primary" />
-		</Box>
-	</TouchableOpacity>
+	<Box
+		component={TouchableOpacity}
+		direction="row"
+		gap={4}
+		align="center"
+		onPress={() => Linking.openURL(url)}
+	>
+		<Text fz={Sizing.fontSizeSm} c="Primary" numberOfLines={1}>{url}</Text>
+		<IconExternalLink size={14} color="Primary" />
+	</Box>
 );
-
-// === Map link utilities ===
 
 const venueGoogleMapsLink = (venue: Venue): string | null => {
 	if (venue.$type !== "directory.evnt.venue.physical") return null;
@@ -252,8 +243,6 @@ const venueOpenStreetMapsLink = (venue: Venue): string | null => {
 	if (venue.address?.addr) return `https://www.openstreetmap.org/search?query=${encodeURIComponent(venue.address.addr)}`;
 	return null;
 };
-
-// === MiniBoxSnippet ===
 
 const MiniBoxSnippet = ({
 	icon,
@@ -273,7 +262,6 @@ const MiniBoxSnippet = ({
 				justify="center"
 				bg="BackgroundLight"
 				radius={Spacing.Radius}
-				style={{ borderWidth: 1, borderColor: "transparent" }}
 			>
 				{icon}
 			</Box>

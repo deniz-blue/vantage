@@ -20,24 +20,18 @@ export const EventDetailsActions = () => {
 
 	return (
 		<Box direction="row" gap={Spacing.xs} wrap="wrap">
-			{/* Refetch (network sources only — stubbed) */}
-			{/* TODO: implement refetch when AT protocol auth is available */}
 			{isNetwork && (
 				<ActionButton icon={<IconReload size={16} />} label="Refetch" disabled />
 			)}
 
-			{/* Share */}
 			{shareLink && (
 				<ActionButton
 					icon={<IconShare size={16} />}
 					label="Share"
-					onPress={() => {
-						Clipboard.setStringAsync(shareLink);
-					}}
+					onPress={() => Clipboard.setStringAsync(shareLink)}
 				/>
 			)}
 
-			{/* Edit (local sources only) */}
 			{isLocal && (
 				<ActionButton
 					icon={<IconPencil size={16} />}
@@ -48,8 +42,6 @@ export const EventDetailsActions = () => {
 		</Box>
 	);
 };
-
-// === Action button ===
 
 const ActionButton = ({
 	icon,
@@ -62,19 +54,20 @@ const ActionButton = ({
 	onPress?: () => void;
 	disabled?: boolean;
 }) => (
-	<TouchableOpacity onPress={onPress} disabled={disabled || !onPress}>
-		<Box
-			direction="row"
-			gap={4}
-			align="center"
-			bg="BackgroundLight"
-			radius={Spacing.Radius}
-			px="sm"
-			py={6}
-			op={disabled ? 0.5 : 1}
-		>
-			{icon}
-			<Text fz={Sizing.fontSizeSm}>{label}</Text>
-		</Box>
-	</TouchableOpacity>
+	<Box
+		component={TouchableOpacity}
+		direction="row"
+		gap={4}
+		align="center"
+		bg="BackgroundLight"
+		radius={Spacing.Radius}
+		px="sm"
+		py={6}
+		op={disabled ? 0.5 : 1}
+		onPress={onPress}
+		disabled={disabled || !onPress}
+	>
+		{icon}
+		<Text fz={Sizing.fontSizeSm}>{label}</Text>
+	</Box>
 );

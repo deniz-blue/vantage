@@ -4,18 +4,12 @@ import { Text } from "../../base/Text";
 import { SmallTitle } from "./SmallTitle";
 import { Spacing } from "../../../theme/spacing";
 
-// === Registry: $type → renderer component ===
-// Extend this map to support new richtext formats.
-// Each renderer receives the component object and must return ReactNode or null.
-
 type RichtextComponent = Record<string, unknown> & { $type: string };
 
 const richtextRenderers = {
 	"directory.evnt.richtext.markdown": MarkdownRenderer,
 	"app.bsky.richtext": BskyRichtextRenderer,
 } as Record<string, (comp: RichtextComponent) => React.ReactNode | null>;
-
-// === Main component ===
 
 export const EventDetailsRichtext = () => {
 	const { data } = useResolvedEvent();
@@ -45,15 +39,11 @@ export const EventDetailsRichtext = () => {
 	);
 };
 
-// === Markdown renderer ===
-
 function MarkdownRenderer(comp: RichtextComponent) {
 	const content = comp.markdown as string | undefined;
 	if (!content || typeof content !== "string") return null;
 	return <Text fz={15}>{content}</Text>;
 }
-
-// === Bluesky richtext renderer (facet-aware) ===
 
 function BskyRichtextRenderer(comp: RichtextComponent) {
 	const text = comp.text as string | undefined;
@@ -65,7 +55,6 @@ function BskyRichtextRenderer(comp: RichtextComponent) {
 
 	if (!text || typeof text !== "string") return null;
 
-	// Dynamic import of the segmenter
 	const segmentize = requireSegmentize();
 	if (!segmentize) {
 		return <Text fz={15}>{text}</Text>;
@@ -82,13 +71,13 @@ function BskyRichtextRenderer(comp: RichtextComponent) {
 					for (const feature of segment.features) {
 						if (feature.$type === "app.bsky.richtext.facet#link" && feature.uri) {
 							content = (
-								<Text key={i} fz={15} c="Primary" style={{ textDecorationLine: "underline" }}>
+								<Text key={i} fz={15} c="Primary" tdl="underline">
 									{content}
 								</Text>
 							);
 						} else if (feature.$type === "app.bsky.richtext.facet#mention" && feature.did) {
 							content = (
-								<Text key={i} fz={15} c="Primary" style={{ textDecorationLine: "underline" }}>
+								<Text key={i} fz={15} c="Primary" tdl="underline">
 									{content}
 								</Text>
 							);
@@ -101,8 +90,6 @@ function BskyRichtextRenderer(comp: RichtextComponent) {
 		</Text>
 	);
 }
-
-// === Lazy import for segmenter (in case of runtime issues) ===
 
 let segmenterModule: any = null;
 

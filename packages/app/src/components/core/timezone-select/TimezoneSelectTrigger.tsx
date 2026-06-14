@@ -53,9 +53,11 @@ export const TimezoneSelectTrigger = ({
 					<Text fz={15} fw="600">
 						{value}
 					</Text>
-					<Text fz={12} c={Colors.TextDimmed} mt={1}>
-						{currentOffset}
-					</Text>
+					<Box mt={1}>
+						<Text fz={12} c={Colors.TextDimmed}>
+							{currentOffset}
+						</Text>
+					</Box>
 				</Box>
 			</Button>
 			{detectedTz !== value && (

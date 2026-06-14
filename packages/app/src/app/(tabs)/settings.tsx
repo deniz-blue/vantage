@@ -17,13 +17,13 @@ export default function Settings() {
 	const [jsonImportOpen, setJsonImportOpen] = useState(false);
 
 	return (
-		<ScrollView
-			style={{ flex: 1, backgroundColor: Colors.Background }}
-		>
+		<Box component={ScrollView} flex={1} bg={Colors.Background}>
 			<Box px="md" pt="md" gap="md">
-				<Text fz={24} fw="bold" mb="sm">
-					Settings
-				</Text>
+				<Box mb="sm">
+					<Text fz={24} fw="bold">
+						Settings
+					</Text>
+				</Box>
 
 				<LanguageSelect label="Language" value={language} onChange={setLanguage} />
 
@@ -55,6 +55,6 @@ export default function Settings() {
 					onClose={() => setJsonImportOpen(false)}
 				/>
 			</Box>
-		</ScrollView>
+		</Box>
 	);
 }

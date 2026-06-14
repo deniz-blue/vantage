@@ -1,4 +1,4 @@
-import { TouchableOpacity, Linking } from "react-native";
+import { Linking, TouchableOpacity } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { LinkComponent } from "@evnt/types";
 import { IconExternalLink } from "@tabler/icons-react-native";
@@ -22,19 +22,22 @@ export const EventDetailsLinks = () => {
 		<Box gap={Spacing.xs}>
 			<SmallTitle>Links</SmallTitle>
 			{links.map((link, i) => (
-				<TouchableOpacity
+				<Box
 					key={i}
+					component={TouchableOpacity}
+					direction="row"
+					gap={6}
+					align="center"
+					py={4}
 					onPress={() => Linking.openURL(link.url)}
 					disabled={link.disabled}
 				>
-					<Box direction="row" gap={6} align="center" py={4}>
-						{link.name
-							? <TransText fz={Sizing.fontSizeMd} value={link.name} />
-							: <Text fz={Sizing.fontSizeMd} numberOfLines={1}>{link.url}</Text>
-						}
-						<IconExternalLink size={14} color="TextDimmed" />
-					</Box>
-				</TouchableOpacity>
+					{link.name
+						? <TransText fz={Sizing.fontSizeMd} value={link.name} />
+						: <Text fz={Sizing.fontSizeMd} numberOfLines={1}>{link.url}</Text>
+					}
+					<IconExternalLink size={14} color="TextDimmed" />
+				</Box>
 			))}
 		</Box>
 	);

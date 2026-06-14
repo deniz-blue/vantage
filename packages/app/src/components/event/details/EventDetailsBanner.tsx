@@ -26,7 +26,7 @@ export const EventDetailsBanner = () => {
 				fz={28}
 				fw="bold"
 				value={data?.name}
-				fallback={<Text fz={16} style={{ fontStyle: "italic" }} c="TextDimmed">Untitled event</Text>}
+				fallback={<Text fz={16} fst="italic" c="TextDimmed">Untitled event</Text>}
 			/>
 			{data?.label && (
 				<TransText fz={Sizing.fontSizeMd} c="TextDimmed" value={data.label} />

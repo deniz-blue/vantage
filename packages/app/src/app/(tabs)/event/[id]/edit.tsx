@@ -16,9 +16,11 @@ export default function EditEventPage() {
 	if (!isLoading && !isError && resolved && !isLocal) {
 		return (
 			<Box flex={1} px="md" pt="md" align="center" justify="center">
-				<Text ta="center" mb="md">
-					This event is from a remote source and can't be edited here yet.
-				</Text>
+				<Box mb="md">
+					<Text ta="center">
+						This event is from a remote source and can't be edited here yet.
+					</Text>
+				</Box>
 				<Button onPress={() => router.back()}>Go Back</Button>
 			</Box>
 		);
@@ -28,7 +30,9 @@ export default function EditEventPage() {
 	if (!isLoading && isError) {
 		return (
 			<Box flex={1} px="md" pt="md" align="center" justify="center">
-				<Text ta="center" mb="md">Could not load event.</Text>
+				<Box mb="md">
+					<Text ta="center">Could not load event.</Text>
+				</Box>
 				<Button onPress={() => router.back()}>Go Back</Button>
 			</Box>
 		);
