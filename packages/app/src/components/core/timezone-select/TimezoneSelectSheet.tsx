@@ -1,10 +1,10 @@
 import { useCallback, useRef } from "react";
 import { LayoutChangeEvent, ScrollView, TouchableOpacity } from "react-native";
-import { Box } from "../base/Box";
-import { Divider } from "../base/Divider";
-import { Text } from "../base/Text";
-import { Sizing } from "../../theme/sizing";
-import { Colors } from "../../theme/colors";
+import { Box } from "../../base/Box";
+import { Divider } from "../../base/Divider";
+import { Text } from "../../base/Text";
+import { Sizing } from "../../../theme/sizing";
+import { Colors } from "../../../theme/colors";
 import { formatOffset } from "@vantage/intl";
 
 export interface TimezoneSelectSheetProps {

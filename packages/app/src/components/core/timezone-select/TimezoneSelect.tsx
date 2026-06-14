@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { InputWrapper, type InputWrapperProps } from "../base/InputWrapper";
-import { Sheet } from "../base/Sheet";
 import { TimezoneSelectTrigger } from "./TimezoneSelectTrigger";
 import { TimezoneSelectSheet } from "./TimezoneSelectSheet";
+import { InputWrapper, InputWrapperProps } from "../../base/InputWrapper";
+import { Sheet } from "../../base/Sheet";
 
 export interface TimezoneSelectProps
 	extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {

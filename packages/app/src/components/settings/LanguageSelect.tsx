@@ -11,7 +11,7 @@ import {
 	ComboboxSheet,
 	ComboboxSearch,
 	ComboboxList,
-} from "../combobox";
+} from "../base/combobox";
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;

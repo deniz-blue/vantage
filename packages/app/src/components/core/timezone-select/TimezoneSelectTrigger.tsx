@@ -1,11 +1,11 @@
 import { TouchableOpacity } from "react-native";
 import { IconWorld, IconChevronDown, IconArrowUp } from "@tabler/icons-react-native";
-import { Box } from "../base/Box";
-import { Text } from "../base/Text";
-import { ActionIcon } from "../base/ActionIcon";
-import { Button } from "../base/Button";
-import { Colors } from "../../theme/colors";
-import { Sizing } from "../../theme/sizing";
+import { Box } from "../../base/Box";
+import { Text } from "../../base/Text";
+import { ActionIcon } from "../../base/ActionIcon";
+import { Button } from "../../base/Button";
+import { Colors } from "../../../theme/colors";
+import { Sizing } from "../../../theme/sizing";
 import { formatOffset, getDetectedTz } from "@vantage/intl";
 
 export interface TimezoneSelectTriggerProps {
