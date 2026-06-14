@@ -1,17 +1,16 @@
 import { IconLanguage } from "@tabler/icons-react-native";
 import { Box } from "../base/Box";
+import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
+import { ActionIcon } from "../base/ActionIcon";
+import { InputWrapper, type InputWrapperProps } from "../base/InputWrapper";
 import {
 	Combobox,
 	ComboboxTrigger,
-	ComboboxIcon,
-	ComboboxBadge,
 	ComboboxSheet,
 	ComboboxSearch,
 	ComboboxList,
-} from "../base/Combobox";
-import { Colors } from "../../theme/colors";
-
+} from "../combobox";
 const LANGUAGES = [
 	"en", "es", "fr", "de", "pt", "ru", "ja", "ko", "zh", "ar",
 	"it", "nl", "pl", "sv", "da", "no", "fi", "cs", "hu", "ro",
@@ -19,14 +18,11 @@ const LANGUAGES = [
 	"sw", "tl", "ne", "si", "my", "km", "lo", "ka", "hy", "az",
 ] as const;
 
-const autonymDisplay = new Intl.DisplayNames([], { type: "language" });
-const englishDisplay = new Intl.DisplayNames("en", { type: "language" });
-
 const getAutonym = (code: string): string =>
-	autonymDisplay.of(code) || code;
+	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
 
 const getEnglishName = (code: string): string =>
-	englishDisplay.of(code) || code;
+	new Intl.DisplayNames("en", { type: "language" }).of(code) || code;
 
 const filter = (code: string, search: string): boolean => {
 	const q = search.toLowerCase();
@@ -39,9 +35,11 @@ const filter = (code: string, search: string): boolean => {
 
 const renderLanguageItem = (code: string, selected: boolean) => (
 	<>
-		<ComboboxBadge selected={selected}>
-			{code.toUpperCase()}
-		</ComboboxBadge>
+		<Box miw={36} h={36} radius={8} bg={selected ? Colors.Primary : Colors.BackgroundLight} align="center" justify="center" mr="md" px={8}>
+			<Text fz={12} fw="700" c={selected ? "#fff" : Colors.TextDimmed}>
+				{code.toUpperCase()}
+			</Text>
+		</Box>
 		<Box flex={1}>
 			<Text fz={15} fw={selected ? "600" : "400"}>
 				{getAutonym(code)}
@@ -53,22 +51,32 @@ const renderLanguageItem = (code: string, selected: boolean) => (
 	</>
 );
 
-export interface LanguageSelectProps {
+export interface LanguageSelectProps
+	extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
 	value: string;
 	onChange: (value: string) => void;
 }
 
-export const LanguageSelect = ({ value, onChange }: LanguageSelectProps) => {
+export const LanguageSelect = ({
+	label,
+	description,
+	error,
+	required,
+	value,
+	onChange,
+}: LanguageSelectProps) => {
 	return (
-		<Box>
-			<Text fz={13} c={Colors.TextDimmed} fw="600" mb={8} ml={2}>
-				Language
-			</Text>
+		<InputWrapper
+			label={label}
+			description={description}
+			error={error}
+			required={required}
+		>
 			<Combobox value={value} onChange={onChange}>
 				<ComboboxTrigger>
-					<ComboboxIcon>
+					<ActionIcon style={{ backgroundColor: Colors.PrimaryLight + "33", width: 40, height: 40, borderRadius: 10 }}>
 						<IconLanguage size={20} color={Colors.Primary} />
-					</ComboboxIcon>
+					</ActionIcon>
 					<Box flex={1}>
 						<Text fz={15} fw="600">
 							{getAutonym(value)}
@@ -87,6 +95,6 @@ export const LanguageSelect = ({ value, onChange }: LanguageSelectProps) => {
 					/>
 				</ComboboxSheet>
 			</Combobox>
-		</Box>
+		</InputWrapper>
 	);
 };

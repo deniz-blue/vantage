@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 import { IconWorld, IconChevronDown, IconArrowUp, IconArrowLeft } from "@tabler/icons-react-native";
 import { Box } from "./Box";
 import { Text } from "./Text";
 import { Button } from "./Button";
+import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Sheet } from "./Sheet";
 import { Colors } from "../../theme/colors";
 
@@ -92,7 +93,8 @@ const detectedTz = (() => {
 
 // === Props ===
 
-export interface TimezoneSelectProps {
+export interface TimezoneSelectProps
+	extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
 	value: string;
 	onChange: (value: string) => void;
 	variant?: "settings" | "form";
@@ -100,7 +102,15 @@ export interface TimezoneSelectProps {
 
 // === Component ===
 
-export const TimezoneSelect = ({ value, onChange, variant = "settings" }: TimezoneSelectProps) => {
+export const TimezoneSelect = ({
+	label,
+	description,
+	error,
+	required,
+	value,
+	onChange,
+	variant = "settings",
+}: TimezoneSelectProps) => {
 	const [open, setOpen] = useState(false);
 	const [region, setRegion] = useState<string | null>(null);
 
@@ -119,7 +129,7 @@ export const TimezoneSelect = ({ value, onChange, variant = "settings" }: Timezo
 
 	// === Trigger ===
 
-	const trigger =
+	const triggerBody =
 		variant === "form" ? (
 			<Button
 				variant="subtle"
@@ -281,7 +291,14 @@ export const TimezoneSelect = ({ value, onChange, variant = "settings" }: Timezo
 
 	return (
 		<>
-			{trigger}
+			<InputWrapper
+				label={label}
+				description={description}
+				error={error}
+				required={required}
+			>
+				{triggerBody}
+			</InputWrapper>
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
 				{sheetContent}

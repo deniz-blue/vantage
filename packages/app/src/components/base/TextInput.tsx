@@ -1,32 +1,31 @@
 import {
 	TextInput as RNTextInput,
 	type TextInputProps as RNTextInputProps,
-	View,
 } from "react-native";
-import { Text } from "./Text";
+import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Sizing } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
 import { Colors } from "../../theme/colors";
 
-export interface TextInputProps extends Omit<RNTextInputProps, "placeholderTextColor"> {
-	label?: string;
-	error?: string;
-}
+export interface TextInputProps
+	extends Omit<RNTextInputProps, "placeholderTextColor">,
+		Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {}
 
 export const TextInput = ({
 	label,
+	description,
 	error,
+	required,
 	style,
 	...rest
 }: TextInputProps) => {
 	return (
-		<View style={{ gap: 6 }}>
-			{label && (
-				<Text style={{ fontSize: 13, color: Colors.TextDimmed }}>
-					{label}
-				</Text>
-			)}
-
+		<InputWrapper
+			label={label}
+			description={description}
+			error={error}
+			required={required}
+		>
 			<RNTextInput
 				placeholderTextColor={Colors.TextDimmed}
 				style={[
@@ -44,12 +43,6 @@ export const TextInput = ({
 				]}
 				{...rest}
 			/>
-
-			{error && (
-				<Text style={{ fontSize: 12, color: "#f44336" }}>
-					{error}
-				</Text>
-			)}
-		</View>
+		</InputWrapper>
 	);
 };
