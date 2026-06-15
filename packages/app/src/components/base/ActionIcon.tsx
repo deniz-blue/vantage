@@ -4,15 +4,18 @@ import { Box, type BoxProps } from "./Box";
 import { Colors } from "../../theme/colors";
 import { Sizing } from "../../theme/sizing";
 
+export type ActionIconVariant = "light" | "subtle";
+
 export interface ActionIconProps extends BoxProps {
 	children: ReactNode;
 	color?: string;
 	disabled?: boolean;
 	onPress?: () => void;
+	variant?: ActionIconVariant;
 }
 
 export const ActionIcon = (props: ActionIconProps) => {
-	const { children, color = Colors.Primary, disabled, onPress, ...boxProps } = props;
+	const { children, color = Colors.Primary, disabled, onPress, variant = "light", ...boxProps } = props;
 
 	return (
 		<Box
@@ -20,7 +23,7 @@ export const ActionIcon = (props: ActionIconProps) => {
 			w={Sizing.md}
 			h={Sizing.md}
 			radius={Sizing.radiusSm}
-			bg={Colors.BackgroundLight}
+			bg={variant === "light" ? Colors.BackgroundLight : undefined}
 			align="center"
 			justify="center"
 			op={disabled ? 0.4 : undefined}

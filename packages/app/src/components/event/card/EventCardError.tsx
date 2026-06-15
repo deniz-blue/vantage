@@ -10,7 +10,7 @@ export const EventCardError = () => {
 
 	return (
 		<Box direction="row" gap={4} mt={4}>
-			<Text fz={Sizing.fontSizeSm} c="Red">
+			<Text fz={Sizing.fontSizeMd} c="Red">
 				{error.kind ?? "error"}: {error.message}
 			</Text>
 		</Box>

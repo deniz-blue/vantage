@@ -1,9 +1,9 @@
 import { useLocalSearchParams, Stack, useRouter } from "expo-router";
 import { useEventQuery } from "@vantage/core";
-import { Box } from "../../../../components/base/Box";
-import { Text } from "../../../../components/base/Text";
-import { Button } from "../../../../components/base/Button";
-import { Colors } from "../../../../theme/colors";
+import { Box } from "@/components/base/Box";
+import { Text } from "@/components/base/Text";
+import { Button } from "@/components/base/Button";
+import { Colors } from "@/theme/colors";
 
 export default function EditEventPage() {
 	const { id } = useLocalSearchParams<{ id: string }>();

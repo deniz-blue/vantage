@@ -7,7 +7,7 @@
 		"@ecrindigital/facetpack": "^0.2.0",
 		"@evnt/convert": "^0.1.0",
 		"@evnt/partial-date": "^0.1.0",
-		"@evnt/pretty": "^0.1.0",
+		"@evnt/pretty": "^0.1.1",
 		"@evnt/schema": "^0.1.0",
 		"@evnt/translations": "^0.1.0",
 		"@evnt/types": "^0.1.0",

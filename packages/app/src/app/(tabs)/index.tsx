@@ -13,7 +13,7 @@ export default function IndexPage() {
 					Vantage
 				</Text>
 				<Text fz={13} c="TextDimmed">
-					Event management
+					An open-source event calendar for everyone
 				</Text>
 			</Box>
 

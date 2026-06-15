@@ -18,11 +18,12 @@ export const Sizing = {
 	radiusSm: 8,
 	radiusMd: 10,
 	radiusLg: 12,
+	radiusXl: 16,
 
 	// === Font sizes ===
-	fontSizeSm: 13,
-	fontSizeMd: 15,
-	fontSizeLg: 17,
+	fontSizeSm: 14,
+	fontSizeMd: 16,
+	fontSizeLg: 18,
 
 	// === Icon sizes inside buttons / action icons ===
 	iconSm: 16,

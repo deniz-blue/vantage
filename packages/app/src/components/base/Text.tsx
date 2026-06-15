@@ -1,6 +1,7 @@
 import type { TextStyle } from "react-native";
 import { TextProps as RNTextProps, Text as RNText } from "react-native";
 import { Colors, getThemeColor, type ThemeColor } from "../../theme/colors";
+import { Sizing } from "../../theme/sizing";
 
 export interface TextProps extends RNTextProps {
 	c?: ThemeColor;
@@ -33,7 +34,7 @@ export const Text = (props: TextProps) => {
 				{
 					fontFamily: "Lexend",
 					color: c ? getThemeColor(c) : Colors.Text,
-					fontSize: fz,
+					fontSize: fz ?? Sizing.fontSizeMd,
 					fontWeight: fw,
 					fontStyle: fst,
 					textAlign: ta,

@@ -20,10 +20,18 @@ export default function RootLayout() {
 				}}
 			>
 				<Stack screenOptions={{
-						contentStyle: { backgroundColor: Colors.Background },
-					}}>
+					contentStyle: { backgroundColor: Colors.Background },
+				}}>
 					<Stack.Screen
 						name="(tabs)"
+						options={{ headerShown: false }}
+					/>
+					<Stack.Screen
+						name="event/[id]"
+						options={{ headerShown: false }}
+					/>
+					<Stack.Screen
+						name="event/[id]/edit"
 						options={{ headerShown: false }}
 					/>
 				</Stack>
