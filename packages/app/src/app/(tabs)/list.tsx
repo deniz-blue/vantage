@@ -10,6 +10,7 @@ import { Fab } from "../../components/base/Fab";
 import { EventCard } from "../../components/event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { Spacing } from "../../theme/spacing";
+import { Container } from "../../components/base/Container";
 
 const FAB_SIZE = 56;
 
@@ -60,46 +61,50 @@ export default function List() {
 	}
 
 	return (
-		<Box flex={1} px="md">
+		<Box flex={1}>
 			<Box component={ScrollView} flex={1} onScroll={handleScroll} scrollEventThrottle={THROTTLE_MS}>
 				<Box pt="md" pb={FAB_SIZE + Spacing.md} gap={Spacing.sm}>
-					<Box pb={4}>
+					<Container size="lg" pb={4}>
 						<Text fz={24} fw="bold">
 							Events
 						</Text>
 						<Text fz={13} c={Colors.TextDimmed}>
 							{events.length} event{events.length !== 1 ? "s" : ""}
 						</Text>
-					</Box>
+					</Container>
 
-					{(() => {
-						const cols: (typeof events)[] = Array.from({ length: numColumns }, () => []);
-						events.forEach((item, i) => cols[i % numColumns].push(item));
-						return (
-							<Box direction="row" gap={gap}>
-								{cols.map((col, ci) => (
-									<Box key={ci} w={colW} gap={gap}>
-										{col.map((item, ii) => {
-											const eventId = item.data?.id;
-											return (
-												<ResolvedEventContext.Provider key={`${ci}-${ii}`} value={item.data ?? null}>
-													<EventCard
-														onPress={eventId ? () => router.push(`/event/${eventId}`) : undefined}
-													/>
-												</ResolvedEventContext.Provider>
-											);
-										})}
-									</Box>
-								))}
+					<Box px="md">
+						{(() => {
+							const cols: (typeof events)[] = Array.from({ length: numColumns }, () => []);
+							events.forEach((item, i) => cols[i % numColumns].push(item));
+							return (
+								<Box direction="row" gap={gap}>
+									{cols.map((col, ci) => (
+										<Box key={ci} w={colW} gap={gap}>
+											{col.map((item, ii) => {
+												const eventId = item.data?.id;
+												return (
+													<ResolvedEventContext.Provider key={`${ci}-${ii}`} value={item.data ?? null}>
+														<Box>
+															<EventCard
+																onPress={eventId ? () => router.push(`/event/${eventId}`) : undefined}
+															/>
+														</Box>
+													</ResolvedEventContext.Provider>
+												);
+											})}
+										</Box>
+									))}
+								</Box>
+							);
+						})()}
+
+						{isFetchingNextPage && (
+							<Box p="md" align="center">
+								<Loader size="small" />
 							</Box>
-						);
-					})()}
-
-					{isFetchingNextPage && (
-						<Box p="md" align="center">
-							<Loader size="small" />
-						</Box>
-					)}
+						)}
+					</Box>
 				</Box>
 			</Box>
 

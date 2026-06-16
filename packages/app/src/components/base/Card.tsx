@@ -1,14 +1,9 @@
 import type { ReactNode } from "react";
-import type { ViewStyle } from "react-native";
-import { Box, type Spacing } from "./Box";
+import { Box, type BoxProps } from "./Box";
 import { Colors } from "../../theme/colors";
 
-export interface CardProps {
+export interface CardProps extends BoxProps {
 	children: ReactNode;
-	p?: Spacing;
-	radius?: number;
-	bg?: string;
-	style?: ViewStyle;
 }
 
 export const Card = ({
@@ -17,8 +12,9 @@ export const Card = ({
 	radius = 8,
 	bg = Colors.BackgroundLight,
 	style,
+	...rest
 }: CardProps) => (
-	<Box bg={bg} radius={radius} p={p} style={style}>
+	<Box bg={bg} radius={radius} p={p} style={style} {...rest}>
 		{children}
 	</Box>
 );

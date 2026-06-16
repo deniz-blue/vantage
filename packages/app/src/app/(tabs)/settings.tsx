@@ -8,6 +8,7 @@ import { JsonImportSheet } from "../../components/dev/JsonImportSheet";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { Colors } from "../../theme/colors";
 import { TimezoneSelect } from "../../components/core/timezone-select";
+import { Container } from "../../components/base/Container";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
@@ -18,7 +19,7 @@ export default function Settings() {
 
 	return (
 		<Box component={ScrollView} flex={1} bg={Colors.Background}>
-			<Box px="md" pt="md" gap="md">
+			<Container size="lg" py="md" gap="md">
 				<Box mb="sm">
 					<Text fz={24} fw="bold">
 						Settings
@@ -54,7 +55,7 @@ export default function Settings() {
 					open={jsonImportOpen}
 					onClose={() => setJsonImportOpen(false)}
 				/>
-			</Box>
+			</Container>
 		</Box>
 	);
 }

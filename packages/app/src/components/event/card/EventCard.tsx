@@ -9,8 +9,8 @@ export interface EventCardProps {
 }
 
 export const EventCard = ({ onPress }: EventCardProps) => (
-	<Box component={TouchableOpacity} onPress={onPress} disabled={!onPress} activeOpacity={0.7}>
-		<Card>
+	<Box component={TouchableOpacity} onPress={onPress} disabled={!onPress} activeOpacity={0.7} flex={1}>
+		<Card flex={1}>
 			<Box direction="row" align="center" gap={6}>
 				<EventCardTitle />
 			</Box>
