@@ -1,18 +1,12 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { LayoutChangeEvent, ScrollView, TouchableOpacity } from "react-native";
+import { useComboboxCtx } from "../../base/combobox";
 import { Box } from "../../base/Box";
 import { Divider } from "../../base/Divider";
 import { Text } from "../../base/Text";
-import { Sizing } from "../../../theme/sizing";
+import { Sizing, FontSize } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
 import { formatOffset } from "@vantage/intl";
-
-export interface TimezoneSelectSheetProps {
-	value: string;
-	region: string | null;
-	onSelect: (tz: string) => void;
-	onSelectRegion: (region: string) => void;
-}
 
 const RegionRow = ({ region, selected, onPress, onLayout }: { region: string; selected: boolean; onPress: () => void; onLayout?: (e: LayoutChangeEvent) => void }) => (
 	<Box
@@ -25,7 +19,7 @@ const RegionRow = ({ region, selected, onPress, onLayout }: { region: string; se
 		onLayout={selected ? onLayout : undefined}
 	>
 		<TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-			<Text fz={Sizing.fontSizeMd} fw={selected ? "600" : "500"}>{region}</Text>
+			<Text fz={FontSize.md} fw={selected ? "600" : "500"}>{region}</Text>
 		</TouchableOpacity>
 	</Box>
 );
@@ -50,12 +44,12 @@ const TimezoneRow = ({ tz, selected, onPress, onLayout }: { tz: string; selected
 				style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
 			>
 				<Box miw={52} align="flex-end">
-					<Text fz={Sizing.fontSizeSm} fw="700" c={selected ? Colors.Primary : Colors.TextDimmed}>
+					<Text fz={FontSize.sm} fw="700" c={selected ? Colors.Primary : Colors.TextDimmed}>
 						{offset || "—"}
 					</Text>
 				</Box>
 				<Box flex={1}>
-					<Text fz={Sizing.fontSizeMd - 1} fw={selected ? "600" : "400"} numberOfLines={1}>
+					<Text fz={FontSize.md - 1} fw={selected ? "600" : "400"} numberOfLines={1}>
 						{sub}
 					</Text>
 				</Box>
@@ -79,14 +73,16 @@ const timezonesInRegion = (region: string): readonly string[] =>
 		? allTz.filter((tz) => !tz.includes("/"))
 		: allTz.filter((tz) => tz.startsWith(region + "/"));
 
-export const TimezoneSelectSheet = ({
-	value,
-	region,
-	onSelect,
-	onSelectRegion,
-}: TimezoneSelectSheetProps) => {
-	const activeRegion = region ?? (value.includes("/") ? value.split("/")[0]! : "Other");
-	const tzList = timezonesInRegion(activeRegion);
+export const TimezoneSelectSheet = () => {
+	const ctx = useComboboxCtx<string>();
+	const [region, setRegion] = useState<string | null>(null);
+
+	const activeRegion = region ?? (ctx.value.includes("/") ? ctx.value.split("/")[0]! : "Other");
+	const tzList = timezonesInRegion(activeRegion).filter((tz) => {
+		if (!ctx.search.trim()) return true;
+		const q = ctx.search.toLowerCase();
+		return tz.toLowerCase().includes(q) || formatOffset(tz).toLowerCase().includes(q);
+	});
 
 	const regionScrollRef = useRef<ScrollView>(null);
 	const tzScrollRef = useRef<ScrollView>(null);
@@ -105,6 +101,14 @@ export const TimezoneSelectSheet = ({
 		[],
 	);
 
+	const onTzSelect = useCallback(
+		(tz: string) => {
+			ctx.onChange(tz);
+			ctx.close();
+		},
+		[ctx],
+	);
+
 	return (
 		<Box direction="row" flex={1}>
 			<Box flex={1}>
@@ -118,7 +122,7 @@ export const TimezoneSelectSheet = ({
 								key={item}
 								region={item}
 								selected={item === activeRegion}
-								onPress={() => onSelectRegion(item)}
+								onPress={() => setRegion(item)}
 								onLayout={onRegionLayout}
 							/>
 						))}
@@ -135,15 +139,21 @@ export const TimezoneSelectSheet = ({
 					contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
 				>
 					<Box px={4} py={4} gap={2}>
-						{tzList.map((item) => (
-							<TimezoneRow
-								key={item}
-								tz={item}
-								selected={item === value}
-								onPress={() => onSelect(item)}
-								onLayout={onTzLayout}
-							/>
-						))}
+						{tzList.length === 0 ? (
+							<Box align="center" justify="center" py="xl">
+								<Text fz={FontSize.sm} c="TextDimmed">No matching timezones</Text>
+							</Box>
+						) : (
+							tzList.map((item) => (
+								<TimezoneRow
+									key={item}
+									tz={item}
+									selected={item === ctx.value}
+									onPress={() => onTzSelect(item)}
+									onLayout={onTzLayout}
+								/>
+							))
+						)}
 					</Box>
 				</ScrollView>
 			</Box>

@@ -12,6 +12,7 @@ import { Colors } from "../../theme/colors";
 const HANDLE_HEIGHT = 28;
 const WIDE_BREAKPOINT = 640;
 const MAX_SHEET_WIDTH = 420;
+const ANIMATION_DURATION = 100;
 
 export interface SheetProps {
 	children: ReactNode;
@@ -46,7 +47,7 @@ export const Sheet = ({
 			slideAnim.setValue(1);
 			Animated.timing(slideAnim, {
 				toValue: 0,
-				duration: 300,
+				duration: ANIMATION_DURATION,
 				useNativeDriver: true,
 			}).start();
 
@@ -67,7 +68,7 @@ export const Sheet = ({
 			// Animate down, then unmount
 			Animated.timing(slideAnim, {
 				toValue: 1,
-				duration: 200,
+				duration: ANIMATION_DURATION,
 				useNativeDriver: true,
 			}).start(() => {
 				setRendered(false);

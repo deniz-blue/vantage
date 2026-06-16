@@ -9,6 +9,7 @@ import { useLocaleStore } from "../../stores/useLocaleStore";
 import { Colors } from "../../theme/colors";
 import { TimezoneSelect } from "../../components/core/timezone-select";
 import { Container } from "../../components/base/Container";
+import { FontSize } from "../../theme/sizing";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
@@ -21,18 +22,18 @@ export default function Settings() {
 		<Box component={ScrollView} flex={1} bg={Colors.Background}>
 			<Container size="lg" py="md" gap="md">
 				<Box mb="sm">
-					<Text fz={24} fw="bold">
+					<Text fz={FontSize.h1} fw="bold">
 						Settings
 					</Text>
 				</Box>
 
-				<LanguageSelect label="Language" value={language} onChange={setLanguage} />
+				<LanguageSelect label="Content Language" value={language} onChange={setLanguage} />
 
 				<TimezoneSelect label="Timezone" value={timezone} onChange={setTimezone} />
 
 				<Divider my="md" />
 
-				<Text fz={13} c={Colors.TextDimmed} fw="600">
+				<Text c={Colors.TextDimmed} fw="600">
 					Developer
 				</Text>
 
@@ -46,8 +47,10 @@ export default function Settings() {
 						align="center"
 						gap={8}
 					>
-						<Text fz={14}>Import JSON</Text>
-						<Text fz={12} c="TextDimmed">Paste an OpenEvnt event as JSON</Text>
+						<Text fz={FontSize.xs}>Import JSON</Text>
+						<Text fz={FontSize.xs} c="TextDimmed">
+							Paste an OpenEvnt event as JSON
+						</Text>
 					</Box>
 				</TouchableOpacity>
 

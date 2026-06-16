@@ -3,13 +3,13 @@ import {
 	type TextInputProps as RNTextInputProps,
 } from "react-native";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
-import { Sizing } from "../../theme/sizing";
+import { FontSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
 import { Colors } from "../../theme/colors";
 
 export interface TextInputProps
 	extends Omit<RNTextInputProps, "placeholderTextColor">,
-		Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {}
+	Pick<InputWrapperProps, "label" | "description" | "error" | "required"> { }
 
 export const TextInput = ({
 	label,
@@ -32,10 +32,11 @@ export const TextInput = ({
 					{
 						backgroundColor: Colors.BackgroundLight,
 						color: Colors.Text,
-						borderRadius: Spacing.Radius,
-						paddingHorizontal: Sizing.inputPaddingH,
-						paddingVertical: Sizing.inputPaddingV,
-						fontSize: Sizing.inputFontSize,
+						borderRadius: Radius.Default,
+						paddingHorizontal: Spacing.sm,
+						paddingVertical: Spacing.xs,
+						fontSize: FontSize.md,
+						fontFamily: "Lexend",
 						borderWidth: 1,
 						borderColor: error ? "#f44336" : "transparent",
 					},

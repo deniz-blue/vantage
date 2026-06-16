@@ -1,3 +1,6 @@
+import { Radius } from "./sizing";
+
+export type ThemeSpacing = keyof typeof Spacing;
 export const Spacing = {
 	xs: 4,
 	sm: 8,
@@ -5,8 +8,8 @@ export const Spacing = {
 	lg: 24,
 	xl: 32,
 
-	/** Default border radius for inputs, cards, etc */
-	Radius: 8,
+	Radius: Radius.Default,
 } as const;
 
+/** @deprecated */
 export type SpacingName = keyof typeof Spacing;

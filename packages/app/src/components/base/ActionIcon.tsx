@@ -19,7 +19,7 @@ export const ActionIcon = (props: ActionIconProps) => {
 
 	return (
 		<Box
-			component={TouchableOpacity}
+			component={onPress ? TouchableOpacity : undefined}
 			w={Sizing.md}
 			h={Sizing.md}
 			radius={Sizing.radiusSm}
