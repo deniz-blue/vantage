@@ -8,13 +8,18 @@ export interface CardProps extends BoxProps {
 
 export const Card = ({
 	children,
-	p = "md",
+	p = "sm",
 	radius = 8,
-	bg = Colors.BackgroundLight,
 	style,
 	...rest
 }: CardProps) => (
-	<Box bg={bg} radius={radius} p={p} style={style} {...rest}>
+	<Box radius={radius} p={p} style={[
+		{
+			borderWidth: 1,
+			borderColor: Colors.Dark4,
+		},
+		style,
+	]} {...rest}>
 		{children}
 	</Box>
 );

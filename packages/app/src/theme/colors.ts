@@ -29,6 +29,7 @@ export const Colors = {
 	...Palette,
 	Background: Palette.Dark7,
 	BackgroundLight: Palette.Dark6,
+	BackgroundInput: Palette.Dark6,
 	Primary: Palette.Grape7,
 	PrimaryLight: Palette.Grape6,
 	Text: Palette.Dark0,

@@ -2,7 +2,7 @@ import { useResolvedEvent } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
-import { Sizing } from "../../../theme/sizing";
+import { Sizing, FontSize } from "../../../theme/sizing";
 import { useRouter } from "expo-router";
 import { ActionIcon } from "../../base/ActionIcon";
 import { IconArrowLeft } from "@tabler/icons-react-native";
@@ -41,7 +41,7 @@ export const EventDetailsBanner = () => {
 					fallback={<Text fz={16} fst="italic" c="TextDimmed">Untitled event</Text>}
 				/>
 				{data?.label && (
-					<TransText fz={Sizing.fontSizeMd} c="TextDimmed" value={data.label} />
+					<TransText fz={FontSize.md} c="TextDimmed" value={data.label} />
 				)}
 			</Box>
 		</Box>

@@ -5,7 +5,7 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TouchableOpacity } from "react-native";
 import { IconPencil, IconShare, IconReload } from "@tabler/icons-react-native";
-import { Sizing } from "../../../theme/sizing";
+import { Sizing, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 
 export const EventDetailsActions = () => {
@@ -68,6 +68,6 @@ const ActionButton = ({
 		disabled={disabled || !onPress}
 	>
 		{icon}
-		<Text fz={Sizing.fontSizeSm}>{label}</Text>
+		<Text fz={FontSize.sm}>{label}</Text>
 	</Box>
 );

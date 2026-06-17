@@ -32,7 +32,7 @@ export const StatusPicker = ({
 
 	return (
 		<Combobox value={value ?? "planned"} onChange={onChange}>
-			<InputWrapper label="Status" description="The current status of the event">
+			<InputWrapper label="Status">
 				<ComboboxTrigger>
 					<Box direction="row" align="center" gap="sm">
 						<Icon {...iconProps} />

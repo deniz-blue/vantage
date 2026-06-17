@@ -3,6 +3,8 @@ import { Editor } from "../useEditor";
 import { InputWrapper, InputWrapperProps } from "../../../base/InputWrapper";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { TextInput } from "../../../base/TextInput";
+import { ActionIcon } from "../../../base/ActionIcon";
+import { IconLanguage } from "@tabler/icons-react-native";
 
 export const TranslationsInput = ({
 	editor,
@@ -19,6 +21,14 @@ export const TranslationsInput = ({
 			<TextInput
 				value={editor.value[userLanguage] || ""}
 				onChangeText={text => editor.update(d => { d[userLanguage] = text })}
+				rightSection={(
+					<ActionIcon
+						size="sm"
+						variant="light"
+					>
+						<IconLanguage size={20} />
+					</ActionIcon>
+				)}
 			/>
 		</InputWrapper>
 	);

@@ -15,8 +15,15 @@ export interface DividerProps extends BoxProps {
 	rightSection?: ReactNode;
 }
 
-const Line = ({ color, thickness }: { color: string; thickness: number }) => (
-	<Box h={thickness} flex={1} bg={color} />
+const Line = ({
+	color,
+	thickness,
+	...rest
+}: {
+	color: string;
+	thickness: number;
+} & BoxProps) => (
+	<Box h={thickness} flex={1} bg={color} {...rest} />
 );
 
 export const Divider = ({
@@ -39,13 +46,11 @@ export const Divider = ({
 	}
 
 	return (
-		<Box direction="row" align="center" gap="sm" my={my ?? "sm"} {...rest}>
+		<Box direction="row" align="center" my={my ?? "sm"} {...rest}>
 			{leftSection}
-			{leftSection && <Line color={color} thickness={thickness} />}
-			{label && <Line color={color} thickness={thickness} />}
+			<Line color={color} thickness={thickness} ml={leftSection ? "sm" : undefined} mr={label ? "sm" : undefined} />
 			{label}
-			{label && <Line color={color} thickness={thickness} />}
-			{rightSection && <Line color={color} thickness={thickness} />}
+			<Line color={color} thickness={thickness} ml={label ? "sm" : undefined} mr={rightSection ? "sm" : undefined} />
 			{rightSection}
 		</Box>
 	);

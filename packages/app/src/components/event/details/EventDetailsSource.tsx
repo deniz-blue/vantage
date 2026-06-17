@@ -4,7 +4,7 @@ import type { SourceComponent } from "@evnt/types";
 import { IconExternalLink, IconQuestionMark, IconDatabase, IconWorld, IconBraces, IconAt, IconBrandWikipedia } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
-import { Sizing } from "../../../theme/sizing";
+import { Sizing, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
 
@@ -23,7 +23,7 @@ export const EventDetailsSource = () => {
 				<TouchableOpacity key={i} onPress={() => Linking.openURL(comp.url)}>
 					<Box direction="row" gap={6} align="center" py={4}>
 						<IconExternalLink size={16} />
-						<Text fz={Sizing.fontSizeMd}>Source {sourceComponents.length > 1 ? i + 1 : ""}</Text>
+						<Text fz={FontSize.md}>Source {sourceComponents.length > 1 ? i + 1 : ""}</Text>
 					</Box>
 				</TouchableOpacity>
 			))}
@@ -56,7 +56,7 @@ const sourceLabels: Record<string, string> = {
 const SourceRow = ({ type }: { type: string }) => (
 	<Box direction="row" gap={8} align="center" py={2}>
 		{sourceIcons[type] ?? <IconQuestionMark size={20} />}
-		<Text fz={Sizing.fontSizeMd}>{sourceLabels[type] ?? type}</Text>
+		<Text fz={FontSize.md}>{sourceLabels[type] ?? type}</Text>
 	</Box>
 );
 
@@ -77,6 +77,6 @@ const formatLabels: Record<string, string> = {
 const FormatRow = ({ type }: { type: string }) => (
 	<Box direction="row" gap={8} align="center" py={2}>
 		{formatIcons[type] ?? <IconQuestionMark size={20} />}
-		<Text fz={Sizing.fontSizeMd}>{formatLabels[type] ?? type}</Text>
+		<Text fz={FontSize.md}>{formatLabels[type] ?? type}</Text>
 	</Box>
 );

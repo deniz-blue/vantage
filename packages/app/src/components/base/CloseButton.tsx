@@ -1,0 +1,26 @@
+import { TouchableOpacity } from "react-native";
+import { Box, BoxProps } from "./Box";
+import { IconX } from "@tabler/icons-react-native";
+import { Colors } from "../../theme/colors";
+
+export interface CloseButtonProps extends Omit<BoxProps, "children"> {
+	onPress?: () => void;
+};
+
+export const CloseButton = ({
+	onPress,
+	...rest
+}: CloseButtonProps) => {
+	return (
+		<Box
+			component={onPress ? TouchableOpacity : undefined}
+			align="center"
+			justify="center"
+			activeOpacity={0.7}
+			onPress={onPress}
+			{...rest as any}
+		>
+			<IconX size={16} color={Colors.TextDimmed} />
+		</Box>
+	);
+};

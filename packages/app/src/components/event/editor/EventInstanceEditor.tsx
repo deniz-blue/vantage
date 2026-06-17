@@ -1,0 +1,44 @@
+import { EventInstance } from "@evnt/types";
+import { formatDate, formatTime } from "@evnt/pretty";
+import { Box } from "../../base/Box";
+import { Editor } from "./useEditor";
+import { Card } from "../../base/Card";
+import { IconCalendar } from "@tabler/icons-react-native";
+import { CloseButton } from "../../base/CloseButton";
+import { Colors } from "../../../theme/colors";
+import { Text } from "../../base/Text";
+import { FontSize } from "../../../theme/sizing";
+import { useLocaleStore } from "../../../stores/useLocaleStore";
+
+export const EventInstanceEditor = ({
+	editor,
+	onDelete,
+}: {
+	editor: Editor<EventInstance>;
+	onDelete?: () => void;
+}) => {
+	const userLanguage = useLocaleStore(s => s.language);
+	const userTimezone = useLocaleStore(s => s.timezone);
+
+	const config = {
+		language: userLanguage,
+		timezone: userTimezone,
+		compactDates: true,
+	};
+
+	return (
+		<Card>
+			<Box direction="row">
+				<Box flex={1} gap="xs" direction="row">
+					<IconCalendar size={16} color={Colors.TextDimmed} />
+					<Text c="TextDimmed" fz={FontSize.sm}>
+						{editor.value.start ? formatDate(editor.value.start, config) : "Unspecified Date"}
+					</Text>
+				</Box>
+				<Box>
+					<CloseButton onPress={onDelete} />
+				</Box>
+			</Box>
+		</Card>
+	)
+};

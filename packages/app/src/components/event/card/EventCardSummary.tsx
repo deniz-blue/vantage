@@ -6,7 +6,7 @@ import { Text } from "../../base/Text";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { IconCalendar, IconClock } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
-import { Sizing } from "../../../theme/sizing";
+import { FontSize, IconSize } from "../../../theme/sizing";
 
 
 const MAX_VISIBLE = 3;
@@ -50,15 +50,15 @@ export const EventCardSummary = () => {
 				return (
 					<Box key={i} gap={2}>
 						<Box direction="row" gap={4}>
-							<IconCalendar size={Sizing.iconMd} color={Colors.Text} />
-							<Text fz={Sizing.fontSizeMd} numberOfLines={1}>
+							<IconCalendar size={IconSize.md} color={Colors.Text} />
+							<Text fz={FontSize.md} numberOfLines={1}>
 								{date}
 							</Text>
 						</Box>
 						{!!time && (
 							<Box direction="row" gap={4}>
-								<IconClock size={Sizing.iconMd} color={Colors.Text} />
-								<Text fz={Sizing.fontSizeMd} numberOfLines={1}>
+								<IconClock size={IconSize.md} color={Colors.Text} />
+								<Text fz={FontSize.md} numberOfLines={1}>
 									{time}
 								</Text>
 							</Box>
@@ -69,8 +69,8 @@ export const EventCardSummary = () => {
 
 			{(overflow > 0) && (
 				<Box direction="row" gap={4}>
-					<IconCalendar size={Sizing.iconMd} color={Colors.Text} />
-					<Text fz={Sizing.fontSizeMd} fst="italic">
+					<IconCalendar size={IconSize.md} color={Colors.Text} />
+					<Text fz={FontSize.md} fst="italic">
 						+{overflow} more
 					</Text>
 				</Box>

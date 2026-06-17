@@ -4,7 +4,7 @@ import { useComboboxCtx } from "../../base/combobox";
 import { Box } from "../../base/Box";
 import { Divider } from "../../base/Divider";
 import { Text } from "../../base/Text";
-import { Sizing, FontSize } from "../../../theme/sizing";
+import { FontSize, Radius } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
 import { formatOffset } from "@vantage/intl";
 
@@ -14,7 +14,7 @@ const RegionRow = ({ region, selected, onPress, onLayout }: { region: string; se
 		py={12}
 		mx="xs"
 		my={2}
-		radius={Sizing.radiusSm}
+		radius={Radius.sm}
 		bg={selected ? Colors.Primary + "22" : undefined}
 		onLayout={selected ? onLayout : undefined}
 	>

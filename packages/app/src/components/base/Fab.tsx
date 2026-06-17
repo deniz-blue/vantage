@@ -2,7 +2,7 @@ import { type ViewStyle } from "react-native";
 import { IconPlus } from "@tabler/icons-react-native";
 import { ActionIcon, type ActionIconProps } from "./ActionIcon";
 import { resolveColor } from "../../theme/colors";
-import { Sizing } from "../../theme/sizing";
+import { Radius } from "../../theme/sizing";
 
 export interface FabProps extends Omit<ActionIconProps, "children"> {
 	icon?: React.ReactNode;
@@ -25,7 +25,7 @@ export const Fab = ({ icon, color = "Primary", size = 56, style, ...rest }: FabP
 		bottom={16}
 		w={size}
 		h={size}
-		radius={Sizing.radiusXl}
+		radius={Radius.xl}
 		bg={resolveColor(color)}
 		style={[shadow, style]}
 		{...(rest as any)}

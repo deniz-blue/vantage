@@ -4,7 +4,7 @@ import { useEventListQuery, ResolvedEventContext } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { EventCard } from "../../event/card/EventCard";
-import { Sizing } from "../../../theme/sizing";
+import { Sizing, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { Divider } from "../../base/Divider";
 
@@ -32,7 +32,7 @@ export const WidgetUpcomingEvents = () => {
 
 			{events.length === 0 ? (
 				<Box py="md" align="center">
-					<Text fz={Sizing.fontSizeSm} c="TextDimmed">No upcoming events</Text>
+					<Text fz={FontSize.sm} c="TextDimmed">No upcoming events</Text>
 				</Box>
 			) : (
 				<Box component={ScrollView} horizontal>

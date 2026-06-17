@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { Divider } from "../../base/Divider";
-import { Sizing } from "../../../theme/sizing";
+import { FontSize, Radius } from "../../../theme/sizing";
 
 export namespace WttrIn {
 	export interface Response {
@@ -105,14 +105,14 @@ export const WidgetWttrIn = () => {
 
 	return (
 		<Box gap="sm">
-			<Divider px="md" label={<Text fz={Sizing.fontSizeSm} c="TextDimmed" fw="bold">Weather</Text>} />
+			<Divider px="md" label={<Text fz={FontSize.sm} c="TextDimmed" fw="bold">Weather</Text>} />
 
-			<Box bg="BackgroundLight" radius={Sizing.radiusSm} p="sm" gap="sm" mx="md">
+			<Box bg="BackgroundLight" radius={Radius.sm} p="sm" gap="sm" mx="md">
 				<Box direction="row" gap="sm" align="center">
 					<Box
 						w={48}
 						h={48}
-						radius={Sizing.radiusSm}
+						radius={Radius.sm}
 						bg="Background"
 						align="center"
 						justify="center"
@@ -120,10 +120,10 @@ export const WidgetWttrIn = () => {
 						<Text fz={28}>{current ? codeToEmoji(current.weatherCode) : "—"}</Text>
 					</Box>
 					<Box flex={1} gap={2}>
-						<Text fz={Sizing.fontSizeSm} fw="bold">
+						<Text fz={FontSize.sm} fw="bold">
 							{location || "Weather"}
 						</Text>
-						<Text fz={Sizing.fontSizeSm} c="TextDimmed">
+						<Text fz={FontSize.sm} c="TextDimmed">
 							{current
 								? `${current.weatherDesc[0].value}, ${temp}°C${feelsNote}`
 								: query.isLoading
@@ -144,7 +144,7 @@ export const WidgetWttrIn = () => {
 								align="center"
 								gap={4}
 								bg="BackgroundLight"
-								radius={Sizing.radiusSm}
+								radius={Radius.sm}
 								py="xs"
 								w={48}
 							>
@@ -152,7 +152,7 @@ export const WidgetWttrIn = () => {
 									{formatTime24(hour.time)}
 								</Text>
 								<Text fz={20}>{codeToEmoji(hour.weatherCode)}</Text>
-								<Text fz={Sizing.fontSizeSm}>{hour.tempC}°</Text>
+								<Text fz={FontSize.sm}>{hour.tempC}°</Text>
 							</Box>
 						))}
 					</Box>

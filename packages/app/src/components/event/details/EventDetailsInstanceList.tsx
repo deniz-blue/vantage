@@ -9,7 +9,7 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
-import { Sizing } from "../../../theme/sizing";
+import { Sizing, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 
 export const EventDetailsInstanceList = () => {
@@ -70,7 +70,7 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		return (
 			<MiniBoxSnippet
 				icon={<IconCalendarQuestion size={20} />}
-				title={<Text fz={Sizing.fontSizeMd}>Unknown date</Text>}
+				title={<Text fz={FontSize.md}>Unknown date</Text>}
 			/>
 		);
 	}
@@ -113,11 +113,11 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 				const startTime = PartialDateUtil.asPlainDateTime(PartialDateUtil.parse(instance.start) as any);
 				const endTime = PartialDateUtil.asPlainDateTime(PartialDateUtil.parse(instance.end) as any);
 				const timeStr = `${startTime.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}–${endTime.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}`;
-				subtitle = <Text fz={Sizing.fontSizeSm} c="TextDimmed">{timeStr}</Text>;
+				subtitle = <Text fz={FontSize.sm} c="TextDimmed">{timeStr}</Text>;
 			} else if (PartialDateUtil.has(instance.start, "time")) {
 				const pt = PartialDateUtil.parse(instance.start) as any;
 				const dt = PartialDateUtil.asPlainDateTime(pt);
-				subtitle = <Text fz={Sizing.fontSizeSm} c="TextDimmed">{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}</Text>;
+				subtitle = <Text fz={FontSize.sm} c="TextDimmed">{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}</Text>;
 			}
 		} else {
 			title = <PartialDateLabel value={instance.start} />;
@@ -132,7 +132,7 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		if (PartialDateUtil.has(instance.start, "time")) {
 			const pt = PartialDateUtil.parse(instance.start) as any;
 			const dt = PartialDateUtil.asPlainDateTime(pt);
-			subtitle = <Text fz={Sizing.fontSizeSm} c="TextDimmed">{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}</Text>;
+			subtitle = <Text fz={FontSize.sm} c="TextDimmed">{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}</Text>;
 		}
 	}
 
@@ -159,7 +159,7 @@ const PartialDateLabel = ({ value }: { value: PartialDate }) => {
 		return fmt.format(temporal);
 	}, [value, language]);
 
-	return <Text fz={Sizing.fontSizeMd}>{label}</Text>;
+	return <Text fz={FontSize.md}>{label}</Text>;
 };
 
 const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
@@ -170,8 +170,8 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 			: <IconWorldPin size={20} />;
 
 	const title = TranslationsUtil.isEmpty(venue.name)
-		? <Text fz={Sizing.fontSizeMd} fst="italic" c="TextDimmed">Unnamed</Text>
-		: <TransText fz={Sizing.fontSizeMd} value={venue.name} />;
+		? <Text fz={FontSize.md} fst="italic" c="TextDimmed">Unnamed</Text>
+		: <TransText fz={FontSize.md} value={venue.name} />;
 
 	const subtitle = venue.$type === "directory.evnt.venue.physical" && venue.address
 		? <AddressLabel address={venue.address} />
@@ -190,7 +190,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 			title={title}
 			subtitle={
 				<Box gap={4}>
-					{subtitle && <Text fz={Sizing.fontSizeSm} c="TextDimmed">{subtitle}</Text>}
+					{subtitle && <Text fz={FontSize.sm} c="TextDimmed">{subtitle}</Text>}
 					{mapLinks.length > 0 && (
 						<Box direction="row" gap={4}>
 							{mapLinks.map((link, i) => (
@@ -227,7 +227,7 @@ const UrlLabel = ({ url }: { url: string }) => (
 		align="center"
 		onPress={() => Linking.openURL(url)}
 	>
-		<Text fz={Sizing.fontSizeSm} c="Primary" numberOfLines={1}>{url}</Text>
+		<Text fz={FontSize.sm} c="Primary" numberOfLines={1}>{url}</Text>
 		<IconExternalLink size={14} color="Primary" />
 	</Box>
 );
