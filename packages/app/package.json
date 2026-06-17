@@ -21,6 +21,7 @@
 		"@vantage/core": "workspace:*",
 		"@vantage/db": "workspace:*",
 		"@vantage/intl": "workspace:*",
+		"chrono-node": "^2.9.1",
 		"drizzle-orm": "^0.45.2",
 		"expo": "~56.0.8",
 		"expo-clipboard": "^56.0.4",
