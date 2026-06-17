@@ -16,6 +16,7 @@ export interface ActionIconProps extends BoxProps {
 }
 
 const SIZES = {
+	xs: { p: 0, radius: Radius.sm },
 	sm: { p: 6, radius: Radius.sm },
 	md: { p: 10, radius: Radius.sm },
 	lg: { p: 14, radius: Radius.md },

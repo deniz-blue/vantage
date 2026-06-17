@@ -9,6 +9,7 @@ import { Colors } from "../../../theme/colors";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
+import { PartialDateInput } from "./input/PartialDateInput";
 
 export const EventInstanceEditor = ({
 	editor,
@@ -28,16 +29,30 @@ export const EventInstanceEditor = ({
 
 	return (
 		<Card>
-			<Box direction="row">
-				<Box flex={1} gap="xs" direction="row">
-					<IconCalendar size={16} color={Colors.TextDimmed} />
-					<Text c="TextDimmed" fz={FontSize.sm}>
-						{editor.value.start ? formatDate(editor.value.start, config) : "Unspecified Date"}
-					</Text>
+			<Box gap="md">
+				<Box direction="row">
+					<Box flex={1} gap="xs" direction="row">
+						<IconCalendar size={16} color={Colors.TextDimmed} />
+						<Text c="TextDimmed" fz={FontSize.sm}>
+							{editor.value.start ? formatDate(editor.value.start, config) : "Unspecified Date"}
+						</Text>
+					</Box>
+					<Box>
+						<CloseButton onPress={onDelete} />
+					</Box>
 				</Box>
-				<Box>
-					<CloseButton onPress={onDelete} />
-				</Box>
+
+				<PartialDateInput
+					label="Start"
+					value={editor.value.start}
+					onChange={(value) => editor.update(d => { d.start = value })}
+				/>
+
+				<PartialDateInput
+					label="End"
+					value={editor.value.end}
+					onChange={(value) => editor.update(d => { d.end = value })}
+				/>
 			</Box>
 		</Card>
 	)

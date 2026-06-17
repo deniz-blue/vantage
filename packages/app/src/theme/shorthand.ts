@@ -15,6 +15,7 @@ export interface ShorthandStyleProps {
 	maw?: DimensionValue;
 	mih?: DimensionValue;
 	mah?: DimensionValue;
+	aspectRatio?: ViewStyle["aspectRatio"];
 
 	pos?: ViewStyle["position"];
 	top?: DimensionValue;
@@ -69,6 +70,7 @@ export const resolveShorthand = (props: ShorthandStyleProps): ViewStyle => {
 	if (props.maw !== undefined) style.maxWidth = props.maw;
 	if (props.mih !== undefined) style.minHeight = props.mih;
 	if (props.mah !== undefined) style.maxHeight = props.mah;
+	if (props.aspectRatio !== undefined) style.aspectRatio = props.aspectRatio;
 
 	if (props.pos !== undefined) style.position = props.pos;
 	if (props.top !== undefined) style.top = props.top;

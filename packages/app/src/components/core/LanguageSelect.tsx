@@ -12,6 +12,7 @@ import {
 	ComboboxSearch,
 	ComboboxList,
 } from "../base/combobox";
+import { FontSize, IconSize } from "../../theme/sizing";
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
@@ -71,15 +72,15 @@ export const LanguageSelect = ({
 		>
 			<Combobox value={value} onChange={onChange}>
 				<ComboboxTrigger>
-					<ActionIcon bg={Colors.PrimaryLight + "33"} w={40} h={40} radius={10}>
-						<IconLanguage size={20} color={Colors.Primary} />
+					<ActionIcon bg={Colors.PrimaryLight + "33"}>
+						<IconLanguage size={IconSize.md} color={Colors.Primary} />
 					</ActionIcon>
 					<Box flex={1}>
-						<Text fz={15} fw="600">
+						<Text fz={FontSize.sm} fw="600">
 							{getAutonym(value)}
 						</Text>
 						<Box mt={1}>
-							<Text fz={12} c={Colors.TextDimmed}>
+							<Text fz={FontSize.xs} c={Colors.TextDimmed}>
 								{getEnglishName(value)}
 							</Text>
 						</Box>

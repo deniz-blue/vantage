@@ -7,6 +7,7 @@ import { ActionIcon } from "../../base/ActionIcon";
 import { Button } from "../../base/Button";
 import { Colors } from "../../../theme/colors";
 import { formatOffset, getDetectedTz } from "@vantage/intl";
+import { FontSize, IconSize } from "../../../theme/sizing";
 
 export interface TimezoneSelectTriggerProps {
 	variant: "settings" | "form";
@@ -19,54 +20,45 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 
 	if (variant === "form") {
 		return (
-			<Button
-				variant="subtle"
-				size="sm"
-				onPress={ctx.open}
-				rightSection={<IconChevronDown size={12} color={Colors.Primary} />}
-			>
-				{ctx.value}
-			</Button>
+			<ComboboxTrigger>
+				<Text fz={FontSize.sm}>
+					{ctx.value || "Select timezone"}
+				</Text>
+			</ComboboxTrigger>
 		);
 	}
 
 	return (
 		<Box>
 			<ComboboxTrigger>
-				<ActionIcon bg={Colors.PrimaryLight + "33"} w={40} h={40} radius={10}>
-					<IconWorld size={20} color={Colors.Primary} />
-				</ActionIcon>
-				<Box flex={1}>
-					<Text fz={15} fw="600">
-						{ctx.value}
-					</Text>
-					<Box mt={1}>
-						<Text fz={12} c={Colors.TextDimmed}>
+				<Box direction="row" align="center" gap="sm">
+					<ActionIcon bg={Colors.PrimaryLight + "33"}>
+						<IconWorld size={IconSize.md} color={Colors.Primary} />
+					</ActionIcon>
+					<Box flex={1} gap="xs">
+						<Text fz={FontSize.sm} fw="600">
+							{ctx.value}
+						</Text>
+						<Text fz={FontSize.xs} c={Colors.TextDimmed}>
 							{currentOffset}
 						</Text>
 					</Box>
 				</Box>
 			</ComboboxTrigger>
 			{detectedTz !== ctx.value && (
-				<TouchableOpacity
+				<Button
 					onPress={() => ctx.onChange(detectedTz)}
-					activeOpacity={0.7}
-					style={{
-						marginTop: 8,
-						flexDirection: "row",
-						alignItems: "center",
-						backgroundColor: Colors.PrimaryLight + "22",
-						paddingVertical: 8,
-						paddingHorizontal: 12,
-						borderRadius: 8,
-						gap: 6,
-					}}
+					mt="sm"
+					align="center"
+					bg={Colors.PrimaryLight + "22"}
 				>
-					<IconArrowUp size={14} color={Colors.Primary} />
-					<Text fz={13} c="Primary" fw="500">
-						Use detected: {detectedTz} ({formatOffset(detectedTz)})
-					</Text>
-				</TouchableOpacity>
+					<Box direction="row" align="center" gap="xs" flex={1}>
+						<IconArrowUp size={IconSize.sm} color={Colors.Primary} />
+						<Text fz={FontSize.sm} c="Primary" fw="500">
+							Use detected: {detectedTz} ({formatOffset(detectedTz)})
+						</Text>
+					</Box>
+				</Button>
 			)}
 		</Box>
 	);

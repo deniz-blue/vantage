@@ -3,7 +3,7 @@ import { ScrollView, TouchableOpacity } from "react-native";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Divider } from "../../components/base/Divider";
-import { LanguageSelect } from "../../components/settings/LanguageSelect";
+import { LanguageSelect } from "../../components/core/LanguageSelect";
 import { JsonImportSheet } from "../../components/dev/JsonImportSheet";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { Colors } from "../../theme/colors";
