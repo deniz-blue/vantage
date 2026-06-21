@@ -5,7 +5,7 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TouchableOpacity } from "react-native";
 import { IconPencil, IconShare, IconReload } from "@tabler/icons-react-native";
-import { Sizing, FontSize } from "../../../theme/sizing";
+import { Sizing, FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 
 export const EventDetailsActions = () => {
@@ -21,12 +21,12 @@ export const EventDetailsActions = () => {
 	return (
 		<Box direction="row" gap={Spacing.xs} wrap="wrap">
 			{isNetwork && (
-				<ActionButton icon={<IconReload size={16} />} label="Refetch" disabled />
+				<ActionButton icon={<IconReload size={IconSize.xs} />} label="Refetch" disabled />
 			)}
 
 			{shareLink && (
 				<ActionButton
-					icon={<IconShare size={16} />}
+					icon={<IconShare size={IconSize.xs} />}
 					label="Share"
 					onPress={() => Clipboard.setStringAsync(shareLink)}
 				/>
@@ -34,7 +34,7 @@ export const EventDetailsActions = () => {
 
 			{isLocal && (
 				<ActionButton
-					icon={<IconPencil size={16} />}
+					icon={<IconPencil size={IconSize.xs} />}
 					label="Edit"
 					onPress={() => router.push(`/event/${id}/edit`)}
 				/>

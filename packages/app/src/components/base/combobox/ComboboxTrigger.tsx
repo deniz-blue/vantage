@@ -4,6 +4,7 @@ import { Box } from "../../base/Box";
 import { Button } from "../../base/Button";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
+import { IconSize } from "../../../theme/sizing";
 
 export interface ComboboxTriggerProps {
 	children: ReactNode;
@@ -13,11 +14,11 @@ export const ComboboxTrigger = ({ children }: ComboboxTriggerProps) => {
 	const ctx = useComboboxCtx();
 	return (
 		<Button
-			variant="light"
-			rightSection={<IconChevronRight size={18} color={Colors.TextDimmed} />}
+			variant="default"
+			rightSection={<IconChevronRight size={IconSize.xs} color={Colors.TextDimmed} />}
 			onPress={ctx.open}
 		>
-			<Box flex={1} direction="row" align="center" gap={10}>{children}</Box>
+			<Box flex={1} direction="row" align="center" gap="xs">{children}</Box>
 		</Button>
 	);
 };

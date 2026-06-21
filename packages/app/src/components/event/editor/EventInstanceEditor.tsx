@@ -7,7 +7,7 @@ import { IconCalendar } from "@tabler/icons-react-native";
 import { CloseButton } from "../../base/CloseButton";
 import { Colors } from "../../../theme/colors";
 import { Text } from "../../base/Text";
-import { FontSize } from "../../../theme/sizing";
+import { FontSize, IconSize } from "../../../theme/sizing";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { PartialDateInput } from "./input/PartialDateInput";
 
@@ -32,7 +32,7 @@ export const EventInstanceEditor = ({
 			<Box gap="md">
 				<Box direction="row">
 					<Box flex={1} gap="xs" direction="row">
-						<IconCalendar size={16} color={Colors.TextDimmed} />
+						<IconCalendar size={IconSize.xs} color={Colors.TextDimmed} />
 						<Text c="TextDimmed" fz={FontSize.sm}>
 							{editor.value.start ? formatDate(editor.value.start, config) : "Unspecified Date"}
 						</Text>

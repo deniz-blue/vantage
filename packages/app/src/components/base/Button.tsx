@@ -1,31 +1,21 @@
 import { TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "./Text";
 import { Box, type BoxProps } from "./Box";
-import { Colors } from "../../theme/colors";
+import { Colors, ButtonTheme } from "../../theme/colors";
 import { FontSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
 
-interface VariantStyle {
-	bg: string;
-	text: string;
-}
-
-const VARIANT_STYLES = {
-	light: { bg: Colors.BackgroundLight, text: Colors.Text },
-	subtle: { bg: "transparent", text: Colors.Primary },
-	filled: { bg: Colors.Primary, text: "#fff" },
-} satisfies Record<string, VariantStyle>;
+export type ButtonVariant = keyof typeof ButtonTheme;
 
 const SIZE_STYLES = {
 	sm: { pv: Spacing.sm, ph: Spacing.xs, fz: FontSize.sm },
-
-	// Match TextInput's size
 	md: { pv: Spacing.sm, ph: Spacing.sm, fz: FontSize.sm },
 } satisfies Record<string, { pv: number; ph: number; fz: number }>;
 
 export interface ButtonProps extends BoxProps {
 	children: React.ReactNode;
-	variant?: keyof typeof VARIANT_STYLES;
+	variant?: ButtonVariant;
+	selected?: boolean;
 	color?: string;
 	size?: keyof typeof SIZE_STYLES;
 	loading?: boolean;
@@ -37,7 +27,8 @@ export interface ButtonProps extends BoxProps {
 
 export const Button = ({
 	children,
-	variant = "light",
+	variant = "default",
+	selected,
 	color,
 	size = "md",
 	loading = false,
@@ -50,11 +41,25 @@ export const Button = ({
 }: ButtonProps) => {
 	const dimmed = disabled || loading;
 
-	const vs = VARIANT_STYLES[variant];
+	const vs = ButtonTheme[variant];
 	const ss = SIZE_STYLES[size];
 
-	const bg = dimmed ? Colors.BackgroundLight : color && variant === "filled" ? color : vs.bg;
-	const textColor = dimmed ? Colors.TextDimmed : color && variant !== "filled" ? color : vs.text;
+	// Selected: apply tinted bg for default/subtle, keep text readable
+	const useSelected = selected && (variant === "default" || variant === "subtle");
+	const bg = dimmed
+		? Colors.BackgroundLight
+		: useSelected
+			? (color ?? Colors.PrimaryTint)
+			: color && variant === "primary"
+				? color
+				: vs.bg;
+	const textColor = dimmed
+		? Colors.TextDimmed
+		: useSelected
+			? Colors.Text
+			: color && variant !== "primary"
+				? color
+				: vs.text;
 
 	return (
 		<Box<typeof TouchableOpacity>

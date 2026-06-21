@@ -38,11 +38,11 @@ export const CalendarYear = ({
 							<Box flex={1} key={month}>
 								<Button
 									onPress={onSelectMonth ? () => onSelectMonth(month) : undefined}
-									variant={isSelected ? "filled" : "light"}
-									rightSection={isSelected && <IconCheck size={IconSize.sm} />}
+									selected={isSelected}
+									rightSection={isSelected && <IconCheck size={IconSize.xs} />}
 									leftSection={(
 										<Text
-											c={isSelected ? "White" : month === currentMonth ? "Primary" : "TextDimmed"}
+											c={isSelected ? "Text" : month === currentMonth ? "Primary" : "TextDimmed"}
 											fz={FontSize.xs}
 										>
 											{month.toString()}

@@ -5,14 +5,18 @@ import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { TextInput } from "../../../base/TextInput";
 import { ActionIcon } from "../../../base/ActionIcon";
 import { IconLanguage } from "@tabler/icons-react-native";
+import { useTranslator } from "../../../../hooks/useTranslator";
 
 export const TranslationsInput = ({
 	editor,
+	placeholder,
 	...props
 }: InputWrapperProps & {
 	editor: Editor<Translations>;
+	placeholder?: string;
 }) => {
 	const userLanguage = useLocaleStore((s) => s.language);
+	const t = useTranslator();
 
 	return (
 		<InputWrapper
@@ -21,6 +25,7 @@ export const TranslationsInput = ({
 			<TextInput
 				value={editor.value[userLanguage] || ""}
 				onChangeText={text => editor.update(d => { d[userLanguage] = text })}
+				placeholder={t(editor.value) || placeholder || "Translation..."}
 				rightSection={(
 					<ActionIcon
 						size="sm"

@@ -1,9 +1,11 @@
 export type ThemeIconSize = keyof typeof IconSize;
 
 export const IconSize = {
+	xs: 16,
 	sm: 20,
 	md: 24,
 	lg: 28,
+	xl: 32,
 } as const;
 
 export type ThemeFontSize = keyof typeof FontSize;

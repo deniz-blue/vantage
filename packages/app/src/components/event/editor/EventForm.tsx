@@ -13,7 +13,8 @@ import { Sheet } from "../../base/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconPlus } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
-import { FontSize } from "../../../theme/sizing";
+import { FontSize, IconSize } from "../../../theme/sizing";
+import { EventDescriptionEditor } from "./EventDescriptionEditor";
 
 export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	return (
@@ -21,6 +22,7 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 			<Box gap="md">
 				<TranslationsInput
 					label="Event Name"
+					placeholder="My Event"
 					editor={editor.field(e => e.name)}
 				/>
 
@@ -31,6 +33,12 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 
 				<EventFormInstances />
 				<EventFormVenues />
+
+				<Divider
+					leftSection={<Text c="TextDimmed" fw="600">Description</Text>}
+				/>
+
+				<EventDescriptionEditor editor={editor} />
 			</Box>
 		</EventFormContext>
 	)
@@ -52,7 +60,7 @@ export const EventFormInstances = () => {
 								venueIds: [],
 							});
 						})}
-						rightSection={<IconPlus color={Colors.Primary} size={16} />}
+						rightSection={<IconPlus color={Colors.Primary} size={IconSize.xs} />}
 					>
 						Add
 					</Button>
@@ -104,7 +112,7 @@ export const EventFormVenues = () => {
 					<Button
 						variant="subtle"
 						onPress={() => setOpen(true)}
-						rightSection={<IconPlus color={Colors.Primary} size={16} />}
+						rightSection={<IconPlus color={Colors.Primary} size={IconSize.xs} />}
 					>
 						Add
 					</Button>

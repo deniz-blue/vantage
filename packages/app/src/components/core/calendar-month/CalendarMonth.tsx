@@ -1,18 +1,12 @@
-import { useMemo, type ReactNode } from "react";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { FontSize, Radius } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
 import { getCalendarGrid, type CalendarDay } from "./calendar-month-utils";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
-
-export interface CalendarMonthProps {
-	year: number;
-	month: number;
-	firstDayOfWeek?: 0 | 1;
-	renderDay?: (day: CalendarDay) => ReactNode;
-	renderWeekdayHeader?: (dayName: string, index: number) => ReactNode;
-}
+import type { Spacing } from "../../../theme/shorthand";
 
 const defaultRenderWeekdayHeader = (name: string) => (
 	<Box flex={1} align="center" py={4}>
@@ -44,9 +38,17 @@ export const CalendarMonth = ({
 	year,
 	month,
 	firstDayOfWeek = 1,
+	gap,
 	renderDay = defaultRenderDay,
 	renderWeekdayHeader = defaultRenderWeekdayHeader,
-}: CalendarMonthProps) => {
+}: {
+	year: number;
+	month: number;
+	firstDayOfWeek?: 0 | 1;
+	gap?: Spacing;
+	renderDay?: (day: CalendarDay) => ReactNode;
+	renderWeekdayHeader?: (dayName: string, index: number) => ReactNode;
+}) => {
 	const locale = useLocaleStore((s) => s.language);
 	const grid = useMemo(
 		() => getCalendarGrid(year, month, firstDayOfWeek),
@@ -83,7 +85,7 @@ export const CalendarMonth = ({
 	}, [grid.days]);
 
 	return (
-		<Box>
+		<Box gap={gap}>
 			{/* Weekday headers */}
 			<Box direction="row">
 				{orderedWeekdays.map((name, i) => (
@@ -95,7 +97,7 @@ export const CalendarMonth = ({
 
 			{/* Day grid */}
 			{weeks.map((week, wi) => (
-				<Box direction="row" key={wi}>
+				<Box direction="row" gap={gap} key={wi}>
 					{week.map((day, di) => (
 						<Box flex={1} key={di}>
 							{renderDay(day)}

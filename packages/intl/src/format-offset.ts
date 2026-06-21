@@ -1,6 +1,3 @@
-// Uses Intl.DateTimeFormat which is available on Hermes (bundles ICU4C).
-// No polyfill needed — this is the one Intl API that actually works in RN.
-
 const offsetCache = new Map<string, { numeric: number; display: string }>();
 
 const computeOffset = (tz: string): { numeric: number; display: string } => {
@@ -22,7 +19,7 @@ const computeOffset = (tz: string): { numeric: number; display: string } => {
 		const hours = Number(h) || 0;
 		const minutes = Number(m) || 0;
 		const numeric = sign * (hours * 60 + minutes);
-		const display = raw.replace(/^GMT/, "UTC");
+		const display = raw.replace(/^GMT/, "UTC").replace("UTC+0", "UTC");
 		const result = { numeric, display };
 		offsetCache.set(tz, result);
 		return result;

@@ -32,6 +32,7 @@ export const Colors = {
 	BackgroundInput: Palette.Dark6,
 	Primary: Palette.Grape7,
 	PrimaryLight: Palette.Grape6,
+	PrimaryTint: Palette.Grape7 + "33", // Primary at ~20% opacity
 	Text: Palette.Dark0,
 	TextDimmed: Palette.Dark2,
 	Border: Palette.Dark8,
@@ -58,6 +59,13 @@ export const Colors = {
 	BlueGrey: "#607D8B",
 	White: "#FFFFFF",
 	Black: "#000000",
+} as const;
+
+export const ButtonTheme = {
+	default: { bg: Colors.BackgroundLight, text: Colors.Text },
+	primary: { bg: Colors.Primary, text: Colors.White },
+	subtle: { bg: "transparent", text: Colors.Primary },
+	danger: { bg: Colors.Red, text: Colors.White },
 } as const;
 
 export type ThemeColor = keyof typeof Colors | (string & {});

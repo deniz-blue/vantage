@@ -1,16 +1,16 @@
 import { useMemo, type ReactNode } from "react";
-import { TouchableOpacity, Linking } from "react-native";
+import { Linking } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { EventInstance, PartialDate, Venue } from "@evnt/types";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { TranslationsUtil } from "@evnt/translations";
 import { IconCalendar, IconCalendarQuestion, IconExternalLink, IconMapPin, IconWorld, IconWorldPin } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
+import { Button } from "../../base/Button";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
-import { Sizing, FontSize } from "../../../theme/sizing";
-import { Spacing } from "../../../theme/spacing";
+import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 
 export const EventDetailsInstanceList = () => {
 	const { data } = useResolvedEvent();
@@ -42,12 +42,12 @@ export const EventDetailsInstanceList = () => {
 	const multipleGroups = groups.length > 1;
 
 	return (
-		<Box gap={Spacing.xs}>
+		<Box gap="xs">
 			{groups.map((group, i) => {
 				const showVenuesFirst = group.venueIds.length > 0 && multipleGroups;
 
 				return (
-					<Box key={i} gap={Spacing.xs} p={multipleGroups ? "xs" : undefined}>
+					<Box key={i} gap="xs" p={multipleGroups ? "xs" : undefined}>
 						{showVenuesFirst
 							? group.venues.map((v, j) => <MiniBoxVenue key={j} venue={v} />)
 							: group.instances.map((inst, j) => <MiniBoxInstance key={j} instance={inst} />)
@@ -69,7 +69,7 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 	if (!instance.start) {
 		return (
 			<MiniBoxSnippet
-				icon={<IconCalendarQuestion size={20} />}
+				icon={<IconCalendarQuestion size={IconSize.sm} />}
 				title={<Text fz={FontSize.md}>Unknown date</Text>}
 			/>
 		);
@@ -85,17 +85,17 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		const monthLabel = date.toLocaleDateString(language, { month: "short", timeZone: "UTC" });
 		icon = (
 			<Box align="center">
-				<Text fz={16} fw="bold">{parsed.day}</Text>
-				<Text fz={10} c="TextDimmed">{monthLabel}</Text>
+				<Text fz={FontSize.md} fw="bold">{parsed.day}</Text>
+				<Text fz={FontSize.xs} c="TextDimmed">{monthLabel}</Text>
 			</Box>
 		);
 	} else if (hasMonth) {
 		const parsed = PartialDateUtil.parse(instance.start) as PartialDate.Parsed.YearMonth;
 		const date = new Date(Date.UTC(parsed.year, parsed.month - 1));
 		const monthLabel = date.toLocaleDateString(language, { month: "short", year: "numeric", timeZone: "UTC" });
-		icon = <Text fz={12}>{monthLabel}</Text>;
+		icon = <Text fz={FontSize.xs}>{monthLabel}</Text>;
 	} else {
-		icon = <IconCalendar size={20} />;
+		icon = <IconCalendar size={IconSize.sm} />;
 	}
 
 	let title: ReactNode;
@@ -164,10 +164,10 @@ const PartialDateLabel = ({ value }: { value: PartialDate }) => {
 
 const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 	const icon = venue.$type === "directory.evnt.venue.online"
-		? <IconWorld size={20} />
+		? <IconWorld size={IconSize.sm} />
 		: venue.$type === "directory.evnt.venue.physical"
-			? <IconMapPin size={20} />
-			: <IconWorldPin size={20} />;
+			? <IconMapPin size={IconSize.sm} />
+			: <IconWorldPin size={IconSize.sm} />;
 
 	const title = TranslationsUtil.isEmpty(venue.name)
 		? <Text fz={FontSize.md} fst="italic" c="TextDimmed">Unnamed</Text>
@@ -189,22 +189,19 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 			icon={icon}
 			title={title}
 			subtitle={
-				<Box gap={4}>
+				<Box gap="xs">
 					{subtitle && <Text fz={FontSize.sm} c="TextDimmed">{subtitle}</Text>}
 					{mapLinks.length > 0 && (
-						<Box direction="row" gap={4}>
+						<Box direction="row" gap="xs">
 							{mapLinks.map((link, i) => (
-								<Box
+								<Button
 									key={i}
-									component={TouchableOpacity}
-									bg="BackgroundLight"
-									radius={4}
-									px="xs"
-									py={2}
+									size="sm"
+									variant="default"
 									onPress={() => Linking.openURL(link)}
 								>
-									<Text fz={11} c="Primary">{i === 0 ? "Google Maps" : "OpenStreetMap"}</Text>
-								</Box>
+									{i === 0 ? "Google Maps" : "OpenStreetMap"}
+								</Button>
 							))}
 						</Box>
 					)}
@@ -220,16 +217,14 @@ const AddressLabel = ({ address }: { address: { addr?: string; countryCode?: str
 };
 
 const UrlLabel = ({ url }: { url: string }) => (
-	<Box
-		component={TouchableOpacity}
-		direction="row"
-		gap={4}
-		align="center"
+	<Button
+		variant="subtle"
+		size="sm"
 		onPress={() => Linking.openURL(url)}
+		rightSection={<IconExternalLink size={IconSize.xs} color="Primary" />}
 	>
-		<Text fz={FontSize.sm} c="Primary" numberOfLines={1}>{url}</Text>
-		<IconExternalLink size={14} color="Primary" />
-	</Box>
+		{url}
+	</Button>
 );
 
 const venueGoogleMapsLink = (venue: Venue): string | null => {
@@ -254,18 +249,18 @@ const MiniBoxSnippet = ({
 	subtitle?: ReactNode;
 }) => {
 	return (
-		<Box direction="row" gap={Spacing.xs} align="flex-start">
+		<Box direction="row" gap="xs" align="flex-start">
 			<Box
 				w={48}
 				h={48}
 				align="center"
 				justify="center"
 				bg="BackgroundLight"
-				radius={Spacing.Radius}
+				radius={Radius.Default}
 			>
 				{icon}
 			</Box>
-			<Box flex={1} gap={2} pt={4}>
+			<Box flex={1} gap="xs" pt="xs">
 				{title}
 				{subtitle}
 			</Box>

@@ -7,7 +7,7 @@ import { TranslationsInput } from "./input/TranslationsInput";
 import { ComponentType } from "react";
 import { IconGlobe, IconMap2, IconMapPin, IconProps, IconWorld } from "@tabler/icons-react-native";
 import { Text } from "../../base/Text";
-import { FontSize } from "../../../theme/sizing";
+import { FontSize, IconSize } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
 import { TextInput } from "../../base/TextInput";
 
@@ -39,7 +39,7 @@ export const EventVenueEditor = ({
 				<Box direction="row">
 					<Box flex={1}>
 						<Box direction="row" align="center" gap="xs">
-							<Icon size={16} color={Colors.TextDimmed} />
+							<Icon size={IconSize.xs} color={Colors.TextDimmed} />
 							<Text c="TextDimmed" fz={FontSize.sm}>
 								{label}
 							</Text>
@@ -52,12 +52,14 @@ export const EventVenueEditor = ({
 
 				<TranslationsInput
 					label="Name"
+					placeholder="Somewhere"
 					editor={editor.field(e => e.name)}
 				/>
 
 				{editor.value.$type === "directory.evnt.venue.physical" && (
 					<TextInput
 						label="Address"
+						placeholder="123 Main Street"
 						value={editor.value.address?.addr ?? ""}
 						onChangeText={text => editor.update(d => {
 							if (d.$type !== "directory.evnt.venue.physical") return;

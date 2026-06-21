@@ -4,11 +4,12 @@ import { EventForm } from "../../components/event/editor/EventForm";
 import { useEditor } from "../../components/event/editor/useEditor";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
-import { FontSize } from "../../theme/sizing";
+import { FontSize, IconSize } from "../../theme/sizing";
 import { Select } from "../../components/base/Select";
 import { Divider } from "../../components/base/Divider";
 import { Button } from "../../components/base/Button";
 import { ScrollView } from "react-native";
+import { IconDatabase } from "@tabler/icons-react-native";
 
 export default function NewEventPage() {
 	const { editor } = useEditor((): OpenEvnt => ({ v: "0.1", name: {} }));
@@ -18,7 +19,7 @@ export default function NewEventPage() {
 			<Box component={ScrollView}>
 				<Container size="sm" flex={1}>
 					<Box py="md" flex={1}>
-						<Box gap="md" flex={1}>
+						<Box gap="md" flex={1} mb={300}>
 							<Box>
 								<Text fz={FontSize.h1} fw="bold">
 									New Event
@@ -34,7 +35,14 @@ export default function NewEventPage() {
 										"local",
 									]}
 									renderItem={(item) => {
-										if (item === "local") return "This Device";
+										if (item === "local") return (
+											<Box direction="row" gap="xs" align="center">
+												<IconDatabase size={IconSize.sm} />
+												<Text fz={FontSize.sm}>
+													This Device
+												</Text>
+											</Box>
+										);
 										return item;
 									}}
 								/>
@@ -49,7 +57,7 @@ export default function NewEventPage() {
 			</Box>
 			<Box pos="absolute" style={{ bottom: 0 }} w="100%">
 				<Container size="sm" flex={1} pb="md">
-					<Button variant="filled" color="Primary" w="100%" onPress={() => { }}>
+					<Button variant="primary" w="100%" onPress={() => { }}>
 						Save
 					</Button>
 				</Container>

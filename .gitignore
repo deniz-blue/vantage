@@ -1,3 +1,5 @@
+packages/app/android
+.local
 .DS_Store
 .env
 node_modules

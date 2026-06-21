@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
-    "version": "1.0.0",
+    "name": "vantage",
+    "slug": "vantage",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-	"backgroundColor": "#242424",
+    "backgroundColor": "#242424",
     "ios": {
       "supportsTablet": true
     },
@@ -16,6 +16,7 @@
       "typedRoutes": true
     },
     "android": {
+      "package": "blue.deniz.vantage",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -40,7 +41,14 @@
           ]
         }
       ],
-      "expo-splash-screen"
-    ]
+      "expo-splash-screen",
+      "expo-localization"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9606801f-d84a-4797-8de6-7b463aa92131"
+      }
+    }
   }
 }

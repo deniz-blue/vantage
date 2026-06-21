@@ -5,7 +5,7 @@ import { IconExternalLink } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
-import { Sizing, FontSize } from "../../../theme/sizing";
+import { Sizing, FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
 
@@ -36,7 +36,7 @@ export const EventDetailsLinks = () => {
 						? <TransText fz={FontSize.md} value={link.name} />
 						: <Text fz={FontSize.md} numberOfLines={1}>{link.url}</Text>
 					}
-					<IconExternalLink size={14} color="TextDimmed" />
+					<IconExternalLink size={IconSize.xs} color="TextDimmed" />
 				</Box>
 			))}
 		</Box>
