@@ -1,5 +1,4 @@
-import { TouchableOpacity } from "react-native";
-import { IconWorld, IconChevronDown, IconArrowUp } from "@tabler/icons-react-native";
+import { IconWorld, IconArrowUp } from "@tabler/icons-react-native";
 import { useComboboxCtx, ComboboxTrigger } from "../../base/combobox";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";

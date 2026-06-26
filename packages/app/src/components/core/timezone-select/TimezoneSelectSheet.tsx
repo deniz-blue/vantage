@@ -7,7 +7,7 @@ import { Divider } from "../../base/Divider";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";
 import { formatOffset } from "@vantage/intl";
-import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { SheetScrollView } from "../../base/Sheet";
 
 const RegionRow = ({ region, selected, onPress, onLayout }: { region: string; selected: boolean; onPress: () => void; onLayout?: (e: LayoutChangeEvent) => void }) => (
 	<Button
@@ -106,7 +106,7 @@ export const TimezoneSelectSheet = () => {
 		});
 
 		return (
-			<ScrollView>
+			<SheetScrollView>
 				<Box gap="xs" p="sm">
 					{tzList.length === 0 ? (
 						<Box align="center" justify="center" py="xl">
@@ -125,14 +125,14 @@ export const TimezoneSelectSheet = () => {
 						))
 					)}
 				</Box>
-			</ScrollView>
+			</SheetScrollView>
 		)
 	};
 
 	return (
 		<Box direction="row" flex={1}>
 			<Box flex={1}>
-				<BottomSheetScrollView
+				<SheetScrollView
 					ref={regionScrollRef}
 				>
 					<Box gap="xs" p="sm">
@@ -152,13 +152,13 @@ export const TimezoneSelectSheet = () => {
 							/>
 						))}
 					</Box>
-				</BottomSheetScrollView>
+				</SheetScrollView>
 			</Box>
 
 			<Divider vertical mx={0} thickness={1} />
 
 			<Box flex={1}>
-				<BottomSheetScrollView
+				<SheetScrollView
 					ref={tzScrollRef}
 					key={activeRegion}
 				>
@@ -173,7 +173,7 @@ export const TimezoneSelectSheet = () => {
 							/>
 						))}
 					</Box>
-				</BottomSheetScrollView>
+				</SheetScrollView>
 			</Box>
 		</Box>
 	);

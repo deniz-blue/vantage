@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
 	BottomSheetModal,
 	BottomSheetScrollView,
@@ -6,42 +6,162 @@ import {
 	type BottomSheetBackdropProps,
 	type BottomSheetBackgroundProps,
 } from "@gorhom/bottom-sheet";
-
 import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
 import { useHistoryBack } from "../../hooks/useHistoryBack";
 import { useContextBridge } from "../../internal/react-context-bridge";
+import { Animated, Modal, ScrollView, ScrollViewProps, TouchableOpacity, useWindowDimensions } from "react-native";
+import { Breakpoints } from "../../theme/breakpoints";
+import { Radius } from "../../theme/sizing";
 
 export const HANDLE_BAR_HEIGHT = 28;
 
-interface SheetProps {
-	children: ReactNode;
-	open: boolean;
-	onClose: () => void;
-	/** Sheet height as a fraction of screen height (0–1). Default: 0.7. */
-	height?: number;
-	/** Whether the sheet wraps content in a ScrollView. Default: true. */
-	scrollable?: boolean;
-	keyboardShouldPersistTaps?: "always" | "never" | "handled";
-}
-
 export const Sheet = ({
 	children,
-	open,
 	onClose,
-	height: heightRatio = 0.7,
-	scrollable = true,
-	keyboardShouldPersistTaps,
-}: SheetProps) => {
-	const sheetRef = useRef<BottomSheetModal>(null);
-	const userDismissed = useRef(false);
+	open,
+	scrollable,
+}: PropsWithChildren<{
+	open: boolean;
+	onClose: () => void;
+	scrollable?: boolean;
+	keyboardShouldPersistTaps?: "always" | "never" | "handled";
+}>) => {
+	const { width } = useWindowDimensions();
+	const isWide = width >= Breakpoints.SheetModal;
 
 	useHistoryBack(open, onClose);
 
-	const snapPoints = useMemo(() => {
-		const pct = Math.round(heightRatio * 100);
-		return [`${pct}%`, "100%"];
-	}, [heightRatio]);
+	if (isWide) {
+		return (
+			<SheetImplModal
+				open={open}
+				onClose={onClose}
+				children={children}
+				scrollable={scrollable}
+			/>
+		);
+	} else {
+		return (
+			<SheetImplBottomSheet
+				open={open}
+				onClose={onClose}
+				scrollable={scrollable}
+				children={children}
+			/>
+		);
+	};
+};
+
+export const SheetScrollView = ({
+	children,
+	...props
+}: PropsWithChildren<ScrollViewProps & { ref?: React.Ref<ScrollView> }>) => {
+	const { width } = useWindowDimensions();
+	const isWide = width >= Breakpoints.SheetModal;
+
+	return isWide ? (
+		<ScrollView {...props}>
+			{children}
+		</ScrollView>
+	) : (
+		<BottomSheetScrollView
+			keyboardShouldPersistTaps="never"
+			{...props}
+		>
+			{children}
+		</BottomSheetScrollView>
+	);
+};
+
+export const SheetImplModal = ({
+	children,
+	open,
+	onClose,
+	scrollable = true,
+}: PropsWithChildren<{
+	open: boolean;
+	onClose: () => void;
+	scrollable?: boolean;
+}>) => {
+	const fadeAnim = useRef(new Animated.Value(0)).current;
+	const [visible, setVisible] = useState(false);
+
+	useEffect(() => {
+		if (open) {
+			setVisible(true);
+			Animated.timing(fadeAnim, {
+				toValue: 1,
+				duration: 200,
+				useNativeDriver: true,
+			}).start();
+		} else if (visible) {
+			Animated.timing(fadeAnim, {
+				toValue: 0,
+				duration: 150,
+				useNativeDriver: true,
+			}).start(() => setVisible(false));
+		}
+	}, [open, visible, fadeAnim]);
+
+	return (
+		<Modal visible={visible} onRequestClose={onClose} animationType="none" transparent>
+			<Box
+				component={Animated.View}
+				style={{ opacity: fadeAnim }}
+				flex={1}
+			>
+				<Box
+					component={TouchableOpacity}
+					activeOpacity={1}
+					onPress={onClose}
+					justify="center"
+					align="center"
+					flex={1}
+					bg="rgba(0,0,0,0.5)"
+				>
+					<Box
+						component={TouchableOpacity}
+						activeOpacity={1}
+						onPress={e => e.stopPropagation()}
+						bg={Colors.Background}
+						radius={Radius.Default}
+						w="100%"
+						my="md"
+						style={{
+							maxWidth: 480,
+							maxHeight: "90%",
+							overflow: "hidden",
+						}}
+					>
+						{scrollable ? (
+							<SheetScrollView>
+								{children}
+							</SheetScrollView>
+						) : (
+							children
+						)}
+					</Box>
+				</Box>
+			</Box>
+		</Modal>
+	);
+};
+
+export const SheetImplBottomSheet = ({
+	open,
+	onClose,
+	children,
+	scrollable = true,
+}: PropsWithChildren<{
+	open: boolean;
+	scrollable?: boolean;
+	onClose: () => void;
+}>) => {
+	const sheetRef = useRef<BottomSheetModal>(null);
+	const userDismissed = useRef(false);
+
+	const snapPoints = useMemo(() => ["70%", "100%"], []);
 
 	const [mounted, setMounted] = useState(false);
 	const ContextBridge = useContextBridge();
@@ -124,14 +244,9 @@ export const Sheet = ({
 		>
 			<ContextBridge>
 				{scrollable ? (
-					<BottomSheetScrollView
-						keyboardShouldPersistTaps={
-							keyboardShouldPersistTaps ?? "never"
-						}
-					>
-						{children}
-						<Box h={32} />
-					</BottomSheetScrollView>
+					<SheetScrollView
+						children={children}
+					/>
 				) : (
 					children
 				)}

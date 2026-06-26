@@ -5,19 +5,18 @@ import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { SheetScrollView } from "../Sheet";
 
 export interface ComboboxListProps<T> {
 	data: readonly T[];
 	renderItem: (item: T, selected: boolean) => ReactNode;
 	filter?: (item: T, search: string) => boolean;
-	scrollViewProps?: ComponentProps<typeof BottomSheetScrollView>;
 }
 
 export const ComboboxSheetList = <T,>({
 	data,
 	renderItem,
 	filter,
-	scrollViewProps,
 }: ComboboxListProps<T>) => {
 	const ctx = useComboboxCtx<T>();
 	const scrollRef = useRef<ScrollView>(null);
@@ -43,9 +42,8 @@ export const ComboboxSheetList = <T,>({
 
 	return (
 		<Box flex={1}>
-			<BottomSheetScrollView
+			<SheetScrollView
 				ref={scrollRef}
-				{...scrollViewProps}
 			>
 				<Box py={4}>
 					{items.map((item, i) => {
@@ -72,7 +70,7 @@ export const ComboboxSheetList = <T,>({
 						);
 					})}
 				</Box>
-			</BottomSheetScrollView>
+			</SheetScrollView>
 		</Box>
 	);
 };

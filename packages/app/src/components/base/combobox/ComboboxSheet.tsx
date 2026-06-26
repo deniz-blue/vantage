@@ -1,14 +1,8 @@
-import type { ReactNode } from "react";
-import { View } from "react-native";
+import type { PropsWithChildren, ReactNode } from "react";
 import { Sheet } from "../../base/Sheet";
 import { useComboboxCtx } from "./combobox-context";
 
-export interface ComboboxSheetProps {
-	children: ReactNode;
-	search?: ReactNode;
-}
-
-export const ComboboxSheet = ({ children, search }: ComboboxSheetProps) => {
+export const ComboboxSheet = ({ children }: PropsWithChildren) => {
 	const ctx = useComboboxCtx();
 
 	return (
