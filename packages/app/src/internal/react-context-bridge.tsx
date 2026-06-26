@@ -67,8 +67,6 @@ export const useContextMap = () => {
 export const useContextBridge = () => {
 	const contextMap = useContextMap();
 
-	// console.log("useContextBridge", [...contextMap.values()]);
-
 	const ContextBridge = useMemo(() => (
 		contextMap.entries().reduce((Prev, [Context, value]) => {
 			return ({ children }: PropsWithChildren) => (
