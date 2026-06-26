@@ -1,5 +1,5 @@
 import { useCallback, type ReactNode } from "react";
-import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSearch, ComboboxList } from "./combobox";
+import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSearch, ComboboxSheetList } from "./combobox";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Box } from "./Box";
 import { Text } from "./Text";
@@ -47,7 +47,7 @@ export const Select = <T,>({
 				<ComboboxSheet
 					search={searchable ? <ComboboxSearch /> : undefined}
 				>
-					<ComboboxList
+					<ComboboxSheetList
 						data={data}
 						filter={filter}
 						renderItem={(item, _selected) => (

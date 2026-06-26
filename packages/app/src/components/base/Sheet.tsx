@@ -9,9 +9,10 @@ import {
 
 import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
-import { useHistoryBack } from "./useHistoryBack";
-import { HANDLE_BAR_HEIGHT } from "./sheetTypes";
+import { useHistoryBack } from "../../hooks/useHistoryBack";
 import { useContextBridge } from "../../internal/react-context-bridge";
+
+export const HANDLE_BAR_HEIGHT = 28;
 
 interface SheetProps {
 	children: ReactNode;

@@ -1,7 +1,7 @@
 import type { EventStatus } from "@evnt/types";
 import { ComponentType, JSX, useState } from "react";
 import { Box } from "../../../base/Box";
-import { Combobox, ComboboxList, ComboboxSheet, ComboboxTrigger } from "../../../base/combobox";
+import { Combobox, ComboboxSheetList, ComboboxSheet, ComboboxTrigger } from "../../../base/combobox";
 import { IconCalendarCheck, IconCalendarOff, IconCalendarPause, IconCalendarQuestion, IconCalendarTime, IconProps } from "@tabler/icons-react-native";
 import { Text } from "../../../base/Text";
 import { InputWrapper } from "../../../base/InputWrapper";
@@ -41,7 +41,7 @@ export const StatusPicker = ({
 				</ComboboxTrigger>
 			</InputWrapper>
 			<ComboboxSheet>
-				<ComboboxList
+				<ComboboxSheetList
 					data={["planned", "uncertain", "postponed", "suspended", "cancelled"] as EventStatus[]}
 					renderItem={(status, selected) => {
 						const Icon = ICONS[status];

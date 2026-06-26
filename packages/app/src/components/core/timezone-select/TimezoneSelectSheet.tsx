@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { LayoutChangeEvent, ScrollView } from "react-native";
 import { useComboboxCtx } from "../../base/combobox";
 import { Box } from "../../base/Box";
@@ -7,6 +7,7 @@ import { Divider } from "../../base/Divider";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";
 import { formatOffset } from "@vantage/intl";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 const RegionRow = ({ region, selected, onPress, onLayout }: { region: string; selected: boolean; onPress: () => void; onLayout?: (e: LayoutChangeEvent) => void }) => (
 	<Button
@@ -131,9 +132,8 @@ export const TimezoneSelectSheet = () => {
 	return (
 		<Box direction="row" flex={1}>
 			<Box flex={1}>
-				<ScrollView
+				<BottomSheetScrollView
 					ref={regionScrollRef}
-					contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
 				>
 					<Box gap="xs" p="sm">
 						<TimezoneRow
@@ -152,16 +152,15 @@ export const TimezoneSelectSheet = () => {
 							/>
 						))}
 					</Box>
-				</ScrollView>
+				</BottomSheetScrollView>
 			</Box>
 
 			<Divider vertical mx={0} thickness={1} />
 
 			<Box flex={1}>
-				<ScrollView
+				<BottomSheetScrollView
 					ref={tzScrollRef}
 					key={activeRegion}
-					contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
 				>
 					<Box gap="xs" p="sm">
 						{tzRegionList.map((item) => (
@@ -174,7 +173,7 @@ export const TimezoneSelectSheet = () => {
 							/>
 						))}
 					</Box>
-				</ScrollView>
+				</BottomSheetScrollView>
 			</Box>
 		</Box>
 	);

@@ -1,20 +1,23 @@
-import { useCallback, useRef, type ReactNode } from "react";
+import { ComponentProps, useCallback, useRef, type ReactNode } from "react";
 import { LayoutChangeEvent, ScrollView, TouchableOpacity } from "react-native";
 import { IconCheck } from "@tabler/icons-react-native";
-import { Box } from "../../base/Box";
+import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 export interface ComboboxListProps<T> {
 	data: readonly T[];
 	renderItem: (item: T, selected: boolean) => ReactNode;
 	filter?: (item: T, search: string) => boolean;
+	scrollViewProps?: ComponentProps<typeof BottomSheetScrollView>;
 }
 
-export const ComboboxList = <T,>({
+export const ComboboxSheetList = <T,>({
 	data,
 	renderItem,
 	filter,
+	scrollViewProps,
 }: ComboboxListProps<T>) => {
 	const ctx = useComboboxCtx<T>();
 	const scrollRef = useRef<ScrollView>(null);
@@ -40,7 +43,10 @@ export const ComboboxList = <T,>({
 
 	return (
 		<Box flex={1}>
-			<ScrollView ref={scrollRef}>
+			<BottomSheetScrollView
+				ref={scrollRef}
+				{...scrollViewProps}
+			>
 				<Box py={4}>
 					{items.map((item, i) => {
 						const selected = item === ctx.value;
@@ -66,7 +72,7 @@ export const ComboboxList = <T,>({
 						);
 					})}
 				</Box>
-			</ScrollView>
+			</BottomSheetScrollView>
 		</Box>
 	);
 };

@@ -10,7 +10,7 @@ import {
 	ComboboxTrigger,
 	ComboboxSheet,
 	ComboboxSearch,
-	ComboboxList,
+	ComboboxSheetList,
 } from "../base/combobox";
 import { FontSize, IconSize } from "../../theme/sizing";
 
@@ -86,14 +86,15 @@ export const LanguageSelect = ({
 						</Box>
 					</Box>
 				</ComboboxTrigger>
-				<ComboboxSheet
-					search={<ComboboxSearch placeholder="Search languages…" />}
-				>
-					<ComboboxList
-						data={LANGUAGES}
-						filter={filter}
-						renderItem={renderLanguageItem}
-					/>
+				<ComboboxSheet>
+					<Box flex={1}>
+						<ComboboxSearch placeholder="Search languages…" />
+						<ComboboxSheetList
+							data={LANGUAGES}
+							filter={filter}
+							renderItem={renderLanguageItem}
+						/>
+					</Box>
 				</ComboboxSheet>
 			</Combobox>
 		</InputWrapper>
