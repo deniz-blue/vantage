@@ -86,8 +86,9 @@ export const LanguageSelect = ({
 						</Box>
 					</Box>
 				</ComboboxTrigger>
-				<ComboboxSheet>
-					<ComboboxSearch placeholder="Search languages…" />
+				<ComboboxSheet
+					search={<ComboboxSearch placeholder="Search languages…" />}
+				>
 					<ComboboxList
 						data={LANGUAGES}
 						filter={filter}

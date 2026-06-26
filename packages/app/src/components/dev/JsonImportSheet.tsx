@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { OpenEvntSchema } from "@evnt/schema";
 import { EventsManager } from "@vantage/core";
 import { Sheet } from "../base/Sheet";
@@ -74,12 +74,8 @@ export const JsonImportSheet = ({
 	}, [onClose]);
 
 	return (
-		<Sheet open={open} onClose={handleClose} height={0.8}>
-			<ScrollView
-				style={{ flex: 1 }}
-				keyboardShouldPersistTaps="handled"
-				contentContainerStyle={{ padding: 16, gap: 12 }}
-			>
+		<Sheet open={open} onClose={handleClose} height={0.8} keyboardShouldPersistTaps="handled">
+			<View style={{ padding: 16, gap: 12 }}>
 				<Text fz={18} fw="bold">Import Event JSON</Text>
 				<Text fz={13} c="TextDimmed">
 					Paste an OpenEvnt event as JSON below. It will be validated and saved as a local event.
@@ -143,7 +139,7 @@ export const JsonImportSheet = ({
 						</Box>
 					</TouchableOpacity>
 				</Box>
-			</ScrollView>
+		</View>
 		</Sheet>
 	);
 };

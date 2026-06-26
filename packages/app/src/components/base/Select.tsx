@@ -44,8 +44,9 @@ export const Select = <T,>({
 						{renderItem(value) || placeholder}
 					</Text>
 				</ComboboxTrigger>
-				<ComboboxSheet>
-					{searchable && <ComboboxSearch />}
+				<ComboboxSheet
+					search={searchable ? <ComboboxSearch /> : undefined}
+				>
 					<ComboboxList
 						data={data}
 						filter={filter}

@@ -1,24 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-	Modal,
-	TouchableOpacity,
-	Animated,
-	View,
-	useWindowDimensions,
-} from "react-native";
-import type { ReactNode } from "react";
+	BottomSheetModal,
+	BottomSheetScrollView,
+	BottomSheetBackdrop,
+	type BottomSheetBackdropProps,
+	type BottomSheetBackgroundProps,
+} from "@gorhom/bottom-sheet";
+
+import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
+import { useHistoryBack } from "./useHistoryBack";
+import { HANDLE_BAR_HEIGHT } from "./sheetTypes";
+import { useContextBridge } from "../../internal/react-context-bridge";
 
-const HANDLE_HEIGHT = 28;
-const WIDE_BREAKPOINT = 640;
-const MAX_SHEET_WIDTH = 420;
-const ANIMATION_DURATION = 100;
-
-export interface SheetProps {
+interface SheetProps {
 	children: ReactNode;
 	open: boolean;
 	onClose: () => void;
+	/** Sheet height as a fraction of screen height (0–1). Default: 0.7. */
 	height?: number;
+	/** Whether the sheet wraps content in a ScrollView. Default: true. */
+	scrollable?: boolean;
+	keyboardShouldPersistTaps?: "always" | "never" | "handled";
 }
 
 export const Sheet = ({
@@ -26,155 +29,112 @@ export const Sheet = ({
 	open,
 	onClose,
 	height: heightRatio = 0.7,
+	scrollable = true,
+	keyboardShouldPersistTaps,
 }: SheetProps) => {
-	const [rendered, setRendered] = useState(false);
-	const { height: screenHeight, width: screenWidth } = useWindowDimensions();
-	const isWide = screenWidth >= WIDE_BREAKPOINT;
+	const sheetRef = useRef<BottomSheetModal>(null);
+	const userDismissed = useRef(false);
 
-	const sheetHeight = Math.max(
-		screenHeight * 0.3,
-		Math.min(screenHeight * 0.9, screenHeight * heightRatio),
-	);
+	useHistoryBack(open, onClose);
 
-	const slideAnim = useRef(new Animated.Value(1)).current;
-	const isVisible = useRef(false);
-	const didPushState = useRef(false);
+	const snapPoints = useMemo(() => {
+		const pct = Math.round(heightRatio * 100);
+		return [`${pct}%`, "100%"];
+	}, [heightRatio]);
 
-	useEffect(() => {
-		if (open && !isVisible.current) {
-			isVisible.current = true;
-			setRendered(true);
-			slideAnim.setValue(1);
-			Animated.timing(slideAnim, {
-				toValue: 0,
-				duration: ANIMATION_DURATION,
-				useNativeDriver: true,
-			}).start();
+	const [mounted, setMounted] = useState(false);
+	const ContextBridge = useContextBridge();
 
-			// Push history state on web so browser back closes the sheet
-			if (typeof window !== "undefined" && window.history?.pushState) {
-				window.history.pushState(null, "", window.location.href);
-				didPushState.current = true;
-			}
-		} else if (!open && isVisible.current) {
-			isVisible.current = false;
-
-			// Pop pushed history state
-			if (didPushState.current && typeof window !== "undefined" && window.history?.state) {
-				window.history.back();
-				didPushState.current = false;
-			}
-
-			// Animate down, then unmount
-			Animated.timing(slideAnim, {
-				toValue: 1,
-				duration: ANIMATION_DURATION,
-				useNativeDriver: true,
-			}).start(() => {
-				setRendered(false);
-			});
-		}
-	}, [open, slideAnim]);
-
-	// Listen for popstate (browser back) on web
-	useEffect(() => {
-		if (!rendered || typeof window === "undefined") return;
-
-		const handlePopState = () => {
-			if (isVisible.current) {
-				onClose();
-			}
-		};
-
-		window.addEventListener("popstate", handlePopState);
-		return () => window.removeEventListener("popstate", handlePopState);
-	}, [rendered, onClose]);
-
-	const close = useCallback(() => {
+	const handleDismiss = useCallback(() => {
+		userDismissed.current = true;
 		onClose();
 	}, [onClose]);
 
-	if (!rendered) return null;
+	const renderBackground = useCallback(
+		(props: BottomSheetBackgroundProps) => (
+			<Box
+				style={[
+					props.style,
+					{
+						backgroundColor: Colors.Background,
+						borderTopLeftRadius: 16,
+						borderTopRightRadius: 16,
+						overflow: "hidden",
+					},
+				]}
+			/>
+		),
+		[],
+	);
 
-	const translateY = slideAnim.interpolate({
-		inputRange: [0, 1],
-		outputRange: [0, sheetHeight + HANDLE_HEIGHT],
-	});
+	const renderHandle = useCallback(
+		() => (
+			<Box py={8} align="center" h={HANDLE_BAR_HEIGHT}>
+				<Box
+					w={36}
+					h={4}
+					radius={2}
+					bg={Colors.TextDimmed}
+				/>
+			</Box>
+		),
+		[],
+	);
+
+	const renderBackdrop = useCallback(
+		(props: BottomSheetBackdropProps) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				pressBehavior="close"
+			/>
+		),
+		[],
+	);
+
+	useEffect(() => {
+		if (open && !mounted) {
+			setMounted(true);
+		} else if (mounted) {
+			if (open) {
+				userDismissed.current = false;
+				setTimeout(() => {
+					sheetRef.current?.present();
+				}, 0);
+			} else if (!userDismissed.current) {
+				sheetRef.current?.dismiss();
+			}
+		}
+	}, [open, mounted]);
+
+	if (!mounted) return null;
 
 	return (
-		<Modal
-			visible
-			transparent
-			animationType="fade"
-			onRequestClose={close}
-			statusBarTranslucent
+		<BottomSheetModal
+			ref={sheetRef}
+			snapPoints={snapPoints}
+			onDismiss={handleDismiss}
+			enablePanDownToClose
+			animateOnMount
+			backgroundComponent={renderBackground}
+			handleComponent={renderHandle}
+			backdropComponent={renderBackdrop}
 		>
-			<View style={{ flex: 1 }}>
-				{/* Backdrop — covers everything */}
-				<TouchableOpacity
-					style={{ flex: 1, backgroundColor: "#00000066" }}
-					activeOpacity={1}
-					onPress={close}
-				/>
-
-				{/* Sheet card — overlaid on top of backdrop */}
-				{isWide ? (
-					<Animated.View
-						style={{
-							position: "absolute",
-							top: 0,
-							bottom: 0,
-							justifyContent: "center",
-							alignSelf: "center",
-							width: MAX_SHEET_WIDTH,
-							maxHeight: sheetHeight,
-							backgroundColor: Colors.Background,
-							borderRadius: 16,
-							overflow: "hidden",
-							transform: [{ translateY }],
-						}}
+			<ContextBridge>
+				{scrollable ? (
+					<BottomSheetScrollView
+						keyboardShouldPersistTaps={
+							keyboardShouldPersistTaps ?? "never"
+						}
 					>
-						<View style={{ paddingVertical: 8, alignItems: "center" }}>
-							<View
-								style={{
-									width: 36,
-									height: 4,
-									borderRadius: 2,
-									backgroundColor: Colors.TextDimmed,
-								}}
-							/>
-						</View>
 						{children}
-					</Animated.View>
+						<Box h={32} />
+					</BottomSheetScrollView>
 				) : (
-					<Animated.View
-						style={{
-							position: "absolute",
-							bottom: 0,
-							left: 0,
-							right: 0,
-							height: sheetHeight,
-							backgroundColor: Colors.Background,
-							borderTopLeftRadius: 16,
-							borderTopRightRadius: 16,
-							overflow: "hidden",
-							transform: [{ translateY }],
-						}}
-					>
-						<View style={{ paddingVertical: 8, alignItems: "center" }}>
-							<View
-								style={{
-									width: 36,
-									height: 4,
-									borderRadius: 2,
-									backgroundColor: Colors.TextDimmed,
-								}}
-							/>
-						</View>
-						{children}
-					</Animated.View>
+					children
 				)}
-			</View>
-		</Modal>
+			</ContextBridge>
+		</BottomSheetModal>
 	);
 };
