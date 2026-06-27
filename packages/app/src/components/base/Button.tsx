@@ -2,15 +2,16 @@ import { TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "./Text";
 import { Box, type BoxProps } from "./Box";
 import { Colors, ButtonTheme } from "../../theme/colors";
-import { FontSize, Radius } from "../../theme/sizing";
+import { ControlHeight, FontSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
 
 export type ButtonVariant = keyof typeof ButtonTheme;
 
 const SIZE_STYLES = {
-	sm: { pv: Spacing.sm, ph: Spacing.xs, fz: FontSize.sm },
-	md: { pv: Spacing.sm, ph: Spacing.sm, fz: FontSize.sm },
-} satisfies Record<string, { pv: number; ph: number; fz: number }>;
+	sm: { h: ControlHeight.sm, ph: Spacing.sm, fz: FontSize.xs },
+	md: { h: ControlHeight.md, ph: Spacing.sm, fz: FontSize.sm },
+	lg: { h: ControlHeight.lg, ph: Spacing.md, fz: FontSize.md },
+} satisfies Record<string, { h: number; ph: number; fz: number }>;
 
 export interface ButtonProps extends BoxProps {
 	children: React.ReactNode;
@@ -44,8 +45,8 @@ export const Button = ({
 	const vs = ButtonTheme[variant];
 	const ss = SIZE_STYLES[size];
 
-	// Selected: apply tinted bg for default/subtle, keep text readable
 	const useSelected = selected && (variant === "default" || variant === "subtle");
+	
 	const bg = dimmed
 		? Colors.BackgroundLight
 		: useSelected
@@ -53,6 +54,7 @@ export const Button = ({
 			: color && variant === "primary"
 				? color
 				: vs.bg;
+
 	const textColor = dimmed
 		? Colors.TextDimmed
 		: useSelected
@@ -73,9 +75,9 @@ export const Button = ({
 			gap={Spacing.xs}
 			radius={Radius.Default}
 			px={ss.ph}
-			py={ss.pv}
 			bg={bg}
 			op={dimmed ? 0.4 : undefined}
+			mih={ss.h}
 			style={style}
 			{...(rest as any)}
 		>
@@ -86,7 +88,9 @@ export const Button = ({
 					{children}
 				</Text>
 			) : (
-				<Box flex={1}>{children}</Box>
+				<Box flex={1} direction="row" align="center" gap={rest.gap}>
+					{children}
+				</Box>
 			)}
 			{rightSection}
 		</Box>

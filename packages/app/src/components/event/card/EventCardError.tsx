@@ -1,7 +1,7 @@
 import { useResolvedEvent } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
-import { Sizing, FontSize } from "../../../theme/sizing";
+import { FontSize } from "../../../theme/sizing";
 
 export const EventCardError = () => {
 	const { error } = useResolvedEvent();

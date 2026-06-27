@@ -9,7 +9,7 @@ import { IconGlobe, IconMap2, IconMapPin, IconProps, IconWorld } from "@tabler/i
 import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
-import { TextInput } from "../../base/TextInput";
+import { TextInput } from "../../base/input/TextInput";
 
 const ICONS: Record<Venue["$type"], ComponentType<IconProps>> = {
 	"directory.evnt.venue.physical": IconMapPin,

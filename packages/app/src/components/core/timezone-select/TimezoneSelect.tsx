@@ -1,7 +1,7 @@
 import { Combobox, ComboboxSheet, ComboboxSearch } from "../../base/combobox";
 import { TimezoneSelectTrigger } from "./TimezoneSelectTrigger";
 import { TimezoneSelectSheet } from "./TimezoneSelectSheet";
-import { InputWrapper, type InputWrapperProps } from "../../base/InputWrapper";
+import { InputWrapper, type InputWrapperProps } from "../../base/input/InputWrapper";
 
 export interface TimezoneSelectProps
 	extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {

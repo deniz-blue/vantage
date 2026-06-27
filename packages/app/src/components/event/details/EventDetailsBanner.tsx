@@ -2,7 +2,7 @@ import { useResolvedEvent } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
-import { Sizing, FontSize } from "../../../theme/sizing";
+import { FontSize } from "../../../theme/sizing";
 import { useRouter } from "expo-router";
 import { ActionIcon } from "../../base/ActionIcon";
 import { IconArrowLeft } from "@tabler/icons-react-native";

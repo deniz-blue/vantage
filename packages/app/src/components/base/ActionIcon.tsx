@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { TouchableOpacity } from "react-native";
 import { Box, type BoxProps } from "./Box";
 import { Colors } from "../../theme/colors";
-import { Radius } from "../../theme/sizing";
+import { ControlHeight, IconSize, Radius } from "../../theme/sizing";
 
 export type ActionIconVariant = "light" | "subtle";
 
@@ -16,10 +16,10 @@ export interface ActionIconProps extends BoxProps {
 }
 
 const SIZES = {
-	xs: { p: 0, radius: Radius.sm },
-	sm: { p: 6, radius: Radius.sm },
-	md: { p: 10, radius: Radius.sm },
-	lg: { p: 14, radius: Radius.md },
+	xs: { s: undefined, radius: Radius.xs },
+	sm: { s: ControlHeight.sm, radius: Radius.sm },
+	md: { s: ControlHeight.md, radius: Radius.sm },
+	lg: { s: ControlHeight.lg, radius: Radius.md },
 } as const;
 
 export const ActionIcon = ({
@@ -36,7 +36,7 @@ export const ActionIcon = ({
 	return (
 		<Box
 			component={onPress ? TouchableOpacity : undefined}
-			p={s.p}
+			{...(s.s !== undefined ? { w: s.s, h: s.s } : {})}
 			radius={s.radius}
 			bg={variant === "light" ? Colors.BackgroundLight : undefined}
 			align="center"

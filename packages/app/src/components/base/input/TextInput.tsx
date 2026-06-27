@@ -4,14 +4,21 @@ import {
 	type TextInputProps as RNTextInputProps,
 } from "react-native";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
-import { Box } from "./Box";
-import { FontSize, Radius } from "../../theme/sizing";
-import { Spacing } from "../../theme/spacing";
-import { Colors } from "../../theme/colors";
+import { Box } from "../Box";
+import { ControlHeight, FontSize, IconSize, Radius } from "../../../theme/sizing";
+import { Spacing } from "../../../theme/spacing";
+import { Colors } from "../../../theme/colors";
+
+const INPUT_SIZES = {
+	sm: { h: ControlHeight.sm, fz: FontSize.xs },
+	md: { h: ControlHeight.md, fz: FontSize.sm },
+	lg: { h: ControlHeight.lg, fz: FontSize.md },
+} as const;
 
 export interface TextInputProps
 	extends Omit<RNTextInputProps, "placeholderTextColor">,
 	Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
+	size?: keyof typeof INPUT_SIZES;
 	leftSection?: ReactNode;
 	rightSection?: ReactNode;
 }
@@ -21,11 +28,13 @@ export const TextInput = ({
 	description,
 	error,
 	required,
+	size = "md",
 	leftSection,
 	rightSection,
 	style,
 	...rest
 }: TextInputProps) => {
+	const inputSize = INPUT_SIZES[size];
 	const [focused, setFocused] = useState(false);
 
 	const handleFocus = useCallback(
@@ -53,7 +62,7 @@ export const TextInput = ({
 					color: Colors.Text,
 					backgroundColor: "transparent",
 					paddingVertical: Spacing.xs,
-					fontSize: FontSize.md,
+					fontSize: inputSize.fz,
 					fontFamily: "Lexend",
 					outlineWidth: 0,
 				},
@@ -78,6 +87,7 @@ export const TextInput = ({
 				gap={leftSection || rightSection ? Spacing.sm : undefined}
 				pl={!leftSection ? Spacing.sm : undefined}
 				pr={!rightSection ? Spacing.sm : undefined}
+				mih={inputSize.h}
 				style={[
 					{
 						backgroundColor: Colors.BackgroundInput,

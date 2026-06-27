@@ -29,7 +29,7 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 
 	return (
 		<Box>
-			<ComboboxTrigger>
+			<ComboboxTrigger py="sm" px="sm">
 				<Box direction="row" align="center" gap="sm">
 					<ActionIcon bg={Colors.PrimaryLight + "33"}>
 						<IconWorld size={IconSize.md} color={Colors.Primary} />

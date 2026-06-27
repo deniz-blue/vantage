@@ -5,7 +5,7 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TouchableOpacity } from "react-native";
 import { IconPencil, IconShare, IconReload } from "@tabler/icons-react-native";
-import { Sizing, FontSize, IconSize } from "../../../theme/sizing";
+import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 
 export const EventDetailsActions = () => {

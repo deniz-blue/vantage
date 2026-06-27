@@ -4,7 +4,7 @@ import type { SourceComponent } from "@evnt/types";
 import { IconExternalLink, IconQuestionMark, IconDatabase, IconWorld, IconBraces, IconAt, IconBrandWikipedia } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
-import { Sizing, FontSize, IconSize } from "../../../theme/sizing";
+import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
 

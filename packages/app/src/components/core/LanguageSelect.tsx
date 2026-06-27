@@ -4,7 +4,7 @@ import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
 import { ActionIcon } from "../base/ActionIcon";
-import { InputWrapper, type InputWrapperProps } from "../base/InputWrapper";
+import { InputWrapper, type InputWrapperProps } from "../base/input/InputWrapper";
 import {
 	Combobox,
 	ComboboxTrigger,
@@ -71,7 +71,7 @@ export const LanguageSelect = ({
 			required={required}
 		>
 			<Combobox value={value} onChange={onChange}>
-				<ComboboxTrigger>
+				<ComboboxTrigger py="sm" px="sm" gap="sm">
 					<ActionIcon bg={Colors.PrimaryLight + "33"}>
 						<IconLanguage size={IconSize.md} color={Colors.Primary} />
 					</ActionIcon>

@@ -9,7 +9,7 @@ import {
 import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
 import { useHistoryBack } from "../../hooks/useHistoryBack";
-import { useContextBridge } from "../../internal/react-context-bridge";
+import { FiberHandle, useContextBridge } from "../../internal/react-context-bridge";
 import { Animated, Modal, ScrollView, ScrollViewProps, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Breakpoints } from "../../theme/breakpoints";
 import { Radius } from "../../theme/sizing";
@@ -241,16 +241,19 @@ export const SheetImplBottomSheet = ({
 			backgroundComponent={renderBackground}
 			handleComponent={renderHandle}
 			backdropComponent={renderBackdrop}
+			stackBehavior="push"
 		>
-			<ContextBridge>
-				{scrollable ? (
-					<SheetScrollView
-						children={children}
-					/>
-				) : (
-					children
-				)}
-			</ContextBridge>
+			<FiberHandle>
+				<ContextBridge>
+					{scrollable ? (
+						<SheetScrollView
+							children={children}
+						/>
+					) : (
+						children
+					)}
+				</ContextBridge>
+			</FiberHandle>
 		</BottomSheetModal>
 	);
 };

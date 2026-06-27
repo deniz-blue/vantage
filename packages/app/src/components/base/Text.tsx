@@ -1,7 +1,7 @@
 import type { TextStyle } from "react-native";
 import { TextProps as RNTextProps, Text as RNText } from "react-native";
 import { Colors, getThemeColor, type ThemeColor } from "../../theme/colors";
-import { Sizing, FontSize } from "../../theme/sizing";
+import { FontSize } from "../../theme/sizing";
 
 export interface TextProps extends RNTextProps {
 	c?: ThemeColor;
@@ -27,6 +27,8 @@ export const Text = (props: TextProps) => {
 		style,
 		...rest
 	} = props;
+
+	if (!props.children) return null;
 
 	return (
 		<RNText

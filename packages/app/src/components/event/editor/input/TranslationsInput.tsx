@@ -1,8 +1,8 @@
 import { Translations } from "@evnt/types";
 import { Editor } from "../useEditor";
-import { InputWrapper, InputWrapperProps } from "../../../base/InputWrapper";
+import { InputWrapper, InputWrapperProps } from "../../../base/input/InputWrapper";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
-import { TextInput } from "../../../base/TextInput";
+import { TextInput } from "../../../base/input/TextInput";
 import { ActionIcon } from "../../../base/ActionIcon";
 import { IconLanguage } from "@tabler/icons-react-native";
 import { useTranslator } from "../../../../hooks/useTranslator";
@@ -28,7 +28,6 @@ export const TranslationsInput = ({
 				placeholder={t(editor.value) || placeholder || "Translation..."}
 				rightSection={(
 					<ActionIcon
-						size="sm"
 						variant="light"
 					>
 						<IconLanguage size={20} />

@@ -4,7 +4,7 @@ import { useEventListQuery, ResolvedEventContext } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { EventCard } from "../../event/card/EventCard";
-import { Sizing, FontSize } from "../../../theme/sizing";
+import { FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { Divider } from "../../base/Divider";
 

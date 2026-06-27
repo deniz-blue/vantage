@@ -5,7 +5,7 @@ import { EventsManager } from "@vantage/core";
 import { Sheet } from "../base/Sheet";
 import { Box } from "../base/Box";
 import { Text } from "../base/Text";
-import { TextInput } from "../base/TextInput";
+import { TextInput } from "../base/input/TextInput";
 import { Colors } from "../../theme/colors";
 
 export const JsonImportSheet = ({

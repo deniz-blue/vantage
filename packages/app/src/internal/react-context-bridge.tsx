@@ -1,5 +1,5 @@
 import { Fiber, traverseFiber } from "its-fine";
-import { Component, Context, createContext, PropsWithChildren, use, useContext, useId, useMemo, useState } from "react";
+import { Component, ComponentType, Context, createContext, Fragment, PropsWithChildren, use, useContext, useId, useMemo, useState } from "react";
 
 export const FiberHandleContext = createContext<Fiber | null>(null);
 
@@ -15,9 +15,9 @@ export class FiberHandle extends Component<PropsWithChildren> {
 	}
 };
 
-export function useFiber(): Fiber<null> | undefined {
+export function useFiber(): Fiber<null> | null {
 	const root = useContext(FiberHandleContext);
-	if (root === null) throw new Error('its-fine: useFiber must be called within a <FiberProvider />!');
+	if (root === null) return null;
 
 	const id = useId()
 	const fiber = useMemo(() => {
@@ -32,9 +32,9 @@ export function useFiber(): Fiber<null> | undefined {
 			})
 			if (fiber) return fiber
 		}
-	}, [root, id])
+	}, [root, id]) ?? null;
 
-	return fiber
+	return fiber;
 }
 
 const REACT_CONTEXT_TYPE = Symbol.for("react.context");
@@ -45,11 +45,16 @@ const isContext = <T,>(type: unknown): type is React.Context<T> =>
 export const useContextMap = () => {
 	const root = useContext(FiberHandleContext);
 	const fiber = useFiber();
-	if (!root) throw new Error("Root FiberHandle missing");
-
-	const [contextMap] = useState(() => new Map<Context<any>, any>())
-
+	
+	const [contextMap] = useState(() => new Map<Context<any>, any>());
 	contextMap.clear()
+
+	if (!root) {
+		console.error("useContextMap called outside of FiberHandleContext");
+		return contextMap;
+	};
+
+
 	let node = fiber
 	while (node) {
 		const context = node.type
@@ -68,7 +73,7 @@ export const useContextBridge = () => {
 	const contextMap = useContextMap();
 
 	const ContextBridge = useMemo(() => (
-		contextMap.entries().reduce((Prev, [Context, value]) => {
+		contextMap.entries().reduce((Prev: ComponentType<PropsWithChildren>, [Context, value]) => {
 			return ({ children }: PropsWithChildren) => (
 				<Prev>
 					<Context value={value}>
@@ -76,7 +81,7 @@ export const useContextBridge = () => {
 					</Context>
 				</Prev>
 			);
-		}, ({ children }: PropsWithChildren) => <>{children}</>)
+		}, Fragment)
 	), [contextMap]);
 
 	return ContextBridge;

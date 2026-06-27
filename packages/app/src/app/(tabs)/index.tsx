@@ -8,6 +8,8 @@ import { Sheet } from "../../components/base/Sheet";
 import { useHomeStore } from "../../stores/useHomeStore";
 import { HomeWidget } from "../../components/home/HomeWidget";
 import { Container } from "../../components/base/Container";
+import { TextInput } from "../../components/base/input/TextInput";
+import { ActionIcon } from "../../components/base/ActionIcon";
 
 export default function IndexPage() {
 	const router = useRouter();
@@ -62,6 +64,20 @@ export default function IndexPage() {
 					))}
 				</Box>
 			</Sheet>
+
+			<Box direction="row" gap="sm" align="center">
+				<TextInput
+					placeholder="Test"
+				/>
+
+				<Button>
+					___
+				</Button>
+
+				<ActionIcon>
+					<Text>X</Text>
+				</ActionIcon>
+			</Box>
 		</Container>
 	);
 }

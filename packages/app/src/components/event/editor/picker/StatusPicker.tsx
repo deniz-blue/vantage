@@ -4,7 +4,7 @@ import { Box } from "../../../base/Box";
 import { Combobox, ComboboxSheetList, ComboboxSheet, ComboboxTrigger } from "../../../base/combobox";
 import { IconCalendarCheck, IconCalendarOff, IconCalendarPause, IconCalendarQuestion, IconCalendarTime, IconProps } from "@tabler/icons-react-native";
 import { Text } from "../../../base/Text";
-import { InputWrapper } from "../../../base/InputWrapper";
+import { InputWrapper } from "../../../base/input/InputWrapper";
 import { FontSize } from "../../../../theme/sizing";
 
 const ICONS: Record<EventStatus, ComponentType<IconProps>> = {
