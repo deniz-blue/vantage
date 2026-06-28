@@ -1,16 +1,17 @@
 import { Pressable, StyleSheet, type ViewStyle } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { IconPlus, IconX } from "@tabler/icons-react-native";
 import { ActionIcon, type ActionIconProps } from "./ActionIcon";
 import { resolveColor } from "../../theme/colors";
 import { Radius } from "../../theme/sizing";
-import { ReactNode, useState } from "react";
-import { Box, BoxProps } from "./Box";
-import { Button, ButtonProps } from "./Button";
+import { type ReactNode, useState } from "react";
+import { Box, type BoxProps } from "./Box";
+import { Button, type ButtonProps } from "./Button";
 import { Text } from "./Text";
 
 export interface FabAction extends Omit<ButtonProps, "children"> {
 	label?: ReactNode;
-};
+}
 
 export interface FabProps extends Omit<ActionIconProps, "children"> {
 	wrapperProps?: BoxProps;
@@ -61,30 +62,36 @@ export const Fab = ({
 				right={16}
 				bottom={16}
 				align="flex-end"
-				gap={8}
 				style={[{ zIndex: 100 }, wrapperStyle]}
 				{...wrapperProps}
 			>
-				{open && actions.map(({ label, ...action }, index) => (
-					<Button
-						key={index}
-						style={[shadow, style]}
-						variant="primary"
-						size="lg"
-						radius={Radius.xl}
-						children={(
-							<Text c="White">
-								{label}
-							</Text>
-						)}
-						{...action}
-					/>
-				))}
+				{open && <Box direction="column">
+					{actions.map(({ label, ...action }, index) => (
+						<Animated.View
+							key={index}
+							entering={FadeIn}
+						>
+							<Button
+								style={[shadow, style]}
+								variant="primary"
+								size="lg"
+								radius={Radius.xl}
+								mb="sm"
+								children={(
+									<Text c="White">
+										{label}
+									</Text>
+								)}
+								{...action}
+							/>
+						</Animated.View>
+					))}
+				</Box>}
 
 				<ActionIcon
 					w={FAB_SIZE}
 					h={FAB_SIZE}
-					radius={open ? "50%" : Radius.xl}
+					radius={open ? FAB_SIZE / 2 : Radius.xl}
 					op={open ? 0.7 : 1}
 					bg={resolveColor(color)}
 					style={[shadow, style]}
@@ -94,7 +101,7 @@ export const Fab = ({
 					}}
 					{...(rest as any)}
 				>
-					{open ? <IconX /> : icon}
+					{open ? <IconX width={28} height={28} color="#fff" /> : icon}
 				</ActionIcon>
 			</Box>
 		</>
