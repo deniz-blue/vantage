@@ -8,9 +8,10 @@ import {
 	type TextInputProps as RNTextInputProps,
 } from "react-native";
 import { Spacing } from "../../../theme/spacing";
+import { InputBase } from "./InputBase";
 
 export interface TextInputSegment extends Omit<RNTextInputProps, "placeholderTextColor"> {
-
+	renderAfter?: React.ReactNode;
 };
 
 export interface SegmentedTextInputProps extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
@@ -37,24 +38,16 @@ export const SegmentedTextInput = ({
 			error={error}
 			required={required}
 		>
-			<Box
-				direction="row"
-				align="center"
-				gap="sm"
+			<InputBase
+				gap="xs"
 				px="sm"
-				style={[
-					{
-						backgroundColor: Colors.BackgroundInput,
-						borderRadius: Radius.Default,
-						borderWidth: 1,
-						borderColor: error ? "#f44336" : "transparent",
-						outlineWidth: focused.length ? 2 : 0,
-						outlineStyle: "solid",
-						outlineColor: Colors.Primary,
-					},
-				]}
+				focused={focused.length > 0}
+				style={{
+					borderWidth: 1,
+					borderColor: error ? "#f44336" : "transparent",
+				}}
 			>
-				{segments.map(({ style, ...segment }, index) => (
+				{segments.map(({ renderAfter, style, ...segment }, index) => (
 					<Fragment key={index}>
 						<RNTextInput
 							placeholderTextColor={Colors.TextDimmed}
@@ -75,12 +68,10 @@ export const SegmentedTextInput = ({
 							{...commonProps}
 							{...segment}
 						/>
-						{index < segments.length - 1 && (
-							separator
-						)}
+						{renderAfter}
 					</Fragment>
 				))}
-			</Box>
+			</InputBase>
 		</InputWrapper>
 	);
 };

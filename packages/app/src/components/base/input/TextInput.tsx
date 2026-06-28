@@ -4,10 +4,10 @@ import {
 	type TextInputProps as RNTextInputProps,
 } from "react-native";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
-import { Box } from "../Box";
-import { ControlHeight, FontSize, IconSize, Radius } from "../../../theme/sizing";
+import { ControlHeight, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { Colors } from "../../../theme/colors";
+import { InputBase } from "./InputBase";
 
 const INPUT_SIZES = {
 	sm: { h: ControlHeight.sm, fz: FontSize.xs },
@@ -81,29 +81,23 @@ export const TextInput = ({
 			error={error}
 			required={required}
 		>
-			<Box
-				direction="row"
-				align="center"
+			<InputBase
+				focused={focused}
+				size={size}
 				gap={leftSection || rightSection ? Spacing.sm : undefined}
 				pl={!leftSection ? Spacing.sm : undefined}
 				pr={!rightSection ? Spacing.sm : undefined}
-				mih={inputSize.h}
 				style={[
 					{
-						backgroundColor: Colors.BackgroundInput,
-						borderRadius: Radius.Default,
 						borderWidth: 1,
 						borderColor: error ? "#f44336" : "transparent",
-						outlineWidth: focused ? 2 : 0,
-						outlineStyle: "solid",
-						outlineColor: Colors.Primary,
 					},
 				]}
 			>
 				{leftSection}
 				{input}
 				{rightSection}
-			</Box>
+			</InputBase>
 		</InputWrapper>
 	);
 };

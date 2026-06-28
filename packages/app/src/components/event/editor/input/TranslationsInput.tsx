@@ -29,6 +29,7 @@ export const TranslationsInput = ({
 				rightSection={(
 					<ActionIcon
 						variant="light"
+						size="sm"
 					>
 						<IconLanguage size={20} />
 					</ActionIcon>
