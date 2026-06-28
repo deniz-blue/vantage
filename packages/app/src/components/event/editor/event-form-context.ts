@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { Editor } from "./useEditor";
+import { Editor } from "./editor";
 import { OpenEvnt } from "@evnt/types";
 
 export const EventFormContext = createContext<{

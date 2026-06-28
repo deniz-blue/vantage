@@ -27,17 +27,3 @@ export const createEditor = <T,>(value: T, setValue: (update: (prev: T) => T) =>
 
 	return editor;
 };
-
-export const useEditor = <T,>(
-	initialData: T | (() => T),
-) => {
-	const [value, setValue] = useState<T>(initialData);
-
-	const editor: Editor<T> = createEditor(value, setValue);
-
-	return { editor };
-};
-
-
-
-

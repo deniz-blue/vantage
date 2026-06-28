@@ -1,6 +1,6 @@
 import { OpenEvnt } from "@evnt/types";
 import { TextInput } from "../../base/input/TextInput";
-import { Editor } from "./useEditor";
+import { Editor } from "./editor";
 
 export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	const md: any = editor.value.components?.find(c => c.$type === "directory.evnt.richtext.markdown");

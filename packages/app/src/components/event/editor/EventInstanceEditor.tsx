@@ -1,7 +1,7 @@
 import { EventInstance } from "@evnt/types";
 import { formatDate, formatTime } from "@evnt/pretty";
 import { Box } from "../../base/Box";
-import { Editor } from "./useEditor";
+import { Editor } from "./editor";
 import { Card } from "../../base/Card";
 import { IconCalendar } from "@tabler/icons-react-native";
 import { CloseButton } from "../../base/CloseButton";

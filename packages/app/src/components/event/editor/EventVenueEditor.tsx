@@ -1,5 +1,5 @@
 import { PhysicalVenue, Venue } from "@evnt/types";
-import { Editor } from "./useEditor";
+import { Editor } from "./editor";
 import { Card } from "../../base/Card";
 import { Box } from "../../base/Box";
 import { CloseButton } from "../../base/CloseButton";

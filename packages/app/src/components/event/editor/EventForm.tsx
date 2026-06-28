@@ -1,6 +1,6 @@
 import { OpenEvnt, Venue } from "@evnt/types";
 import { Box } from "../../base/Box";
-import { Editor } from "./useEditor";
+import { Editor } from "./editor";
 import { TranslationsInput } from "./input/TranslationsInput";
 import { StatusPicker } from "./picker/StatusPicker";
 import { EventInstanceEditor } from "./EventInstanceEditor";

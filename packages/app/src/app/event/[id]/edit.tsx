@@ -3,7 +3,7 @@ import { ScrollView } from "react-native";
 import { useLocalSearchParams, Stack, useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { EventResolver, EventsManager } from "@vantage/core";
-import { createEditor, Editor, useEditor } from "@/components/event/editor/useEditor";
+import { createEditor, Editor } from "@/components/event/editor/editor";
 import { EventForm } from "@/components/event/editor/EventForm";
 import { Box } from "@/components/base/Box";
 import { Text } from "@/components/base/Text";

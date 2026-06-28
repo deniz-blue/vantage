@@ -1,5 +1,5 @@
 import { Translations } from "@evnt/types";
-import { Editor } from "../useEditor";
+import { Editor } from "../editor";
 import { InputWrapper, InputWrapperProps } from "../../../base/input/InputWrapper";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { TextInput } from "../../../base/input/TextInput";

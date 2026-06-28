@@ -5,7 +5,7 @@ import { OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
 import { Container } from "../../components/base/Container";
 import { EventForm } from "../../components/event/editor/EventForm";
-import { createEditor } from "../../components/event/editor/useEditor";
+import { createEditor } from "../../components/event/editor/editor";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { FontSize, IconSize } from "../../theme/sizing";
