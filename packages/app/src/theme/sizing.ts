@@ -22,7 +22,7 @@ export const FontSize = {
 	md: 16,
 	lg: 18,
 	xl: 20,
-	h1: 24,
+	h1: 20,
 } as const;
 
 export type ThemeRadius = keyof typeof Radius;

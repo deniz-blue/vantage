@@ -26,8 +26,6 @@ export const StatusPicker = ({
 	value: EventStatus;
 	onChange: (status: EventStatus) => void;
 }) => {
-	const [open, setOpen] = useState(false);
-
 	const Icon = ICONS[value];
 
 	return (

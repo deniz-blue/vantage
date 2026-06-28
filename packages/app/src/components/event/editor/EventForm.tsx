@@ -35,7 +35,7 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 				<EventFormVenues />
 
 				<Divider
-					leftSection={<Text c="TextDimmed" fw="600">Description</Text>}
+					leftSection={<Text c="TextDimmed" fw="600">Details</Text>}
 				/>
 
 				<EventDescriptionEditor editor={editor} />

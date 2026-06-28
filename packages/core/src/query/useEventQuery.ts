@@ -29,74 +29,6 @@ export const eventQueryFn = async (/* mut */ resolved: Vantage.ResolvedEvent): P
 	return resolved;
 };
 
-export const eventQueryFnOld = async (id: Vantage.EventId): Promise<Vantage.ResolvedEvent> => {
-	const result = await db
-		.select()
-		.from(schema.eventMeta)
-		.leftJoin(schema.eventCache, eq(schema.eventMeta.id, schema.eventCache.id))
-		.where(eq(schema.eventMeta.id, id))
-		.then(rows => rows[0]);
-
-	// hack
-	if (!result) return {
-		id: null,
-		data: null,
-		raw: null,
-		error: { kind: "db", message: "Event not found", status: 404 },
-		source: { type: "unknown" },
-		format: { type: "unknown" },
-		revision: {},
-	};
-
-	const {
-		event_cache: cached,
-		event_meta: { source, format },
-	} = result;
-
-	if (cached) {
-		const now = Temporal.Now.instant();
-		const maxAge = Temporal.Duration.from({ minutes: 5 });
-
-		if (true) return {
-			id,
-			data: cached?.parsed || null,
-			raw: cached?.raw || null,
-			error: cached?.error || null,
-			revision: cached?.revision || {},
-			source,
-			format,
-		};
-	};
-
-	const resolved = await eventQueryFnNoId(source, format);
-
-	if (source.type !== "local") {
-		const values: schema.EventCache = {
-			id,
-			error: resolved.error,
-			parsed: resolved.data,
-			raw: resolved.raw,
-			revision: resolved.revision,
-			updatedAt: Temporal.Now.instant(),
-			computed: createComputedData(resolved.data),
-		};
-
-		// This can continue in the background maybe
-		await db
-			.insert(schema.eventCache)
-			.values(values)
-			.onConflictDoUpdate({
-				target: schema.eventCache.id,
-				set: values,
-			});
-	};
-
-	return {
-		...resolved,
-		id,
-	};
-};
-
 export const eventQueryOptions = (id: Vantage.EventId) => {
 	return queryOptions({
 		queryKey: eventQueryKey(id),
@@ -116,13 +48,13 @@ export const useEventQueries = (ids: Vantage.EventId[]) => useQueries({
 });
 
 // TODO(WebOnly)
-export const queryChangeBroadcastChannel = new BroadcastChannel("vantage:event-query-changes");
-queryChangeBroadcastChannel.onmessage = (event) => {
-	const { id } = event.data as { id: Vantage.EventId };
-	queryClient.invalidateQueries({ queryKey: eventQueryKey(id) });
-};
+// export const queryChangeBroadcastChannel = new BroadcastChannel("vantage:event-query-changes");
+// queryChangeBroadcastChannel.onmessage = (event) => {
+// 	const { id } = event.data as { id: Vantage.EventId };
+// 	queryClient.invalidateQueries({ queryKey: eventQueryKey(id) });
+// };
 
 export const invalidateEventQuery = (id: Vantage.EventId) => {
-	queryChangeBroadcastChannel.postMessage({ id });
+	// queryChangeBroadcastChannel.postMessage({ id });
 	queryClient.invalidateQueries({ queryKey: eventQueryKey(id) });
 };

@@ -8,6 +8,7 @@ import { ControlHeight, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { Colors } from "../../../theme/colors";
 import { InputBase } from "./InputBase";
+import { BoxProps } from "../Box";
 
 const INPUT_SIZES = {
 	sm: { h: ControlHeight.sm, fz: FontSize.xs },
@@ -21,6 +22,7 @@ export interface TextInputProps
 	size?: keyof typeof INPUT_SIZES;
 	leftSection?: ReactNode;
 	rightSection?: ReactNode;
+	baseProps?: Omit<BoxProps, "children">;
 }
 
 export const TextInput = ({
@@ -32,6 +34,7 @@ export const TextInput = ({
 	leftSection,
 	rightSection,
 	style,
+	baseProps: { style: baseStyle, ...baseProps } = {},
 	...rest
 }: TextInputProps) => {
 	const inputSize = INPUT_SIZES[size];
@@ -59,6 +62,7 @@ export const TextInput = ({
 			style={[
 				{
 					flex: 1,
+					height: "100%",
 					color: Colors.Text,
 					backgroundColor: "transparent",
 					paddingVertical: Spacing.xs,
@@ -92,7 +96,9 @@ export const TextInput = ({
 						borderWidth: 1,
 						borderColor: error ? "#f44336" : "transparent",
 					},
+					baseStyle,
 				]}
+				{...baseProps}
 			>
 				{leftSection}
 				{input}

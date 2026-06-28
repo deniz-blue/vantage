@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { produce } from "immer";
 import type { Draft } from "immer";
 
@@ -8,17 +8,10 @@ export interface Editor<T> {
 	field: <U>(selector: (value: T) => U) => Editor<U>;
 }
 
-export const useEditor = <T,>(
-	initialData: T | (() => T),
-) => {
-	const [value, setValue] = useState<T>(initialData);
-
-	const rootUpdate = useCallback(
-		(recipe: (draft: Draft<T>) => void) => {
-			setValue((prev) => produce(prev, recipe));
-		},
-		[],
-	);
+export const createEditor = <T,>(value: T, setValue: (update: (prev: T) => T) => void) => {
+	const rootUpdate = (recipe: (draft: Draft<T>) => void) => {
+		setValue(prev => produce(prev, recipe));
+	};
 
 	const field = <U,>(selector: (value: T) => U): Editor<U> => ({
 		value: selector(value),
@@ -31,6 +24,16 @@ export const useEditor = <T,>(
 		update: rootUpdate,
 		field,
 	};
+
+	return editor;
+};
+
+export const useEditor = <T,>(
+	initialData: T | (() => T),
+) => {
+	const [value, setValue] = useState<T>(initialData);
+
+	const editor: Editor<T> = createEditor(value, setValue);
 
 	return { editor };
 };

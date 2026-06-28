@@ -2,7 +2,7 @@ import { useResolvedEvent } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
-import { FontSize } from "../../../theme/sizing";
+import { ControlHeight, FontSize } from "../../../theme/sizing";
 import { useRouter } from "expo-router";
 import { ActionIcon } from "../../base/ActionIcon";
 import { IconArrowLeft } from "@tabler/icons-react-native";
@@ -15,7 +15,7 @@ export const EventDetailsBanner = () => {
 		<Box
 			direction="row"
 			gap="sm"
-			py="sm"
+			py="md"
 			px="md"
 			style={{
 				shadowColor: "#000",
@@ -29,13 +29,14 @@ export const EventDetailsBanner = () => {
 				<ActionIcon
 					variant="subtle"
 					onPress={() => router.back()}
+					size="auto"
 				>
 					<IconArrowLeft size={20} />
 				</ActionIcon>
 			)}
 			<Box flex={1} gap={4}>
 				<TransText
-					fz={28}
+					fz={FontSize.h1}
 					fw="bold"
 					value={data?.name}
 					fallback={<Text fz={16} fst="italic" c="TextDimmed">Untitled event</Text>}

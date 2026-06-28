@@ -1,10 +1,9 @@
-import { ComponentProps, useCallback, useRef, type ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { LayoutChangeEvent, ScrollView, TouchableOpacity } from "react-native";
 import { IconCheck } from "@tabler/icons-react-native";
 import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
-import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { SheetScrollView } from "../Sheet";
 
 export interface ComboboxListProps<T> {

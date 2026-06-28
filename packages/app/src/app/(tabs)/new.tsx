@@ -1,7 +1,11 @@
+import { useMutation } from "@tanstack/react-query";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { OpenEvnt } from "@evnt/types";
+import { EventsManager } from "@vantage/core";
 import { Container } from "../../components/base/Container";
 import { EventForm } from "../../components/event/editor/EventForm";
-import { useEditor } from "../../components/event/editor/useEditor";
+import { createEditor } from "../../components/event/editor/useEditor";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { FontSize, IconSize } from "../../theme/sizing";
@@ -12,7 +16,31 @@ import { ScrollView } from "react-native";
 import { IconDatabase } from "@tabler/icons-react-native";
 
 export default function NewEventPage() {
-	const { editor } = useEditor((): OpenEvnt => ({ v: "0.1", name: {} }));
+	const router = useRouter();
+	const [form, setForm] = useState<OpenEvnt>({ v: "0.1", name: {} });
+	const editor = createEditor(form, setForm);
+
+	useFocusEffect(
+		useCallback(() => {
+			setForm({ v: "0.1", name: {} });
+		}, []),
+	);
+
+	const save = useMutation({
+		mutationFn: async () => {
+			const raw = JSON.stringify(editor.value);
+			return await EventsManager.addEventWithCache({
+				source: { type: "local" },
+				format: { type: "directory.evnt.event" },
+				raw,
+				parsed: editor.value,
+				error: null,
+			});
+		},
+		onSuccess: (id) => {
+			router.push(`/event/${id}`);
+		},
+	});
 
 	return (
 		<Box flex={1}>
@@ -22,7 +50,7 @@ export default function NewEventPage() {
 						<Box gap="md" flex={1} mb={300}>
 							<Box>
 								<Text fz={FontSize.h1} fw="bold">
-									New Event
+									Create Event
 								</Text>
 							</Box>
 
@@ -48,10 +76,6 @@ export default function NewEventPage() {
 								/>
 							</Box>
 
-							<Text fz={FontSize.sm} c="Yellow">
-								This page is a work in progress.
-							</Text>
-
 							<Divider />
 
 							<EventForm editor={editor} />
@@ -61,8 +85,13 @@ export default function NewEventPage() {
 			</Box>
 			<Box pos="absolute" style={{ bottom: 0 }} w="100%">
 				<Container size="sm" flex={1} pb="md">
-					<Button variant="primary" w="100%" onPress={() => { }}>
-						Save
+					<Button
+						variant="primary"
+						w="100%"
+						loading={save.isPending}
+						onPress={() => save.mutate()}
+					>
+						{save.isPending ? "Saving…" : "Save"}
 					</Button>
 				</Container>
 			</Box>

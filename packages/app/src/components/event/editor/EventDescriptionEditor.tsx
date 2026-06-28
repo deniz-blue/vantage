@@ -9,10 +9,11 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 	return (
 		<TextInput
 			label="Event Description"
-			placeholder="Enter a description for your event"
+			placeholder={"Add a description...\nSupports Markdown formatting"}
 			value={value}
 			multiline
 			textAlignVertical="top"
+			baseProps={{ style: { height: 100 } }}
 			onChangeText={(text) => {
 				editor.update(d => {
 					if (!d.components) d.components = [];
