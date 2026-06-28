@@ -4,6 +4,7 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { Divider } from "../../base/Divider";
 import { FontSize, Radius } from "../../../theme/sizing";
+import { Loader } from "../../base/Loader";
 
 export namespace WttrIn {
 	export interface Response {
@@ -104,8 +105,8 @@ export const WidgetWttrIn = () => {
 	const feelsNote = feelsLike !== temp ? ` (feels like ${feelsLike}°C)` : "";
 
 	return (
-		<Box gap="sm">
-			<Divider px="md" label={<Text fz={FontSize.sm} c="TextDimmed" fw="bold">Weather</Text>} />
+		<Box gap={0}>
+			<Divider px="md" leftSection={<Text fw="bold">Weather</Text>} />
 
 			<Box bg="BackgroundLight" radius={Radius.sm} p="sm" gap="sm" mx="md">
 				<Box direction="row" gap="sm" align="center">
@@ -117,7 +118,11 @@ export const WidgetWttrIn = () => {
 						align="center"
 						justify="center"
 					>
-						<Text fz={28}>{current ? codeToEmoji(current.weatherCode) : "—"}</Text>
+						{current ? (
+							<Text fz={28}>{codeToEmoji(current.weatherCode)}</Text>
+						) : (
+							query.isLoading ? <Loader /> : <Text fz={28}>❓</Text>
+						)}
 					</Box>
 					<Box flex={1} gap={2}>
 						<Text fz={FontSize.sm} fw="bold">
@@ -135,7 +140,7 @@ export const WidgetWttrIn = () => {
 				</Box>
 			</Box>
 
-			{hourly.length > 0 && (
+			{/* {hourly.length > 0 && (
 				<Box component={ScrollView} horizontal showsHorizontalScrollIndicator={false}>
 					<Box direction="row" gap="sm" px="md">
 						{hourly.map((hour) => (
@@ -157,7 +162,7 @@ export const WidgetWttrIn = () => {
 						))}
 					</Box>
 				</Box>
-			)}
+			)} */}
 		</Box>
 	);
 };

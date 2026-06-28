@@ -48,6 +48,10 @@ export default function NewEventPage() {
 								/>
 							</Box>
 
+							<Text fz={FontSize.sm} c="Yellow">
+								This page is a work in progress.
+							</Text>
+
 							<Divider />
 
 							<EventForm editor={editor} />

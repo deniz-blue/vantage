@@ -19,7 +19,7 @@ export const WidgetUpcomingEvents = () => {
 	});
 
 	return (
-		<Box gap="sm">
+		<Box gap={0}>
 			<Divider
 				px="md"
 				leftSection={<Text fw="bold">Upcoming Events</Text>}

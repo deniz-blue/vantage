@@ -12,7 +12,6 @@ import { TextInput } from "../../components/base/input/TextInput";
 import { ActionIcon } from "../../components/base/ActionIcon";
 
 export default function IndexPage() {
-	const router = useRouter();
 	const widgets = useHomeStore((s) => s.widgets);
 	const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -20,7 +19,7 @@ export default function IndexPage() {
 	const handleTestSheetClose = useCallback(() => setSheetOpen(false), []);
 
 	return (
-		<Container size="lg" flex={1} px={0}>
+		<Container size="lg" flex={1} px={0} gap="md">
 			<Box px="md" pt="md" pb={4}>
 				<Text fz={24} fw="bold">
 					Vantage
@@ -29,8 +28,6 @@ export default function IndexPage() {
 					An open-source event calendar for everyone
 				</Text>
 			</Box>
-
-			<Fab onPress={() => router.push("/new")} />
 
 			{widgets.map((widget, index) => (
 				<HomeWidget key={index} widget={widget} />
@@ -64,20 +61,6 @@ export default function IndexPage() {
 					))}
 				</Box>
 			</Sheet>
-
-			<Box direction="row" gap="sm" align="center">
-				<TextInput
-					placeholder="Test"
-				/>
-
-				<Button>
-					___
-				</Button>
-
-				<ActionIcon>
-					<Text>X</Text>
-				</ActionIcon>
-			</Box>
 		</Container>
 	);
 }

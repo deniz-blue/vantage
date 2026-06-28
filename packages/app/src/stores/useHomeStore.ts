@@ -20,8 +20,8 @@ export const useHomeStore = create<HomeState>()(
 	persist(
 		immer(() => ({
 			widgets: [
-				{ $type: "vantage.events.upcoming" },
 				{ $type: "wttr.in" },
+				{ $type: "vantage.events.upcoming" },
 			],
 		})),
 		{

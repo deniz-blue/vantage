@@ -6,13 +6,10 @@ import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Loader } from "../../components/base/Loader";
 import { EmptyState } from "../../components/base/EmptyState";
-import { Fab } from "../../components/base/Fab";
 import { EventCard } from "../../components/event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { Spacing } from "../../theme/spacing";
 import { Container } from "../../components/base/Container";
-
-const FAB_SIZE = 56;
 
 const PAGE_SIZE = 20;
 
@@ -63,7 +60,7 @@ export default function List() {
 	return (
 		<Box flex={1}>
 			<Box component={ScrollView} flex={1} onScroll={handleScroll} scrollEventThrottle={THROTTLE_MS}>
-				<Box pt="md" pb={FAB_SIZE + Spacing.md} gap={Spacing.sm}>
+				<Box pt="md" gap={Spacing.sm}>
 					<Container size="lg" pb={4}>
 						<Text fz={24} fw="bold">
 							Events
@@ -105,10 +102,10 @@ export default function List() {
 							</Box>
 						)}
 					</Box>
+
+					<Box h={200} />
 				</Box>
 			</Box>
-
-			<Fab onPress={() => router.push("/new")} />
 		</Box>
 	);
 }

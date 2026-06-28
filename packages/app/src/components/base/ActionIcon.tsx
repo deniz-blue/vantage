@@ -12,7 +12,7 @@ export interface ActionIconProps extends BoxProps {
 	disabled?: boolean;
 	onPress?: () => void;
 	variant?: ActionIconVariant;
-	size?: keyof typeof SIZES;
+	size?: "auto" | keyof typeof SIZES;
 }
 
 const SIZES = {
@@ -31,13 +31,13 @@ export const ActionIcon = ({
 	size = "md",
 	...rest
 }: ActionIconProps) => {
-	const s = SIZES[size];
+	const s = size === "auto" ? undefined : SIZES[size];
 
 	return (
 		<Box
 			component={onPress ? TouchableOpacity : undefined}
-			{...(s.s !== undefined ? { w: s.s, h: s.s } : {})}
-			radius={s.radius}
+			{...(s?.s !== undefined ? { w: s.s, h: s.s } : {})}
+			radius={s?.radius}
 			bg={variant === "light" ? Colors.BackgroundLight : undefined}
 			align="center"
 			justify="center"
