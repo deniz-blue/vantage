@@ -17,8 +17,8 @@ export default function RootLayout() {
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<BottomSheetModalProvider>
-				<QueryClientProvider client={queryClient}>
-					<FiberHandle>
+				<FiberHandle>
+					<QueryClientProvider client={queryClient}>
 						<Box flex={1} bg={Colors.Background}>
 							<Stack screenOptions={{
 								contentStyle: { backgroundColor: Colors.Background },
@@ -37,8 +37,8 @@ export default function RootLayout() {
 								/>
 							</Stack>
 						</Box>
-					</FiberHandle>
-				</QueryClientProvider>
+					</QueryClientProvider>
+				</FiberHandle>
 			</BottomSheetModalProvider>
 		</GestureHandlerRootView>
 	);

@@ -66,13 +66,17 @@ export const Fab = ({
 				{...wrapperProps}
 			>
 				{open && <Box direction="column">
-					{actions.map(({ label, ...action }, index) => (
+					{actions.map(({ label, onPress, ...action }, index) => (
 						<Animated.View
 							key={index}
 							entering={FadeIn}
 						>
 							<Button
 								style={[shadow, style]}
+								onPress={() => {
+									onPress?.();
+									setOpen(false);
+								}}
 								variant="primary"
 								size="lg"
 								radius={Radius.xl}

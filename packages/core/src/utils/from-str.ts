@@ -77,14 +77,16 @@ export const inferSourceFormat = async (str: string): Promise<{
 		if (!response.ok) throw new Error("Failed to fetch URL: " + response.statusText);
 		let format: Vantage.EventFormat = { type: "unknown" } as const;
 		const contentType = response.headers.get("content-type") ?? "";
-		if (contentType.includes("application/json")) {
+		if (contentType.includes("application/json") || str.endsWith(".json")) {
 			const data = await response.json();
 			if (data && typeof data === "object" && "$type" in data && typeof data.$type === "string") {
 				if (data.$type === "directory.evnt.event" || data.$type === "community.lexicon.calendar.event") {
 					format = { type: data.$type };
 				}
+			} else if (data && typeof data === "object" && "v" in data && "name" in data) {
+				format = { type: "directory.evnt.event" };
 			}
-		} else if (contentType.includes("text/calendar")) {
+		} else if (contentType.includes("text/calendar") || str.endsWith(".ics")) {
 			format = { type: "ics" };
 		}
 		return {
