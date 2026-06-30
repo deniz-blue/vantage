@@ -58,6 +58,9 @@ export interface ShorthandStyleProps {
 	align?: ViewStyle["alignItems"];
 	justify?: ViewStyle["justifyContent"];
 	wrap?: ViewStyle["flexWrap"];
+
+	/** Shorthand for position: absolute, top/right/bottom/left: 0 */
+	absoluteFill?: boolean;
 }
 
 type Entry = readonly [
@@ -113,6 +116,14 @@ export const resolveShorthand = (props: ShorthandStyleProps): ViewStyle => {
 		const value = props[prop];
 		if (value === undefined) continue;
 		(style as any)[styleKey] = resolve ? resolve(value) : value;
+	}
+
+	if (props.absoluteFill) {
+		style.position = "absolute";
+		style.top = 0;
+		style.right = 0;
+		style.bottom = 0;
+		style.left = 0;
 	}
 
 	return style;

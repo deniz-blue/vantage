@@ -25,7 +25,8 @@ export const Box = <T extends ElementType = typeof View>(props: BoxProps<T>) => 
 		m, mx, my, mt, mr, mb, ml,
 		bg, op, radius, rtl, rtr, rbl, rbr,
 		gap, rowGap, columnGap,
-		flex, direction, align, justify, wrap,
+		flex, flexGrow, flexShrink, direction, align, justify, wrap,
+		absoluteFill,
 		style,
 		...passthrough
 	} = rest;
@@ -37,7 +38,8 @@ export const Box = <T extends ElementType = typeof View>(props: BoxProps<T>) => 
 		m, mx, my, mt, mr, mb, ml,
 		bg, op, radius, rtl, rtr, rbl, rbr,
 		gap, rowGap, columnGap,
-		flex, direction, align, justify, wrap,
+		flex, flexGrow, flexShrink, direction, align, justify, wrap,
+	absoluteFill,
 	};
 
 	return (
