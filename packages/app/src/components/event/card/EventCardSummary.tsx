@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import { useResolvedEvent } from "@vantage/core";
 import { groupDates, formatDate, formatDateRange, formatTimeRange } from "@evnt/pretty";
+import type { Venue } from "@evnt/types";
+import { TranslationsUtil } from "@evnt/translations";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
-import { IconCalendar, IconClock } from "@tabler/icons-react-native";
+import { useTranslator } from "../../../hooks/useTranslator";
+import { IconCalendar, IconClock, IconMapPin, IconWorld, IconWorldPin } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
 import { FontSize, IconSize } from "../../../theme/sizing";
 
@@ -15,11 +18,17 @@ export const EventCardSummary = () => {
 	const { data } = useResolvedEvent();
 	const locale = useLocaleStore((s) => s.language);
 	const timezone = useLocaleStore((s) => s.timezone);
+	const translate = useTranslator();
 
 	const groups = useMemo(() => {
 		if (!data?.instances) return [];
 		return groupDates(data.instances, true);
 	}, [data?.instances]);
+
+	const venueMap = useMemo(() => {
+		if (!data?.venues) return new Map<string, Venue>();
+		return new Map(data.venues.map((v) => [v.id, v]));
+	}, [data?.venues]);
 
 	if (!groups || groups.length === 0) return null;
 
@@ -27,8 +36,44 @@ export const EventCardSummary = () => {
 	const overflow = groups.length - MAX_VISIBLE;
 	const config = { language: locale, timezone, compactDates: true };
 
+	// If all shown groups share the same venueIds, render venues once at top
+	const allShareVenues = shown.length > 1
+		? shown.every(
+			(g) =>
+				g.venueIds.length === shown[0].venueIds.length &&
+				g.venueIds.every((id, i) => id === shown[0].venueIds[i]),
+		)
+		: false;
+	const sharedVenues = allShareVenues ? shown[0].venueIds : null;
+
+	const renderVenueRow = (vid: string) => {
+		const venue = venueMap.get(vid);
+		if (!venue) return null;
+
+		const icon = venue.$type === "directory.evnt.venue.online"
+			? <IconWorld size={IconSize.md} color={Colors.Text} />
+			: venue.$type === "directory.evnt.venue.physical"
+				? <IconMapPin size={IconSize.md} color={Colors.Text} />
+				: <IconWorldPin size={IconSize.md} color={Colors.Text} />;
+
+		const name = TranslationsUtil.isEmpty(venue.name)
+			? "Unnamed venue"
+			: translate(venue.name);
+
+		return (
+			<Box key={vid} direction="row" gap={4}>
+				{icon}
+				<Text fz={FontSize.md} numberOfLines={1}>
+					{name}
+				</Text>
+			</Box>
+		);
+	};
+
 	return (
 		<Box mt="xs" gap={4}>
+			{sharedVenues?.map(renderVenueRow)}
+
 			{shown.map((group, i) => {
 				const { dates } = group;
 				if (!dates) return null;
@@ -63,6 +108,7 @@ export const EventCardSummary = () => {
 								</Text>
 							</Box>
 						)}
+						{!sharedVenues && group.venueIds.map(renderVenueRow)}
 					</Box>
 				);
 			})}
