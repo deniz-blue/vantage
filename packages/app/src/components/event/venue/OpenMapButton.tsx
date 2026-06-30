@@ -1,5 +1,5 @@
 import { Venue } from "@evnt/types";
-import { Button } from "../../base/Button";
+import { Button } from "../../base/button/Button";
 import { IconExternalLink } from "@tabler/icons-react-native";
 import { IconSize } from "../../../theme/sizing";
 import { Fragment, useEffect, useState } from "react";

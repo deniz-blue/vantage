@@ -1,8 +1,8 @@
 import { TouchableOpacity } from "react-native";
-import { Box, BoxProps } from "./Box";
+import { Box, BoxProps } from "../Box";
 import { IconX } from "@tabler/icons-react-native";
-import { Colors } from "../../theme/colors";
-import { IconSize } from "../../theme/sizing";
+import { Colors } from "../../../theme/colors";
+import { IconSize } from "../../../theme/sizing";
 
 export interface CloseButtonProps extends Omit<BoxProps, "children"> {
 	onPress?: () => void;

@@ -3,13 +3,13 @@ import { useRouter } from "expo-router";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Fab } from "../../components/base/Fab";
-import { Button } from "../../components/base/Button";
+import { Button } from "../../components/base/button/Button";
 import { Sheet } from "../../components/base/Sheet";
 import { useHomeStore } from "../../stores/useHomeStore";
 import { HomeWidget } from "../../components/home/HomeWidget";
 import { Container } from "../../components/base/Container";
 import { TextInput } from "../../components/base/input/TextInput";
-import { ActionIcon } from "../../components/base/ActionIcon";
+import { ActionIcon } from "../../components/base/button/ActionIcon";
 
 export default function IndexPage() {
 	const widgets = useHomeStore((s) => s.widgets);

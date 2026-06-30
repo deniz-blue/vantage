@@ -2,7 +2,7 @@ import { PhysicalVenue, Venue } from "@evnt/types";
 import { Editor } from "./editor";
 import { Card } from "../../base/Card";
 import { Box } from "../../base/Box";
-import { CloseButton } from "../../base/CloseButton";
+import { CloseButton } from "../../base/button/CloseButton";
 import { TranslationsInput } from "./input/TranslationsInput";
 import { ComponentType } from "react";
 import { IconGlobe, IconMap2, IconMapPin, IconProps, IconWorld } from "@tabler/icons-react-native";

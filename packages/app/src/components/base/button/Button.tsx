@@ -1,15 +1,15 @@
 import { TouchableOpacity, ActivityIndicator } from "react-native";
-import { Text } from "./Text";
-import { Box, type BoxProps } from "./Box";
-import { Colors } from "../../theme/colors";
-import { ControlHeight, FontSize, Radius } from "../../theme/sizing";
-import { Spacing } from "../../theme/spacing";
+import { Text } from "../Text";
+import { Box, type BoxProps } from "../Box";
+import { Colors } from "../../../theme/colors";
+import { ControlHeight, FontSize, Radius } from "../../../theme/sizing";
+import { Spacing } from "../../../theme/spacing";
 
 export const ButtonTheme = {
 	default: { bg: Colors.BackgroundLight, text: Colors.Text },
 	primary: { bg: Colors.Primary, text: Colors.White },
 	subtle: { bg: "transparent", text: Colors.Text },
-	danger: { bg: Colors.Red, text: Colors.White },
+	danger: { bg: Colors.Danger, text: Colors.White },
 } as const;
 
 export type ButtonVariant = keyof typeof ButtonTheme;
@@ -59,21 +59,17 @@ export const Button = ({
 
 	const useSelected = selected && (variant === "default" || variant === "subtle");
 
-	const bg = dimmed
-		? Colors.BackgroundLight
-		: useSelected
-			? (color ?? Colors.PrimaryTint)
-			: color && variant === "primary"
-				? color
-				: vs.bg;
+	const bg = useSelected
+		? (color ?? Colors.PrimaryTint)
+		: (color && variant === "primary")
+			? color
+			: vs.bg;
 
-	const textColor = dimmed
-		? Colors.TextDimmed
-		: useSelected
-			? Colors.Text
-			: color && variant !== "primary"
-				? color
-				: vs.text;
+	const textColor = useSelected
+		? Colors.Text
+		: (color && variant !== "primary")
+			? color
+			: vs.text;
 
 	return (
 		<Box<typeof TouchableOpacity>

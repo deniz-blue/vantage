@@ -1,5 +1,5 @@
 import { IconChevronRight } from "@tabler/icons-react-native";
-import { Button, ButtonProps } from "../../base/Button";
+import { Button, ButtonProps } from "../button/Button";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
 import { IconSize } from "../../../theme/sizing";

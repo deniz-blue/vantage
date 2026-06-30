@@ -4,7 +4,7 @@ import { IconHome, IconList, IconSettings } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { PlusFab } from "../../components/app/PlusFab";
 import { Box } from "../../components/base/Box";
-import { ActionIcon } from "../../components/base/ActionIcon";
+import { ActionIcon } from "../../components/base/button/ActionIcon";
 import { IconSize } from "../../theme/sizing";
 import { Container } from "../../components/base/Container";
 

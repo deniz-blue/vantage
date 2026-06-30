@@ -4,7 +4,7 @@ import { Box } from "../../base/Box";
 import { Editor } from "./editor";
 import { Card } from "../../base/Card";
 import { IconCalendar } from "@tabler/icons-react-native";
-import { CloseButton } from "../../base/CloseButton";
+import { CloseButton } from "../../base/button/CloseButton";
 import { Colors } from "../../../theme/colors";
 import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";

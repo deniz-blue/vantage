@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { InputWrapper, InputWrapperProps } from "./input/InputWrapper";
 import { Box } from "./Box";
 import { Text } from "./Text";
-import { Button } from "./Button";
+import { Button } from "./button/Button";
 import { FontSize } from "../../theme/sizing";
 
 export interface SegmentedControlProps<T extends string> extends Omit<InputWrapperProps, "children"> {

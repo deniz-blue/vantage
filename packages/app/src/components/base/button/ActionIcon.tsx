@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { TouchableOpacity } from "react-native";
-import { Box, type BoxProps } from "./Box";
-import { Colors } from "../../theme/colors";
-import { ControlHeight, IconSize, Radius } from "../../theme/sizing";
+import { Box, type BoxProps } from "../Box";
+import { Colors } from "../../../theme/colors";
+import { ControlHeight, IconSize, Radius } from "../../../theme/sizing";
 
 export type ActionIconVariant = "light" | "subtle";
 

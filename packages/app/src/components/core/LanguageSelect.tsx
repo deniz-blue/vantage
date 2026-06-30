@@ -3,7 +3,7 @@ import { LANGUAGES } from "@vantage/intl";
 import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
-import { ActionIcon } from "../base/ActionIcon";
+import { ActionIcon } from "../base/button/ActionIcon";
 import { InputWrapper, type InputWrapperProps } from "../base/input/InputWrapper";
 import {
 	Combobox,

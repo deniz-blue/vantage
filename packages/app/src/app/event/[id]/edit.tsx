@@ -7,7 +7,7 @@ import { createEditor, Editor } from "@/components/event/editor/editor";
 import { EventForm } from "@/components/event/editor/EventForm";
 import { Box } from "@/components/base/Box";
 import { Text } from "@/components/base/Text";
-import { Button } from "@/components/base/Button";
+import { Button } from "@/components/base/button/Button";
 import { Colors } from "@/theme/colors";
 import { Container } from "@/components/base/Container";
 import { FontSize } from "@/theme/sizing";

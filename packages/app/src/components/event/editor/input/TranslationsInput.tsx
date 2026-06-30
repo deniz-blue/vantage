@@ -3,7 +3,7 @@ import { Editor } from "../editor";
 import { InputWrapper, InputWrapperProps } from "../../../base/input/InputWrapper";
 import { useLocaleStore } from "../../../../stores/useLocaleStore";
 import { TextInput } from "../../../base/input/TextInput";
-import { ActionIcon } from "../../../base/ActionIcon";
+import { ActionIcon } from "../../../base/button/ActionIcon";
 import { IconLanguage } from "@tabler/icons-react-native";
 import { useTranslator } from "../../../../hooks/useTranslator";
 

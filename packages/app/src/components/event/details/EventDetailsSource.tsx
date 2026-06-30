@@ -7,7 +7,7 @@ import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
-import { Button } from "../../base/Button";
+import { Button } from "../../base/button/Button";
 
 export const EventDetailsSource = () => {
 	const { source, format, data } = useResolvedEvent();

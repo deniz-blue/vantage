@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { inferSourceFormat, eventQueryFnNoId, EventsManager, ResolvedEventContext } from "@vantage/core";
 import { Sheet } from "../base/Sheet";
 import { Box } from "../base/Box";
-import { Button } from "../base/Button";
+import { Button } from "../base/button/Button";
 import { TextInput } from "../base/input/TextInput";
 import { Text } from "../base/Text";
 import { EventCard } from "../event/card/EventCard";

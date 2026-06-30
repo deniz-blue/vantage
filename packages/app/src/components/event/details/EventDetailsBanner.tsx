@@ -4,7 +4,7 @@ import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { FontSize } from "../../../theme/sizing";
 import { useRouter } from "expo-router";
-import { ActionIcon } from "../../base/ActionIcon";
+import { ActionIcon } from "../../base/button/ActionIcon";
 import { IconArrowLeft } from "@tabler/icons-react-native";
 import { ActivityIndicator } from "react-native";
 import { Colors } from "../../../theme/colors";

@@ -23,6 +23,9 @@ const Palette = {
 
 	Grape6: "#be4bdb",
 	Grape7: "#ae3ec9",
+
+	Red7: "#f03e3e",
+	Red8: "#e03131",
 };
 
 export const Colors = {
@@ -36,6 +39,8 @@ export const Colors = {
 	Text: Palette.Dark0,
 	TextDimmed: Palette.Dark2,
 	Border: Palette.Dark8,
+
+	Danger: Palette.Red7 + "33",
 
 	// Named CSS colors
 	Red: "#f44336",

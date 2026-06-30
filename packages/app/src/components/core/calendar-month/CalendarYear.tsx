@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Box } from "../../base/Box";
-import { Button } from "../../base/Button";
+import { Button } from "../../base/button/Button";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { IconCheck } from "@tabler/icons-react-native";
 import { FontSize, IconSize } from "../../../theme/sizing";

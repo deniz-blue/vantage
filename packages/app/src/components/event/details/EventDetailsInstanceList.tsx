@@ -6,7 +6,7 @@ import { PartialDateUtil } from "@evnt/partial-date";
 import { TranslationsUtil } from "@evnt/translations";
 import { IconCalendar, IconCalendarQuestion, IconExternalLink, IconMapPin, IconWorld, IconWorldPin } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
-import { Button } from "../../base/Button";
+import { Button } from "../../base/button/Button";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";

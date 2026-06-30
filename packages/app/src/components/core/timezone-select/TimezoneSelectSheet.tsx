@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { LayoutChangeEvent, ScrollView } from "react-native";
 import { useComboboxCtx } from "../../base/combobox";
 import { Box } from "../../base/Box";
-import { Button } from "../../base/Button";
+import { Button } from "../../base/button/Button";
 import { Divider } from "../../base/Divider";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";

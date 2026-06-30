@@ -6,7 +6,7 @@ import { StatusPicker } from "./picker/StatusPicker";
 import { EventInstanceEditor } from "./EventInstanceEditor";
 import { Text } from "../../base/Text";
 import { Divider } from "../../base/Divider";
-import { Button } from "../../base/Button";
+import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
 import { useState } from "react";
 import { Sheet } from "../../base/Sheet";

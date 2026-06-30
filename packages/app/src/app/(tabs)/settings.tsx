@@ -11,7 +11,7 @@ import { TimezoneSelect } from "../../components/core/timezone-select";
 import { Container } from "../../components/base/Container";
 import { FontSize } from "../../theme/sizing";
 import { InputWrapper } from "../../components/base/input/InputWrapper";
-import { Button } from "../../components/base/Button";
+import { Button } from "../../components/base/button/Button";
 import { IconExternalLink } from "@tabler/icons-react-native";
 
 export default function Settings() {
