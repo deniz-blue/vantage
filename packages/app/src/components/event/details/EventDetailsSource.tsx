@@ -1,4 +1,4 @@
-import { Linking, TouchableOpacity } from "react-native";
+import { Linking } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { SourceComponent } from "@evnt/types";
 import { IconExternalLink, IconQuestionMark, IconDatabase, IconWorld, IconBraces, IconAt, IconBrandWikipedia } from "@tabler/icons-react-native";
@@ -7,6 +7,7 @@ import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
+import { Button } from "../../base/Button";
 
 export const EventDetailsSource = () => {
 	const { source, format, data } = useResolvedEvent();
@@ -16,23 +17,23 @@ export const EventDetailsSource = () => {
 	) ?? [];
 
 	return (
-		<Box gap={Spacing.xs}>
-			<SmallTitle>Source</SmallTitle>
+		<Box gap="xs">
+			<SmallTitle>Data</SmallTitle>
 
 			{sourceComponents.map((comp, i) => (
-				<TouchableOpacity key={i} onPress={() => Linking.openURL(comp.url)}>
-					<Box direction="row" gap={6} align="center" py={4}>
-						<IconExternalLink size={IconSize.xs} />
-						<Text fz={FontSize.md}>Source {sourceComponents.length > 1 ? i + 1 : ""}</Text>
-					</Box>
-				</TouchableOpacity>
+				<Button
+					key={i}
+					onPress={() => Linking.openURL(comp.url)}
+					leftSection={<IconExternalLink size={IconSize.xs} />}
+				>
+					<Text fz={FontSize.sm} numberOfLines={1}>
+						Source Link {sourceComponents.length > 1 ? i + 1 : ""}
+					</Text>
+				</Button>
 			))}
 
-			<SourceRow type={source.type} />
-
-			<SmallTitle>Format</SmallTitle>
-
-			<FormatRow type={format.type} />
+			<Row icon={sourceIcons[source.type]} label={sourceLabels[source.type] ?? source.type} />
+			<Row icon={formatIcons[format.type]} label={formatLabels[format.type] ?? format.type} />
 		</Box>
 	);
 };
@@ -46,7 +47,7 @@ const sourceIcons: Record<string, React.ReactNode> = {
 };
 
 const sourceLabels: Record<string, string> = {
-	unknown: "Unknown",
+	unknown: "Unknown Source",
 	local: "Browser/Device",
 	at: "Atmosphere (AT Protocol)",
 	http: "Internet (HTTP)",
@@ -68,7 +69,7 @@ const formatIcons: Record<string, React.ReactNode> = {
 };
 
 const formatLabels: Record<string, string> = {
-	unknown: "Unknown",
+	unknown: "Unknown Format",
 	"directory.evnt.event": "Open Evnt",
 	ics: "iCalendar (ICS)",
 	"community.lexicon.calendar.event": "Community Lexicon",
@@ -80,3 +81,17 @@ const FormatRow = ({ type }: { type: string }) => (
 		<Text fz={FontSize.md}>{formatLabels[type] ?? type}</Text>
 	</Box>
 );
+
+const Row = ({ icon, label }: { icon: React.ReactNode; label: string }) => {
+	return (
+		<Button
+			leftSection={icon ?? <IconQuestionMark size={IconSize.xs} />}
+			variant="subtle"
+			justify="flex-start"
+			mih={null}
+			py="xs"
+		>
+			{label}
+		</Button>
+	);
+};

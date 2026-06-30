@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { Linking, ScrollView, TouchableOpacity } from "react-native";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Divider } from "../../components/base/Divider";
 import { LanguageSelect } from "../../components/core/LanguageSelect";
-import { JsonImportSheet } from "../../components/dev/JsonImportSheet";
+import { JsonImportSheet } from "../../components/app/JsonImportSheet";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { Colors } from "../../theme/colors";
 import { TimezoneSelect } from "../../components/core/timezone-select";
 import { Container } from "../../components/base/Container";
 import { FontSize } from "../../theme/sizing";
+import { InputWrapper } from "../../components/base/input/InputWrapper";
+import { Button } from "../../components/base/Button";
+import { IconExternalLink } from "@tabler/icons-react-native";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
@@ -33,26 +36,24 @@ export default function Settings() {
 
 				<Divider my="md" />
 
-				<Text c={Colors.TextDimmed} fw="600">
-					Developer
-				</Text>
-
-				<TouchableOpacity onPress={() => setJsonImportOpen(true)}>
-					<Box
-						px="md"
-						py="sm"
-						bg={Colors.BackgroundLight}
-						radius={8}
-						direction="row"
-						align="center"
-						gap={8}
+				<InputWrapper label="App">
+					<Button
+						onPress={() => Linking.openURL("https://github.com/deniz-blue/vantage/issues")}
+						justify="flex-start"
+						rightSection={<IconExternalLink size={FontSize.xs} />}
 					>
-						<Text fz={FontSize.xs}>Import JSON</Text>
-						<Text fz={FontSize.xs} c="TextDimmed">
-							Paste an OpenEvnt event as JSON
-						</Text>
-					</Box>
-				</TouchableOpacity>
+						Bug Reports / Feedback
+					</Button>
+				</InputWrapper>
+
+				<InputWrapper label="Developer Tools">
+					<Button
+						onPress={() => setJsonImportOpen(true)}
+						justify="flex-start"
+					>
+						Import JSON
+					</Button>
+				</InputWrapper>
 
 				<JsonImportSheet
 					open={jsonImportOpen}

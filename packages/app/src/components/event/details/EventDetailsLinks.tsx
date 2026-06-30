@@ -8,6 +8,7 @@ import { TransText } from "../../core/TransText";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
+import { Button } from "../../base/Button";
 
 export const EventDetailsLinks = () => {
 	const { data } = useResolvedEvent();
@@ -22,22 +23,17 @@ export const EventDetailsLinks = () => {
 		<Box gap={Spacing.xs}>
 			<SmallTitle>Links</SmallTitle>
 			{links.map((link, i) => (
-				<Box
+				<Button
 					key={i}
-					component={TouchableOpacity}
-					direction="row"
-					gap={6}
-					align="center"
-					py={4}
 					onPress={() => Linking.openURL(link.url)}
 					disabled={link.disabled}
+					leftSection={<IconExternalLink size={IconSize.xs} />}
 				>
 					{link.name
-						? <TransText fz={FontSize.md} value={link.name} />
-						: <Text fz={FontSize.md} numberOfLines={1}>{link.url}</Text>
+						? <TransText fz={FontSize.sm} value={link.name} />
+						: <Text fz={FontSize.sm} numberOfLines={1}>{link.url}</Text>
 					}
-					<IconExternalLink size={IconSize.xs} color="TextDimmed" />
-				</Box>
+				</Button>
 			))}
 		</Box>
 	);

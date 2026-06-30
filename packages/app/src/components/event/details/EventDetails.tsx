@@ -1,4 +1,4 @@
-import { useWindowDimensions, ScrollView } from "react-native";
+import { useWindowDimensions, ScrollView, RefreshControl } from "react-native";
 import { Box } from "../../base/Box";
 import { EventDetailsError } from "./EventDetailsError";
 import { EventDetailsBanner } from "./EventDetailsBanner";
@@ -10,7 +10,13 @@ import { EventDetailsSource } from "./EventDetailsSource";
 
 const WIDE_BREAKPOINT = 768;
 
-export const EventDetails = () => {
+export const EventDetails = ({
+	loading,
+	onRefresh,
+}: {
+	loading?: boolean;
+	onRefresh?: () => void;
+}) => {
 	const { width: screenWidth } = useWindowDimensions();
 	const isWide = screenWidth >= WIDE_BREAKPOINT;
 
@@ -18,7 +24,6 @@ export const EventDetails = () => {
 		<Box gap="md">
 			<EventDetailsError />
 			<EventDetailsInstanceList />
-			<EventDetailsActions />
 			<EventDetailsRichtext />
 		</Box>
 	);
@@ -31,9 +36,20 @@ export const EventDetails = () => {
 	);
 
 	return (
-		<Box component={ScrollView} flex={1} stickyHeaderIndices={[0]}>
-			<EventDetailsBanner />
+		<Box
+			component={ScrollView}
+			flex={1}
+			stickyHeaderIndices={[0]}
+			refreshControl={onRefresh && (
+				<RefreshControl
+					refreshing={loading ?? false}
+					onRefresh={onRefresh}
+				/>
+			)}
+		>
+			<EventDetailsBanner loading={loading} />
 			<Box gap="md" p="md">
+				<EventDetailsActions />
 				{isWide ? (
 					<Box direction="row" gap="md">
 						<Box flex={2}>{main}</Box>
@@ -46,6 +62,6 @@ export const EventDetails = () => {
 					</>
 				)}
 			</Box>
-		</Box>
+		</Box >
 	);
 };

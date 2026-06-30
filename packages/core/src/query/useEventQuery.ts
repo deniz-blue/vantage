@@ -1,9 +1,5 @@
 import { queryOptions, useQueries, useQuery } from "@tanstack/react-query";
-import { schema } from "@vantage/db";
-import { eq } from "drizzle-orm";
 import { queryClient } from "./query-client";
-import { db } from "@vantage/db";
-import { createComputedData } from "../database/computed";
 import { EventResolver, asyncPipe } from "../lib/resolve";
 
 export const eventQueryKey = (id: Vantage.EventId) => ["event", id] as const;

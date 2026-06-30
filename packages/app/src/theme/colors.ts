@@ -61,13 +61,6 @@ export const Colors = {
 	Black: "#000000",
 } as const;
 
-export const ButtonTheme = {
-	default: { bg: Colors.BackgroundLight, text: Colors.Text },
-	primary: { bg: Colors.Primary, text: Colors.White },
-	subtle: { bg: "transparent", text: Colors.Primary },
-	danger: { bg: Colors.Red, text: Colors.White },
-} as const;
-
 export type ThemeColor = keyof typeof Colors | (string & {});
 
 /** Resolves a color name/key to its hex value. */

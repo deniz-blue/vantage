@@ -11,6 +11,7 @@ import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { FontSize, IconSize, Radius } from "../../../theme/sizing";
+import { OpenMapButton } from "../venue/OpenMapButton";
 
 export const EventDetailsInstanceList = () => {
 	const { data } = useResolvedEvent();
@@ -179,11 +180,6 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 			? <UrlLabel url={venue.url} />
 			: null;
 
-	const mapLinks = [
-		venueGoogleMapsLink(venue),
-		venueOpenStreetMapsLink(venue),
-	].filter((l): l is string => !!l);
-
 	return (
 		<MiniBoxSnippet
 			icon={icon}
@@ -191,20 +187,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 			subtitle={
 				<Box gap="xs">
 					{subtitle && <Text fz={FontSize.sm} c="TextDimmed">{subtitle}</Text>}
-					{mapLinks.length > 0 && (
-						<Box direction="row" gap="xs">
-							{mapLinks.map((link, i) => (
-								<Button
-									key={i}
-									size="sm"
-									variant="default"
-									onPress={() => Linking.openURL(link)}
-								>
-									{i === 0 ? "Google Maps" : "OpenStreetMap"}
-								</Button>
-							))}
-						</Box>
-					)}
+					<OpenMapButton venue={venue} />
 				</Box>
 			}
 		/>
@@ -226,18 +209,6 @@ const UrlLabel = ({ url }: { url: string }) => (
 		{url}
 	</Button>
 );
-
-const venueGoogleMapsLink = (venue: Venue): string | null => {
-	if (venue.$type !== "directory.evnt.venue.physical") return null;
-	if (venue.address?.addr) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.address.addr)}`;
-	return null;
-};
-
-const venueOpenStreetMapsLink = (venue: Venue): string | null => {
-	if (venue.$type !== "directory.evnt.venue.physical") return null;
-	if (venue.address?.addr) return `https://www.openstreetmap.org/search?query=${encodeURIComponent(venue.address.addr)}`;
-	return null;
-};
 
 const MiniBoxSnippet = ({
 	icon,

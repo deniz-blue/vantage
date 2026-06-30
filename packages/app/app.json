@@ -1,48 +1,50 @@
 {
-	"expo": {
-		"name": "vantage",
-		"slug": "vantage",
-		"version": "0.1.0",
-		"orientation": "portrait",
-		"icon": "./public/icon512.png",
-		"userInterfaceStyle": "dark",
-		"backgroundColor": "#242424",
-		"ios": {
-			"supportsTablet": true
-		},
-		"scheme": "vantage",
-		"experiments": {
-			"tsconfigPaths": true,
-			"typedRoutes": true
-		},
-		"android": {
-			"package": "blue.deniz.vantage",
-			"predictiveBackGestureEnabled": false
-		},
-		"web": {
-			"output": "single",
-			"bundler": "metro",
-			"favicon": "./public/icon.svg"
-		},
-		"plugins": [
-			"expo-router",
-			"expo-status-bar",
-			[
-				"expo-font",
-				{
-					"fonts": [
-						"./node_modules/@expo-google-fonts/lexend/400Regular/Lexend_400Regular.ttf"
-					]
-				}
-			],
-			"expo-splash-screen",
-			"expo-localization"
-		],
-		"extra": {
-			"router": {},
-			"eas": {
-				"projectId": "9606801f-d84a-4797-8de6-7b463aa92131"
-			}
-		}
-	}
+  "expo": {
+    "name": "vantage",
+    "slug": "vantage",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./public/icon512.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#242424",
+    "ios": {
+      "supportsTablet": true
+    },
+    "scheme": "vantage",
+    "experiments": {
+      "tsconfigPaths": true,
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "blue.deniz.vantage",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "bundler": "metro",
+      "favicon": "./public/icon.svg"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/lexend/400Regular/Lexend_400Regular.ttf"
+          ]
+        }
+      ],
+      "expo-splash-screen",
+      "expo-localization",
+      "react-native-map-link",
+      "expo-sharing"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9606801f-d84a-4797-8de6-7b463aa92131"
+      }
+    }
+  }
 }

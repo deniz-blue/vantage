@@ -1,9 +1,16 @@
 import { TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "./Text";
 import { Box, type BoxProps } from "./Box";
-import { Colors, ButtonTheme } from "../../theme/colors";
+import { Colors } from "../../theme/colors";
 import { ControlHeight, FontSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
+
+export const ButtonTheme = {
+	default: { bg: Colors.BackgroundLight, text: Colors.Text },
+	primary: { bg: Colors.Primary, text: Colors.White },
+	subtle: { bg: "transparent", text: Colors.Text },
+	danger: { bg: Colors.Red, text: Colors.White },
+} as const;
 
 export type ButtonVariant = keyof typeof ButtonTheme;
 
@@ -26,6 +33,11 @@ export interface ButtonProps extends BoxProps {
 	disabled?: boolean;
 }
 
+const stringLikeChildren = (children: React.ReactNode): children is string | number => {
+	if (Array.isArray(children)) return children.every(stringLikeChildren);
+	return typeof children === "string" || typeof children === "number";
+};
+
 export const Button = ({
 	children,
 	variant = "default",
@@ -46,7 +58,7 @@ export const Button = ({
 	const ss = SIZE_STYLES[size];
 
 	const useSelected = selected && (variant === "default" || variant === "subtle");
-	
+
 	const bg = dimmed
 		? Colors.BackgroundLight
 		: useSelected
@@ -83,7 +95,7 @@ export const Button = ({
 		>
 			{leftSection}
 			{loading && <ActivityIndicator size="small" color={textColor} />}
-			{typeof children === "string" ? (
+			{stringLikeChildren(children) ? (
 				<Text fz={ss.fz} c={textColor}>
 					{children}
 				</Text>

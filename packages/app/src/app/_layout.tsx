@@ -28,6 +28,10 @@ export default function RootLayout() {
 									options={{ headerShown: false }}
 								/>
 								<Stack.Screen
+									name="event/index"
+									options={{ headerShown: false }}
+								/>
+								<Stack.Screen
 									name="event/[id]"
 									options={{ headerShown: false }}
 								/>
