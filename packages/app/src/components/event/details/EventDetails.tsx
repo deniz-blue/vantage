@@ -7,6 +7,7 @@ import { EventDetailsActions } from "./EventDetailsActions";
 import { EventDetailsLinks } from "./EventDetailsLinks";
 import { EventDetailsRichtext } from "./EventDetailsRichtext";
 import { EventDetailsSource } from "./EventDetailsSource";
+import { EventDetailsImport } from "./EventDetailsImport";
 
 const WIDE_BREAKPOINT = 768;
 
@@ -23,6 +24,7 @@ export const EventDetails = ({
 	const main = (
 		<Box gap="md">
 			<EventDetailsError />
+			<EventDetailsImport />
 			<EventDetailsInstanceList />
 			<EventDetailsRichtext />
 		</Box>

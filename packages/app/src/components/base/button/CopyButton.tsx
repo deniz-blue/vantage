@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
 import * as Clipboard from "expo-clipboard";
+import { AsyncButton } from "./AsyncButton";
 
 export interface CopyButtonProps {
 	value: string | (() => string | Promise<string>);
+	duration?: number;
 	children: (state: {
 		copied: boolean;
 		loading: boolean;
@@ -10,24 +12,27 @@ export interface CopyButtonProps {
 	}) => React.ReactNode;
 };
 
-export const CopyButton = (props: CopyButtonProps) => {
-	const blockRef = useRef(false);
-	const [loading, setLoading] = useState(false);
-	const [copied, setCopied] = useState(false);
-
-	const handlePress = async () => {
-		if (blockRef.current) return;
-		blockRef.current = true;
-		setLoading(true);
-		const value = typeof props.value === "function" ? await props.value() : props.value;
-		await Clipboard.setStringAsync(value);
-		setCopied(true);
-		setLoading(false);
-		setTimeout(() => {
-			setCopied(false);
-			blockRef.current = false;
-		}, 2000);
+export const CopyButton = ({
+	value,
+	duration = 2000,
+	children,
+}: CopyButtonProps) => {
+	const copy = async () => {
+		const text = typeof value === "function" ? await value() : value;
+		await Clipboard.setStringAsync(text);
 	};
 
-	return props.children({ copied, loading, onPress: handlePress });
+	return (
+		<AsyncButton fn={copy} cooldown={duration}>
+			{({
+				blocked,
+				loading,
+				onPress,
+			}) => children({
+				onPress,
+				loading,
+				copied: !loading && blocked,
+			})}
+		</AsyncButton>
+	)
 };
