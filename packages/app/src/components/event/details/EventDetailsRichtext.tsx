@@ -11,8 +11,8 @@ export const EventDetailsRichtext = () => {
 
 	const richtexts = data?.components?.filter(
 		(c) =>
-			c.$type === "directory.evnt.component.markdown"
-			|| c.$type === "directory.evnt.component.blueSkyRichtext",
+			c.$type === "directory.evnt.richtext.markdown"
+			|| c.$type === "directory.evnt.richtext.bsky",
 	);
 
 	if (!richtexts || richtexts.length === 0) return null;
@@ -21,8 +21,9 @@ export const EventDetailsRichtext = () => {
 		<Box gap={Spacing.sm}>
 			{richtexts.map((comp, i) => {
 				switch (comp.$type) {
-					case "directory.evnt.component.markdown": {
+					case "directory.evnt.richtext.markdown": {
 						const md = comp as MarkdownComponent;
+						console.log(md)
 						return (
 							<Box key={i} gap={4}>
 								<SmallTitle>Description</SmallTitle>
@@ -30,7 +31,7 @@ export const EventDetailsRichtext = () => {
 							</Box>
 						);
 					}
-					case "directory.evnt.component.blueSkyRichtext": {
+					case "directory.evnt.richtext.bsky": {
 						const bsky = comp as BlueSkyRichtextComponent;
 						return (
 							<Box key={i} gap={4}>

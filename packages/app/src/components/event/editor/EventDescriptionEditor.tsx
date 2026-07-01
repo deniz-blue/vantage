@@ -4,7 +4,7 @@ import { Editor } from "./editor";
 
 export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	const md: any = editor.value.components?.find(c => c.$type === "directory.evnt.richtext.markdown");
-	const value = (md?.markdown as string | undefined) ?? "";
+	const value = (md?.content as string | undefined) ?? "";
 
 	return (
 		<TextInput
@@ -22,13 +22,13 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 					if (!md) {
 						md = {
 							$type: "directory.evnt.richtext.markdown",
-							markdown: text,
+							content: text,
 						};
 						d.components.push(md);
 					} else if (!text) {
 						d.components = d.components.filter(c => c !== md);
 					} else {
-						(md as any).markdown = text;
+						(md as any).content = text;
 					}
 				});
 			}}
