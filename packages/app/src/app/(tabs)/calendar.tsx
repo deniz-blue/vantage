@@ -17,6 +17,7 @@ import { Sheet } from "../../components/base/Sheet";
 import { EventCard } from "../../components/event/card/EventCard";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { EmptyState } from "../../components/base/EmptyState";
+import { Container } from "../../components/base/Container";
 
 function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined }[]) {
 	return useMemo(() => {
@@ -140,7 +141,7 @@ export default function CalendarPage() {
 	);
 
 	return (
-		<Box flex={1}>
+		<Container flex={1}>
 			{/* Header */}
 			<Box
 				direction="row"
@@ -184,7 +185,7 @@ export default function CalendarPage() {
 					<DayEventsContent day={selectedDay} />
 				)}
 			</Sheet>
-		</Box>
+		</Container>
 	);
 }
 

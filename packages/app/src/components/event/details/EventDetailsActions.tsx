@@ -12,6 +12,8 @@ import { CopyButton } from "../../base/button/CopyButton";
 import { useMutation } from "@tanstack/react-query";
 import { Text } from "../../base/Text";
 import { AppCopyButton } from "../../core/AppCopyButton";
+import { createActionsForEvent } from "../../actions/event-actions";
+import { ActionButtonList } from "../../actions/ActionButton";
 
 export const EventDetailsActions = () => {
 	const [open, setOpen] = useState(false);
@@ -63,13 +65,11 @@ export const EventActionsMenu = ({
 }) => {
 	const resolved = useResolvedEvent();
 
+	const actions = createActionsForEvent(resolved);
+
 	return (
 		<Box p="sm" gap="sm">
-			{resolved.data && (
-				<AppCopyButton size="sm" value={JSON.stringify(resolved.data)}>
-					Copy JSON
-				</AppCopyButton>
-			)}
+			<ActionButtonList actions={actions} />
 
 			<EventDeleteButton />
 		</Box>
