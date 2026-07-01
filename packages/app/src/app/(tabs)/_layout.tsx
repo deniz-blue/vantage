@@ -1,6 +1,6 @@
 import { useWindowDimensions } from "react-native";
 import { Tabs } from "expo-router";
-import { IconHome, IconList, IconSettings } from "@tabler/icons-react-native";
+import { IconHome, IconList, IconCalendar, IconSettings } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { PlusFab } from "../../components/app/PlusFab";
 import { Box } from "../../components/base/Box";
@@ -55,24 +55,28 @@ export default function TabLayout() {
 							{([
 								{ name: "index", icon: IconHome },
 								{ name: "list", icon: IconList },
+								{ name: "calendar", icon: IconCalendar },
 								{ name: "settings", icon: IconSettings },
-							] as const).map(({ icon: Icon, name }, index) => (
-								<Box
-									key={index}
-									flex={1}
-									direction="row"
-									justify="center"
-								>
-									<ActionIcon
-										onPress={() => props.navigation.navigate(name)}
-										size="auto"
-										w="100%"
-										h="100%"
+							] as const).map(({ icon: Icon, name }) => {
+								const isActive = props.state.routeNames[props.state.index] === name;
+								return (
+									<Box
+										key={name}
+										flex={1}
+										direction="row"
+										justify="center"
 									>
-										<Icon size={IconSize.lg} color={props.state.index === index ? Colors.Primary : Colors.TextDimmed} />
-									</ActionIcon>
-								</Box>
-							))}
+										<ActionIcon
+											onPress={() => props.navigation.navigate(name)}
+											size="auto"
+											w="100%"
+											h="100%"
+										>
+											<Icon size={IconSize.lg} color={isActive ? Colors.Primary : Colors.TextDimmed} />
+										</ActionIcon>
+									</Box>
+								);
+							})}
 						</Container>
 					</Box>
 				)}
@@ -88,6 +92,9 @@ export default function TabLayout() {
 				/>
 				<Tabs.Screen
 					name="new"
+				/>
+				<Tabs.Screen
+					name="calendar"
 				/>
 			</Tabs>
 		</>

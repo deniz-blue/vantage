@@ -11,6 +11,7 @@ import { Sheet } from "../../base/Sheet";
 import { CopyButton } from "../../base/button/CopyButton";
 import { useMutation } from "@tanstack/react-query";
 import { Text } from "../../base/Text";
+import { AppCopyButton } from "../../core/AppCopyButton";
 
 export const EventDetailsActions = () => {
 	const [open, setOpen] = useState(false);
@@ -65,15 +66,9 @@ export const EventActionsMenu = ({
 	return (
 		<Box p="sm" gap="sm">
 			{resolved.data && (
-				<CopyButton value={JSON.stringify(resolved.data)}>
-					{({ copied, onPress }) => (
-						<Button
-							size="sm"
-							onPress={onPress}
-							children={copied ? "Copied!" : "Copy JSON"}
-						/>
-					)}
-				</CopyButton>
+				<AppCopyButton size="sm" value={JSON.stringify(resolved.data)}>
+					Copy JSON
+				</AppCopyButton>
 			)}
 
 			<EventDeleteButton />

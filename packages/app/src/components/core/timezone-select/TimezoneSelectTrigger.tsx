@@ -48,17 +48,12 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 				<Button
 					onPress={() => ctx.onChange(detectedTz)}
 					mt="sm"
-					align="center"
-					bg={Colors.PrimaryLight + "22"}
+					justify="flex-start"
+					leftSection={<IconArrowUp size={IconSize.sm} color={Colors.TextDimmed} />}
 				>
-					<Box direction="row" align="center" gap="xs" flex={1}>
-						<IconArrowUp size={IconSize.sm} color={Colors.Primary} />
-						<Text fz={FontSize.sm} c="Primary" fw="500">
-							Use detected: {detectedTz} ({formatOffset(detectedTz)})
-						</Text>
-					</Box>
+					Use detected: {detectedTz} ({formatOffset(detectedTz)})
 				</Button>
 			)}
-		</Box>
+		</Box >
 	);
 };

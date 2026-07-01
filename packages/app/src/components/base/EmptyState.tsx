@@ -5,16 +5,13 @@ import { Loader } from "./Loader";
 import { Colors } from "../../theme/colors";
 
 export interface EmptyStateProps {
-	/** Show loading spinner instead of icon. */
 	loading?: boolean;
-	/** Optional icon component shown when not loading. */
 	icon?: ReactNode;
-	/** Message below the spinner/icon. */
 	message?: string;
 }
 
 export const EmptyState = ({
-	loading = true,
+	loading,
 	icon,
 	message,
 }: EmptyStateProps) => (

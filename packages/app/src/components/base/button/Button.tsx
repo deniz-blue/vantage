@@ -74,7 +74,7 @@ export const Button = ({
 	return (
 		<Box<typeof TouchableOpacity>
 			component={TouchableOpacity}
-			activeOpacity={0.7}
+			activeOpacity={onPress ? 0.7 : 1}
 			disabled={dimmed}
 			onPress={onPress}
 			direction="row"

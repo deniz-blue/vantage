@@ -50,13 +50,7 @@ export const MapsSheetContent = ({ addr }: { addr: string }) => {
 	] as const;
 
 	return (
-		<Box gap="sm" p="sm">
-			<Box align="center">
-				<Text>
-					Choose an app to open the location in
-				</Text>
-			</Box>
-
+		<Box gap="sm">
 			{apps.map((app) => (
 				<Button key={app.name} onPress={() => Linking.openURL(app.url)}>
 					{app.name}

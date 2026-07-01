@@ -1,4 +1,4 @@
-import { IconLanguage } from "@tabler/icons-react-native";
+import { IconArrowUp, IconLanguage } from "@tabler/icons-react-native";
 import { LANGUAGES } from "@vantage/intl";
 import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
@@ -13,6 +13,7 @@ import {
 	ComboboxSheetList,
 } from "../base/combobox";
 import { FontSize, IconSize } from "../../theme/sizing";
+import { Button } from "../base/button/Button";
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
@@ -71,21 +72,34 @@ export const LanguageSelect = ({
 			required={required}
 		>
 			<Combobox value={value} onChange={onChange}>
-				<ComboboxTrigger py="sm" px="sm" gap="sm">
-					<ActionIcon bg={Colors.PrimaryLight + "33"}>
-						<IconLanguage size={IconSize.md} color={Colors.Primary} />
-					</ActionIcon>
-					<Box flex={1}>
-						<Text fz={FontSize.sm} fw="600">
-							{getAutonym(value)}
-						</Text>
-						<Box mt={1}>
-							<Text fz={FontSize.xs} c={Colors.TextDimmed}>
-								{getEnglishName(value)}
+				<Box>
+					<ComboboxTrigger py="sm" px="sm" gap="sm">
+						<ActionIcon bg={Colors.PrimaryLight + "33"}>
+							<IconLanguage size={IconSize.md} color={Colors.Primary} />
+						</ActionIcon>
+						<Box flex={1}>
+							<Text fz={FontSize.sm} fw="600">
+								{getAutonym(value)}
 							</Text>
+							<Box mt={1}>
+								<Text fz={FontSize.xs} c={Colors.TextDimmed}>
+									{getEnglishName(value)}
+								</Text>
+							</Box>
 						</Box>
-					</Box>
-				</ComboboxTrigger>
+					</ComboboxTrigger>
+
+					{value !== "en" && (
+						<Button
+							onPress={() => onChange("en")}
+							mt="sm"
+							justify="flex-start"
+							leftSection={<IconArrowUp size={IconSize.sm} color={Colors.TextDimmed} />}
+						>
+							Use English
+						</Button>
+					)}
+				</Box>
 				<ComboboxSheet>
 					<Box flex={1}>
 						<ComboboxSearch placeholder="Search languages…" />
