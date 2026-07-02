@@ -8,12 +8,17 @@ export const IconSize = {
 	xl: 32,
 } as const;
 
+export type ThemeControlHeight = keyof typeof ControlHeight;
 export const ControlHeight = {
 	sm: 28,
 	md: 34,
 	lg: 42,
 } as const;
-export type ThemeControlHeight = keyof typeof ControlHeight;
+
+export type ThemeFont = keyof typeof Font;
+export const Font = {
+	Default: "Lexend",
+} as const;
 
 export type ThemeFontSize = keyof typeof FontSize;
 export const FontSize = {

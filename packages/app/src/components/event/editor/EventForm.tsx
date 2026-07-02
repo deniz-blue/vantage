@@ -8,7 +8,7 @@ import { Text } from "../../base/Text";
 import { Divider } from "../../base/Divider";
 import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
-import { useState } from "react";
+import { Fragment, ReactNode, useState } from "react";
 import { Sheet } from "../../base/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconPlus } from "@tabler/icons-react-native";
@@ -44,45 +44,82 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	)
 };
 
-export const EventFormInstances = () => {
-	const { editor } = useEventFormContext();
-
+export const FormList = <T,>({
+	title,
+	editor,
+	onAdd,
+	emptyText,
+	renderItem,
+}: {
+	title: string;
+	editor: Editor<T[] | undefined>;
+	onAdd: () => void;
+	emptyText: ReactNode;
+	renderItem: (props: {
+		onDelete: () => void;
+		editor: Editor<T>;
+		index: number;
+	}) => ReactNode;
+}) => {
 	return (
 		<Box gap="md">
 			<Divider
-				leftSection={<Text c="TextDimmed" fw="600">Date & Time</Text>}
+				leftSection={<Text c="TextDimmed" fw="600">{title}</Text>}
 				rightSection={(
 					<Button
 						variant="subtle"
-						onPress={() => editor.update(d => {
-							if (!d.instances) d.instances = [];
-							d.instances.push({
-								venueIds: [],
-							});
-						})}
-						rightSection={<IconPlus color={Colors.Primary} size={IconSize.xs} />}
+						onPress={onAdd}
+						rightSection={<IconPlus size={IconSize.xs} />}
 					>
 						Add
 					</Button>
 				)}
 			/>
 
-			{!editor.value.instances?.length && (
+			{!editor.value?.length && (
 				<Box align="center">
 					<Text c="TextDimmed" fz={FontSize.sm}>
-						No dates.
+						{emptyText}
 					</Text>
 				</Box>
 			)}
 
-			{editor.value.instances?.map((_, i) => (
-				<EventInstanceEditor
-					key={i}
-					editor={editor.field(e => e.instances![i]!)}
-					onDelete={() => editor.update(d => void d.instances!.splice(i, 1))}
-				/>
+			{editor.value?.map((_, i) => (
+				<Fragment key={i}>
+					{renderItem({
+						editor: editor.field(v => v![i]!),
+						index: i,
+						onDelete: () => editor.update(d => void d?.splice(i, 1)),
+					})}
+				</Fragment>
 			))}
 		</Box>
+	);
+};
+
+export const EventFormInstances = () => {
+	const { editor } = useEventFormContext();
+
+	return (
+		<FormList
+			title="Date & Time"
+			emptyText="No dates set"
+			editor={editor.field(e => e.instances)}
+			onAdd={() => {
+				editor.update(d => {
+					if (!d.instances) d.instances = [];
+					d.instances.push({
+						venueIds: [],
+					});
+				})
+			}}
+			renderItem={({ editor, onDelete }) => (
+				<EventInstanceEditor
+					editor={editor}
+					onDelete={onDelete}
+				/>
+			)}
+		/>
 	);
 };
 
@@ -105,17 +142,17 @@ export const EventFormVenues = () => {
 	};
 
 	return (
-		<Box gap="md">
-			<Divider
-				leftSection={<Text c="TextDimmed" fw="600">Location</Text>}
-				rightSection={(
-					<Button
-						variant="subtle"
-						onPress={() => setOpen(true)}
-						rightSection={<IconPlus color={Colors.Primary} size={IconSize.xs} />}
-					>
-						Add
-					</Button>
+		<Fragment>
+			<FormList
+				title="Locations"
+				emptyText="No locations set"
+				editor={editor.field(e => e.venues)}
+				onAdd={() => setOpen(true)}
+				renderItem={({ editor, onDelete }) => (
+					<EventVenueEditor
+						editor={editor}
+						onDelete={onDelete}
+					/>
 				)}
 			/>
 
@@ -132,22 +169,6 @@ export const EventFormVenues = () => {
 					</Button>
 				</Box>
 			</Sheet>
-
-			{!editor.value.venues?.length && (
-				<Box align="center">
-					<Text c="TextDimmed" fz={FontSize.sm}>
-						No locations.
-					</Text>
-				</Box>
-			)}
-
-			{editor.value.venues?.map((_, i) => (
-				<EventVenueEditor
-					key={i}
-					editor={editor.field(e => e.venues![i]!)}
-					onDelete={() => editor.update(d => void d.venues!.splice(i, 1))}
-				/>
-			))}
-		</Box>
+		</Fragment>
 	);
 };

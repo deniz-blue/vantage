@@ -18,6 +18,7 @@ import { EventCard } from "../../components/event/card/EventCard";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { EmptyState } from "../../components/base/EmptyState";
 import { Container } from "../../components/base/Container";
+import { useRouter } from "expo-router";
 
 function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined }[]) {
 	return useMemo(() => {
@@ -73,7 +74,6 @@ export default function CalendarPage() {
 
 	const eventsByDay = useEventsByDay(events);
 
-	// Navigate months
 	const goToPrevMonth = useCallback(() => {
 		setCurrentDate((d) => d.add({ months: -1 }));
 	}, []);
@@ -179,19 +179,23 @@ export default function CalendarPage() {
 				/>
 			</Box>
 
-			{/* Day events sheet */}
-			<Sheet open={!!selectedDay} onClose={() => setSelectedDay(null)} scrollable>
+			<Sheet open={!!selectedDay} onClose={() => setSelectedDay(null)}>
 				{selectedDay && (
-					<DayEventsContent day={selectedDay} />
+					<DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />
 				)}
 			</Sheet>
 		</Container>
 	);
 }
 
-/** Fetches and renders events for a specific day inside a sheet */
-const DayEventsContent = ({ day }: { day: string }) => {
-	const userTimezone = useLocaleStore(s => s.timezone);
+const DayEventsContent = ({
+	day,
+	onClose,
+}: {
+	day: string;
+	onClose: () => void;
+}) => {
+	const router = useRouter();
 
 	const lowTimestamp = Temporal.PlainDate.from(day)
 		.add({ days: -1 })
@@ -242,7 +246,13 @@ const DayEventsContent = ({ day }: { day: string }) => {
 							key={event.data?.id ?? index}
 							value={event.data ?? null}
 						>
-							<EventCard />
+							<EventCard
+								onPress={() => {
+									if (!event.data?.id) return;
+									router.push(`/event/${event.data?.id}`);
+									onClose();
+								}}
+							/>
 						</ResolvedEventContext.Provider>
 					))}
 				</Box>

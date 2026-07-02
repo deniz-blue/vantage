@@ -38,7 +38,8 @@
       "expo-splash-screen",
       "expo-localization",
       "react-native-map-link",
-      "expo-sharing"
+      "expo-sharing",
+      "react-native-enriched-markdown"
     ],
     "extra": {
       "router": {},
