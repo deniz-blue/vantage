@@ -1,28 +1,26 @@
 import { Fragment, useState } from "react";
 import { Colors } from "../../../theme/colors";
-import { FontSize, Radius } from "../../../theme/sizing";
-import { Box } from "../Box";
+import { FontSize } from "../../../theme/sizing";
 import { InputWrapper, InputWrapperProps } from "./InputWrapper";
-import {
-	TextInput as RNTextInput,
-	type TextInputProps as RNTextInputProps,
-} from "react-native";
+import { TextInput as RNTextInput, type TextInputProps as RNTextInputProps } from "react-native";
 import { Spacing } from "../../../theme/spacing";
 import { InputBase } from "./InputBase";
 
 export interface TextInputSegment extends Omit<RNTextInputProps, "placeholderTextColor"> {
 	renderAfter?: React.ReactNode;
-};
+}
 
-export interface SegmentedTextInputProps extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
+export interface SegmentedTextInputProps extends Pick<
+	InputWrapperProps,
+	"label" | "description" | "error" | "required"
+> {
 	segments: TextInputSegment[];
 	separator?: React.ReactNode;
 	common?: Omit<RNTextInputProps, "placeholderTextColor">;
-};
+}
 
 export const SegmentedTextInput = ({
 	segments,
-	separator,
 	common: { style: commonStyle, ...commonProps } = {},
 	description,
 	error,
@@ -32,12 +30,7 @@ export const SegmentedTextInput = ({
 	const [focused, setFocused] = useState<number[]>([]);
 
 	return (
-		<InputWrapper
-			label={label}
-			description={description}
-			error={error}
-			required={required}
-		>
+		<InputWrapper label={label} description={description} error={error} required={required}>
 			<InputBase
 				gap="xs"
 				px="sm"
@@ -63,8 +56,8 @@ export const SegmentedTextInput = ({
 								commonStyle,
 								style,
 							]}
-							onFocus={() => setFocused(prev => [...prev, index])}
-							onBlur={() => setFocused(prev => prev.filter(f => f !== index))}
+							onFocus={() => setFocused((prev) => [...prev, index])}
+							onBlur={() => setFocused((prev) => prev.filter((f) => f !== index))}
 							{...commonProps}
 							{...segment}
 						/>

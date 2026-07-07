@@ -11,10 +11,11 @@ import { EventFormContext, useEventFormContext } from "./event-form-context";
 import { Fragment, ReactNode, useState } from "react";
 import { Sheet } from "../../base/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
-import { IconPlus } from "@tabler/icons-react-native";
-import { Colors } from "../../../theme/colors";
+import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { EventDescriptionEditor } from "./EventDescriptionEditor";
+import { ActionIcon } from "../../base/button/ActionIcon";
+import { Colors } from "../../../theme/colors";
 
 export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	return (
@@ -69,9 +70,11 @@ export const FormList = <T,>({
 					<Button
 						variant="subtle"
 						onPress={onAdd}
-						rightSection={<IconPlus size={IconSize.xs} />}
+						rightSection={<IconPlus size={IconSize.xs} color={Colors.Primary} />}
 					>
-						Add
+						<Text fz={FontSize.sm} c={Colors.Primary}>
+							Add
+						</Text>
 					</Button>
 				)}
 			/>
@@ -157,16 +160,46 @@ export const EventFormVenues = () => {
 			/>
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
-				<Box p="md" gap="md" flex={1}>
-					<Button size="md" onPress={() => onAdd("directory.evnt.venue.physical")}>
-						Add Physical Location
-					</Button>
-					<Button size="md" onPress={() => onAdd("directory.evnt.venue.online")}>
-						Add Virtual Location
-					</Button>
-					<Button size="md" onPress={() => onAdd("directory.evnt.venue.unknown")}>
-						Add Generic Location
-					</Button>
+				<Box gap="md">
+					<Text ta="center">
+						Select location type:
+					</Text>
+					<Box direction="row" gap="sm" flex={1}>
+						{([
+							"directory.evnt.venue.physical",
+							"directory.evnt.venue.online",
+							"directory.evnt.venue.unknown",
+						] as const).map(type => {
+							let title = type.slice("directory.evnt.venue.".length);
+							title = title[0].toUpperCase() + title.slice(1);
+
+							const Icon = {
+								Physical: IconMapPin,
+								Online: IconWorld,
+								Unknown: IconQuestionMark,
+							}[title] ?? Fragment;
+
+							return (
+								<Button
+									flex={1}
+									key={type}
+									onPress={() => onAdd(type)}
+								>
+									<Box py="sm" gap="xs" align="center" flex={1}>
+										<ActionIcon size="lg">
+											<Icon size={IconSize.lg} />
+										</ActionIcon>
+
+										<Text
+											fz={FontSize.sm}
+										>
+											{title}
+										</Text>
+									</Box>
+								</Button>
+							);
+						})}
+					</Box>
 				</Box>
 			</Sheet>
 		</Fragment>

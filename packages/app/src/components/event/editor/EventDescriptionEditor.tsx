@@ -54,7 +54,7 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 			</Button>
 
 			<Sheet open={preview} onClose={() => setPreview(false)}>
-				<Box p="md" gap="md">
+				<Box gap="md">
 					<Text fw="bold">
 						Description Preview
 					</Text>

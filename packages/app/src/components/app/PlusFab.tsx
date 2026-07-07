@@ -79,7 +79,7 @@ export const Importer = ({
 	});
 
 	return (
-		<Box p="md" gap="md">
+		<Box gap="md">
 			<TextInput
 				label="URL"
 				value={uri}

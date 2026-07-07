@@ -1,8 +1,5 @@
 import { useCallback, useState, type ReactNode } from "react";
-import {
-	TextInput as RNTextInput,
-	type TextInputProps as RNTextInputProps,
-} from "react-native";
+import { TextInput as RNTextInput, type TextInputProps as RNTextInputProps } from "react-native";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { ControlHeight, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
@@ -17,8 +14,9 @@ const INPUT_SIZES = {
 } as const;
 
 export interface TextInputProps
-	extends Omit<RNTextInputProps, "placeholderTextColor">,
-	Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
+	extends
+		Omit<RNTextInputProps, "placeholderTextColor">,
+		Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
 	size?: keyof typeof INPUT_SIZES;
 	leftSection?: ReactNode;
 	rightSection?: ReactNode;
@@ -79,12 +77,7 @@ export const TextInput = ({
 	);
 
 	return (
-		<InputWrapper
-			label={label}
-			description={description}
-			error={error}
-			required={required}
-		>
+		<InputWrapper label={label} description={description} error={error} required={required}>
 			<InputBase
 				focused={focused}
 				size={size}
@@ -98,6 +91,7 @@ export const TextInput = ({
 					},
 					baseStyle,
 				]}
+				maxLength={/* 64kb fallback */ 65536}
 				{...baseProps}
 			>
 				{leftSection}

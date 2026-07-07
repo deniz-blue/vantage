@@ -19,6 +19,7 @@ import { useLocaleStore } from "../../stores/useLocaleStore";
 import { EmptyState } from "../../components/base/EmptyState";
 import { Container } from "../../components/base/Container";
 import { useRouter } from "expo-router";
+import { range } from "../../utils/range";
 
 function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined }[]) {
 	return useMemo(() => {
@@ -123,11 +124,11 @@ export default function CalendarPage() {
 						</Text>
 
 						<Box direction="row" gap={2}>
-							{new Array(Math.min(eventCount, 5)).fill(0).map((_, i) => (
+							{range(Math.min(eventCount, 3)).map((i) => (
 								<Box
 									key={i}
-									w={5}
-									h={5}
+									w={8}
+									h={8}
 									bg={Colors.Primary}
 									radius={999}
 								/>
@@ -227,7 +228,7 @@ const DayEventsContent = ({
 	}, [day, locale]);
 
 	return (
-		<Box p="md" gap="md">
+		<Box gap="md">
 			<Box direction="row" justify="space-between">
 				<Text fz={FontSize.lg} fw="bold">
 					{dateLabel}

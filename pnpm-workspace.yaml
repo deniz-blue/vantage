@@ -10,6 +10,7 @@ loglevel: debug
 
 minimumReleaseAgeExclude:
   - '@evnt/*'
+  - react-native-worklets@0.10.2
 
 patchedDependencies:
   '@sqlite.org/sqlite-wasm@3.51.2-build9': patches/@sqlite.org__sqlite-wasm@3.51.2-build9.patch

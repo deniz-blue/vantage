@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { TouchableOpacity, View } from "react-native";
 import { OpenEvntSchema } from "@evnt/schema";
 import { EventsManager } from "@vantage/core";
 import { Sheet } from "../base/Sheet";
@@ -7,14 +6,10 @@ import { Box } from "../base/Box";
 import { Text } from "../base/Text";
 import { TextInput } from "../base/input/TextInput";
 import { Colors } from "../../theme/colors";
+import { FontSize } from "../../theme/sizing";
+import { Button } from "../base/button/Button";
 
-export const JsonImportSheet = ({
-	open,
-	onClose,
-}: {
-	open: boolean;
-	onClose: () => void;
-}) => {
+export const JsonImportSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
 	const [raw, setRaw] = useState("");
 	const [status, setStatus] = useState<{ kind: "success" | "error"; message: string } | null>(null);
 	const [importing, setImporting] = useState(false);
@@ -75,9 +70,11 @@ export const JsonImportSheet = ({
 
 	return (
 		<Sheet open={open} onClose={handleClose} keyboardShouldPersistTaps="handled">
-			<View style={{ padding: 16, gap: 12 }}>
-				<Text fz={18} fw="bold">Import Event JSON</Text>
-				<Text fz={13} c="TextDimmed">
+			<Box gap="md">
+				<Text fz={FontSize.h1} fw="bold">
+					Import Event JSON
+				</Text>
+				<Text c="TextDimmed">
 					Paste an OpenEvnt event as JSON below. It will be validated and saved as a local event.
 				</Text>
 
@@ -86,7 +83,7 @@ export const JsonImportSheet = ({
 					multiline
 					numberOfLines={12}
 					style={{ minHeight: 200, fontFamily: "monospace", fontSize: 12 }}
-					placeholder='{\n  "v": "0.1",\n  "name": { "en": "My Event" },\n  ...\n}'
+					placeholder={JSON.stringify({ v: "0.1", name: { en: "My Event" } }, null, 2)}
 					value={raw}
 					onChangeText={setRaw}
 					autoCapitalize="none"
@@ -99,47 +96,28 @@ export const JsonImportSheet = ({
 						bg={status.kind === "success" ? Colors.Green + "18" : Colors.Red + "11"}
 						style={{ borderRadius: 8 }}
 					>
-						<Text
-							fz={13}
-							c={status.kind === "success" ? Colors.Green : Colors.Red}
-						>
+						<Text fz={FontSize.sm} c={status.kind === "success" ? Colors.Green : Colors.Red}>
 							{status.message}
 						</Text>
 					</Box>
 				)}
 
 				<Box direction="row" gap={8} justify="flex-end">
-					<TouchableOpacity onPress={handleClose}>
-						<Box
-							bg="BackgroundLight"
-							px="md"
-							py="sm"
-							radius={8}
-						>
-							<Text fz={14}>Cancel</Text>
-						</Box>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						onPress={handleImport}
-						disabled={importing || !raw.trim()}
+					<Button
+						onPress={handleClose}
 					>
-						<Box
-							bg={importing || !raw.trim() ? "BackgroundLight" : "Primary"}
-							px="md"
-							py="sm"
-							radius={8}
-						>
-							<Text
-								fz={14}
-								c={importing || !raw.trim() ? "TextDimmed" : "Text"}
-							>
-								{importing ? "Importing…" : "Import"}
-							</Text>
-						</Box>
-					</TouchableOpacity>
+						Cancel
+					</Button>
+					<Button
+						variant="primary"
+						onPress={handleImport}
+						loading={importing}
+						disabled={!raw.trim()}
+					>
+						{importing ? "Importing…" : "Import"}
+					</Button>
 				</Box>
-		</View>
+			</Box>
 		</Sheet>
 	);
 };

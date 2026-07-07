@@ -39,7 +39,8 @@
       "expo-localization",
       "react-native-map-link",
       "expo-sharing",
-      "react-native-enriched-markdown"
+      "react-native-enriched-markdown",
+      "expo-sqlite"
     ],
     "extra": {
       "router": {},

@@ -149,7 +149,7 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 			<MiniBoxSnippet icon={icon} title={title} subtitle={subtitle} onPress={() => setOpen(true)} />
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
-				<Box p="sm" gap="sm">
+				<Box gap="sm">
 					{instance.start && (
 						<Fragment>
 							<InputWrapper label="Starts at" />

@@ -1,4 +1,4 @@
-import { TouchableOpacity, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Pressable } from "react-native";
 import { Text } from "../Text";
 import { Box, type BoxProps } from "../Box";
 import { Colors } from "../../../theme/colors";
@@ -72,9 +72,9 @@ export const Button = ({
 			: vs.text;
 
 	return (
-		<Box<typeof TouchableOpacity>
-			component={TouchableOpacity}
-			activeOpacity={onPress ? 0.7 : 1}
+		<Box<typeof Pressable>
+			component={Pressable}
+			role="button"
 			disabled={dimmed}
 			onPress={onPress}
 			direction="row"
@@ -86,7 +86,9 @@ export const Button = ({
 			bg={bg}
 			op={dimmed ? 0.4 : undefined}
 			mih={ss.h}
-			style={style}
+			style={[{
+				outlineColor: Colors.Primary,
+			}, style]}
 			{...(rest as any)}
 		>
 			{leftSection}
