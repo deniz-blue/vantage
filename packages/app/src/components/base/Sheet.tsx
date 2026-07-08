@@ -1,123 +1,256 @@
-import { PropsWithChildren, useCallback, useMemo } from "react";
-import { Box, ShorthandStyleProps } from "./Box";
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from "react";
+import {
+	BottomSheetModal,
+	BottomSheetScrollView,
+	BottomSheetBackdrop,
+	type BottomSheetBackdropProps,
+	type BottomSheetBackgroundProps,
+} from "@gorhom/bottom-sheet";
+import { Box } from "./Box";
 import { Colors } from "../../theme/colors";
-import { ScrollView, ScrollViewProps, useWindowDimensions } from "react-native";
+import { useHistoryBack } from "../../hooks/useHistoryBack";
+import { FiberHandle, useContextBridge } from "../../internal/react-context-bridge";
+import { Animated, Modal, ScrollView, ScrollViewProps, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Breakpoints } from "../../theme/breakpoints";
 import { Radius } from "../../theme/sizing";
-import { Portal } from "react-native-teleport";
-import BottomSheet, {
-	BottomSheetBackdrop,
-	BottomSheetBackdropProps,
-} from "@gorhom/bottom-sheet";
+
+export const HANDLE_BAR_HEIGHT = 28;
 
 export const Sheet = ({
 	children,
 	onClose,
 	open,
 	scrollable,
-	keyboardShouldPersistTaps,
-	p = "md",
 }: PropsWithChildren<{
 	open: boolean;
 	onClose: () => void;
 	scrollable?: boolean;
 	keyboardShouldPersistTaps?: "always" | "never" | "handled";
-	p?: ShorthandStyleProps["p"];
 }>) => {
 	const { width } = useWindowDimensions();
 	const isWide = width >= Breakpoints.SheetModal;
 
-	if (!open) return null;
+	useHistoryBack(open, onClose);
 
-	const child = scrollable ? (
-		<SheetScrollView keyboardShouldPersistTaps={keyboardShouldPersistTaps}>
-			<Box p={p}>{children}</Box>
-		</SheetScrollView>
-	) : (
-		<Box p={p}>{children}</Box>
-	);
-
-	const props = { children: child, onClose };
-
-	return (
-		<Portal hostName="overlay">
-			<Box absoluteFill pointerEvents="auto">
-				{isWide ? <SheetImplWide {...props} /> : <SheetImplNarrow {...props} />}
-			</Box>
-		</Portal>
-	);
+	if (isWide) {
+		return (
+			<SheetImplModal
+				open={open}
+				onClose={onClose}
+				children={children}
+				scrollable={scrollable}
+			/>
+		);
+	} else {
+		return (
+			<SheetImplBottomSheet
+				open={open}
+				onClose={onClose}
+				scrollable={scrollable}
+				children={children}
+			/>
+		);
+	};
 };
 
 export const SheetScrollView = ({
 	children,
 	...props
 }: PropsWithChildren<ScrollViewProps & { ref?: React.Ref<ScrollView> }>) => {
-	return <ScrollView {...props}>{children}</ScrollView>;
-};
+	const { width } = useWindowDimensions();
+	const isWide = width >= Breakpoints.SheetModal;
 
-const SheetImplWide = ({ children, onClose }: PropsWithChildren<{
-	onClose: () => void;
-}>) => {
-	return (
-		<Box
-			absoluteFill
-			bg="rgba(0,0,0,0.5)"
-			onStartShouldSetResponder={() => true}
-			onResponderGrant={onClose}
+	return isWide ? (
+		<ScrollView {...props}>
+			{children}
+		</ScrollView>
+	) : (
+		<BottomSheetScrollView
+			keyboardShouldPersistTaps="never"
+			{...props}
 		>
-			<Box
-				absoluteFill
-				justify="center"
-				align="center"
-				pointerEvents="box-none"
-			>
-				<Box
-					bg={Colors.Background}
-					radius={Radius.Default}
-					w="100%"
-					style={{
-						maxWidth: 480,
-						maxHeight: "90%",
-						overflow: "hidden",
-					}}
-					onStartShouldSetResponder={() => true}
-					onResponderRelease={() => {}}
-				>
-					{children}
-				</Box>
-			</Box>
-		</Box>
+			{children}
+		</BottomSheetScrollView>
 	);
 };
 
-const SheetImplNarrow = ({ children, onClose }: PropsWithChildren<{
+export const SheetImplModal = ({
+	children,
+	open,
+	onClose,
+	scrollable = true,
+}: PropsWithChildren<{
+	open: boolean;
 	onClose: () => void;
+	scrollable?: boolean;
 }>) => {
-	const snapPoints = useMemo(() => ["100%"], []);
+	const fadeAnim = useRef(new Animated.Value(0)).current;
+	const [visible, setVisible] = useState(false);
 
-	const handleChange = useCallback((index: number) => {
-		if (index === -1) {
-			onClose();
+	useEffect(() => {
+		if (open) {
+			setVisible(true);
+			Animated.timing(fadeAnim, {
+				toValue: 1,
+				duration: 200,
+				useNativeDriver: true,
+			}).start();
+		} else if (visible) {
+			Animated.timing(fadeAnim, {
+				toValue: 0,
+				duration: 150,
+				useNativeDriver: true,
+			}).start(() => setVisible(false));
 		}
-	}, [onClose]);
-
-	const renderBackdrop = useCallback((props: BottomSheetBackdropProps) => (
-		<BottomSheetBackdrop
-			{...props}
-			disappearsOnIndex={-1}
-			appearsOnIndex={0}
-		/>
-	), []);
+	}, [open, visible, fadeAnim]);
 
 	return (
-		<BottomSheet
-			index={0}
-			snapPoints={snapPoints}
+		<Modal visible={visible} onRequestClose={onClose} animationType="none" transparent>
+			<Box
+				component={Animated.View}
+				style={{ opacity: fadeAnim }}
+				flex={1}
+			>
+				<Box
+					component={TouchableOpacity}
+					activeOpacity={1}
+					onPress={onClose}
+					justify="center"
+					align="center"
+					flex={1}
+					bg="rgba(0,0,0,0.5)"
+				>
+					<Box
+						component={TouchableOpacity}
+						activeOpacity={1}
+						onPress={e => e.stopPropagation()}
+						bg={Colors.Background}
+						radius={Radius.Default}
+						w="100%"
+						my="md"
+						style={{
+							maxWidth: 480,
+							maxHeight: "90%",
+							overflow: "hidden",
+						}}
+					>
+						{scrollable ? (
+							<SheetScrollView>
+								{children}
+							</SheetScrollView>
+						) : (
+							children
+						)}
+					</Box>
+				</Box>
+			</Box>
+		</Modal>
+	);
+};
+
+export const SheetImplBottomSheet = ({
+	open,
+	onClose,
+	children,
+	scrollable = true,
+}: PropsWithChildren<{
+	open: boolean;
+	scrollable?: boolean;
+	onClose: () => void;
+}>) => {
+	const sheetRef = useRef<BottomSheetModal>(null);
+	const userDismissed = useRef(false);
+
+	const [mounted, setMounted] = useState(false);
+	const ContextBridge = useContextBridge();
+
+	const handleDismiss = useCallback(() => {
+		userDismissed.current = true;
+		onClose();
+	}, [onClose]);
+
+	const renderBackground = useCallback(
+		(props: BottomSheetBackgroundProps) => (
+			<Box
+				style={[
+					props.style,
+					{
+						backgroundColor: Colors.Background,
+						borderTopLeftRadius: 16,
+						borderTopRightRadius: 16,
+						overflow: "hidden",
+					},
+				]}
+			/>
+		),
+		[],
+	);
+
+	const renderHandle = useCallback(
+		() => (
+			<Box py={8} align="center" h={HANDLE_BAR_HEIGHT}>
+				<Box
+					w={36}
+					h={4}
+					radius={2}
+					bg={Colors.TextDimmed}
+				/>
+			</Box>
+		),
+		[],
+	);
+
+	const renderBackdrop = useCallback(
+		(props: BottomSheetBackdropProps) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				pressBehavior="close"
+			/>
+		),
+		[],
+	);
+
+	useEffect(() => {
+		if (open && !mounted) {
+			setMounted(true);
+		} else if (mounted) {
+			if (open) {
+				userDismissed.current = false;
+				setTimeout(() => {
+					sheetRef.current?.present();
+				}, 0);
+			} else if (!userDismissed.current) {
+				sheetRef.current?.dismiss();
+			}
+		}
+	}, [open, mounted]);
+
+	if (!mounted) return null;
+
+	return (
+		<BottomSheetModal
+			ref={sheetRef}
+			onDismiss={handleDismiss}
 			enablePanDownToClose
-			onChange={handleChange}
+			animateOnMount
+			backgroundComponent={renderBackground}
+			handleComponent={renderHandle}
 			backdropComponent={renderBackdrop}
+			stackBehavior="push"
 		>
-			{children}
-		</BottomSheet>
+			<FiberHandle>
+				<ContextBridge>
+					{scrollable ? (
+						<SheetScrollView
+							children={children}
+						/>
+					) : (
+						children
+					)}
+				</ContextBridge>
+			</FiberHandle>
+		</BottomSheetModal>
 	);
 };
