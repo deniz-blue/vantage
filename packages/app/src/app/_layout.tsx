@@ -26,6 +26,7 @@ export default function RootLayout() {
 				[QueryClientProvider, { client: queryClient }],
 			]}
 		>
+			<PortalHost name="overlay" />
 			<Box flex={1} bg={Colors.Background}>
 				<Stack
 					screenOptions={{
@@ -38,17 +39,6 @@ export default function RootLayout() {
 					<Stack.Screen name="event/[id]/edit" options={{ headerShown: false }} />
 				</Stack>
 			</Box>
-			<PortalHost
-				name="overlay"
-				style={{
-					position: "absolute",
-					top: 0,
-					right: 0,
-					bottom: 0,
-					left: 0,
-					zIndex: 67,
-				}}
-			/>
 		</ComponentStack>
 	);
 }

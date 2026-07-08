@@ -69,7 +69,7 @@ export const JsonImportSheet = ({ open, onClose }: { open: boolean; onClose: () 
 	}, [onClose]);
 
 	return (
-		<Sheet open={open} onClose={handleClose} keyboardShouldPersistTaps="handled">
+		<Sheet open={open} onClose={handleClose}>
 			<Box gap="md">
 				<Text fz={FontSize.h1} fw="bold">
 					Import Event JSON

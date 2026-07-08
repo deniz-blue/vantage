@@ -6,11 +6,18 @@ import {
 	type BottomSheetBackdropProps,
 	type BottomSheetBackgroundProps,
 } from "@gorhom/bottom-sheet";
-import { Box } from "./Box";
+import { Box, Spacing } from "./Box";
 import { Colors } from "../../theme/colors";
 import { useHistoryBack } from "../../hooks/useHistoryBack";
 import { FiberHandle, useContextBridge } from "../../internal/react-context-bridge";
-import { Animated, Modal, ScrollView, ScrollViewProps, TouchableOpacity, useWindowDimensions } from "react-native";
+import {
+	Animated,
+	Modal,
+	ScrollView,
+	ScrollViewProps,
+	TouchableOpacity,
+	useWindowDimensions,
+} from "react-native";
 import { Breakpoints } from "../../theme/breakpoints";
 import { Radius } from "../../theme/sizing";
 
@@ -21,25 +28,23 @@ export const Sheet = ({
 	onClose,
 	open,
 	scrollable,
+	p = "md",
 }: PropsWithChildren<{
 	open: boolean;
 	onClose: () => void;
 	scrollable?: boolean;
-	keyboardShouldPersistTaps?: "always" | "never" | "handled";
+	p?: Spacing;
 }>) => {
 	const { width } = useWindowDimensions();
 	const isWide = width >= Breakpoints.SheetModal;
 
 	useHistoryBack(open, onClose);
 
+	const child = scrollable ? children : <Box p={p} flex={1}>{children}</Box>;
+
 	if (isWide) {
 		return (
-			<SheetImplModal
-				open={open}
-				onClose={onClose}
-				children={children}
-				scrollable={scrollable}
-			/>
+			<SheetImplModal open={open} onClose={onClose} children={child} scrollable={scrollable} />
 		);
 	} else {
 		return (
@@ -47,10 +52,10 @@ export const Sheet = ({
 				open={open}
 				onClose={onClose}
 				scrollable={scrollable}
-				children={children}
+				children={child}
 			/>
 		);
-	};
+	}
 };
 
 export const SheetScrollView = ({
@@ -61,14 +66,9 @@ export const SheetScrollView = ({
 	const isWide = width >= Breakpoints.SheetModal;
 
 	return isWide ? (
-		<ScrollView {...props}>
-			{children}
-		</ScrollView>
+		<ScrollView {...props}>{children}</ScrollView>
 	) : (
-		<BottomSheetScrollView
-			keyboardShouldPersistTaps="never"
-			{...props}
-		>
+		<BottomSheetScrollView keyboardShouldPersistTaps="never" {...props}>
 			{children}
 		</BottomSheetScrollView>
 	);
@@ -106,11 +106,7 @@ export const SheetImplModal = ({
 
 	return (
 		<Modal visible={visible} onRequestClose={onClose} animationType="none" transparent>
-			<Box
-				component={Animated.View}
-				style={{ opacity: fadeAnim }}
-				flex={1}
-			>
+			<Box component={Animated.View} style={{ opacity: fadeAnim }} flex={1}>
 				<Box
 					component={TouchableOpacity}
 					activeOpacity={1}
@@ -123,7 +119,7 @@ export const SheetImplModal = ({
 					<Box
 						component={TouchableOpacity}
 						activeOpacity={1}
-						onPress={e => e.stopPropagation()}
+						onPress={(e) => e.stopPropagation()}
 						bg={Colors.Background}
 						radius={Radius.Default}
 						w="100%"
@@ -134,13 +130,7 @@ export const SheetImplModal = ({
 							overflow: "hidden",
 						}}
 					>
-						{scrollable ? (
-							<SheetScrollView>
-								{children}
-							</SheetScrollView>
-						) : (
-							children
-						)}
+						{scrollable ? <SheetScrollView>{children}</SheetScrollView> : children}
 					</Box>
 				</Box>
 			</Box>
@@ -189,12 +179,7 @@ export const SheetImplBottomSheet = ({
 	const renderHandle = useCallback(
 		() => (
 			<Box py={8} align="center" h={HANDLE_BAR_HEIGHT}>
-				<Box
-					w={36}
-					h={4}
-					radius={2}
-					bg={Colors.TextDimmed}
-				/>
+				<Box w={36} h={4} radius={2} bg={Colors.TextDimmed} />
 			</Box>
 		),
 		[],
@@ -242,13 +227,7 @@ export const SheetImplBottomSheet = ({
 		>
 			<FiberHandle>
 				<ContextBridge>
-					{scrollable ? (
-						<SheetScrollView
-							children={children}
-						/>
-					) : (
-						children
-					)}
+					{scrollable ? <SheetScrollView children={children} /> : children}
 				</ContextBridge>
 			</FiberHandle>
 		</BottomSheetModal>
