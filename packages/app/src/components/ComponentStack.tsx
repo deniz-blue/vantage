@@ -5,7 +5,7 @@ export const ComponentStack = <TStack extends readonly ComponentType<any>[]>({
 	stack,
 }: PropsWithChildren<{
 	stack: {
-		[I in keyof TStack]: [TStack[I], ComponentProps<TStack[I]>];
+		[I in keyof TStack]: [TStack[I], Omit<ComponentProps<TStack[I]>, "children">];
 	};
 }>) => {
 	return stack.reduceRight(

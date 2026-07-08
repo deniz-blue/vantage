@@ -1,30 +1,21 @@
-import { PropsWithChildren, useEffect, useId } from "react";
-import {
-	BottomSheetPortal,
-	useBottomSheetControl,
-	CustomModalAdapter,
-	useBottomSheetContext,
-} from "react-native-bottom-sheet-stack";
-import { GorhomSheetAdapter } from "react-native-bottom-sheet-stack/gorhom";
+import { PropsWithChildren, useCallback, useMemo } from "react";
 import { Box, ShorthandStyleProps } from "./Box";
 import { Colors } from "../../theme/colors";
-import {
-	Animated,
-	Pressable,
-	ScrollView,
-	ScrollViewProps,
-	useWindowDimensions,
-} from "react-native";
+import { ScrollView, ScrollViewProps, useWindowDimensions } from "react-native";
 import { Breakpoints } from "../../theme/breakpoints";
 import { Radius } from "../../theme/sizing";
-
-export const HANDLE_BAR_HEIGHT = 28;
+import { Portal } from "react-native-teleport";
+import BottomSheet, {
+	BottomSheetBackdrop,
+	BottomSheetBackdropProps,
+} from "@gorhom/bottom-sheet";
 
 export const Sheet = ({
 	children,
 	onClose,
 	open,
 	scrollable,
+	keyboardShouldPersistTaps,
 	p = "md",
 }: PropsWithChildren<{
 	open: boolean;
@@ -33,20 +24,27 @@ export const Sheet = ({
 	keyboardShouldPersistTaps?: "always" | "never" | "handled";
 	p?: ShorthandStyleProps["p"];
 }>) => {
-	const id = useId();
-	const control = useBottomSheetControl(id);
 	const { width } = useWindowDimensions();
 	const isWide = width >= Breakpoints.SheetModal;
 
-	useEffect(() => {
-		if (open) control.open();
-		else control.close();
-	}, [open]);
+	if (!open) return null;
+
+	const child = scrollable ? (
+		<SheetScrollView keyboardShouldPersistTaps={keyboardShouldPersistTaps}>
+			<Box p={p}>{children}</Box>
+		</SheetScrollView>
+	) : (
+		<Box p={p}>{children}</Box>
+	);
+
+	const props = { children: child, onClose };
 
 	return (
-		<BottomSheetPortal id={id}>
-			{isWide ? <SheetImplWide children={children} /> : <SheetImplNarrow children={children} />}
-		</BottomSheetPortal>
+		<Portal hostName="overlay">
+			<Box absoluteFill pointerEvents="auto">
+				{isWide ? <SheetImplWide {...props} /> : <SheetImplNarrow {...props} />}
+			</Box>
+		</Portal>
 	);
 };
 
@@ -57,36 +55,69 @@ export const SheetScrollView = ({
 	return <ScrollView {...props}>{children}</ScrollView>;
 };
 
-export const SheetImplWide = ({ children }: PropsWithChildren) => {
+const SheetImplWide = ({ children, onClose }: PropsWithChildren<{
+	onClose: () => void;
+}>) => {
 	return (
-		<CustomModalAdapter
-			contentContainerStyle={{
-				backgroundColor: "rgba(0,0,0,0.5)",
-			}}
+		<Box
+			absoluteFill
+			bg="rgba(0,0,0,0.5)"
+			onStartShouldSetResponder={() => true}
+			onResponderGrant={onClose}
 		>
 			<Box
-				component={Pressable}
-				onPress={(e) => e.stopPropagation()}
-				bg={Colors.Background}
-				radius={Radius.Default}
-				w="100%"
-				style={{
-					maxWidth: 480,
-					maxHeight: "90%",
-					overflow: "hidden",
-					zIndex: 5,
-				}}
+				absoluteFill
+				justify="center"
+				align="center"
+				pointerEvents="box-none"
 			>
-				{children}
+				<Box
+					bg={Colors.Background}
+					radius={Radius.Default}
+					w="100%"
+					style={{
+						maxWidth: 480,
+						maxHeight: "90%",
+						overflow: "hidden",
+					}}
+					onStartShouldSetResponder={() => true}
+					onResponderRelease={() => {}}
+				>
+					{children}
+				</Box>
 			</Box>
-		</CustomModalAdapter>
+		</Box>
 	);
 };
 
-export const SheetImplNarrow = ({ children }: PropsWithChildren) => {
+const SheetImplNarrow = ({ children, onClose }: PropsWithChildren<{
+	onClose: () => void;
+}>) => {
+	const snapPoints = useMemo(() => ["100%"], []);
+
+	const handleChange = useCallback((index: number) => {
+		if (index === -1) {
+			onClose();
+		}
+	}, [onClose]);
+
+	const renderBackdrop = useCallback((props: BottomSheetBackdropProps) => (
+		<BottomSheetBackdrop
+			{...props}
+			disappearsOnIndex={-1}
+			appearsOnIndex={0}
+		/>
+	), []);
+
 	return (
-		<GorhomSheetAdapter enablePanDownToClose animateOnMount>
+		<BottomSheet
+			index={0}
+			snapPoints={snapPoints}
+			enablePanDownToClose
+			onChange={handleChange}
+			backdropComponent={renderBackdrop}
+		>
 			{children}
-		</GorhomSheetAdapter>
+		</BottomSheet>
 	);
 };

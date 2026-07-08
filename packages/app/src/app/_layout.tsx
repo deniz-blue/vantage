@@ -6,8 +6,9 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@vantage/core";
 import { Box } from "../components/base/Box";
 import { Colors } from "../theme/colors";
-import { BottomSheetHost, BottomSheetManagerProvider, BottomSheetScaleView } from "react-native-bottom-sheet-stack";
 import { ComponentStack } from "../components/ComponentStack";
+import { PortalHost, PortalProvider } from "react-native-teleport";
+import { StyleSheet } from "react-native";
 
 export default function RootLayout() {
 	useEffect(() => {
@@ -17,13 +18,11 @@ export default function RootLayout() {
 	return (
 		<ComponentStack
 			stack={[
-				[BottomSheetManagerProvider, { id: "default" }],
 				[QueryClientProvider, { client: queryClient }],
 				[GestureHandlerRootView, {}],
-				[BottomSheetScaleView, {}],
+				[PortalProvider, {}],
 			]}
 		>
-			<BottomSheetHost />
 			<Box flex={1} bg={Colors.Background}>
 				<Stack
 					screenOptions={{
@@ -36,6 +35,17 @@ export default function RootLayout() {
 					<Stack.Screen name="event/[id]/edit" options={{ headerShown: false }} />
 				</Stack>
 			</Box>
+			<PortalHost
+				name="overlay"
+				style={{
+					position: "absolute",
+					top: 0,
+					right: 0,
+					bottom: 0,
+					left: 0,
+					zIndex: 67,
+				}}
+			/>
 		</ComponentStack>
 	);
 }
