@@ -28,7 +28,7 @@ export const Sheet = ({
 	onClose,
 	open,
 	scrollable,
-	p = "md",
+	p = "sm",
 }: PropsWithChildren<{
 	open: boolean;
 	onClose: () => void;

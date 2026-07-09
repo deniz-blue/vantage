@@ -7,9 +7,15 @@ export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 	const actions: Action[] = [];
 
 	if (resolved.data) actions.push({
-		label: "Copy JSON",
-		type: "copy",
-		value: () => JSON.stringify(resolved.data),
+		label: "View: Resolved Data",
+		type: "raw",
+		value: JSON.stringify(resolved.data),
+	});
+
+	if (resolved.raw) actions.push({
+		label: "View: Raw Data",
+		type: "raw",
+		value: resolved.raw,
 	});
 
 	if (resolved.format.type !== "directory.evnt.event" && resolved.raw) actions.push({
@@ -47,8 +53,6 @@ export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 			compactDates: true,
 		}),
 	});
-
-
 
 	return actions;
 };

@@ -5,16 +5,20 @@ export interface BaseAction {
 	label: ReactNode;
 	icon?: ReactNode;
 	search?: string;
-};
+}
 
-export interface CopyAction extends BaseAction {
-	type: "copy";
-	value: CopyButtonProps["value"];
-};
+export interface ActionMap {
+	copy: {
+		value: CopyButtonProps["value"];
+	};
+	fn: {
+		onRun: () => void;
+	};
+	raw: {
+		value: string;
+	};
+}
 
-export interface FnAction extends BaseAction {
-	type: "fn";
-	onRun: () => void;
-};
-
-export type Action = CopyAction | FnAction;
+export type Action = {
+	[Ty in keyof ActionMap]: BaseAction & { type: Ty } & ActionMap[Ty];
+}[keyof ActionMap];

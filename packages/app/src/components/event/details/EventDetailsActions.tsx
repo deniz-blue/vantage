@@ -2,16 +2,14 @@ import { useRouter } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import { useResolvedEvent, ResolvedEventUtils, EventsManager } from "@vantage/core";
 import { Box } from "../../base/Box";
-import { IconDotsVertical, IconPencil, IconShare } from "@tabler/icons-react-native";
+import { IconDotsVertical, IconPencil, IconShare, IconX } from "@tabler/icons-react-native";
 import { IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { Button } from "../../base/button/Button";
 import { Fragment, useState } from "react";
 import { Sheet } from "../../base/Sheet";
-import { CopyButton } from "../../base/button/CopyButton";
 import { useMutation } from "@tanstack/react-query";
 import { Text } from "../../base/Text";
-import { AppCopyButton } from "../../core/AppCopyButton";
 import { createActionsForEvent } from "../../actions/event-actions";
 import { ActionButtonList } from "../../actions/ActionButton";
 
@@ -52,25 +50,40 @@ export const EventDetailsActions = () => {
 			/>
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
-				<EventActionsMenu onClose={() => setOpen(false)} />
+				<EventActionsMenu />
 			</Sheet>
 		</Box>
 	);
 };
 
-export const EventActionsMenu = ({
-	onClose,
-}: {
-	onClose: () => void;
-}) => {
+export const EventActionsMenu = () => {
+	const router = useRouter();
 	const resolved = useResolvedEvent();
+	const actions = [...createActionsForEvent(resolved)];
 
-	const actions = createActionsForEvent(resolved);
+	console.log({ resolved, actions })
+
+	const shareLink = ResolvedEventUtils.createShareLink(resolved);
+
+	if (shareLink)
+		actions.push({
+			label: "Share",
+			type: "copy",
+			value: shareLink,
+			icon: <IconShare size={IconSize.xs} />,
+		});
+
+	if (resolved.source.type === "local")
+		actions.push({
+			label: "Edit",
+			type: "fn",
+			onRun: () => router.push(`/event/${resolved.id}/edit`),
+			icon: <IconPencil size={IconSize.xs} />,
+		});
 
 	return (
 		<Box p="sm" gap="sm">
 			<ActionButtonList actions={actions} />
-
 			<EventDeleteButton />
 		</Box>
 	);
@@ -97,16 +110,19 @@ export const EventDeleteButton = () => {
 	return (
 		<Fragment>
 			<Button
-				size="sm"
 				variant="danger"
 				children="Delete Event"
 				onPress={() => setConfirm(true)}
+				leftSection={<IconX size={IconSize.xs} />}
+				justify="flex-start"
 			/>
 
 			<Sheet open={confirm} onClose={() => setConfirm(false)}>
 				<Box p="sm" gap="sm">
 					<Text>
-						{resolved.source.type !== "local" ? "Are you sure you want to stop following this event?" : "Are you sure you want to delete this event? This action cannot be undone."}
+						{resolved.source.type !== "local"
+							? "Are you sure you want to stop following this event?"
+							: "Are you sure you want to delete this event? This action cannot be undone."}
 					</Text>
 					<Button
 						size="sm"
