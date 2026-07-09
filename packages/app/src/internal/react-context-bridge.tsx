@@ -1,5 +1,15 @@
 import { Fiber, traverseFiber } from "its-fine";
-import { Component, ComponentType, Context, createContext, Fragment, PropsWithChildren, use, useContext, useId, useMemo, useState } from "react";
+import {
+	Component,
+	ComponentType,
+	createContext,
+	Fragment,
+	PropsWithChildren,
+	use,
+	useContext,
+	useId,
+	useMemo,
+} from "react";
 
 export const FiberHandleContext = createContext<Fiber | null>(null);
 
@@ -8,31 +18,30 @@ export class FiberHandle extends Component<PropsWithChildren> {
 
 	render() {
 		return (
-			<FiberHandleContext value={this._reactInternals}>
-				{this.props.children}
-			</FiberHandleContext>
+			<FiberHandleContext value={this._reactInternals}>{this.props.children}</FiberHandleContext>
 		);
 	}
-};
+}
 
 export function useFiber(): Fiber<null> | null {
 	const root = useContext(FiberHandleContext);
-	if (root === null) return null;
+	const id = useId();
+	const fiber =
+		useMemo(() => {
+			if (root === null) return null;
 
-	const id = useId()
-	const fiber = useMemo(() => {
-		for (const maybeFiber of [root, root?.alternate]) {
-			if (!maybeFiber) continue
-			const fiber = traverseFiber<null>(maybeFiber, false, (node) => {
-				let state = node.memoizedState
-				while (state) {
-					if (state.memoizedState === id) return true
-					state = state.next
-				}
-			})
-			if (fiber) return fiber
-		}
-	}, [root, id]) ?? null;
+			for (const maybeFiber of [root, root?.alternate]) {
+				if (!maybeFiber) continue;
+				const fiber = traverseFiber<null>(maybeFiber, false, (node) => {
+					let state = node.memoizedState;
+					while (state) {
+						if (state.memoizedState === id) return true;
+						state = state.next;
+					}
+				});
+				if (fiber) return fiber;
+			}
+		}, [root, id]) ?? null;
 
 	return fiber;
 }
@@ -40,51 +49,46 @@ export function useFiber(): Fiber<null> | null {
 const REACT_CONTEXT_TYPE = Symbol.for("react.context");
 
 const isContext = <T,>(type: unknown): type is React.Context<T> =>
-	type !== null && typeof type === 'object' && '$$typeof' in type && type.$$typeof === REACT_CONTEXT_TYPE;
+	type !== null &&
+	typeof type === "object" &&
+	"$$typeof" in type &&
+	type.$$typeof === REACT_CONTEXT_TYPE;
 
 export const useContextMap = () => {
-	const root = useContext(FiberHandleContext);
 	const fiber = useFiber();
-	
-	const [contextMap] = useState(() => new Map<Context<any>, any>());
-	contextMap.clear()
 
-	if (!root) {
-		console.error("useContextMap called outside of FiberHandleContext");
-		return contextMap;
-	};
+	const contextMap = new Map<any, any>();
 
+	if (!fiber) return contextMap;
 
-	let node = fiber
+	let node: typeof fiber | null = fiber;
 	while (node) {
-		const context = node.type
+		const context = node.type;
 		if (context === FiberHandleContext) break;
 		if (isContext(context) && !contextMap.has(context)) {
-			contextMap.set(context, use(context));
+			const value = use(context);
+			contextMap.set(context, value);
 		}
-
-		node = node.return!
+		node = node.return!;
 	}
 
-	return contextMap
-}
+	return contextMap;
+};
 
 export const useContextBridge = () => {
 	const contextMap = useContextMap();
 
-	console.log(contextMap)
-
-	const ContextBridge = useMemo(() => (
-		contextMap.entries().reduce((Prev: ComponentType<PropsWithChildren>, [Context, value]) => {
-			return ({ children }: PropsWithChildren) => (
-				<Prev>
-					<Context value={value}>
-						{children}
-					</Context>
-				</Prev>
-			);
-		}, Fragment)
-	), [contextMap]);
+	const ContextBridge = useMemo(
+		() =>
+			contextMap.entries().reduce((Prev: ComponentType<PropsWithChildren>, [Context, value]) => {
+				return ({ children }: PropsWithChildren) => (
+					<Prev>
+						<Context value={value}>{children}</Context>
+					</Prev>
+				);
+			}, Fragment),
+		[contextMap],
+	);
 
 	return ContextBridge;
 };
