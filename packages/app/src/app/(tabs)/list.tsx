@@ -1,100 +1,108 @@
-import { useCallback, useRef } from "react";
-import { ScrollView, type NativeScrollEvent, type NativeSyntheticEvent, useWindowDimensions } from "react-native";
+import { useCallback, useState } from "react";
+import { ScrollView, FlatList, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import { ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
+import { ListOptions, ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
-import { Text } from "../../components/base/Text";
 import { Loader } from "../../components/base/Loader";
 import { EmptyState } from "../../components/base/EmptyState";
 import { EventCard } from "../../components/event/card/EventCard";
+import { TextInput } from "../../components/base/input/TextInput";
+import { Card } from "../../components/base/Card";
 import { Colors } from "../../theme/colors";
+import { Button } from "../../components/base/button/Button";
+import { IconFilter, IconSearch } from "@tabler/icons-react-native";
+import { IconSize } from "../../theme/sizing";
+import { UseQueryResult } from "@tanstack/react-query";
+import { Draft, produce } from "immer";
 import { Spacing } from "../../theme/spacing";
-import { Container } from "../../components/base/Container";
+import { Sheet } from "../../components/base/Sheet";
 
 const PAGE_SIZE = 20;
 
-const THROTTLE_MS = 300;
-
 export default function List() {
 	const router = useRouter();
-	const { width: screenWidth } = useWindowDimensions();
-	const gap = Spacing.sm;
-	const itemWidth = 300;
-	const availableWidth = screenWidth - Spacing.md * 2;
-	const numColumns = Math.max(1, Math.floor((availableWidth + gap) / (itemWidth + gap)));
-	const colW = (availableWidth - (numColumns - 1) * gap) / numColumns;
-
-	const {
-		events,
-		fetchNextPage,
-		hasNextPage,
-		isFetchingNextPage,
-		isLoading,
-	} = useEventListInfiniteQuery({
-		pageSize: PAGE_SIZE,
-		orderBy: "name",
+	const [filtersOpen, setFiltersOpen] = useState(false);
+	const [query, setQuery] = useState<ListOptions>({
+		orderBy: "instanceStart",
 	});
 
-	const lastScroll = useRef(0);
+	const patchQuery = (recipe: (draft: Draft<ListOptions>) => void) =>
+		setQuery((p) => produce(p, recipe));
 
-	const handleScroll = useCallback(
-		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
-			const now = Date.now();
-			if (now - lastScroll.current < THROTTLE_MS) return;
-			lastScroll.current = now;
+	const numColumns = 2;
 
-			const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
-			if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 300) {
-				if (hasNextPage && !isFetchingNextPage) {
-					fetchNextPage();
-				}
-			}
-		},
-		[hasNextPage, isFetchingNextPage, fetchNextPage],
+	const {
+		queries,
+		fetchNextPage,
+		rowsQuery: { refetch },
+		isFetchingNextPage,
+		isFetching,
+	} = useEventListInfiniteQuery({
+		pageSize: PAGE_SIZE,
+		...query,
+	});
+
+	const renderItem = useCallback(
+		({ item }: { item: UseQueryResult<Vantage.ResolvedEvent> }) => (
+			<ResolvedEventContext.Provider value={item.data ?? null}>
+				<EventCard
+					onPress={item.data?.id ? () => router.push(`/event/${item.data!.id}`) : undefined}
+				/>
+			</ResolvedEventContext.Provider>
+		),
+		[router],
 	);
-
-	if (isLoading) {
-		return <EmptyState message="Loading events…" />;
-	}
 
 	return (
 		<Box flex={1}>
-			<Box component={ScrollView} flex={1} onScroll={handleScroll} scrollEventThrottle={THROTTLE_MS}>
-				<Box pt="md" gap={Spacing.sm}>
-					<Container size="lg" pb={4}>
-						<Text fz={24} fw="bold">
-							Events
-						</Text>
-						<Text fz={13} c={Colors.TextDimmed}>
-							{events.length} event{events.length !== 1 ? "s" : ""}
-						</Text>
-					</Container>
+			<Box component={ScrollView} flex={1}>
+				<Box gap="md">
+					<Box pos="sticky" top={0} style={{ zIndex: 1 }}>
+						<Card m="sm" p="sm" bg={Colors.Background}>
+							<Box direction="row" gap="sm">
+								<Box flex={1}>
+									<TextInput
+										placeholder="Search..."
+										leftSection={<IconSearch size={IconSize.xs} />}
+										rightSection={isFetching && <ActivityIndicator />}
+										value={query.search ?? ""}
+										onChangeText={(text) =>
+											patchQuery((q) => {
+												q.search = text;
+											})
+										}
+									/>
+								</Box>
+								<Button
+									rightSection={<IconFilter size={IconSize.xs} />}
+									onPress={() => setFiltersOpen(true)}
+								>
+									Filters
+								</Button>
+							</Box>
+						</Card>
+					</Box>
+
+					<Sheet open={filtersOpen} onClose={() => setFiltersOpen(false)}>
+						<Box gap="sm">
+							<EmptyState message="No filters available yet" />
+						</Box>
+					</Sheet>
 
 					<Box px="md">
-						{(() => {
-							const cols: (typeof events)[] = Array.from({ length: numColumns }, () => []);
-							events.forEach((item, i) => cols[i % numColumns].push(item));
-							return (
-								<Box direction="row" gap={gap}>
-									{cols.map((col, ci) => (
-										<Box key={ci} w={colW} gap={gap}>
-											{col.map((item, ii) => {
-												const eventId = item.data?.id;
-												return (
-													<ResolvedEventContext.Provider key={`${ci}-${ii}`} value={item.data ?? null}>
-														<Box>
-															<EventCard
-																onPress={eventId ? () => router.push(`/event/${eventId}`) : undefined}
-															/>
-														</Box>
-													</ResolvedEventContext.Provider>
-												);
-											})}
-										</Box>
-									))}
-								</Box>
-							);
-						})()}
+						<FlatList
+							data={queries}
+							renderItem={renderItem}
+							keyExtractor={({ data }, idx) => data?.id ?? idx.toString()}
+							ListEmptyComponent={<EmptyState message="No events found" />}
+							onEndReached={() => fetchNextPage()}
+							refreshing={isFetching}
+							onRefresh={() => refetch()}
+							ItemSeparatorComponent={<Box pt="sm" />}
+							columnWrapperStyle={{ gap: Spacing.sm }}
+							numColumns={numColumns}
+							key={numColumns}
+						/>
 
 						{isFetchingNextPage && (
 							<Box p="md" align="center">

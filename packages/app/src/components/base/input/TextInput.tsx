@@ -82,8 +82,7 @@ export const TextInput = ({
 				focused={focused}
 				size={size}
 				gap={leftSection || rightSection ? Spacing.sm : undefined}
-				pl={!leftSection ? Spacing.sm : undefined}
-				pr={!rightSection ? Spacing.sm : undefined}
+				px="sm"
 				style={[
 					{
 						borderWidth: 1,

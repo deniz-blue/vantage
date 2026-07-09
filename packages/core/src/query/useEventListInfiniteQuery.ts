@@ -7,7 +7,7 @@ const PAGE_SIZE = 20;
 
 export interface InfiniteListOptions extends Omit<ListOptions, "limit" | "offset"> {
 	pageSize?: number;
-};
+}
 
 export const useEventListInfiniteQuery = ({
 	pageSize = PAGE_SIZE,
@@ -28,26 +28,33 @@ export const useEventListInfiniteQuery = ({
 			return (lastPageParam as number) + pageSize;
 		},
 		staleTime: 5 * 1000 * 60,
+		placeholderData: (data) => data,
 	});
 
 	const rows = rowsQuery.data?.pages.flat() ?? [];
 
-	const events = useQueries({
-		queries: rows.map(row => ({
+	const queries = useQueries({
+		queries: rows.map((row) => ({
 			queryKey: ["event", row.event_meta.id, "from-list"],
-			queryFn: async () =>
-				eventQueryFn(EventResolver.fromDatabase(EventResolver.new(), row)),
+			queryFn: async () => eventQueryFn(EventResolver.fromDatabase(EventResolver.new(), row)),
 			staleTime: 5 * 1000 * 60,
 		})),
 	});
 
+	const events = queries.reduce<Vantage.ResolvedEvent[]>(
+		(acc, q) => (q.data ? [...acc, q.data] : acc),
+		[],
+	);
+
 	return {
 		rowsQuery,
 		rows,
+		queries,
 		events,
 		fetchNextPage: rowsQuery.fetchNextPage,
 		hasNextPage: rowsQuery.hasNextPage,
 		isFetchingNextPage: rowsQuery.isFetchingNextPage,
 		isLoading: rowsQuery.isLoading,
+		isFetching: rowsQuery.isFetching || queries.some(q => q.isFetching),
 	};
 };

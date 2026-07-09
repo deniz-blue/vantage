@@ -89,6 +89,7 @@ export const Button = ({
 			style={[{
 				outlineColor: Colors.Primary,
 			}, style]}
+			accessibilityRole="button"
 			{...(rest as any)}
 		>
 			{leftSection}

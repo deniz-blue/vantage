@@ -1,4 +1,3 @@
-import { useRef, useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import { AsyncButton } from "./AsyncButton";
 
