@@ -1,7 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-	ActivityIndicator,
-} from "react-native";
+import { ActivityIndicator } from "react-native";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react-native";
 import { useEventListQuery, ResolvedEventContext } from "@vantage/core";
 import { PartialDateUtil } from "@evnt/partial-date";
@@ -20,6 +18,8 @@ import { EmptyState } from "../../components/base/EmptyState";
 import { Container } from "../../components/base/Container";
 import { useRouter } from "expo-router";
 import { range } from "../../utils/range";
+import { OpenEvnt } from "@evnt/types";
+import { PartialDate } from "@evnt/types";
 
 function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined }[]) {
 	return useMemo(() => {
@@ -39,7 +39,7 @@ function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined
 					const high = instance.end
 						? PartialDateUtil.toInstant(instance.end, "high")
 						: PartialDateUtil.toInstant(instance.start, "high");
-					console.log(day, instance, { low: low.epochMilliseconds, high: high.epochMilliseconds })
+					console.log(day, instance, { low: low.epochMilliseconds, high: high.epochMilliseconds });
 				}
 			}
 		}
@@ -64,7 +64,10 @@ export default function CalendarPage() {
 	}, [currentDate]);
 
 	const monthEnd = useMemo(() => {
-		return currentDate.add({ months: 1 }).toZonedDateTime({ timeZone: userTimezone }).toInstant().epochMilliseconds - 1;
+		return (
+			currentDate.add({ months: 1 }).toZonedDateTime({ timeZone: userTimezone }).toInstant()
+				.epochMilliseconds - 1
+		);
 	}, [currentDate]);
 
 	const { events } = useEventListQuery({
@@ -103,35 +106,17 @@ export default function CalendarPage() {
 					style={{ aspectRatio: 1 }}
 					variant={day.isToday ? "light" : "subtle"}
 				>
-					<Box
-						flex={1}
-						aspectRatio={1}
-						align="center"
-						justify="center"
-						gap={2}
-					>
+					<Box flex={1} aspectRatio={1} align="center" justify="center" gap={2}>
 						<Text
 							fz={FontSize.sm}
-							c={(
-								day.isToday
-									? "White"
-									: day.isOutsideMonth
-										? "TextDimmed"
-										: "Text"
-							)}
+							c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}
 						>
 							{day.day}
 						</Text>
 
 						<Box direction="row" gap={2}>
 							{range(Math.min(eventCount, 3)).map((i) => (
-								<Box
-									key={i}
-									w={8}
-									h={8}
-									bg={Colors.Primary}
-									radius={999}
-								/>
+								<Box key={i} w={8} h={8} bg={Colors.Primary} radius={999} />
 							))}
 						</Box>
 					</Box>
@@ -144,22 +129,14 @@ export default function CalendarPage() {
 	return (
 		<Container flex={1}>
 			{/* Header */}
-			<Box
-				direction="row"
-				align="center"
-				justify="space-between"
-				gap="xs"
-				p="md"
-			>
+			<Box direction="row" align="center" justify="space-between" gap="xs" p="md">
 				<Box direction="row" align="center" gap="xs" flex={1}>
 					<ActionIcon onPress={goToPrevMonth} size="sm">
 						<IconChevronLeft size={IconSize.xs} />
 					</ActionIcon>
 					<Button size="sm" flex={1}>
 						<Box align="center" flex={1}>
-							<Text fw="bold">
-								{monthLabel}
-							</Text>
+							<Text fw="bold">{monthLabel}</Text>
 						</Box>
 					</Button>
 					<ActionIcon onPress={goToNextMonth} size="sm">
@@ -181,34 +158,24 @@ export default function CalendarPage() {
 			</Box>
 
 			<Sheet open={!!selectedDay} onClose={() => setSelectedDay(null)}>
-				{selectedDay && (
-					<DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />
-				)}
+				{selectedDay && <DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />}
 			</Sheet>
 		</Container>
 	);
 }
 
-const DayEventsContent = ({
-	day,
-	onClose,
-}: {
-	day: string;
-	onClose: () => void;
-}) => {
+const DayEventsContent = ({ day, onClose }: { day: string; onClose: () => void }) => {
 	const router = useRouter();
 
 	const lowTimestamp = Temporal.PlainDate.from(day)
 		.add({ days: -1 })
 		.toZonedDateTime({ timeZone: "UTC" })
-		.toInstant()
-		.epochMilliseconds;
+		.toInstant().epochMilliseconds;
 
 	const highTimestamp = Temporal.PlainDate.from(day)
 		.add({ days: 1 })
 		.toZonedDateTime({ timeZone: "UTC" })
-		.toInstant()
-		.epochMilliseconds;
+		.toInstant().epochMilliseconds;
 
 	const { events, rowsQuery } = useEventListQuery({
 		beforeTimestamp: highTimestamp,
@@ -230,23 +197,42 @@ const DayEventsContent = ({
 	return (
 		<Box gap="md">
 			<Box direction="row" justify="space-between">
-				<Text fz={FontSize.lg} fw="bold">
-					{dateLabel}
-				</Text>
+				<Box direction="row">
+					<Text fz={FontSize.lg} fw="bold">
+						{dateLabel}
+					</Text>
 
-				{(rowsQuery.isFetching || events.some(q => q.isFetching)) && (
-					<ActivityIndicator />
-				)}
+					{(rowsQuery.isFetching || events.some((q) => q.isFetching)) && <ActivityIndicator />}
+				</Box>
+
+				<Button
+					variant="primary"
+					onPress={() => {
+						const tz = useLocaleStore.getState().timezone;
+						const start = `${day}[${tz ?? "UTC"}]` as PartialDate;
+						const data: OpenEvnt = {
+							v: "0.1",
+							name: {},
+							instances: [
+								{
+									venueIds: [],
+									start,
+								},
+							],
+						};
+						router.push(`/new?${new URLSearchParams([["data", JSON.stringify(data)]])}`);
+						onClose();
+					}}
+				>
+					New
+				</Button>
 			</Box>
 			{events.length === 0 ? (
 				<EmptyState message="No events on this day" />
 			) : (
 				<Box gap="sm">
 					{events.map((event, index) => (
-						<ResolvedEventContext.Provider
-							key={event.data?.id ?? index}
-							value={event.data ?? null}
-						>
+						<ResolvedEventContext.Provider key={event.data?.id ?? index} value={event.data ?? null}>
 							<EventCard
 								onPress={() => {
 									if (!event.data?.id) return;

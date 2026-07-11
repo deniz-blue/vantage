@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { useRouter, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
 import { Container } from "../../components/base/Container";
@@ -14,16 +14,33 @@ import { Divider } from "../../components/base/Divider";
 import { Button } from "../../components/base/button/Button";
 import { ScrollView } from "react-native";
 import { IconDatabase } from "@tabler/icons-react-native";
+import { OpenEvntSchema } from "@evnt/schema";
+
+const validJson = (str: any): boolean => {
+	if (typeof str !== "string") return false;
+	try {
+		const parsed = JSON.parse(str);
+		return OpenEvntSchema.safeParse(parsed).success;
+	} catch {
+		return false;
+	}
+};
 
 export default function NewEventPage() {
 	const router = useRouter();
+	const { data } = useLocalSearchParams();
 	const [form, setForm] = useState<OpenEvnt>({ v: "0.1", name: {} });
 	const editor = createEditor(form, setForm);
 
+	useEffect(() => {}, [data, setForm]);
+
 	useFocusEffect(
 		useCallback(() => {
-			setForm({ v: "0.1", name: {} });
-		}, []),
+			if (data && typeof data === "string" && validJson(data)) {
+				const parsed = JSON.parse(data);
+				setForm(parsed);
+			} else setForm({ v: "0.1", name: {} });
+		}, [data]),
 	);
 
 	const save = useMutation({
@@ -39,6 +56,7 @@ export default function NewEventPage() {
 		},
 		onSuccess: (id) => {
 			router.push(`/event/${id}`);
+			setForm({ v: "0.1", name: {} });
 		},
 	});
 
@@ -58,19 +76,16 @@ export default function NewEventPage() {
 								<Select
 									label="Save to..."
 									value="local"
-									onChange={() => { }}
-									data={[
-										"local",
-									]}
+									onChange={() => {}}
+									data={["local"]}
 									renderItem={(item) => {
-										if (item === "local") return (
-											<Box direction="row" gap="xs" align="center">
-												<IconDatabase size={IconSize.sm} />
-												<Text fz={FontSize.sm}>
-													This Device
-												</Text>
-											</Box>
-										);
+										if (item === "local")
+											return (
+												<Box direction="row" gap="xs" align="center">
+													<IconDatabase size={IconSize.sm} />
+													<Text fz={FontSize.sm}>This Device</Text>
+												</Box>
+											);
 										return item;
 									}}
 								/>
@@ -85,12 +100,7 @@ export default function NewEventPage() {
 			</Box>
 			<Box pos="absolute" style={{ bottom: 0 }} w="100%">
 				<Container size="sm" flex={1} pb="md">
-					<Button
-						variant="primary"
-						w="100%"
-						loading={save.isPending}
-						onPress={() => save.mutate()}
-					>
+					<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
 						{save.isPending ? "Saving…" : "Save"}
 					</Button>
 				</Container>
