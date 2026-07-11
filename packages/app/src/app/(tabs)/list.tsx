@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ScrollView, FlatList, ActivityIndicator } from "react-native";
+import { ScrollView, FlatList, ActivityIndicator, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { ListOptions, ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
@@ -16,20 +16,24 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { Draft, produce } from "immer";
 import { Spacing } from "../../theme/spacing";
 import { Sheet } from "../../components/base/Sheet";
+import { SegmentedControl } from "../../components/base/input/SegmentedControl";
+import { BooleanControl } from "../../components/base/input/BooleanControl";
+import { Text } from "../../components/base/Text";
 
 const PAGE_SIZE = 20;
+const CARD_WIDTH = 200;
 
 export default function List() {
+	const { width } = useWindowDimensions();
+	const numColumns = Math.round(width / CARD_WIDTH) || 1;
 	const router = useRouter();
 	const [filtersOpen, setFiltersOpen] = useState(false);
-	const [query, setQuery] = useState<ListOptions>({
+	const [filters, setFilters] = useState<ListOptions>({
 		orderBy: "instanceStart",
 	});
 
-	const patchQuery = (recipe: (draft: Draft<ListOptions>) => void) =>
-		setQuery((p) => produce(p, recipe));
-
-	const numColumns = 2;
+	const patchFilters = (recipe: (draft: Draft<ListOptions>) => void) =>
+		setFilters((p) => produce(p, recipe));
 
 	const {
 		queries,
@@ -39,19 +43,29 @@ export default function List() {
 		isFetching,
 	} = useEventListInfiniteQuery({
 		pageSize: PAGE_SIZE,
-		...query,
+		...filters,
 	});
 
 	const renderItem = useCallback(
-		({ item }: { item: UseQueryResult<Vantage.ResolvedEvent> }) => (
-			<ResolvedEventContext.Provider value={item.data ?? null}>
-				<EventCard
-					onPress={item.data?.id ? () => router.push(`/event/${item.data!.id}`) : undefined}
-				/>
-			</ResolvedEventContext.Provider>
-		),
-		[router],
+		({ item }: { item: UseQueryResult<Vantage.ResolvedEvent> | null }) => {
+			if (!item) return <Box flex={1} />;
+			return (
+				<ResolvedEventContext.Provider value={item.data ?? null}>
+					<Box flex={1}>
+						<EventCard
+							onPress={item.data?.id ? () => router.push(`/event/${item.data!.id}`) : undefined}
+						/>
+					</Box>
+				</ResolvedEventContext.Provider>
+			);
+		},
+		[router, numColumns],
 	);
+
+	const items = [
+		...queries,
+		...(Array.from({ length: numColumns - (queries.length % numColumns) }).fill(null) as null[]),
+	];
 
 	return (
 		<Box flex={1}>
@@ -65,9 +79,9 @@ export default function List() {
 										placeholder="Search..."
 										leftSection={<IconSearch size={IconSize.xs} />}
 										rightSection={isFetching && <ActivityIndicator />}
-										value={query.search ?? ""}
+										value={filters.search ?? ""}
 										onChangeText={(text) =>
-											patchQuery((q) => {
+											patchFilters((q) => {
 												q.search = text;
 											})
 										}
@@ -85,21 +99,49 @@ export default function List() {
 
 					<Sheet open={filtersOpen} onClose={() => setFiltersOpen(false)}>
 						<Box gap="sm">
-							<EmptyState message="No filters available yet" />
+							<Box direction="row" gap="sm" align="center">
+								<Box flex={1}>
+									<Text>Sort by</Text>
+								</Box>
+								<SegmentedControl<Exclude<ListOptions["orderBy"], undefined>>
+									value={filters.orderBy ?? "instanceStart"}
+									onChange={(value) =>
+										patchFilters((q) => {
+											q.orderBy = value;
+										})
+									}
+									options={[
+										{ label: "Date", value: "instanceStart" },
+										{ label: "Name", value: "name" },
+									]}
+								/>
+							</Box>
+
+							<BooleanControl
+								label="Has error"
+								value={filters.error ?? null}
+								onChange={(value) =>
+									patchFilters((q) => {
+										q.error = value ?? undefined;
+									})
+								}
+							/>
 						</Box>
 					</Sheet>
 
 					<Box px="md">
 						<FlatList
-							data={queries}
+							data={items}
 							renderItem={renderItem}
-							keyExtractor={({ data }, idx) => data?.id ?? idx.toString()}
+							keyExtractor={(item, idx) => item?.data?.id ?? idx.toString()}
 							ListEmptyComponent={<EmptyState message="No events found" />}
 							onEndReached={() => fetchNextPage()}
 							refreshing={isFetching}
 							onRefresh={() => refetch()}
 							ItemSeparatorComponent={<Box pt="sm" />}
-							columnWrapperStyle={{ gap: Spacing.sm }}
+							columnWrapperStyle={
+								numColumns > 1 ? { gap: Spacing.sm, justifyContent: "space-between" } : undefined
+							}
 							numColumns={numColumns}
 							key={numColumns}
 						/>

@@ -1,9 +1,9 @@
 import { useCallback, type ReactNode } from "react";
-import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSearch, ComboboxSheetList } from "./combobox";
-import { InputWrapper, type InputWrapperProps } from "./input/InputWrapper";
-import { Box } from "./Box";
-import { Text } from "./Text";
-import { FontSize } from "../../theme/sizing";
+import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSearch, ComboboxSheetList } from "../combobox";
+import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
+import { Box } from "../Box";
+import { Text } from "../Text";
+import { FontSize } from "../../../theme/sizing";
 
 export interface SelectProps<T> extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
 	data: readonly T[];

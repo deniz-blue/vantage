@@ -9,7 +9,7 @@ import { createEditor } from "../../components/event/editor/editor";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { FontSize, IconSize } from "../../theme/sizing";
-import { Select } from "../../components/base/Select";
+import { Select } from "../../components/base/input/Select";
 import { Divider } from "../../components/base/Divider";
 import { Button } from "../../components/base/button/Button";
 import { ScrollView } from "react-native";
