@@ -71,8 +71,8 @@ export const Fab = ({
 							<Animated.View key={index} entering={FadeIn}>
 								<Button
 									style={[shadow, style]}
-									onPress={() => {
-										onPress?.();
+									onPress={(e) => {
+										onPress?.(e);
 										setOpen(false);
 									}}
 									variant="primary"
