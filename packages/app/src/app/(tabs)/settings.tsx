@@ -58,16 +58,16 @@ export default function Settings() {
 					<AsyncButton
 						fn={async () => {
 							const links = [
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/sakura-festival.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/sanat-marketi.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/the-concastle-ii.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/slurp-serve.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/japon-k-lt-r-festivali.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/dotcon.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/bucon-25.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/cosplay-board-game.evnt.json",
-								"https://deniz.blue/events-data/events/2025/tr-cosplay/ants-fusion.evnt.json",
-								"https://deniz.blue/events-data/events/2026/conventions/ccb26.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/sakura-festival.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/sanat-marketi.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/the-concastle-ii.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/slurp-serve.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/japon-k-lt-r-festivali.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/dotcon.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/bucon-25.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/cosplay-board-game.evnt.json",
+								"https://deniz.blue/events-data/2025/tr-cosplay/ants-fusion.evnt.json",
+								"https://deniz.blue/events-data/2026/conventions/ccb26.evnt.json",
 							];
 							for (let link of links)
 								await EventsManager.addEvent({
@@ -95,7 +95,7 @@ export default function Settings() {
 						}}
 					>
 						{({ loading, onPress }) => (
-							<Button onLongPress={onPress} loading={loading} justify="flex-start">
+							<Button onLongPress={onPress} loading={loading} variant="danger" justify="flex-start">
 								Delete ALL Events (hold to confirm)
 							</Button>
 						)}
