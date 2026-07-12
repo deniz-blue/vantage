@@ -11,7 +11,9 @@ const detectFormat = (raw: string, contentType: string, url: string): Vantage.Ev
 		try {
 			const data = JSON.parse(raw);
 			if (typeof data?.$type === "string") return { type: data.$type };
-		} catch { /* fall through */ }
+		} catch {
+			/* fall through */
+		}
 		return { type: "directory.evnt.event" };
 	}
 
@@ -114,10 +116,7 @@ export default function EventFromIntent() {
 		<ResolvedEventContext value={query.data ?? null}>
 			<Box flex={1} bg="Dark8">
 				<Container size="lg" bg="Dark7" flex={1} px={0}>
-					<EventDetails
-						loading={query.isFetching}
-						onRefresh={query.refetch}
-					/>
+					<EventDetails loading={query.isFetching} onRefresh={query.refetch} />
 				</Container>
 			</Box>
 		</ResolvedEventContext>

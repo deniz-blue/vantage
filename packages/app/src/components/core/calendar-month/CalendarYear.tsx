@@ -11,10 +11,7 @@ export interface CalendarYearProps {
 	onSelectMonth?: (month: number) => void;
 }
 
-export const CalendarYear = ({
-	selectedMonth,
-	onSelectMonth,
-}: CalendarYearProps) => {
+export const CalendarYear = ({ selectedMonth, onSelectMonth }: CalendarYearProps) => {
 	const locale = useLocaleStore((s) => s.language);
 	const currentMonth = Temporal.Now.plainDateISO().month;
 
@@ -40,14 +37,14 @@ export const CalendarYear = ({
 									onPress={onSelectMonth ? () => onSelectMonth(month) : undefined}
 									selected={isSelected}
 									rightSection={isSelected && <IconCheck size={IconSize.xs} />}
-									leftSection={(
+									leftSection={
 										<Text
 											c={isSelected ? "Text" : month === currentMonth ? "Primary" : "TextDimmed"}
 											fz={FontSize.xs}
 										>
 											{month.toString()}
 										</Text>
-									)}
+									}
 								>
 									{name}
 								</Button>

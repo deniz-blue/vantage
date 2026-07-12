@@ -4,8 +4,7 @@ import { resolveColor } from "./colors";
 
 export type Spacing = ThemeSpacing | DimensionValue;
 
-const resolveSpacing = (v: Spacing): DimensionValue =>
-	SpacingVals[v as ThemeSpacing] ?? v;
+const resolveSpacing = (v: Spacing): DimensionValue => SpacingVals[v as ThemeSpacing] ?? v;
 
 /** Shorthand layout props that map directly to ViewStyle properties. */
 export interface ShorthandStyleProps {
@@ -71,10 +70,18 @@ type Entry = readonly [
 
 const MAP: Entry[] = [
 	// Dimensions
-	["w", "width"], ["h", "height"],
-	["miw", "minWidth"], ["maw", "maxWidth"], ["mih", "minHeight"], ["mah", "maxHeight"],
+	["w", "width"],
+	["h", "height"],
+	["miw", "minWidth"],
+	["maw", "maxWidth"],
+	["mih", "minHeight"],
+	["mah", "maxHeight"],
 	["aspectRatio", "aspectRatio"],
-	["pos", "position"], ["top", "top"], ["right", "right"], ["bottom", "bottom"], ["left", "left"],
+	["pos", "position"],
+	["top", "top"],
+	["right", "right"],
+	["bottom", "bottom"],
+	["left", "left"],
 
 	// Padding, margin, gap (resolve named spacing tokens)
 	["p", "padding", resolveSpacing],
@@ -99,13 +106,19 @@ const MAP: Entry[] = [
 	["bg", "backgroundColor", resolveColor],
 	["op", "opacity"],
 	["radius", "borderRadius"],
-	["rtl", "borderTopLeftRadius"], ["rtr", "borderTopRightRadius"],
-	["rbl", "borderBottomLeftRadius"], ["rbr", "borderBottomRightRadius"],
+	["rtl", "borderTopLeftRadius"],
+	["rtr", "borderTopRightRadius"],
+	["rbl", "borderBottomLeftRadius"],
+	["rbr", "borderBottomRightRadius"],
 
 	// Flexbox
-	["flex", "flex"], ["flexGrow", "flexGrow"], ["flexShrink", "flexShrink"],
-	["direction", "flexDirection"], ["align", "alignItems"],
-	["justify", "justifyContent"], ["wrap", "flexWrap"],
+	["flex", "flex"],
+	["flexGrow", "flexGrow"],
+	["flexShrink", "flexShrink"],
+	["direction", "flexDirection"],
+	["align", "alignItems"],
+	["justify", "justifyContent"],
+	["wrap", "flexWrap"],
 ];
 
 /** Convert shorthand layout props to a React Native ViewStyle object. */

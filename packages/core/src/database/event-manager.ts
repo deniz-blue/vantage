@@ -26,6 +26,7 @@ export const EventsManager = new class {
 		});
 		invalidateEventQuery(id);
 		invalidateEventListQueries();
+		console.log("Added event with id", id);
 		return id;
 	};
 

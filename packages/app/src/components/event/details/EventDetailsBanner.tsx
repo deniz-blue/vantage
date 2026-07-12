@@ -24,9 +24,7 @@ export const EventDetailsBanner = ({ loading }: { loading?: boolean }) => {
 
 	return (
 		<Box bg={Colors.Background}>
-			{hasBackground && (
-				<Box h={30} />
-			)}
+			{hasBackground && <Box h={30} />}
 			<EventBackground />
 			<Box
 				direction="row"
@@ -43,28 +41,24 @@ export const EventDetailsBanner = ({ loading }: { loading?: boolean }) => {
 			>
 				<ActionIcon
 					variant="subtle"
-					onPress={() => router.canGoBack() ? router.back() : router.push("/")}
+					onPress={() => (router.canGoBack() ? router.back() : router.push("/"))}
 					size="auto"
 				>
 					<IconArrowLeft size={20} />
 				</ActionIcon>
-				{loading && (
-					<ActivityIndicator />
-				)}
+				{loading && <ActivityIndicator />}
 				<Box flex={1} gap={4}>
 					<TransText
 						fz={FontSize.h1}
 						fw="bold"
 						value={data?.name}
-						fallback={(
+						fallback={
 							<Text fz={16} fst="italic" c="TextDimmed">
 								{loading ? "Loading…" : "Untitled"}
 							</Text>
-						)}
+						}
 					/>
-					{data?.label && (
-						<TransText fz={FontSize.md} c="TextDimmed" value={data.label} />
-					)}
+					{data?.label && <TransText fz={FontSize.md} c="TextDimmed" value={data.label} />}
 				</Box>
 			</Box>
 		</Box>

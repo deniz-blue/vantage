@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, type ViewStyle } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { IconPlus, IconX } from "@tabler/icons-react-native";
+import { Pressable, type ViewStyle } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import { IconX } from "@tabler/icons-react-native";
 import { ActionIcon, type ActionIconProps } from "./button/ActionIcon";
 import { resolveColor } from "../../theme/colors";
 import { Radius } from "../../theme/sizing";
@@ -65,32 +65,27 @@ export const Fab = ({
 				style={[{ zIndex: 100 }, wrapperStyle]}
 				{...wrapperProps}
 			>
-				{open && <Box direction="column">
-					{actions.map(({ label, onPress, ...action }, index) => (
-						<Animated.View
-							key={index}
-							entering={FadeIn}
-						>
-							<Button
-								style={[shadow, style]}
-								onPress={() => {
-									onPress?.();
-									setOpen(false);
-								}}
-								variant="primary"
-								size="lg"
-								radius={Radius.xl}
-								mb="sm"
-								children={(
-									<Text c="White">
-										{label}
-									</Text>
-								)}
-								{...action}
-							/>
-						</Animated.View>
-					))}
-				</Box>}
+				{open && (
+					<Box direction="column">
+						{actions.map(({ label, onPress, ...action }, index) => (
+							<Animated.View key={index} entering={FadeIn}>
+								<Button
+									style={[shadow, style]}
+									onPress={() => {
+										onPress?.();
+										setOpen(false);
+									}}
+									variant="primary"
+									size="lg"
+									radius={Radius.xl}
+									mb="sm"
+									children={<Text c="White">{label}</Text>}
+									{...action}
+								/>
+							</Animated.View>
+						))}
+					</Box>
+				)}
 
 				<ActionIcon
 					w={FAB_SIZE}

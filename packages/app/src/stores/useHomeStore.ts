@@ -19,10 +19,7 @@ export interface HomeState {
 export const useHomeStore = create<HomeState>()(
 	persist(
 		immer(() => ({
-			widgets: [
-				{ $type: "wttr.in" },
-				{ $type: "vantage.events.upcoming" },
-			],
+			widgets: [{ $type: "wttr.in" }, { $type: "vantage.events.upcoming" }],
 		})),
 		{
 			name: "vantage:home",

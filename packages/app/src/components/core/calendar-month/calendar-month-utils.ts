@@ -54,8 +54,7 @@ export function getCalendarGrid(
 			month,
 			day: d,
 			isOutsideMonth: false,
-			isToday:
-				today.year === year && today.month === month && today.day === d,
+			isToday: today.year === year && today.month === month && today.day === d,
 		});
 	}
 

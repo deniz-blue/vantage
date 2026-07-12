@@ -14,13 +14,7 @@ export interface ContainerProps extends BoxProps {
 	maxWidth?: number;
 }
 
-export const Container = ({
-	children,
-	size = "md",
-	maxWidth,
-	style,
-	...rest
-}: ContainerProps) => (
+export const Container = ({ children, size = "md", maxWidth, style, ...rest }: ContainerProps) => (
 	<Box
 		w="100%"
 		px="md"

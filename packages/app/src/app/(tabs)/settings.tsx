@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Linking, ScrollView, TouchableOpacity } from "react-native";
+import { Linking, ScrollView } from "react-native";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Divider } from "../../components/base/Divider";
@@ -13,6 +13,9 @@ import { FontSize } from "../../theme/sizing";
 import { InputWrapper } from "../../components/base/input/InputWrapper";
 import { Button } from "../../components/base/button/Button";
 import { IconExternalLink } from "@tabler/icons-react-native";
+import { EventsManager, queryClient } from "@vantage/core";
+import { AsyncButton } from "../../components/base/button/AsyncButton";
+import { db, schema } from "@vantage/db";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
@@ -47,18 +50,57 @@ export default function Settings() {
 				</InputWrapper>
 
 				<InputWrapper label="Developer Tools">
-					<Button
-						onPress={() => setJsonImportOpen(true)}
-						justify="flex-start"
-					>
+					<Button onPress={() => setJsonImportOpen(true)} justify="flex-start">
 						Import JSON
 					</Button>
-				</InputWrapper>
+					<JsonImportSheet open={jsonImportOpen} onClose={() => setJsonImportOpen(false)} />
 
-				<JsonImportSheet
-					open={jsonImportOpen}
-					onClose={() => setJsonImportOpen(false)}
-				/>
+					<AsyncButton
+						fn={async () => {
+							const links = [
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/sakura-festival.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/sanat-marketi.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/the-concastle-ii.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/slurp-serve.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/japon-k-lt-r-festivali.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/dotcon.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/bucon-25.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/cosplay-board-game.evnt.json",
+								"https://deniz.blue/events-data/events/2025/tr-cosplay/ants-fusion.evnt.json",
+								"https://deniz.blue/events-data/events/2026/conventions/ccb26.evnt.json",
+							];
+							for (let link of links)
+								await EventsManager.addEvent({
+									format: { type: "directory.evnt.event" },
+									source: { type: "http", url: link },
+								});
+						}}
+					>
+						{({ loading, onPress }) => (
+							<Button onPress={onPress} loading={loading} justify="flex-start">
+								Add Test Events
+							</Button>
+						)}
+					</AsyncButton>
+
+					<AsyncButton
+						fn={async () => {
+							await db.transaction(async (tx) => {
+								await tx.delete(schema.events);
+								await tx.delete(schema.eventMeta);
+								await tx.delete(schema.eventCache);
+								await tx.delete(schema.eventTags);
+							});
+							await queryClient.invalidateQueries();
+						}}
+					>
+						{({ loading, onPress }) => (
+							<Button onLongPress={onPress} loading={loading} justify="flex-start">
+								Delete ALL Events (hold to confirm)
+							</Button>
+						)}
+					</AsyncButton>
+				</InputWrapper>
 			</Container>
 		</Box>
 	);

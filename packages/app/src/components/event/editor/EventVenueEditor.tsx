@@ -1,11 +1,11 @@
-import { PhysicalVenue, Venue } from "@evnt/types";
+import { Venue } from "@evnt/types";
 import { Editor } from "./editor";
 import { Card } from "../../base/Card";
 import { Box } from "../../base/Box";
 import { CloseButton } from "../../base/button/CloseButton";
 import { TranslationsInput } from "./input/TranslationsInput";
 import { ComponentType } from "react";
-import { IconGlobe, IconMap2, IconMapPin, IconProps, IconWorld } from "@tabler/icons-react-native";
+import { IconMap2, IconMapPin, IconProps, IconWorld } from "@tabler/icons-react-native";
 import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
@@ -53,7 +53,7 @@ export const EventVenueEditor = ({
 				<TranslationsInput
 					label="Name"
 					placeholder="Somewhere"
-					editor={editor.field(e => e.name)}
+					editor={editor.field((e) => e.name)}
 				/>
 
 				{editor.value.$type === "directory.evnt.venue.physical" && (
@@ -61,11 +61,13 @@ export const EventVenueEditor = ({
 						label="Address"
 						placeholder="123 Main Street"
 						value={editor.value.address?.addr ?? ""}
-						onChangeText={text => editor.update(d => {
-							if (d.$type !== "directory.evnt.venue.physical") return;
-							d.address ??= {};
-							d.address.addr = text;
-						})}
+						onChangeText={(text) =>
+							editor.update((d) => {
+								if (d.$type !== "directory.evnt.venue.physical") return;
+								d.address ??= {};
+								d.address.addr = text;
+							})
+						}
 					/>
 				)}
 			</Box>

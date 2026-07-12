@@ -22,7 +22,7 @@ export const EventDetailsImport = () => {
 			return await db
 				.select()
 				.from(schema.eventMeta)
-				.where(and(eq(schema.eventMeta.source, source), eq(schema.eventMeta.format, format)))
+				.where(and(eq(schema.eventMeta.source, source), eq(schema.eventMeta.format, format)));
 		},
 	});
 
@@ -44,36 +44,24 @@ export const EventDetailsImport = () => {
 					mb="xs"
 				>
 					<Box gap={4} my="xs" align="center" flex={1}>
-						<Text fw="bold">
-							View in My Events
-						</Text>
-						<Text fz={FontSize.xs}>
-							This event is already in your list
-						</Text>
+						<Text fw="bold">View in My Events</Text>
+						<Text fz={FontSize.xs}>This event is already in your list</Text>
 					</Box>
 				</Button>
 			)}
 
 			{showImport && (
-				<AsyncButton fn={async () => {
-					const id = await EventsManager.addEvent({ source, format });
-					router.replace(`/event/${id}`);
-				}}>
+				<AsyncButton
+					fn={async () => {
+						const id = await EventsManager.addEvent({ source, format });
+						router.replace(`/event/${id}`);
+					}}
+				>
 					{({ loading, onPress }) => (
-						<Button
-							onPress={onPress}
-							loading={loading}
-							color="green"
-							h="auto"
-							mb="xs"
-						>
+						<Button onPress={onPress} loading={loading} color="green" h="auto" mb="xs">
 							<Box gap={4} my={4} align="center" flex={1}>
-								<Text fw="bold">
-									Add to My Events
-								</Text>
-								<Text fz={FontSize.xs}>
-									offline accessible and shown in your list
-								</Text>
+								<Text fw="bold">Add to My Events</Text>
+								<Text fz={FontSize.xs}>offline accessible and shown in your list</Text>
 							</Box>
 						</Button>
 					)}

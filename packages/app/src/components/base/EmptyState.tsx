@@ -10,17 +10,9 @@ export interface EmptyStateProps {
 	message?: string;
 }
 
-export const EmptyState = ({
-	loading,
-	icon,
-	message,
-}: EmptyStateProps) => (
+export const EmptyState = ({ loading, icon, message }: EmptyStateProps) => (
 	<Box flex={1} justify="center" align="center" gap="md" p="lg">
 		{loading ? <Loader /> : icon}
-		{message && (
-			<Text style={{ color: Colors.TextDimmed, textAlign: "center" }}>
-				{message}
-			</Text>
-		)}
+		{message && <Text style={{ color: Colors.TextDimmed, textAlign: "center" }}>{message}</Text>}
 	</Box>
 );

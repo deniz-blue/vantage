@@ -75,7 +75,7 @@ export const getThemeColor = (value: ThemeColor): string => {
 
 /** Shorthand for `getThemeColor` — resolves both `"red"` and `"Red"` etc. */
 export const resolveColor = (color: string): string => {
-	const key = color.charAt(0).toUpperCase() + color.slice(1) as keyof typeof Colors;
+	const key = (color.charAt(0).toUpperCase() + color.slice(1)) as keyof typeof Colors;
 	if (key in Colors) return Colors[key]!;
 	return color;
 };

@@ -12,11 +12,7 @@ export interface ComboboxListProps<T> {
 	filter?: (item: T, search: string) => boolean;
 }
 
-export const ComboboxSheetList = <T,>({
-	data,
-	renderItem,
-	filter,
-}: ComboboxListProps<T>) => {
+export const ComboboxSheetList = <T,>({ data, renderItem, filter }: ComboboxListProps<T>) => {
 	const ctx = useComboboxCtx<T>();
 	const scrollRef = useRef<ScrollView>(null);
 
@@ -32,18 +28,13 @@ export const ComboboxSheetList = <T,>({
 		[ctx],
 	);
 
-	const onSelectedLayout = useCallback(
-		(e: LayoutChangeEvent) => {
-			scrollRef.current?.scrollTo({ y: e.nativeEvent.layout.y, animated: false });
-		},
-		[],
-	);
+	const onSelectedLayout = useCallback((e: LayoutChangeEvent) => {
+		scrollRef.current?.scrollTo({ y: e.nativeEvent.layout.y, animated: false });
+	}, []);
 
 	return (
 		<Box flex={1}>
-			<SheetScrollView
-				ref={scrollRef}
-			>
+			<SheetScrollView ref={scrollRef}>
 				<Box py={4}>
 					{items.map((item, i) => {
 						const selected = item === ctx.value;

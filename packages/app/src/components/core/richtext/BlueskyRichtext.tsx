@@ -21,13 +21,18 @@ export const BlueskyRichtext = ({ text, facets }: BlueskyRichtextProps) => {
 		<Text fz={FontSize.md}>
 			{segments.map((segment, i) => {
 				const hasLink = segment.features?.some(
-					(f) => f.$type === "app.bsky.richtext.facet#link"
-						|| f.$type === "app.bsky.richtext.facet#mention",
+					(f) =>
+						f.$type === "app.bsky.richtext.facet#link" ||
+						f.$type === "app.bsky.richtext.facet#mention",
 				);
 
-				return hasLink
-					? <Text key={i} c="Primary" tdl="underline">{segment.text}</Text>
-					: segment.text;
+				return hasLink ? (
+					<Text key={i} c="Primary" tdl="underline">
+						{segment.text}
+					</Text>
+				) : (
+					segment.text
+				);
 			})}
 		</Text>
 	);

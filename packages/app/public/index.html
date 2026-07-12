@@ -1,102 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="%LANG_ISO_CODE%">
+	<head>
+		<title>Vantage</title>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+		/>
+		<meta name="color-scheme" content="dark" />
+		<meta name="theme-color" content="#242424" />
+		<link rel="icon" href="/icon.svg" />
+		<link rel="icon" href="/icon512.png" />
+		<!-- https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+		<style id="expo-reset">
+			html,
+			body {
+				height: 100%;
+				margin: 0;
+			}
 
-<head>
-	<title>Vantage</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
-	<meta name="color-scheme" content="dark" />
-	<meta name="theme-color" content="#242424" />
-	<link rel="icon" href="/icon.svg" />
-	<link rel="icon" href="/icon512.png" />
-	<!-- https://necolas.github.io/react-native-web/docs/setup/#root-element -->
-	<style id="expo-reset">
-		html,
-		body {
-			height: 100%;
-			margin: 0;
-		}
+			body {
+				overflow: hidden;
+				background-color: #242424;
+			}
 
-		body {
-			overflow: hidden;
-			background-color: #242424;
-		}
+			#root {
+				display: flex;
+				height: 100%;
+				flex: 1;
+			}
 
-		#root {
-			display: flex;
-			height: 100%;
-			flex: 1;
-		}
+			*:focus-visible {
+				outline-width: 2px;
+				outline-style: solid;
+			}
+		</style>
+	</head>
 
-		*:focus-visible {
-			outline-width: 2px;
-			outline-style: solid;
-		}
-	</style>
-</head>
-
-<body>
-	<div id="root">
-		<div id="loader"
-			style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;">
-			<div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-				<div class="loader-container">
-					<div class="spinner"></div>
-					<img src="/icon.svg" alt="Vantage" class="inner-svg">
-				</div>
-				<noscript style="color: white; font-family: sans-serif; text-align: center;">
-					JavaScript is required to run this application. Please enable JavaScript in your browser
-					settings and refresh the page.
-					<br />
-					If you are seeing this message, it means that JavaScript is either disabled or not
-					supported by your browser.
-				</noscript>
-			</div>
-			<style>
-				html,
-				body,
-				#root {
-					height: 100%;
-					margin: 0;
-				}
-
-				.loader-container {
-					position: relative;
-					box-sizing: border-box;
-					width: 100px;
-					height: 100px;
+	<body>
+		<div id="root">
+			<div
+				id="loader"
+				style="
 					display: flex;
 					align-items: center;
 					justify-content: center;
-				}
-
-				.spinner {
-					box-sizing: border-box;
-					position: absolute;
-					width: 100%;
 					height: 100%;
-					border: 4px solid rgba(0, 0, 0, 0.1);
-					--color: #ae3ec9;
-					border-color: var(--color) var(--color) var(--color) rgba(0, 0, 0, 0.2);
-					border-radius: 50%;
-					animation: spin 1s linear infinite;
-				}
-
-				.inner-svg {
-					box-sizing: border-box;
-					width: 75%;
-					height: auto;
-					z-index: 1;
-				}
-
-				@keyframes spin {
-					to {
-						transform: rotate(360deg);
+					width: 100%;
+				"
+			>
+				<div style="display: flex; flex-direction: column; align-items: center; gap: 16px">
+					<div class="loader-container">
+						<div class="spinner"></div>
+						<img src="/icon.svg" alt="Vantage" class="inner-svg" />
+					</div>
+					<noscript style="color: white; font-family: sans-serif; text-align: center">
+						JavaScript is required to run this application. Please enable JavaScript in your browser
+						settings and refresh the page.
+						<br />
+						If you are seeing this message, it means that JavaScript is either disabled or not
+						supported by your browser.
+					</noscript>
+				</div>
+				<style>
+					html,
+					body,
+					#root {
+						height: 100%;
+						margin: 0;
 					}
-				}
-			</style>
-		</div>
-	</div>
-</body>
 
+					.loader-container {
+						position: relative;
+						box-sizing: border-box;
+						width: 100px;
+						height: 100px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
+
+					.spinner {
+						box-sizing: border-box;
+						position: absolute;
+						width: 100%;
+						height: 100%;
+						border: 4px solid rgba(0, 0, 0, 0.1);
+						--color: #ae3ec9;
+						border-color: var(--color) var(--color) var(--color) rgba(0, 0, 0, 0.2);
+						border-radius: 50%;
+						animation: spin 1s linear infinite;
+					}
+
+					.inner-svg {
+						box-sizing: border-box;
+						width: 75%;
+						height: auto;
+						z-index: 1;
+					}
+
+					@keyframes spin {
+						to {
+							transform: rotate(360deg);
+						}
+					}
+				</style>
+			</div>
+		</div>
+	</body>
 </html>

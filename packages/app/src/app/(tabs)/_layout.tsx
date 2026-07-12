@@ -31,11 +31,11 @@ export default function TabLayout() {
 						overflow: "hidden",
 						...(isWide
 							? {
-								maxWidth: TAB_BAR_MAX_WIDTH,
-								alignSelf: "center",
-								marginBottom: 8,
-								borderRadius: 16,
-							}
+									maxWidth: TAB_BAR_MAX_WIDTH,
+									alignSelf: "center",
+									marginBottom: 8,
+									borderRadius: 16,
+								}
 							: {}),
 					},
 					tabBarItemStyle: {
@@ -44,35 +44,30 @@ export default function TabLayout() {
 					tabBarShowLabel: false,
 					headerShown: false,
 				}}
-
 				tabBar={(props) => (
 					<Box bg={Colors.BackgroundLight} h={56}>
-						<Container
-							direction="row"
-							justify="center"
-							h="100%"
-						>
-							{([
-								{ name: "index", icon: IconHome },
-								{ name: "list", icon: IconList },
-								{ name: "calendar", icon: IconCalendar },
-								{ name: "settings", icon: IconSettings },
-							] as const).map(({ icon: Icon, name }) => {
+						<Container direction="row" justify="center" h="100%">
+							{(
+								[
+									{ name: "index", icon: IconHome },
+									{ name: "list", icon: IconList },
+									{ name: "calendar", icon: IconCalendar },
+									{ name: "settings", icon: IconSettings },
+								] as const
+							).map(({ icon: Icon, name }) => {
 								const isActive = props.state.routeNames[props.state.index] === name;
 								return (
-									<Box
-										key={name}
-										flex={1}
-										direction="row"
-										justify="center"
-									>
+									<Box key={name} flex={1} direction="row" justify="center">
 										<ActionIcon
 											onPress={() => props.navigation.navigate(name)}
 											size="auto"
 											w="100%"
 											h="100%"
 										>
-											<Icon size={IconSize.lg} color={isActive ? Colors.Primary : Colors.TextDimmed} />
+											<Icon
+												size={IconSize.lg}
+												color={isActive ? Colors.Primary : Colors.TextDimmed}
+											/>
 										</ActionIcon>
 									</Box>
 								);
@@ -81,21 +76,11 @@ export default function TabLayout() {
 					</Box>
 				)}
 			>
-				<Tabs.Screen
-					name="index"
-				/>
-				<Tabs.Screen
-					name="list"
-				/>
-				<Tabs.Screen
-					name="settings"
-				/>
-				<Tabs.Screen
-					name="new"
-				/>
-				<Tabs.Screen
-					name="calendar"
-				/>
+				<Tabs.Screen name="index" />
+				<Tabs.Screen name="list" />
+				<Tabs.Screen name="settings" />
+				<Tabs.Screen name="new" />
+				<Tabs.Screen name="calendar" />
 			</Tabs>
 		</>
 	);

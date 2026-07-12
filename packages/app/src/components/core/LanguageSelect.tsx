@@ -32,7 +32,16 @@ const filter = (code: string, search: string): boolean => {
 
 const renderLanguageItem = (code: string, selected: boolean) => (
 	<>
-		<Box miw={36} h={36} radius={8} bg={selected ? Colors.Primary : Colors.BackgroundLight} align="center" justify="center" mr="md" px={8}>
+		<Box
+			miw={36}
+			h={36}
+			radius={8}
+			bg={selected ? Colors.Primary : Colors.BackgroundLight}
+			align="center"
+			justify="center"
+			mr="md"
+			px={8}
+		>
 			<Text fz={12} fw="700" c={selected ? "#fff" : Colors.TextDimmed}>
 				{code.toUpperCase()}
 			</Text>
@@ -50,8 +59,10 @@ const renderLanguageItem = (code: string, selected: boolean) => (
 	</>
 );
 
-export interface LanguageSelectProps
-	extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
+export interface LanguageSelectProps extends Pick<
+	InputWrapperProps,
+	"label" | "description" | "error" | "required"
+> {
 	value: string;
 	onChange: (value: string) => void;
 }
@@ -65,12 +76,7 @@ export const LanguageSelect = ({
 	onChange,
 }: LanguageSelectProps) => {
 	return (
-		<InputWrapper
-			label={label}
-			description={description}
-			error={error}
-			required={required}
-		>
+		<InputWrapper label={label} description={description} error={error} required={required}>
 			<Combobox value={value} onChange={onChange}>
 				<Box>
 					<ComboboxTrigger py="sm" px="sm" gap="sm">
@@ -103,11 +109,7 @@ export const LanguageSelect = ({
 				<ComboboxSheet>
 					<Box flex={1}>
 						<ComboboxSearch placeholder="Search languages…" />
-						<ComboboxSheetList
-							data={LANGUAGES}
-							filter={filter}
-							renderItem={renderLanguageItem}
-						/>
+						<ComboboxSheetList data={LANGUAGES} filter={filter} renderItem={renderLanguageItem} />
 					</Box>
 				</ComboboxSheet>
 			</Combobox>

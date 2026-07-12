@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { Text, TextProps } from "../base/Text";
 
-export const PartialDateLabel = ({ value, ...props }: Omit<TextProps, "children"> & { value: PartialDate }) => {
+export const PartialDateLabel = ({
+	value,
+	...props
+}: Omit<TextProps, "children"> & { value: PartialDate }) => {
 	const language = useLocaleStore((s) => s.language);
 
 	const label = useMemo(() => {
@@ -24,10 +27,5 @@ export const PartialDateLabel = ({ value, ...props }: Omit<TextProps, "children"
 		return fmt.format(temporal);
 	}, [value, language]);
 
-	return (
-		<Text
-			children={label}
-			{...props}
-		/>
-	);
+	return <Text children={label} {...props} />;
 };

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable } from "react-native";
+import { ActivityIndicator, Pressable, type PressableProps } from "react-native";
 import { Text } from "../Text";
 import { Box, type BoxProps } from "../Box";
 import { Colors } from "../../../theme/colors";
@@ -20,7 +20,7 @@ const SIZE_STYLES = {
 	lg: { h: ControlHeight.lg, ph: Spacing.md, fz: FontSize.md },
 } satisfies Record<string, { h: number; ph: number; fz: number }>;
 
-export interface ButtonProps extends BoxProps {
+export interface ButtonProps extends BoxProps, Omit<PressableProps, "children" | "style"> {
 	children: React.ReactNode;
 	variant?: ButtonVariant;
 	selected?: boolean;
@@ -29,7 +29,6 @@ export interface ButtonProps extends BoxProps {
 	loading?: boolean;
 	leftSection?: React.ReactNode;
 	rightSection?: React.ReactNode;
-	onPress?: () => void;
 	disabled?: boolean;
 }
 
@@ -61,15 +60,11 @@ export const Button = ({
 
 	const bg = useSelected
 		? (color ?? Colors.PrimaryTint)
-		: (color && variant === "primary")
+		: color && variant === "primary"
 			? color
 			: vs.bg;
 
-	const textColor = useSelected
-		? Colors.Text
-		: (color && variant !== "primary")
-			? color
-			: vs.text;
+	const textColor = useSelected ? Colors.Text : color && variant !== "primary" ? color : vs.text;
 
 	return (
 		<Box<typeof Pressable>
@@ -86,9 +81,12 @@ export const Button = ({
 			bg={bg}
 			op={dimmed ? 0.4 : undefined}
 			mih={ss.h}
-			style={[{
-				outlineColor: Colors.Primary,
-			}, style]}
+			style={[
+				{
+					outlineColor: Colors.Primary,
+				},
+				style,
+			]}
 			accessibilityRole="button"
 			{...(rest as any)}
 		>

@@ -4,10 +4,13 @@ import { ControlHeight, Radius } from "../../../theme/sizing";
 import { Box } from "../Box";
 import { PolymorphicProps } from "../../../utils/polymorphic";
 
-export type InputBaseProps<C extends ElementType> = PolymorphicProps<C, {
-	size?: keyof typeof ControlHeight;
-	focused?: boolean;
-}>;
+export type InputBaseProps<C extends ElementType> = PolymorphicProps<
+	C,
+	{
+		size?: keyof typeof ControlHeight;
+		focused?: boolean;
+	}
+>;
 
 export const InputBase = <C extends ElementType>({
 	component,

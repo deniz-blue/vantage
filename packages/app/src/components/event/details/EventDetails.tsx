@@ -42,12 +42,9 @@ export const EventDetails = ({
 			component={ScrollView}
 			flex={1}
 			stickyHeaderIndices={[0]}
-			refreshControl={onRefresh && (
-				<RefreshControl
-					refreshing={loading ?? false}
-					onRefresh={onRefresh}
-				/>
-			)}
+			refreshControl={
+				onRefresh && <RefreshControl refreshing={loading ?? false} onRefresh={onRefresh} />
+			}
 		>
 			<EventDetailsBanner loading={loading} />
 			<Box gap="md" p="md">
@@ -64,6 +61,6 @@ export const EventDetails = ({
 					</>
 				)}
 			</Box>
-		</Box >
+		</Box>
 	);
 };

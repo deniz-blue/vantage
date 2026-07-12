@@ -7,6 +7,4 @@ import { SQLocalDrizzle } from "sqlocal/drizzle";
 
 const sqlite = new SQLocalDrizzle(":localStorage:");
 
-setupDatabase(
-	drizzle(sqlite.driver, sqlite.batchDriver, { schema, logger: true }),
-);
+setupDatabase(drizzle(sqlite.driver, sqlite.batchDriver, { schema, logger: true }));

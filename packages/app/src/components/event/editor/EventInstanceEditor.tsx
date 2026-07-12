@@ -1,5 +1,5 @@
 import { EventInstance } from "@evnt/types";
-import { formatDate, formatTime } from "@evnt/pretty";
+import { formatDate } from "@evnt/pretty";
 import { Box } from "../../base/Box";
 import { Editor } from "./editor";
 import { Card } from "../../base/Card";
@@ -18,8 +18,8 @@ export const EventInstanceEditor = ({
 	editor: Editor<EventInstance>;
 	onDelete?: () => void;
 }) => {
-	const userLanguage = useLocaleStore(s => s.language);
-	const userTimezone = useLocaleStore(s => s.timezone);
+	const userLanguage = useLocaleStore((s) => s.language);
+	const userTimezone = useLocaleStore((s) => s.timezone);
 
 	const config = {
 		language: userLanguage,
@@ -45,15 +45,23 @@ export const EventInstanceEditor = ({
 				<PartialDateInput
 					label="Start"
 					value={editor.value.start}
-					onChange={(value) => editor.update(d => { d.start = value })}
+					onChange={(value) =>
+						editor.update((d) => {
+							d.start = value;
+						})
+					}
 				/>
 
 				<PartialDateInput
 					label="End"
 					value={editor.value.end}
-					onChange={(value) => editor.update(d => { d.end = value })}
+					onChange={(value) =>
+						editor.update((d) => {
+							d.end = value;
+						})
+					}
 				/>
 			</Box>
 		</Card>
-	)
+	);
 };

@@ -2,10 +2,9 @@ import { Venue } from "@evnt/types";
 import { Button } from "../../base/button/Button";
 import { IconExternalLink } from "@tabler/icons-react-native";
 import { IconSize } from "../../../theme/sizing";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { Sheet } from "../../base/Sheet";
 import { Box } from "../../base/Box";
-import { Text } from "../../base/Text";
 import { Linking } from "react-native";
 
 export const OpenMapButton = ({ venue }: { venue?: Venue }) => {

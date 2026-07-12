@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, FlatList, ActivityIndicator, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { ListOptions, ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
@@ -20,7 +20,7 @@ import { SegmentedControl } from "../../components/base/input/SegmentedControl";
 import { BooleanControl } from "../../components/base/input/BooleanControl";
 import { Text } from "../../components/base/Text";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 50;
 const CARD_WIDTH = 200;
 
 export default function List() {
@@ -28,6 +28,7 @@ export default function List() {
 	const numColumns = Math.round(width / CARD_WIDTH) || 1;
 	const router = useRouter();
 	const [filtersOpen, setFiltersOpen] = useState(false);
+	const todayMs = useMemo(() => Temporal.Now.instant().epochMilliseconds, []);
 	const [filters, setFilters] = useState<ListOptions>({
 		orderBy: "instanceStart",
 	});
@@ -99,6 +100,34 @@ export default function List() {
 
 					<Sheet open={filtersOpen} onClose={() => setFiltersOpen(false)}>
 						<Box gap="sm">
+							<Box direction="row" gap="sm" align="center">
+								<Box flex={1}>
+									<Text>Filter by</Text>
+								</Box>
+								<SegmentedControl<"" | "future" | "past">
+									value={filters.afterTimestamp ? "future" : filters.beforeTimestamp ? "past" : ""}
+									onChange={(value) =>
+										patchFilters((q) => {
+											if (value === "future") {
+												q.afterTimestamp = todayMs;
+												q.beforeTimestamp = undefined;
+											} else if (value === "past") {
+												q.beforeTimestamp = todayMs;
+												q.afterTimestamp = undefined;
+											} else {
+												q.beforeTimestamp = undefined;
+												q.afterTimestamp = undefined;
+											}
+										})
+									}
+									options={[
+										{ label: "Past", value: "past" },
+										{ label: "All", value: "" },
+										{ label: "Future", value: "future" },
+									]}
+								/>
+							</Box>
+
 							<Box direction="row" gap="sm" align="center">
 								<Box flex={1}>
 									<Text>Sort by</Text>

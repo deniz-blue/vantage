@@ -1,4 +1,4 @@
-import { Linking, TouchableOpacity } from "react-native";
+import { Linking } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { LinkComponent } from "@evnt/types";
 import { IconExternalLink } from "@tabler/icons-react-native";
@@ -29,10 +29,13 @@ export const EventDetailsLinks = () => {
 					disabled={link.disabled}
 					leftSection={<IconExternalLink size={IconSize.xs} />}
 				>
-					{link.name
-						? <TransText fz={FontSize.sm} value={link.name} />
-						: <Text fz={FontSize.sm} numberOfLines={1}>{link.url}</Text>
-					}
+					{link.name ? (
+						<TransText fz={FontSize.sm} value={link.name} />
+					) : (
+						<Text fz={FontSize.sm} numberOfLines={1}>
+							{link.url}
+						</Text>
+					)}
 				</Button>
 			))}
 		</Box>

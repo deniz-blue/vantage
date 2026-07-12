@@ -6,12 +6,9 @@ import { IconSize } from "../../../theme/sizing";
 
 export interface CloseButtonProps extends Omit<BoxProps, "children"> {
 	onPress?: () => void;
-};
+}
 
-export const CloseButton = ({
-	onPress,
-	...rest
-}: CloseButtonProps) => {
+export const CloseButton = ({ onPress, ...rest }: CloseButtonProps) => {
 	return (
 		<Box
 			component={onPress ? TouchableOpacity : undefined}
@@ -19,7 +16,7 @@ export const CloseButton = ({
 			justify="center"
 			activeOpacity={0.7}
 			onPress={onPress}
-			{...rest as any}
+			{...(rest as any)}
 		>
 			<IconX size={IconSize.xs} color={Colors.TextDimmed} />
 		</Box>

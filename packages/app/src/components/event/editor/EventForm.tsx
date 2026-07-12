@@ -24,25 +24,33 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 				<TranslationsInput
 					label="Event Name"
 					placeholder="My Event"
-					editor={editor.field(e => e.name)}
+					editor={editor.field((e) => e.name)}
 				/>
 
 				<StatusPicker
 					value={editor.value.status || "planned"}
-					onChange={status => editor.update(d => { d.status = status })}
+					onChange={(status) =>
+						editor.update((d) => {
+							d.status = status;
+						})
+					}
 				/>
 
 				<EventFormInstances />
 				<EventFormVenues />
 
 				<Divider
-					leftSection={<Text c="TextDimmed" fw="600">Details</Text>}
+					leftSection={
+						<Text c="TextDimmed" fw="600">
+							Details
+						</Text>
+					}
 				/>
 
 				<EventDescriptionEditor editor={editor} />
 			</Box>
 		</EventFormContext>
-	)
+	);
 };
 
 export const FormList = <T,>({
@@ -56,17 +64,17 @@ export const FormList = <T,>({
 	editor: Editor<T[] | undefined>;
 	onAdd: () => void;
 	emptyText: ReactNode;
-	renderItem: (props: {
-		onDelete: () => void;
-		editor: Editor<T>;
-		index: number;
-	}) => ReactNode;
+	renderItem: (props: { onDelete: () => void; editor: Editor<T>; index: number }) => ReactNode;
 }) => {
 	return (
 		<Box gap="md">
 			<Divider
-				leftSection={<Text c="TextDimmed" fw="600">{title}</Text>}
-				rightSection={(
+				leftSection={
+					<Text c="TextDimmed" fw="600">
+						{title}
+					</Text>
+				}
+				rightSection={
 					<Button
 						variant="subtle"
 						onPress={onAdd}
@@ -76,7 +84,7 @@ export const FormList = <T,>({
 							Add
 						</Text>
 					</Button>
-				)}
+				}
 			/>
 
 			{!editor.value?.length && (
@@ -90,9 +98,9 @@ export const FormList = <T,>({
 			{editor.value?.map((_, i) => (
 				<Fragment key={i}>
 					{renderItem({
-						editor: editor.field(v => v![i]!),
+						editor: editor.field((v) => v![i]!),
 						index: i,
-						onDelete: () => editor.update(d => void d?.splice(i, 1)),
+						onDelete: () => editor.update((d) => void d?.splice(i, 1)),
 					})}
 				</Fragment>
 			))}
@@ -107,20 +115,17 @@ export const EventFormInstances = () => {
 		<FormList
 			title="Date & Time"
 			emptyText="No dates set"
-			editor={editor.field(e => e.instances)}
+			editor={editor.field((e) => e.instances)}
 			onAdd={() => {
-				editor.update(d => {
+				editor.update((d) => {
 					if (!d.instances) d.instances = [];
 					d.instances.push({
 						venueIds: [],
 					});
-				})
+				});
 			}}
 			renderItem={({ editor, onDelete }) => (
-				<EventInstanceEditor
-					editor={editor}
-					onDelete={onDelete}
-				/>
+				<EventInstanceEditor editor={editor} onDelete={onDelete} />
 			)}
 		/>
 	);
@@ -131,10 +136,10 @@ export const EventFormVenues = () => {
 	const [open, setOpen] = useState(false);
 
 	const onAdd = (type: Venue["$type"]) => {
-		editor.update(d => {
+		editor.update((d) => {
 			if (!d.venues) d.venues = [];
 			let nextId = 0;
-			while (d.venues.some(v => v.id === nextId.toString())) nextId++;
+			while (d.venues.some((v) => v.id === nextId.toString())) nextId++;
 			d.venues.push({
 				$type: type,
 				id: nextId.toString(),
@@ -149,52 +154,42 @@ export const EventFormVenues = () => {
 			<FormList
 				title="Locations"
 				emptyText="No locations set"
-				editor={editor.field(e => e.venues)}
+				editor={editor.field((e) => e.venues)}
 				onAdd={() => setOpen(true)}
 				renderItem={({ editor, onDelete }) => (
-					<EventVenueEditor
-						editor={editor}
-						onDelete={onDelete}
-					/>
+					<EventVenueEditor editor={editor} onDelete={onDelete} />
 				)}
 			/>
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
 				<Box gap="md">
-					<Text ta="center">
-						Select location type:
-					</Text>
+					<Text ta="center">Select location type:</Text>
 					<Box direction="row" gap="sm" flex={1}>
-						{([
-							"directory.evnt.venue.physical",
-							"directory.evnt.venue.online",
-							"directory.evnt.venue.unknown",
-						] as const).map(type => {
+						{(
+							[
+								"directory.evnt.venue.physical",
+								"directory.evnt.venue.online",
+								"directory.evnt.venue.unknown",
+							] as const
+						).map((type) => {
 							let title = type.slice("directory.evnt.venue.".length);
 							title = title[0].toUpperCase() + title.slice(1);
 
-							const Icon = {
-								Physical: IconMapPin,
-								Online: IconWorld,
-								Unknown: IconQuestionMark,
-							}[title] ?? Fragment;
+							const Icon =
+								{
+									Physical: IconMapPin,
+									Online: IconWorld,
+									Unknown: IconQuestionMark,
+								}[title] ?? Fragment;
 
 							return (
-								<Button
-									flex={1}
-									key={type}
-									onPress={() => onAdd(type)}
-								>
+								<Button flex={1} key={type} onPress={() => onAdd(type)}>
 									<Box py="sm" gap="xs" align="center" flex={1}>
 										<ActionIcon size="lg">
 											<Icon size={IconSize.lg} />
 										</ActionIcon>
 
-										<Text
-											fz={FontSize.sm}
-										>
-											{title}
-										</Text>
+										<Text fz={FontSize.sm}>{title}</Text>
 									</Box>
 								</Button>
 							);

@@ -25,6 +25,7 @@ export const ActionButton = ({ action }: { action: Action }) => {
 				leftSection={action.icon}
 				children={action.label}
 				onPress={action.onRun}
+				variant={action.danger ? "danger" : undefined}
 				justify="flex-start"
 			/>
 		);

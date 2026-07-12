@@ -1,3 +1,2 @@
-// Metro resolves init-db.native.ts or init-db.web.ts at build time.
-// This stub exists so TypeScript sees the module type signature.
-// The actual init logic is in the platform-specific files.
+// oxlint-disable unicorn/no-empty-file
+// This file is intentionally left empty to prevent TypeScript errors when importing this module in other files.

@@ -13,6 +13,7 @@ export interface ActionMap {
 	};
 	fn: {
 		onRun: () => void;
+		danger?: boolean;
 	};
 	raw: {
 		value: string;

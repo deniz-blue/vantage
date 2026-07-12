@@ -1,11 +1,10 @@
 import { useRouter } from "expo-router";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 import { useEventListQuery, ResolvedEventContext } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { EventCard } from "../../event/card/EventCard";
 import { FontSize } from "../../../theme/sizing";
-import { Spacing } from "../../../theme/spacing";
 import { Divider } from "../../base/Divider";
 
 export const WidgetUpcomingEvents = () => {
@@ -23,22 +22,26 @@ export const WidgetUpcomingEvents = () => {
 			<Divider
 				px="md"
 				leftSection={<Text fw="bold">Upcoming Events</Text>}
-				rightSection={(
-					<TouchableOpacity onPress={() => router.push("/list")}>
-						<Text fz={13} c="TextDimmed">View All</Text>
-					</TouchableOpacity>
-				)}
+				rightSection={
+					<Pressable onPress={() => router.push("/list")}>
+						<Text fz={FontSize.sm} c="Blue">
+							View All
+						</Text>
+					</Pressable>
+				}
 			/>
 
 			{events.length === 0 ? (
 				<Box py="md" align="center">
-					<Text fz={FontSize.sm} c="TextDimmed">No upcoming events</Text>
+					<Text fz={FontSize.sm} c="TextDimmed">
+						No upcoming events
+					</Text>
 				</Box>
 			) : (
 				<Box component={ScrollView} horizontal>
 					<Box direction="row" gap="sm" px="md">
 						{events.map((query, index) => (
-							<Box key={index} w={280}>
+							<Box key={index} w={200}>
 								<ResolvedEventContext value={query.data ?? null}>
 									<EventCard
 										onPress={() => {

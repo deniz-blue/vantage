@@ -19,21 +19,20 @@ export const TranslationsInput = ({
 	const t = useTranslator();
 
 	return (
-		<InputWrapper
-			{...props}
-		>
+		<InputWrapper {...props}>
 			<TextInput
 				value={editor.value[userLanguage] || ""}
-				onChangeText={text => editor.update(d => { d[userLanguage] = text })}
+				onChangeText={(text) =>
+					editor.update((d) => {
+						d[userLanguage] = text;
+					})
+				}
 				placeholder={t(editor.value) || placeholder || "Translation..."}
-				rightSection={(
-					<ActionIcon
-						variant="light"
-						size="sm"
-					>
+				rightSection={
+					<ActionIcon variant="light" size="sm">
 						<IconLanguage size={20} />
 					</ActionIcon>
-				)}
+				}
 			/>
 		</InputWrapper>
 	);

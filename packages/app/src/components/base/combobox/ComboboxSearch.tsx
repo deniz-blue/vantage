@@ -11,10 +11,7 @@ export interface ComboboxSearchProps {
 export const ComboboxSearch = ({ placeholder = "Search…" }: ComboboxSearchProps) => {
 	const ctx = useComboboxCtx();
 	return (
-		<Box
-			p="md"
-			style={{ borderBottomWidth: 1, borderBottomColor: Colors.BackgroundLight }}
-		>
+		<Box p="md" style={{ borderBottomWidth: 1, borderBottomColor: Colors.BackgroundLight }}>
 			<TextInput
 				value={ctx.search}
 				onChangeText={ctx.setSearch}

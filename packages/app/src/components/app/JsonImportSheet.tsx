@@ -103,11 +103,7 @@ export const JsonImportSheet = ({ open, onClose }: { open: boolean; onClose: () 
 				)}
 
 				<Box direction="row" gap={8} justify="flex-end">
-					<Button
-						onPress={handleClose}
-					>
-						Cancel
-					</Button>
+					<Button onPress={handleClose}>Cancel</Button>
 					<Button
 						variant="primary"
 						onPress={handleImport}

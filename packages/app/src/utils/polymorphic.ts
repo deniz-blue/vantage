@@ -20,10 +20,7 @@ import type { ComponentPropsWithoutRef, ElementType } from "react";
  * );
  * ```
  */
-export type PolymorphicProps<
-	DefaultElement extends ElementType,
-	CustomProps = {},
-> = CustomProps &
+export type PolymorphicProps<DefaultElement extends ElementType, CustomProps = {}> = CustomProps &
 	Omit<ComponentPropsWithoutRef<DefaultElement>, keyof CustomProps | "component"> & {
 		component?: ElementType;
 	};

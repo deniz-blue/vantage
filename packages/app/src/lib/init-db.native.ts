@@ -4,6 +4,4 @@ import { openDatabaseSync } from "expo-sqlite";
 
 const expo = openDatabaseSync("vantage.db");
 
-setupDatabase(
-	drizzle(expo, { schema, logger: true }),
-);
+setupDatabase(drizzle(expo, { schema, logger: true }));

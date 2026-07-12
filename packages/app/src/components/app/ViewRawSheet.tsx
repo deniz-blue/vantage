@@ -19,9 +19,7 @@ export const ViewRawSheetContent = ({ raw }: { raw: string }) => {
 		<Box gap="md">
 			<Box direction="row" gap="sm">
 				<AppCopyButton value={str}>Copy</AppCopyButton>
-				<Button onPress={() => setWrap(w => !w)}>
-					Toggle Wrap
-				</Button>
+				<Button onPress={() => setWrap((w) => !w)}>Toggle Wrap</Button>
 			</Box>
 			<Box>
 				<ScrollView horizontal={!wrap}>

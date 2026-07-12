@@ -9,7 +9,17 @@ import { FontSize } from "../../../theme/sizing";
 import { formatOffset } from "@vantage/intl";
 import { SheetScrollView } from "../../base/Sheet";
 
-const RegionRow = ({ region, selected, onPress, onLayout }: { region: string; selected: boolean; onPress: () => void; onLayout?: (e: LayoutChangeEvent) => void }) => (
+const RegionRow = ({
+	region,
+	selected,
+	onPress,
+	onLayout,
+}: {
+	region: string;
+	selected: boolean;
+	onPress: () => void;
+	onLayout?: (e: LayoutChangeEvent) => void;
+}) => (
 	<Button
 		onPress={onPress}
 		selected={selected}
@@ -66,9 +76,7 @@ const allTz = Intl.supportedValuesOf("timeZone");
 
 const allRegions: readonly string[] = Array.from(
 	new Set(
-		allTz.filter(tz => tz.includes("/") && !tz.startsWith("Etc/")).map((tz) =>
-			tz.split("/")[0]!,
-		),
+		allTz.filter((tz) => tz.includes("/") && !tz.startsWith("Etc/")).map((tz) => tz.split("/")[0]!),
 	),
 ).sort((a, b) => a.localeCompare(b));
 
@@ -110,7 +118,9 @@ export const TimezoneSelectSheet = () => {
 				<Box gap="xs" p="sm">
 					{tzList.length === 0 ? (
 						<Box align="center" justify="center" py="xl">
-							<Text fz={FontSize.sm} c="TextDimmed">No matching timezones</Text>
+							<Text fz={FontSize.sm} c="TextDimmed">
+								No matching timezones
+							</Text>
 						</Box>
 					) : (
 						tzList.map((item) => (
@@ -126,15 +136,13 @@ export const TimezoneSelectSheet = () => {
 					)}
 				</Box>
 			</SheetScrollView>
-		)
-	};
+		);
+	}
 
 	return (
 		<Box direction="row" flex={1}>
 			<Box flex={1}>
-				<SheetScrollView
-					ref={regionScrollRef}
-				>
+				<SheetScrollView ref={regionScrollRef}>
 					<Box gap="xs" p="sm">
 						<TimezoneRow
 							tz="UTC"
@@ -158,10 +166,7 @@ export const TimezoneSelectSheet = () => {
 			<Divider vertical mx={0} thickness={1} />
 
 			<Box flex={1}>
-				<SheetScrollView
-					ref={tzScrollRef}
-					key={activeRegion}
-				>
+				<SheetScrollView ref={tzScrollRef} key={activeRegion}>
 					<Box gap="xs" p="sm">
 						{tzRegionList.map((item) => (
 							<TimezoneRow

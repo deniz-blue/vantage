@@ -1,11 +1,20 @@
 import { useCallback, type ReactNode } from "react";
-import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSearch, ComboboxSheetList } from "../combobox";
+import {
+	Combobox,
+	ComboboxTrigger,
+	ComboboxSheet,
+	ComboboxSearch,
+	ComboboxSheetList,
+} from "../combobox";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Box } from "../Box";
 import { Text } from "../Text";
 import { FontSize } from "../../../theme/sizing";
 
-export interface SelectProps<T> extends Pick<InputWrapperProps, "label" | "description" | "error" | "required"> {
+export interface SelectProps<T> extends Pick<
+	InputWrapperProps,
+	"label" | "description" | "error" | "required"
+> {
 	data: readonly T[];
 	value: T;
 	onChange: (value: T) => void;
@@ -40,9 +49,7 @@ export const Select = <T,>({
 		<InputWrapper label={label} description={description} error={error} required={required}>
 			<Combobox value={value} onChange={onChange}>
 				<ComboboxTrigger>
-					<Text fz={FontSize.sm}>
-						{renderItem(value) || placeholder}
-					</Text>
+					<Text fz={FontSize.sm}>{renderItem(value) || placeholder}</Text>
 				</ComboboxTrigger>
 				<ComboboxSheet>
 					{searchable && <ComboboxSearch />}

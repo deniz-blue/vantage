@@ -25,10 +25,7 @@ const defaultRenderDay = (day: CalendarDay) => (
 		bg={day.isToday ? Colors.Primary : undefined}
 		radius={Radius.sm}
 	>
-		<Text
-			fz={FontSize.sm}
-			c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}
-		>
+		<Text fz={FontSize.sm} c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}>
 			{day.day}
 		</Text>
 	</Box>

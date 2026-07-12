@@ -14,15 +14,14 @@ export const EventCardTitle = () => {
 				fz={FontSize.md}
 				numberOfLines={1}
 				value={data?.name}
-				fallback={<Text fz={FontSize.md} fst="italic" c="TextDimmed">Untitled event</Text>}
+				fallback={
+					<Text fz={FontSize.md} fst="italic" c="TextDimmed">
+						Untitled event
+					</Text>
+				}
 			/>
 			{data?.label && (
-				<TransText
-					fz={FontSize.md}
-					c="TextDimmed"
-					numberOfLines={1}
-					value={data.label}
-				/>
+				<TransText fz={FontSize.xs} c="TextDimmed" numberOfLines={1} value={data.label} />
 			)}
 		</Box>
 	);

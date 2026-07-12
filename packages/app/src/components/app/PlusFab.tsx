@@ -4,7 +4,12 @@ import { Spacing } from "../../theme/spacing";
 import { IconPlus } from "@tabler/icons-react-native";
 import { usePathname, useRouter } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { inferSourceFormat, eventQueryFnNoId, EventsManager, ResolvedEventContext } from "@vantage/core";
+import {
+	inferSourceFormat,
+	eventQueryFnNoId,
+	EventsManager,
+	ResolvedEventContext,
+} from "@vantage/core";
 import { Sheet } from "../base/Sheet";
 import { Box } from "../base/Box";
 import { Button } from "../base/button/Button";
@@ -35,7 +40,7 @@ export const PlusFab = () => {
 					{
 						label: "Import",
 						onPress: () => setOpen(true),
-					}
+					},
 				]}
 			/>
 
@@ -46,11 +51,7 @@ export const PlusFab = () => {
 	);
 };
 
-export const Importer = ({
-	onClose,
-}: {
-	onClose?: () => void;
-}) => {
+export const Importer = ({ onClose }: { onClose?: () => void }) => {
 	const [uri, setUri] = useState("");
 
 	const resolved = useQuery({
@@ -105,12 +106,7 @@ export const Importer = ({
 			)}
 
 			{resolved.data ? (
-				<Button
-					variant="primary"
-					w="100%"
-					loading={save.isPending}
-					onPress={() => save.mutate()}
-				>
+				<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
 					{save.isPending ? "Saving…" : "Save to This Device"}
 				</Button>
 			) : (

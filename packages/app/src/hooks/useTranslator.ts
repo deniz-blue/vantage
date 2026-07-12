@@ -5,10 +5,7 @@ import { useLocaleStore } from "../stores/useLocaleStore";
 export function useTranslator() {
 	const language = useLocaleStore((s) => s.language);
 
-	const translator = useMemo(
-		() => TranslationsUtil.createTranslator([language]),
-		[language],
-	);
+	const translator = useMemo(() => TranslationsUtil.createTranslator([language]), [language]);
 
 	return translator;
 }

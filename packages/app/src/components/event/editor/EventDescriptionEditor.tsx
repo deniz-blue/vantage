@@ -11,13 +11,15 @@ import { Text } from "../../base/Text";
 export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	const [preview, setPreview] = useState(false);
 
-	const md: any = editor.value.components?.find(c => c.$type === "directory.evnt.richtext.markdown");
+	const md: any = editor.value.components?.find(
+		(c) => c.$type === "directory.evnt.richtext.markdown",
+	);
 	const value = (md?.content as string | undefined) ?? "";
 
 	const onChangeText = (text: string) => {
-		editor.update(d => {
+		editor.update((d) => {
 			if (!d.components) d.components = [];
-			let md = d.components.find(c => c.$type === "directory.evnt.richtext.markdown");
+			let md = d.components.find((c) => c.$type === "directory.evnt.richtext.markdown");
 			if (!md && !text) return;
 			if (!md) {
 				md = {
@@ -27,7 +29,7 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 				};
 				d.components.push(md);
 			} else if (!text) {
-				d.components = d.components.filter(c => c !== md);
+				d.components = d.components.filter((c) => c !== md);
 			} else {
 				(md as any).content = text;
 			}
@@ -46,18 +48,13 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 				onChangeText={onChangeText}
 			/>
 
-			<Button
-				onPress={() => setPreview(true)}
-				disabled={!value.trim()}
-			>
+			<Button onPress={() => setPreview(true)} disabled={!value.trim()}>
 				Preview
 			</Button>
 
 			<Sheet open={preview} onClose={() => setPreview(false)}>
 				<Box gap="md">
-					<Text fw="bold">
-						Description Preview
-					</Text>
+					<Text fw="bold">Description Preview</Text>
 					<MarkdownRichtext content={value} />
 				</Box>
 			</Sheet>

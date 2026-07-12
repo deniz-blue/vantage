@@ -8,10 +8,6 @@ export interface LoaderProps extends ActivityIndicatorProps {
 	size?: "small" | "large";
 }
 
-export const Loader = ({
-	color = Colors.Primary,
-	size = "large",
-	...rest
-}: LoaderProps) => (
+export const Loader = ({ color = Colors.Primary, size = "large", ...rest }: LoaderProps) => (
 	<ActivityIndicator size={size} color={color} {...rest} />
 );

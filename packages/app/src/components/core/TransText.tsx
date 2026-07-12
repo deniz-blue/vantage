@@ -8,17 +8,8 @@ export interface TransTextProps extends Omit<TextProps, "children"> {
 	fallback?: ReactNode;
 }
 
-export const TransText = ({
-	value,
-	fallback,
-	...rest
-}: TransTextProps) => {
+export const TransText = ({ value, fallback, ...rest }: TransTextProps) => {
 	const translate = useTranslator();
 
-	return (
-		<Text
-			{...rest}
-			children={translate(value) || fallback}
-		/>
-	);
+	return <Text {...rest} children={translate(value) || fallback} />;
 };

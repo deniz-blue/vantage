@@ -1,43 +1,105 @@
 import { Image as RNImage, type ImageProps as RNImageProps, type ImageStyle } from "react-native";
 import { type ShorthandStyleProps, resolveShorthand } from "../../theme/shorthand";
 
-export interface ImageProps extends
-	ShorthandStyleProps,
-	Omit<RNImageProps, keyof ShorthandStyleProps | "style"> {
+export interface ImageProps
+	extends ShorthandStyleProps, Omit<RNImageProps, keyof ShorthandStyleProps | "style"> {
 	style?: RNImageProps["style"];
 }
 
 export const Image = (props: ImageProps) => {
 	const {
-		w, h, miw, maw, mih, mah,
-		pos, top, right, bottom, left,
-		p, px, py, pt, pr, pb, pl,
-		m, mx, my, mt, mr, mb, ml,
-		bg, op, radius, rtl, rtr, rbl, rbr,
-		gap, rowGap, columnGap,
-		flex, flexGrow, flexShrink,
-		direction, align, justify, wrap,
+		w,
+		h,
+		miw,
+		maw,
+		mih,
+		mah,
+		pos,
+		top,
+		right,
+		bottom,
+		left,
+		p,
+		px,
+		py,
+		pt,
+		pr,
+		pb,
+		pl,
+		m,
+		mx,
+		my,
+		mt,
+		mr,
+		mb,
+		ml,
+		bg,
+		op,
+		radius,
+		rtl,
+		rtr,
+		rbl,
+		rbr,
+		gap,
+		rowGap,
+		columnGap,
+		flex,
+		flexGrow,
+		flexShrink,
+		direction,
+		align,
+		justify,
+		wrap,
 		absoluteFill,
 		style,
 		...rest
 	} = props as any;
 
 	const shorthand = {
-		w, h, miw, maw, mih, mah,
-		pos, top, right, bottom, left,
-		p, px, py, pt, pr, pb, pl,
-		m, mx, my, mt, mr, mb, ml,
-		bg, op, radius, rtl, rtr, rbl, rbr,
-		gap, rowGap, columnGap,
-		flex, flexGrow, flexShrink,
-		direction, align, justify, wrap,
+		w,
+		h,
+		miw,
+		maw,
+		mih,
+		mah,
+		pos,
+		top,
+		right,
+		bottom,
+		left,
+		p,
+		px,
+		py,
+		pt,
+		pr,
+		pb,
+		pl,
+		m,
+		mx,
+		my,
+		mt,
+		mr,
+		mb,
+		ml,
+		bg,
+		op,
+		radius,
+		rtl,
+		rtr,
+		rbl,
+		rbr,
+		gap,
+		rowGap,
+		columnGap,
+		flex,
+		flexGrow,
+		flexShrink,
+		direction,
+		align,
+		justify,
+		wrap,
 		absoluteFill,
 	};
 
-	return (
-		<RNImage
-			style={[resolveShorthand(shorthand) as ImageStyle, style]}
-			{...rest}
-		/>
-	);
+	return <RNImage style={[resolveShorthand(shorthand) as ImageStyle, style]} {...rest} />;
 };

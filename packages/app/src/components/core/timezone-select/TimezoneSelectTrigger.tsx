@@ -20,9 +20,7 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 	if (variant === "form") {
 		return (
 			<ComboboxTrigger>
-				<Text fz={FontSize.sm}>
-					{ctx.value || "Select timezone"}
-				</Text>
+				<Text fz={FontSize.sm}>{ctx.value || "Select timezone"}</Text>
 			</ComboboxTrigger>
 		);
 	}
@@ -54,6 +52,6 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 					Use detected: {detectedTz} ({formatOffset(detectedTz)})
 				</Button>
 			)}
-		</Box >
+		</Box>
 	);
 };

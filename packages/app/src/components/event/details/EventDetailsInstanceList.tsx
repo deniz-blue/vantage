@@ -3,15 +3,21 @@ import { Linking } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { EventInstance, PartialDate, PhysicalVenue, Venue } from "@evnt/types";
 import { PartialDateUtil } from "@evnt/partial-date";
-import { TranslationsUtil } from "@evnt/translations";
-import { IconCalendar, IconCalendarQuestion, IconExternalLink, IconMapPin, IconWorld, IconWorldPin } from "@tabler/icons-react-native";
+import {
+	IconCalendar,
+	IconCalendarQuestion,
+	IconExternalLink,
+	IconMapPin,
+	IconWorld,
+	IconWorldPin,
+} from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Button } from "../../base/button/Button";
 import { Text, TextProps } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { FontSize, IconSize, Radius } from "../../../theme/sizing";
-import { MapsSheetContent, OpenMapButton } from "../venue/OpenMapButton";
+import { MapsSheetContent } from "../venue/OpenMapButton";
 import { Sheet } from "../../base/Sheet";
 import { InputWrapper } from "../../base/input/InputWrapper";
 import { AppCopyButton } from "../../core/AppCopyButton";
@@ -56,12 +62,10 @@ export const EventDetailsInstanceList = () => {
 					<Box key={i} gap="xs" p={multipleGroups ? "xs" : undefined}>
 						{showVenuesFirst
 							? group.venues.map((v, j) => <MiniBoxVenue key={j} venue={v} />)
-							: group.instances.map((inst, j) => <MiniBoxInstance key={j} instance={inst} />)
-						}
+							: group.instances.map((inst, j) => <MiniBoxInstance key={j} instance={inst} />)}
 						{showVenuesFirst
 							? group.instances.map((inst, j) => <MiniBoxInstance key={j} instance={inst} />)
-							: group.venues.map((v, j) => <MiniBoxVenue key={j} venue={v} />)
-						}
+							: group.venues.map((v, j) => <MiniBoxVenue key={j} venue={v} />)}
 					</Box>
 				);
 			})}
@@ -87,13 +91,19 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 
 	let icon: ReactNode;
 	if (hasDay) {
-		const parsed = PartialDateUtil.parse(instance.start) as PartialDate.Parsed.YearMonthDay | PartialDate.Parsed.YearMonthDayTime;
+		const parsed = PartialDateUtil.parse(instance.start) as
+			| PartialDate.Parsed.YearMonthDay
+			| PartialDate.Parsed.YearMonthDayTime;
 		const date = new Date(Date.UTC(parsed.year, parsed.month - 1, parsed.day));
 		const monthLabel = date.toLocaleDateString(language, { month: "short", timeZone: "UTC" });
 		icon = (
 			<Box align="center">
-				<Text fz={FontSize.md} fw="bold">{parsed.day}</Text>
-				<Text fz={FontSize.xs} c="TextDimmed" numberOfLines={1}>{monthLabel}</Text>
+				<Text fz={FontSize.md} fw="bold">
+					{parsed.day}
+				</Text>
+				<Text fz={FontSize.xs} c="TextDimmed" numberOfLines={1}>
+					{monthLabel}
+				</Text>
 			</Box>
 		);
 	} else if (hasMonth) {
@@ -111,21 +121,32 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 
 	if (instance.end) {
 		const eqPrecision = PartialDateUtil.getPrecisionEquality(instance.start, instance.end);
-		const bothHasTime = PartialDateUtil.has(instance.start, "time") && PartialDateUtil.has(instance.end, "time");
+		const bothHasTime =
+			PartialDateUtil.has(instance.start, "time") && PartialDateUtil.has(instance.end, "time");
 		const isSameDay = eqPrecision === "day" || eqPrecision === "time";
 
 		if (isSameDay) {
 			const dayOnly = PartialDateUtil.lowerPrecision(instance.start as any, "day");
 			title = <PartialDateLabel value={dayOnly} fz={FontSize.md} />;
 			if (bothHasTime && eqPrecision !== "time") {
-				const startTime = PartialDateUtil.asPlainDateTime(PartialDateUtil.parse(instance.start) as any);
+				const startTime = PartialDateUtil.asPlainDateTime(
+					PartialDateUtil.parse(instance.start) as any,
+				);
 				const endTime = PartialDateUtil.asPlainDateTime(PartialDateUtil.parse(instance.end) as any);
 				const timeStr = `${startTime.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}–${endTime.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}`;
-				subtitle = <Text fz={FontSize.sm} c="TextDimmed">{timeStr}</Text>;
+				subtitle = (
+					<Text fz={FontSize.sm} c="TextDimmed">
+						{timeStr}
+					</Text>
+				);
 			} else if (PartialDateUtil.has(instance.start, "time")) {
 				const pt = PartialDateUtil.parse(instance.start) as any;
 				const dt = PartialDateUtil.asPlainDateTime(pt);
-				subtitle = <Text fz={FontSize.sm} c="TextDimmed">{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}</Text>;
+				subtitle = (
+					<Text fz={FontSize.sm} c="TextDimmed">
+						{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}
+					</Text>
+				);
 			}
 		} else {
 			title = <PartialDateLabel value={instance.start} fz={FontSize.md} />;
@@ -140,7 +161,11 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		if (PartialDateUtil.has(instance.start, "time")) {
 			const pt = PartialDateUtil.parse(instance.start) as any;
 			const dt = PartialDateUtil.asPlainDateTime(pt);
-			subtitle = <Text fz={FontSize.sm} c="TextDimmed" numberOfLines={1}>{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}</Text>;
+			subtitle = (
+				<Text fz={FontSize.sm} c="TextDimmed" numberOfLines={1}>
+					{dt.toLocaleString(language, { hour: "2-digit", minute: "2-digit", hour12: false })}
+				</Text>
+			);
 		}
 	}
 
@@ -171,19 +196,25 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 	const [open, setOpen] = useState(false);
 
-	const icon = venue.$type === "directory.evnt.venue.online"
-		? <IconWorld size={IconSize.sm} />
-		: venue.$type === "directory.evnt.venue.physical"
-			? <IconMapPin size={IconSize.sm} />
-			: <IconWorldPin size={IconSize.sm} />;
+	const icon =
+		venue.$type === "directory.evnt.venue.online" ? (
+			<IconWorld size={IconSize.sm} />
+		) : venue.$type === "directory.evnt.venue.physical" ? (
+			<IconMapPin size={IconSize.sm} />
+		) : (
+			<IconWorldPin size={IconSize.sm} />
+		);
 
-	const title = <TransText fz={FontSize.md} value={venue.name} numberOfLines={1} fallback="Unnamed" />;
+	const title = (
+		<TransText fz={FontSize.md} value={venue.name} numberOfLines={1} fallback="Unnamed" />
+	);
 
-	const subtitle = venue.$type === "directory.evnt.venue.physical" && venue.address
-		? <AddressLabel numberOfLines={1} address={venue.address} fz={FontSize.sm} c="TextDimmed" />
-		: venue.$type === "directory.evnt.venue.online" && venue.url
-			? <Text numberOfLines={1} c="Blue" children={venue.url} />
-			: null;
+	const subtitle =
+		venue.$type === "directory.evnt.venue.physical" && venue.address ? (
+			<AddressLabel numberOfLines={1} address={venue.address} fz={FontSize.sm} c="TextDimmed" />
+		) : venue.$type === "directory.evnt.venue.online" && venue.url ? (
+			<Text numberOfLines={1} c="Blue" children={venue.url} />
+		) : null;
 
 	const address = venue.$type === "directory.evnt.venue.physical" ? venue.address : undefined;
 
@@ -191,12 +222,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 
 	return (
 		<Fragment>
-			<MiniBoxSnippet
-				icon={icon}
-				title={title}
-				onPress={() => setOpen(true)}
-				subtitle={subtitle}
-			/>
+			<MiniBoxSnippet icon={icon} title={title} onPress={() => setOpen(true)} subtitle={subtitle} />
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
 				<Box p="sm" gap="sm">
@@ -210,9 +236,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 							<AddressLabel address={address} fz={FontSize.md} c="Text" />
 							{address.addr && (
 								<Fragment>
-									<AppCopyButton value={address.addr}>
-										Copy Address
-									</AppCopyButton>
+									<AppCopyButton value={address.addr}>Copy Address</AppCopyButton>
 									<InputWrapper label="Open in Maps" />
 									<MapsSheetContent addr={address.addr} />
 								</Fragment>
@@ -233,7 +257,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 					)}
 				</Box>
 			</Sheet>
-		</Fragment >
+		</Fragment>
 	);
 };
 
@@ -244,11 +268,7 @@ const AddressLabel = ({
 	address: PhysicalVenue.Address;
 }) => {
 	const str = [address.addr, address.countryCode].filter(Boolean).join(", ");
-	return (
-		<Text {...props}>
-			{str}
-		</Text>
-	);
+	return <Text {...props}>{str}</Text>;
 };
 
 const MiniBoxSnippet = ({

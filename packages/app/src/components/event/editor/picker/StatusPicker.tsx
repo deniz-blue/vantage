@@ -1,8 +1,20 @@
 import type { EventStatus } from "@evnt/types";
-import { ComponentType, JSX, useState } from "react";
+import { ComponentType } from "react";
 import { Box } from "../../../base/Box";
-import { Combobox, ComboboxSheetList, ComboboxSheet, ComboboxTrigger } from "../../../base/combobox";
-import { IconCalendarCheck, IconCalendarOff, IconCalendarPause, IconCalendarQuestion, IconCalendarTime, IconProps } from "@tabler/icons-react-native";
+import {
+	Combobox,
+	ComboboxSheetList,
+	ComboboxSheet,
+	ComboboxTrigger,
+} from "../../../base/combobox";
+import {
+	IconCalendarCheck,
+	IconCalendarOff,
+	IconCalendarPause,
+	IconCalendarQuestion,
+	IconCalendarTime,
+	IconProps,
+} from "@tabler/icons-react-native";
 import { Text } from "../../../base/Text";
 import { InputWrapper } from "../../../base/input/InputWrapper";
 import { FontSize } from "../../../../theme/sizing";
@@ -41,20 +53,18 @@ export const StatusPicker = ({
 			<ComboboxSheet>
 				<ComboboxSheetList
 					data={["planned", "uncertain", "postponed", "suspended", "cancelled"] as EventStatus[]}
-					renderItem={(status, selected) => {
+					renderItem={(status) => {
 						const Icon = ICONS[status];
 
 						return (
 							<Box gap="sm" direction="row" align="center" flex={1}>
 								<Icon {...iconProps} />
-								<Text fz={FontSize.sm}>
-									{status[0]?.toUpperCase() + status.slice(1)}
-								</Text>
+								<Text fz={FontSize.sm}>{status[0]?.toUpperCase() + status.slice(1)}</Text>
 							</Box>
 						);
 					}}
 				/>
 			</ComboboxSheet>
 		</Combobox>
-	)
+	);
 };

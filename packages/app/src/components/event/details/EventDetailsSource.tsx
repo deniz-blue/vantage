@@ -1,20 +1,28 @@
 import { Linking } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { SourceComponent } from "@evnt/types";
-import { IconExternalLink, IconQuestionMark, IconDatabase, IconWorld, IconBraces, IconAt, IconBrandWikipedia } from "@tabler/icons-react-native";
+import {
+	IconExternalLink,
+	IconQuestionMark,
+	IconDatabase,
+	IconWorld,
+	IconBraces,
+	IconAt,
+	IconBrandWikipedia,
+} from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
-import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
 import { Button } from "../../base/button/Button";
 
 export const EventDetailsSource = () => {
 	const { source, format, data } = useResolvedEvent();
 
-	const sourceComponents = data?.components?.filter(
-		(c): c is SourceComponent => c.$type === "directory.evnt.component.source",
-	) ?? [];
+	const sourceComponents =
+		data?.components?.filter(
+			(c): c is SourceComponent => c.$type === "directory.evnt.component.source",
+		) ?? [];
 
 	return (
 		<Box gap="xs">
@@ -54,13 +62,6 @@ const sourceLabels: Record<string, string> = {
 	mediawiki: "MediaWiki",
 };
 
-const SourceRow = ({ type }: { type: string }) => (
-	<Box direction="row" gap={8} align="center" py={2}>
-		{sourceIcons[type] ?? <IconQuestionMark size={IconSize.xs} />}
-		<Text fz={FontSize.md}>{sourceLabels[type] ?? type}</Text>
-	</Box>
-);
-
 const formatIcons: Record<string, React.ReactNode> = {
 	unknown: <IconQuestionMark size={IconSize.xs} />,
 	"directory.evnt.event": <IconBraces size={IconSize.xs} />,
@@ -74,13 +75,6 @@ const formatLabels: Record<string, string> = {
 	ics: "iCalendar (ICS)",
 	"community.lexicon.calendar.event": "Community Lexicon",
 };
-
-const FormatRow = ({ type }: { type: string }) => (
-	<Box direction="row" gap={8} align="center" py={2}>
-		{formatIcons[type] ?? <IconQuestionMark size={IconSize.xs} />}
-		<Text fz={FontSize.md}>{formatLabels[type] ?? type}</Text>
-	</Box>
-);
 
 const Row = ({ icon, label }: { icon: React.ReactNode; label: string }) => {
 	return (

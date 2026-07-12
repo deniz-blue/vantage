@@ -12,10 +12,7 @@ export default function EventDetail() {
 		<ResolvedEventContext.Provider value={query.data ?? null}>
 			<Box flex={1} bg="Dark8">
 				<Container size="lg" bg="Dark7" flex={1} px={0}>
-					<EventDetails
-						loading={query.isFetching}
-						onRefresh={query.refetch}
-					/>
+					<EventDetails loading={query.isFetching} onRefresh={query.refetch} />
 				</Container>
 			</Box>
 		</ResolvedEventContext.Provider>

@@ -3,11 +3,7 @@ import type { SplashMediaComponent } from "@evnt/types";
 import { Image } from "../base/Image";
 import { Box } from "../base/Box";
 
-export const EventBackground = ({
-	dimmed = true,
-}: {
-	dimmed?: boolean;
-}) => {
+export const EventBackground = ({ dimmed = true }: { dimmed?: boolean }) => {
 	const { data } = useResolvedEvent();
 
 	const splash = data?.components?.find((c) => {
@@ -24,9 +20,7 @@ export const EventBackground = ({
 		<Box absoluteFill style={{ overflow: "hidden" }}>
 			{dominantColor && <Box absoluteFill bg={dominantColor} />}
 			<Image source={{ uri: url }} resizeMode="cover" absoluteFill />
-			{dimmed && (
-				<Box absoluteFill bg="Black" op={0.8} />
-			)}
+			{dimmed && <Box absoluteFill bg="Black" op={0.8} />}
 		</Box>
 	);
 };

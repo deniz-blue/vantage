@@ -1,4 +1,3 @@
-import { ScrollView } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
@@ -20,17 +19,17 @@ export namespace WttrIn {
 			weatherCode: string;
 		}[];
 		nearest_area: {
-			areaName: { value: string }[]
-			country: { value: string }[]
-			latitude: string
-			longitude: string
-			population: string
-			region: { value: string }[]
-			weatherUrl: { value: string }[]
+			areaName: { value: string }[];
+			country: { value: string }[];
+			latitude: string;
+			longitude: string;
+			population: string;
+			region: { value: string }[];
+			weatherUrl: { value: string }[];
 		}[];
 		request: { type: string; query: string }[];
 		weather: Weather[];
-	};
+	}
 
 	export interface Weather {
 		astronomy: {
@@ -44,44 +43,49 @@ export namespace WttrIn {
 		avgtempC: string;
 		avgtempF: string;
 		date: string;
-		hourly: Hourly[]
-		maxtempC: string
-		maxtempF: string
-		mintempC: string
-		mintempF: string
-		sunHour: string
-	};
+		hourly: Hourly[];
+		maxtempC: string;
+		maxtempF: string;
+		mintempC: string;
+		mintempF: string;
+		sunHour: string;
+	}
 
 	export interface Hourly {
-		FeelsLikeC: string
-		FeelsLikeF: string
-		tempC: string
-		tempF: string
-		time: string
-		weatherCode: string
-		weatherDesc: { value: string }[]
-		weatherIconUrl: { value: string }[]
-		winddirDegree: string
-		windspeedKmph: string
+		FeelsLikeC: string;
+		FeelsLikeF: string;
+		tempC: string;
+		tempF: string;
+		time: string;
+		weatherCode: string;
+		weatherDesc: { value: string }[];
+		weatherIconUrl: { value: string }[];
+		winddirDegree: string;
+		windspeedKmph: string;
 	}
 }
 
 const codeToEmoji = (codeStr: string) => {
 	const code = Number(codeStr);
 	switch (true) {
-		case code == 113: return "☀️";
-		case code == 116: return "⛅";
-		case code == 119 || code == 122: return "☁️";
-		case [143, 248, 260].includes(code): return "🌫️";
-		case [176, 293, 296, 299, 302, 305, 308, 311, 314, 353].includes(code): return "🌦️";
-		case [179, 182, 266, 281, 284].includes(code): return "🌨️";
-		case [200, 386, 389].includes(code): return "⛈️";
-		default: return "❓";
+		case code == 113:
+			return "☀️";
+		case code == 116:
+			return "⛅";
+		case code == 119 || code == 122:
+			return "☁️";
+		case [143, 248, 260].includes(code):
+			return "🌫️";
+		case [176, 293, 296, 299, 302, 305, 308, 311, 314, 353].includes(code):
+			return "🌦️";
+		case [179, 182, 266, 281, 284].includes(code):
+			return "🌨️";
+		case [200, 386, 389].includes(code):
+			return "⛈️";
+		default:
+			return "❓";
 	}
 };
-
-const formatTime24 = (time: string) =>
-	time.padStart(4, "0").replace(/(\d{2})(\d{2})/, "$1:$2");
 
 export const WidgetWttrIn = () => {
 	const query = useQuery({
@@ -90,7 +94,7 @@ export const WidgetWttrIn = () => {
 		queryFn: async () => {
 			const response = await fetch("https://wttr.in/?format=j1");
 			if (!response.ok) throw new Error("Failed to fetch weather data");
-			return await response.json() as WttrIn.Response;
+			return (await response.json()) as WttrIn.Response;
 		},
 	});
 
@@ -99,7 +103,7 @@ export const WidgetWttrIn = () => {
 	const location = data
 		? `${data.nearest_area[0].areaName[0].value}, ${data.nearest_area[0].country[0].value}`
 		: "";
-	const hourly = data?.weather[0].hourly ?? [];
+	// const hourly = data?.weather[0].hourly ?? [];
 	const feelsLike = current?.FeelsLikeC;
 	const temp = current?.temp_C;
 	const feelsNote = feelsLike !== temp ? ` (feels like ${feelsLike}°C)` : "";
@@ -110,18 +114,13 @@ export const WidgetWttrIn = () => {
 
 			<Box bg="BackgroundLight" radius={Radius.sm} p="sm" gap="sm" mx="md">
 				<Box direction="row" gap="sm" align="center">
-					<Box
-						w={48}
-						h={48}
-						radius={Radius.sm}
-						bg="Background"
-						align="center"
-						justify="center"
-					>
+					<Box w={48} h={48} radius={Radius.sm} bg="Background" align="center" justify="center">
 						{current ? (
 							<Text fz={28}>{codeToEmoji(current.weatherCode)}</Text>
+						) : query.isLoading ? (
+							<Loader />
 						) : (
-							query.isLoading ? <Loader /> : <Text fz={28}>❓</Text>
+							<Text fz={28}>❓</Text>
 						)}
 					</Box>
 					<Box flex={1} gap={2}>
@@ -133,8 +132,7 @@ export const WidgetWttrIn = () => {
 								? `${current.weatherDesc[0].value}, ${temp}°C${feelsNote}`
 								: query.isLoading
 									? "Loading…"
-									: "No data"
-							}
+									: "No data"}
 						</Text>
 					</Box>
 				</Box>

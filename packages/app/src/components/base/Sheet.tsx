@@ -40,7 +40,13 @@ export const Sheet = ({
 
 	useHistoryBack(open, onClose);
 
-	const child = scrollable ? children : <Box p={p} flex={1}>{children}</Box>;
+	const child = scrollable ? (
+		children
+	) : (
+		<Box p={p} flex={1}>
+			{children}
+		</Box>
+	);
 
 	if (isWide) {
 		return (

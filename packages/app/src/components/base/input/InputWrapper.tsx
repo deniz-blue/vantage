@@ -26,26 +26,14 @@ export const InputWrapper = ({
 	children,
 }: InputWrapperProps) => {
 	const labelNode = label && (
-		<Text
-			fz={FontSize.sm}
-			fw="600"
-			{...labelProps}
-		>
+		<Text fz={FontSize.sm} fw="600" {...labelProps}>
 			{label}
-			{required && (
-				<Text style={{ color: Colors.Red }}>
-					{" *"}
-				</Text>
-			)}
+			{required && <Text style={{ color: Colors.Red }}>{" *"}</Text>}
 		</Text>
 	);
 
 	const descriptionNode = description && (
-		<Text
-			fz={FontSize.sm}
-			c={Colors.TextDimmed}
-			{...descriptionProps}
-		>
+		<Text fz={FontSize.sm} c={Colors.TextDimmed} {...descriptionProps}>
 			{description}
 		</Text>
 	);
@@ -62,11 +50,7 @@ export const InputWrapper = ({
 			{children}
 
 			{error && (
-				<Text
-					fz={FontSize.sm}
-					c={Colors.Red}
-					{...errorProps}
-				>
+				<Text fz={FontSize.sm} c={Colors.Red} {...errorProps}>
 					{error}
 				</Text>
 			)}

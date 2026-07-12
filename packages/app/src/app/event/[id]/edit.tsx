@@ -13,11 +13,7 @@ import { Container } from "@/components/base/Container";
 import { FontSize } from "@/theme/sizing";
 import { OpenEvnt } from "@evnt/types";
 
-type State =
-	| { kind: "loading" }
-	| { kind: "error" }
-	| { kind: "non-local" }
-	| { kind: "loaded" };
+type State = { kind: "loading" } | { kind: "error" } | { kind: "non-local" } | { kind: "loaded" };
 
 export default function EditEventPage() {
 	const { id } = useLocalSearchParams<{ id: string }>();
@@ -31,9 +27,7 @@ export default function EditEventPage() {
 		let cancelled = false;
 
 		(async () => {
-			const resolved = await EventResolver.selectFromDatabase(
-				EventResolver.new({ id: id as any }),
-			);
+			const resolved = await EventResolver.selectFromDatabase(EventResolver.new({ id: id as any }));
 
 			if (cancelled) return;
 
@@ -51,7 +45,9 @@ export default function EditEventPage() {
 			setForm(resolved.data);
 		})();
 
-		return () => { cancelled = true; };
+		return () => {
+			cancelled = true;
+		};
 	}, [id]);
 
 	const save = useMutation({
@@ -72,9 +68,7 @@ export default function EditEventPage() {
 		return (
 			<Box flex={1} px="md" pt="md" align="center" justify="center">
 				<Box mb="md">
-					<Text ta="center">
-						This event is from a remote source and can't be edited here yet.
-					</Text>
+					<Text ta="center">This event is from a remote source and can't be edited here yet.</Text>
 				</Box>
 				<Button onPress={() => router.back()}>Go Back</Button>
 			</Box>

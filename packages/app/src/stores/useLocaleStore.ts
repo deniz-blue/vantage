@@ -9,8 +9,7 @@ export interface LocaleStore {
 	setTimezone: (tz: string) => void;
 }
 
-const detectedTimezone = (): string =>
-	Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC";
+const detectedTimezone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC";
 
 export const useLocaleStore = create<LocaleStore>()(
 	persist(

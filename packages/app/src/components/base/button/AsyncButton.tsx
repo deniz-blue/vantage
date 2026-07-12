@@ -3,12 +3,8 @@ import { useRef, useState } from "react";
 export interface AsyncButtonProps {
 	fn: () => Promise<void>;
 	cooldown?: number;
-	children: (state: {
-		loading: boolean;
-		onPress: () => void;
-		blocked: boolean;
-	}) => React.ReactNode;
-};
+	children: (state: { loading: boolean; onPress: () => void; blocked: boolean }) => React.ReactNode;
+}
 
 export const AsyncButton = ({ fn, cooldown, children }: AsyncButtonProps) => {
 	const blockRef = useRef(false);
@@ -32,7 +28,7 @@ export const AsyncButton = ({ fn, cooldown, children }: AsyncButtonProps) => {
 			} else {
 				setBlocked(false);
 				blockRef.current = false;
-			};
+			}
 		}
 	};
 

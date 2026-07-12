@@ -251,23 +251,23 @@ export const usePartialDateEditor = (
 	const paddedMonth = disabledMonth
 		? ""
 		: hasPrecision("month")
-		? String(parsed!.month).padStart(2, "0")
-		: EMPTY_SHORT;
+			? String(parsed!.month).padStart(2, "0")
+			: EMPTY_SHORT;
 	const paddedDay = disabledDay
 		? ""
 		: hasPrecision("day")
-		? String(parsed!.day).padStart(2, "0")
-		: EMPTY_SHORT;
+			? String(parsed!.day).padStart(2, "0")
+			: EMPTY_SHORT;
 	const paddedHour = disabledTime
 		? ""
 		: hasPrecision("time")
-		? String(parsed!.hour).padStart(2, "0")
-		: EMPTY_SHORT;
+			? String(parsed!.hour).padStart(2, "0")
+			: EMPTY_SHORT;
 	const paddedMinute = disabledTime
 		? ""
 		: hasPrecision("time")
-		? String(parsed!.minute).padStart(2, "0")
-		: EMPTY_SHORT;
+			? String(parsed!.minute).padStart(2, "0")
+			: EMPTY_SHORT;
 
 	return {
 		paddedYear,

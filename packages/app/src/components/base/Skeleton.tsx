@@ -9,12 +9,7 @@ export interface SkeletonProps {
 	style?: ViewStyle;
 }
 
-export const Skeleton = ({
-	w = "100%",
-	h = 16,
-	radius = 4,
-	style,
-}: SkeletonProps) => {
+export const Skeleton = ({ w = "100%", h = 16, radius = 4, style }: SkeletonProps) => {
 	const opacity = useRef(new Animated.Value(0.3));
 
 	useEffect(() => {
