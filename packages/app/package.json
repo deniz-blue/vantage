@@ -4,11 +4,10 @@
 	"private": true,
 	"main": "src/init.ts",
 	"scripts": {
-		"start": "expo start",
+		"expo": "expo",
 		"android": "expo run:android",
-		"ios": "expo run:ios",
 		"web": "BROWSER=none expo start --web",
-		"export-web": "expo export --platform web && node scripts/copy-wasm.mjs"
+		"web:build": "expo export --platform web && node scripts/copy-wasm.mjs"
 	},
 	"dependencies": {
 		"@atcute/bluesky-richtext-segmenter": "^3.0.0",
