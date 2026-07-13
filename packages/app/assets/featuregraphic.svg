@@ -10,6 +10,9 @@
    xml:space="preserve"
    inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
    sodipodi:docname="featuregraphic.svg"
+   inkscape:export-filename="featuregraphic.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -26,8 +29,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1.0279425"
-     inkscape:cx="471.81626"
-     inkscape:cy="347.29568"
+     inkscape:cx="471.81627"
+     inkscape:cy="282.11695"
      inkscape:window-width="1920"
      inkscape:window-height="1160"
      inkscape:window-x="0"
@@ -94,14 +97,14 @@
        transform="matrix(5.4770784,0,0,5.4770784,-1386.5661,-428.04127)"><tspan
          x="303.83789"
          y="100.97891"
-         id="tspan1">Vantage</tspan></text><text
+         id="tspan3">Vantage</tspan></text><text
        xml:space="preserve"
        id="text4"
        style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:12px;font-family:Lexend;-inkscape-font-specification:'Lexend, Medium';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect4);fill:#838383;fill-opacity:1"
        transform="matrix(2.9533332,0,0,2.9533332,-620.26969,-130.36547)"><tspan
          x="303.83789"
          y="100.97891"
-         id="tspan2">Calendar Application</tspan></text><g
+         id="tspan4">Calendar Application</tspan></text><g
        id="g4"
        transform="rotate(8.8404251,838.3234,1547.6482)"
        inkscape:label="g4"><image

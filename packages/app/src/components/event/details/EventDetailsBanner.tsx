@@ -1,18 +1,21 @@
 import { useResolvedEvent } from "@vantage/core";
-import { Box } from "../../base/Box";
+import { Box, BoxProps } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { FontSize } from "../../../theme/sizing";
 import { useRouter } from "expo-router";
 import { ActionIcon } from "../../base/button/ActionIcon";
 import { IconArrowLeft } from "@tabler/icons-react-native";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, type LayoutChangeEvent } from "react-native";
 import { Colors } from "../../../theme/colors";
-import { EventBackground } from "../EventBackground";
 import { SplashMediaComponent } from "@evnt/types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EventBackground } from "../EventBackground";
+import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
 
-export const EventDetailsBanner = ({ loading }: { loading?: boolean }) => {
-	const router = useRouter();
+export const HEADER_MAX_HEIGHT = 80;
+
+export const useEventSplashMedia = () => {
 	const { data } = useResolvedEvent();
 
 	const splash = data?.components?.find((c) => {
@@ -20,12 +23,51 @@ export const EventDetailsBanner = ({ loading }: { loading?: boolean }) => {
 		return (c as SplashMediaComponent).roles.includes("background");
 	}) as SplashMediaComponent | undefined;
 
-	const hasBackground = !!splash;
+	return splash;
+};
+
+export const EventDetailsBannerSpace = ({ scrollY }: { scrollY: SharedValue<number> }) => {
+	const splash = useEventSplashMedia();
+
+	const style = useAnimatedStyle(() => {
+		return { height: HEADER_MAX_HEIGHT - scrollY.value };
+	});
+
+	return splash ? <Animated.View style={style} /> : null;
+};
+
+export const EventDetailsBanner = ({
+	loading,
+	scrollY,
+	onHeaderLayout,
+}: {
+	loading?: boolean;
+	scrollY: SharedValue<number>;
+	onHeaderLayout?: (e: LayoutChangeEvent) => void;
+}) => {
+	const insets = useSafeAreaInsets();
 
 	return (
-		<Box bg={Colors.Background}>
-			{hasBackground && <Box h={30} />}
+		<Box bg={Colors.Background} pt={insets.top}>
+			<EventDetailsBannerSpace scrollY={scrollY} />
 			<EventBackground />
+			<EventDetailsHeader loading={loading} onLayout={onHeaderLayout} />
+		</Box>
+	);
+};
+
+export const EventDetailsHeader = ({
+	loading,
+	onLayout,
+}: {
+	loading?: boolean;
+	onLayout?: (e: LayoutChangeEvent) => void;
+}) => {
+	const router = useRouter();
+	const { data } = useResolvedEvent();
+
+	return (
+		<Box onLayout={onLayout}>
 			<Box
 				direction="row"
 				gap="sm"

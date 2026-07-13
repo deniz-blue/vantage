@@ -17,11 +17,13 @@ import { TextInput } from "../base/input/TextInput";
 import { Text } from "../base/Text";
 import { EventCard } from "../event/card/EventCard";
 import { Colors } from "../../theme/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const PlusFab = () => {
 	const router = useRouter();
 	const path = usePathname();
 	const [open, setOpen] = useState(false);
+	const insets = useSafeAreaInsets();
 
 	const show = path === "/" || path === "/list";
 
@@ -30,7 +32,7 @@ export const PlusFab = () => {
 	return (
 		<Fragment>
 			<Fab
-				wrapperProps={{ style: { bottom: 56 + Spacing.md } }}
+				wrapperProps={{ style: { bottom: 56 + Spacing.md + insets.bottom } }}
 				icon={<IconPlus color="#fff" />}
 				actions={[
 					{

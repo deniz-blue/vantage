@@ -22,7 +22,7 @@ const Line = ({
 }: {
 	color: string;
 	thickness: number;
-} & BoxProps) => <Box h={thickness} flex={1} bg={color} {...rest} />;
+} & BoxProps) => <Box h={thickness} w="100%" flex={1} bg={color} {...rest} />;
 
 export const Divider = ({
 	color = Colors.BackgroundLight,
@@ -44,7 +44,7 @@ export const Divider = ({
 	}
 
 	return (
-		<Box direction="row" align="center" my={my ?? "sm"} {...rest}>
+		<Box direction="row" w="100%" align="center" my={my ?? "sm"} {...rest}>
 			{leftSection}
 			<Line
 				color={color}

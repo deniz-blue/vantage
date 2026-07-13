@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { ScrollView, FlatList, ActivityIndicator, useWindowDimensions } from "react-native";
+import { FlatList, ActivityIndicator, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { ListOptions, ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
@@ -19,6 +19,7 @@ import { Sheet } from "../../components/base/Sheet";
 import { SegmentedControl } from "../../components/base/input/SegmentedControl";
 import { BooleanControl } from "../../components/base/input/BooleanControl";
 import { Text } from "../../components/base/Text";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const PAGE_SIZE = 50;
 const CARD_WIDTH = 200;
@@ -69,8 +70,8 @@ export default function List() {
 	];
 
 	return (
-		<Box flex={1}>
-			<Box component={ScrollView} flex={1}>
+		<Box component={SafeAreaView} flex={1}>
+			<Box flex={1}>
 				<Box gap="md">
 					<Box pos="sticky" top={0} style={{ zIndex: 1 }}>
 						<Card m="sm" p="sm" bg={Colors.Background}>

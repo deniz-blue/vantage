@@ -7,11 +7,13 @@ import { Box } from "../../components/base/Box";
 import { ActionIcon } from "../../components/base/button/ActionIcon";
 import { IconSize } from "../../theme/sizing";
 import { Container } from "../../components/base/Container";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const WIDE_BREAKPOINT = 640;
 const TAB_BAR_MAX_WIDTH = 240;
 
 export default function TabLayout() {
+	const insets = useSafeAreaInsets();
 	const { width: screenWidth } = useWindowDimensions();
 	const isWide = screenWidth >= WIDE_BREAKPOINT;
 
@@ -45,34 +47,36 @@ export default function TabLayout() {
 					headerShown: false,
 				}}
 				tabBar={(props) => (
-					<Box bg={Colors.BackgroundLight} h={56}>
-						<Container direction="row" justify="center" h="100%">
-							{(
-								[
-									{ name: "index", icon: IconHome },
-									{ name: "list", icon: IconList },
-									{ name: "calendar", icon: IconCalendar },
-									{ name: "settings", icon: IconSettings },
-								] as const
-							).map(({ icon: Icon, name }) => {
-								const isActive = props.state.routeNames[props.state.index] === name;
-								return (
-									<Box key={name} flex={1} direction="row" justify="center">
-										<ActionIcon
-											onPress={() => props.navigation.navigate(name)}
-											size="auto"
-											w="100%"
-											h="100%"
-										>
-											<Icon
-												size={IconSize.lg}
-												color={isActive ? Colors.Primary : Colors.TextDimmed}
-											/>
-										</ActionIcon>
-									</Box>
-								);
-							})}
-						</Container>
+					<Box bg={Colors.BackgroundLight} pb={insets.bottom}>
+						<Box h={56}>
+							<Container direction="row" justify="center" h="100%">
+								{(
+									[
+										{ name: "index", icon: IconHome },
+										{ name: "list", icon: IconList },
+										{ name: "calendar", icon: IconCalendar },
+										{ name: "settings", icon: IconSettings },
+									] as const
+								).map(({ icon: Icon, name }) => {
+									const isActive = props.state.routeNames[props.state.index] === name;
+									return (
+										<Box key={name} flex={1} direction="row" justify="center">
+											<ActionIcon
+												onPress={() => props.navigation.navigate(name)}
+												size="auto"
+												w="100%"
+												h="100%"
+											>
+												<Icon
+													size={IconSize.lg}
+													color={isActive ? Colors.Primary : Colors.TextDimmed}
+												/>
+											</ActionIcon>
+										</Box>
+									);
+								})}
+							</Container>
+						</Box>
 					</Box>
 				)}
 			>

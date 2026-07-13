@@ -1,11 +1,10 @@
 import { db, schema } from "@vantage/db";
 import { eq } from "drizzle-orm";
+import { randomUUID } from "../utils/uuid";
 
-export const TagsManager = new class {
+export const TagsManager = new (class {
 	async getAll(): Promise<schema.Tag[]> {
-		return await db
-			.select()
-			.from(schema.tags);
+		return await db.select().from(schema.tags);
 	}
 
 	async getById(id: schema.Tag["id"]): Promise<schema.Tag | null> {
@@ -13,7 +12,7 @@ export const TagsManager = new class {
 			.select()
 			.from(schema.tags)
 			.where(eq(schema.tags.id, id))
-			.then(rows => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null);
 	}
 
 	async update(id: schema.Tag["id"], values: Pick<schema.Tag, "name" | "color">): Promise<void> {
@@ -31,7 +30,7 @@ export const TagsManager = new class {
 		const [tag] = await db
 			.insert(schema.tags)
 			.values({
-				id: crypto.randomUUID(),
+				id: randomUUID(),
 				name: values.name,
 				color: values.color,
 				updatedAt: Temporal.Now.instant(),
@@ -42,8 +41,6 @@ export const TagsManager = new class {
 	}
 
 	async delete(id: schema.Tag["id"]): Promise<void> {
-		await db
-			.delete(schema.tags)
-			.where(eq(schema.tags.id, id));
+		await db.delete(schema.tags).where(eq(schema.tags.id, id));
 	}
-};
+})();

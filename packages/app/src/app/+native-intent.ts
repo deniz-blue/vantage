@@ -13,8 +13,7 @@ const pickIntentParams = (path: string): string | null => {
 	}
 
 	if (url.pathname === "/" || url.pathname === "") {
-		const hasIntent = INTENT_PARAMS.some((key) => url.searchParams.has(key));
-		if (hasIntent) {
+		if (url.searchParams.has("type") && url.searchParams.get("type") === "event") {
 			const target = new URLSearchParams();
 			for (const key of INTENT_PARAMS) {
 				const val = url.searchParams.get(key);
@@ -31,5 +30,6 @@ export async function redirectSystemPath(intent: {
 	path: string;
 	initial: boolean;
 }): Promise<string> {
+	console.log("redirectSystemPath", intent);
 	return pickIntentParams(intent.path) ?? intent.path;
 }

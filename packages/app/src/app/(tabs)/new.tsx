@@ -15,6 +15,7 @@ import { Button } from "../../components/base/button/Button";
 import { ScrollView } from "react-native";
 import { IconDatabase } from "@tabler/icons-react-native";
 import { OpenEvntSchema } from "@evnt/schema";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const validJson = (str: any): boolean => {
 	if (typeof str !== "string") return false;
@@ -44,8 +45,8 @@ export default function NewEventPage() {
 	);
 
 	const save = useMutation({
-		mutationFn: async () => {
-			const raw = JSON.stringify(editor.value);
+		mutationFn: async (raw: string) => {
+			console.log("Saving event", raw);
 			return await EventsManager.addEventWithCache({
 				source: { type: "local" },
 				format: { type: "directory.evnt.event" },
@@ -61,7 +62,7 @@ export default function NewEventPage() {
 	});
 
 	return (
-		<Box flex={1}>
+		<Box component={SafeAreaView} flex={1}>
 			<Box component={ScrollView}>
 				<Container size="sm" flex={1}>
 					<Box py="md" flex={1}>
@@ -100,7 +101,12 @@ export default function NewEventPage() {
 			</Box>
 			<Box pos="absolute" style={{ bottom: 0 }} w="100%">
 				<Container size="sm" flex={1} pb="md">
-					<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
+					<Button
+						variant="primary"
+						w="100%"
+						loading={save.isPending}
+						onPress={() => save.mutate(JSON.stringify(editor.value))}
+					>
 						{save.isPending ? "Saving…" : "Save"}
 					</Button>
 				</Container>

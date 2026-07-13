@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { Breakpoints } from "../../theme/breakpoints";
 import { Radius } from "../../theme/sizing";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export const HANDLE_BAR_HEIGHT = 28;
 
@@ -40,10 +41,8 @@ export const Sheet = ({
 
 	useHistoryBack(open, onClose);
 
-	const child = scrollable ? (
-		children
-	) : (
-		<Box p={p} flex={1}>
+	const child = (
+		<Box component={SafeAreaView} p={p} flex={scrollable ? undefined : 1}>
 			{children}
 		</Box>
 	);

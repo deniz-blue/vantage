@@ -1,6 +1,6 @@
 import { ComponentType, useMemo } from "react";
 import { useResolvedEvent } from "@vantage/core";
-import { groupDates, formatDate, formatDateRange, formatTimeRange } from "@evnt/pretty";
+import { groupDates, formatDate, formatTimeRange } from "@evnt/pretty";
 import type { Venue } from "@evnt/types";
 import { TranslationsUtil } from "@evnt/translations";
 import { Box } from "../../base/Box";
@@ -53,54 +53,84 @@ export const EventCardSummary = () => {
 			: false;
 	const sharedVenues = allShareVenues ? shown[0].venueIds : null;
 
-	const renderVenueRow = (vid: string, idx: number) => {
-		const venue = venueMap.get(vid);
-		if (!venue) return null;
-
-		const icon =
-			venue.$type === "directory.evnt.venue.online"
-				? IconWorld
-				: venue.$type === "directory.evnt.venue.physical"
-					? IconMapPin
-					: IconWorldPin;
-
-		const name = TranslationsUtil.isEmpty(venue.name) ? "Unnamed venue" : translate(venue.name);
-
-		return <SummarySnippet key={idx} icon={icon} text={name} />;
+	const getVenueSnippetProps = (venue: Venue): SummarySnippetProps => {
+		return {
+			icon:
+				venue.$type === "directory.evnt.venue.online"
+					? IconWorld
+					: venue.$type === "directory.evnt.venue.physical"
+						? IconMapPin
+						: IconWorldPin,
+			text: TranslationsUtil.isEmpty(venue.name) ? "Unnamed venue" : translate(venue.name),
+		};
 	};
+
+	const children = useMemo(() => {
+		const children: SummarySnippetProps[] = [];
+
+		for (const venueId of sharedVenues ?? []) {
+			const venue = venueMap.get(venueId);
+			if (!venue) continue;
+			children.push(getVenueSnippetProps(venue));
+		}
+
+		for (const { dates, times, venueIds } of shown) {
+			if (dates.type === "single") {
+				children.push({
+					icon: IconCalendar,
+					text: formatDate(dates.date, config) ?? "",
+				});
+			} else if (dates.type === "range") {
+				// TODO(upstream): Fix formatting of date ranges in @evnt/pretty
+				// children.push({
+				// 	icon: IconCalendar,
+				// 	text: formatDateRange(dates.from, dates.to, config) ?? "",
+				// });
+			} else if (dates.type === "list") {
+				for (const date of dates.dates) {
+					children.push({
+						icon: IconCalendar,
+						text: formatDate(date, config) ?? "",
+					});
+				}
+			}
+
+			for (const time of times) {
+				children.push({
+					icon: IconClock,
+					text: formatTimeRange(time.start, time.end, config) ?? "",
+				});
+			}
+
+			for (const venueId of venueIds) {
+				const venue = venueMap.get(venueId);
+				if (!venue) continue;
+				children.push(getVenueSnippetProps(venue));
+			}
+		}
+
+		if (overflow > 0)
+			children.push({
+				icon: IconCalendar,
+				text: `+${overflow} more`,
+			});
+
+		return children;
+	}, []);
 
 	return (
 		<Box mt="xs" gap={0}>
-			{sharedVenues?.map(renderVenueRow)}
-
-			{shown.map((group, i) => {
-				const { dates } = group;
-				if (!dates) return null;
-
-				const date =
-					dates.type === "single"
-						? formatDate(dates.date, config)
-						: dates.type === "range"
-							? formatDateRange(dates.from, dates.to, config)
-							: formatDateRange(dates.dates[0], dates.dates[dates.dates.length - 1], config);
-				if (!date) return null;
-
-				const tr = group.times[0];
-				const time = tr ? formatTimeRange(tr.start, tr.end, config) : "";
-
-				return (
-					<Box key={i} gap={2}>
-						<SummarySnippet icon={IconCalendar} text={date} />
-						{!!time && <SummarySnippet icon={IconClock} text={time} />}
-						{!sharedVenues && group.venueIds.map(renderVenueRow)}
-					</Box>
-				);
-			})}
-
-			{overflow > 0 && <SummarySnippet icon={IconCalendar} text={`+${overflow} more`} />}
+			{children.map((child, index) => (
+				<SummarySnippet key={index} icon={child.icon} text={child.text} />
+			))}
 		</Box>
 	);
 };
+
+export interface SummarySnippetProps {
+	icon: ComponentType<IconProps>;
+	text: string;
+}
 
 export const SummarySnippet = ({
 	icon: Icon,

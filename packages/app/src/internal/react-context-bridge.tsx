@@ -80,13 +80,16 @@ export const useContextBridge = () => {
 
 	const ContextBridge = useMemo(
 		() =>
-			contextMap.entries().reduce((Prev: ComponentType<PropsWithChildren>, [Context, value]) => {
-				return ({ children }: PropsWithChildren) => (
-					<Prev>
-						<Context value={value}>{children}</Context>
-					</Prev>
-				);
-			}, Fragment),
+			Array.from(contextMap.entries()).reduce(
+				(Prev: ComponentType<PropsWithChildren>, [Context, value]) => {
+					return ({ children }: PropsWithChildren) => (
+						<Prev>
+							<Context value={value}>{children}</Context>
+						</Prev>
+					);
+				},
+				Fragment,
+			),
 		[contextMap],
 	);
 

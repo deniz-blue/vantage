@@ -13,13 +13,16 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { initializeDatabase } from "@vantage/db";
 
 export default function RootLayout() {
+	console.log("RootLayout render");
 	const [ready, setReady] = useState(false);
 
 	useEffect(() => {
 		(async () => {
+			console.log("Initializing database...");
 			await initializeDatabase();
 			await SplashScreen.hideAsync();
 			setReady(true);
+			console.log("Database initialized!");
 		})().catch((err) => {
 			console.error("Error initializing database:", err);
 		});

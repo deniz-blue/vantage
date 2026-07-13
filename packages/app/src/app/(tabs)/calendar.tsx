@@ -20,6 +20,7 @@ import { useRouter } from "expo-router";
 import { range } from "../../utils/range";
 import { OpenEvnt } from "@evnt/types";
 import { PartialDate } from "@evnt/types";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined }[]) {
 	return useMemo(() => {
@@ -127,40 +128,44 @@ export default function CalendarPage() {
 	);
 
 	return (
-		<Container flex={1}>
-			{/* Header */}
-			<Box direction="row" align="center" justify="space-between" gap="xs" p="md">
-				<Box direction="row" align="center" gap="xs" flex={1}>
-					<ActionIcon onPress={goToPrevMonth} size="sm">
-						<IconChevronLeft size={IconSize.xs} />
-					</ActionIcon>
-					<Button size="sm" flex={1}>
-						<Box align="center" flex={1}>
-							<Text fw="bold">{monthLabel}</Text>
-						</Box>
+		<Box component={SafeAreaView} flex={1}>
+			<Container flex={1}>
+				{/* Header */}
+				<Box direction="row" align="center" justify="space-between" gap="xs" p="md">
+					<Box direction="row" align="center" gap="xs" flex={1}>
+						<ActionIcon onPress={goToPrevMonth} size="sm">
+							<IconChevronLeft size={IconSize.xs} />
+						</ActionIcon>
+						<Button size="sm" flex={1}>
+							<Box align="center" flex={1}>
+								<Text fw="bold">{monthLabel}</Text>
+							</Box>
+						</Button>
+						<ActionIcon onPress={goToNextMonth} size="sm">
+							<IconChevronRight size={IconSize.xs} />
+						</ActionIcon>
+					</Box>
+					<Button onPress={goToToday} size="sm">
+						Today
 					</Button>
-					<ActionIcon onPress={goToNextMonth} size="sm">
-						<IconChevronRight size={IconSize.xs} />
-					</ActionIcon>
 				</Box>
-				<Button onPress={goToToday} size="sm">
-					Today
-				</Button>
-			</Box>
 
-			<Box flex={1} p="xs">
-				<CalendarMonth
-					year={currentDate.year}
-					month={currentDate.month}
-					renderDay={renderDay}
-					gap="xs"
-				/>
-			</Box>
+				<Box flex={1} p="xs">
+					<CalendarMonth
+						year={currentDate.year}
+						month={currentDate.month}
+						renderDay={renderDay}
+						gap="xs"
+					/>
+				</Box>
 
-			<Sheet open={!!selectedDay} onClose={() => setSelectedDay(null)}>
-				{selectedDay && <DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />}
-			</Sheet>
-		</Container>
+				<Sheet open={!!selectedDay} onClose={() => setSelectedDay(null)}>
+					{selectedDay && (
+						<DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />
+					)}
+				</Sheet>
+			</Container>
+		</Box>
 	);
 }
 
@@ -195,7 +200,7 @@ const DayEventsContent = ({ day, onClose }: { day: string; onClose: () => void }
 	}, [day, locale]);
 
 	return (
-		<Box gap="md">
+		<Box flex={1} gap="md">
 			<Box direction="row" justify="space-between">
 				<Box direction="row">
 					<Text fz={FontSize.lg} fw="bold">
