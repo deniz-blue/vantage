@@ -10,9 +10,12 @@ import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
 import { Button } from "../../base/button/Button";
+import { useState } from "react";
+import { ExternalLinkSheet } from "../../core/ExternalLinkSheet";
 
 export const EventDetailsLinks = () => {
 	const { data } = useResolvedEvent();
+	const [selectedLink, setSelectedLink] = useState<string | null>(null);
 
 	const links = data?.components?.filter(
 		(c): c is LinkComponent => c.$type === "directory.evnt.component.link",
@@ -27,6 +30,7 @@ export const EventDetailsLinks = () => {
 				<Button
 					key={i}
 					onPress={() => Linking.openURL(link.url)}
+					onLongPress={() => setSelectedLink(link.url)}
 					disabled={link.disabled}
 					leftSection={<IconExternalLink size={IconSize.xs} color={Colors.Text} />}
 				>
@@ -39,6 +43,8 @@ export const EventDetailsLinks = () => {
 					)}
 				</Button>
 			))}
+
+			<ExternalLinkSheet link={selectedLink} onClose={() => setSelectedLink(null)} />
 		</Box>
 	);
 };

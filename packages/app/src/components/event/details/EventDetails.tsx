@@ -83,6 +83,7 @@ export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () =>
 						)}
 					</Box>
 				</Box>
+				<Box h={200 + insets.bottom} />
 			</Box>
 		</Box>
 	);

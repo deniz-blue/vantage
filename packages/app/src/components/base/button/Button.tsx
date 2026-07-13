@@ -48,6 +48,7 @@ export const Button = ({
 	leftSection,
 	rightSection,
 	onPress,
+	onLongPress,
 	disabled,
 	style,
 	...rest
@@ -68,7 +69,7 @@ export const Button = ({
 	const textColor = useSelected ? Colors.Text : color && variant !== "primary" ? color : vs.text;
 
 	return (
-		<ButtonBase disabled={dimmed} onPress={onPress}>
+		<ButtonBase disabled={dimmed} onPress={onPress} onLongPress={onLongPress}>
 			<Box
 				direction="row"
 				align="center"

@@ -33,7 +33,7 @@ export const Fab = ({
 			align="flex-end"
 			justify="flex-end"
 			p="md"
-			style={[{ zIndex: 100 }, wrapperStyle]}
+			style={[{ zIndex: 100, pointerEvents: "box-none" }, wrapperStyle]}
 			{...wrapperProps}
 		>
 			<ActionIcon

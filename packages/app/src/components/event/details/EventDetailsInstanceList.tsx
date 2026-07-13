@@ -226,14 +226,17 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
 				<Box p="sm" gap="sm">
-					<InputWrapper label="Location" />
-
-					<TransText fz={FontSize.md} value={venue.name} fallback="Unnamed" />
+					<Box>
+						<InputWrapper label="Location" />
+						<TransText fz={FontSize.md} value={venue.name} fallback="Unnamed" />
+					</Box>
 
 					{address && (
 						<Box gap="sm">
-							<InputWrapper label="Address" />
-							<AddressLabel address={address} fz={FontSize.md} c="Text" />
+							<Box>
+								<InputWrapper label="Address" />
+								<AddressLabel address={address} fz={FontSize.md} c="Text" />
+							</Box>
 							{address.addr && (
 								<Fragment>
 									<AppCopyButton value={address.addr}>Copy Address</AppCopyButton>

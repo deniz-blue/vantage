@@ -26,7 +26,7 @@ export const InputWrapper = ({
 	children,
 }: InputWrapperProps) => {
 	const labelNode = label && (
-		<Text fz={FontSize.sm} fw="600" {...labelProps}>
+		<Text fz={FontSize.sm} fw="bold" {...labelProps}>
 			{label}
 			{required && <Text style={{ color: Colors.Red }}>{" *"}</Text>}
 		</Text>
