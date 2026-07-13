@@ -36,8 +36,6 @@ export const EventCardSummary = () => {
 		return new Map(data.venues.map((v) => [v.id, v]));
 	}, [data?.venues]);
 
-	if (!groups || groups.length === 0) return null;
-
 	const shown = groups.slice(0, MAX_VISIBLE);
 	const overflow = groups.length - MAX_VISIBLE;
 	const config = { language: locale, timezone, compactDates: true };

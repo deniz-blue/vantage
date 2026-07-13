@@ -41,7 +41,7 @@ export const ComboboxSheetList = <T,>({ data, renderItem, filter }: ComboboxList
 						return (
 							<Box
 								key={i}
-								component={TouchableOpacity}
+								component={TouchableOpacity} // TODO: get rid of this
 								px={16}
 								py={14}
 								mx={8}

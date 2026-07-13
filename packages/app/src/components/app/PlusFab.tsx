@@ -1,6 +1,5 @@
 import { Fragment, useState } from "react";
 import { Fab } from "../base/Fab";
-import { Spacing } from "../../theme/spacing";
 import { IconPlus } from "@tabler/icons-react-native";
 import { usePathname, useRouter } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -18,12 +17,13 @@ import { Text } from "../base/Text";
 import { EventCard } from "../event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActionButtonList } from "../actions/ActionButton";
 
 export const PlusFab = () => {
 	const router = useRouter();
 	const path = usePathname();
-	const [open, setOpen] = useState(false);
 	const insets = useSafeAreaInsets();
+	const [state, setState] = useState<"none" | "fab" | "import">("none");
 
 	const show = path === "/" || path === "/list";
 
@@ -32,22 +32,33 @@ export const PlusFab = () => {
 	return (
 		<Fragment>
 			<Fab
-				wrapperProps={{ style: { bottom: 56 + Spacing.md + insets.bottom } }}
+				wrapperProps={{ style: { marginBottom: 56 + insets.bottom } }}
 				icon={<IconPlus color="#fff" />}
-				actions={[
-					{
-						label: "Create",
-						onPress: () => router.push("/new"),
-					},
-					{
-						label: "Import",
-						onPress: () => setOpen(true),
-					},
-				]}
+				onPress={() => setState("fab")}
 			/>
 
-			<Sheet open={open} onClose={() => setOpen(false)}>
-				<Importer onClose={() => setOpen(false)} />
+			<Sheet open={state !== "none"} onClose={() => setState("none")}>
+				{state === "fab" && (
+					<ActionButtonList
+						actions={[
+							{
+								label: "Create Event",
+								type: "fn",
+								onRun: () => {
+									setState("none");
+									router.push("/new");
+								},
+							},
+							{
+								label: "Import Event",
+								type: "fn",
+								onRun: () => setState("import"),
+							},
+						]}
+					/>
+				)}
+
+				{state === "import" && <Importer onClose={() => setState("none")} />}
 			</Sheet>
 		</Fragment>
 	);

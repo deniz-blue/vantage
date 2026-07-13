@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { TouchableOpacity } from "react-native";
 import { Box, type BoxProps } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { ControlHeight, Radius } from "../../../theme/sizing";
+import { ButtonBase } from "../ButtonBase";
 
 export type ActionIconVariant = "light" | "subtle";
 
@@ -34,14 +34,13 @@ export const ActionIcon = ({
 
 	return (
 		<Box
-			component={onPress ? TouchableOpacity : undefined}
+			component={ButtonBase}
 			{...(s?.s !== undefined ? { w: s.s, h: s.s } : {})}
 			radius={s?.radius}
 			bg={variant === "light" ? Colors.BackgroundLight : undefined}
 			align="center"
 			justify="center"
 			op={disabled ? 0.4 : undefined}
-			activeOpacity={0.7}
 			disabled={disabled}
 			onPress={onPress}
 			{...(rest as any)}

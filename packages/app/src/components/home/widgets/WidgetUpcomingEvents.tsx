@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useEventListQuery, ResolvedEventContext } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { EventCard } from "../../event/card/EventCard";
 import { FontSize } from "../../../theme/sizing";
 import { Divider } from "../../base/Divider";
+import { ButtonBase } from "../../base/ButtonBase";
 
 export const WidgetUpcomingEvents = () => {
 	const router = useRouter();
@@ -23,11 +24,11 @@ export const WidgetUpcomingEvents = () => {
 				px="md"
 				leftSection={<Text fw="bold">Upcoming Events</Text>}
 				rightSection={
-					<Pressable onPress={() => router.push("/list")}>
+					<ButtonBase onPress={() => router.push("/list")}>
 						<Text fz={FontSize.sm} c="Blue">
 							View All
 						</Text>
-					</Pressable>
+					</ButtonBase>
 				}
 			/>
 

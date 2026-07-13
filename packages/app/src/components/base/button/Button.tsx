@@ -1,9 +1,10 @@
-import { ActivityIndicator, Pressable, type PressableProps } from "react-native";
+import { ActivityIndicator, type PressableProps } from "react-native";
 import { Text } from "../Text";
 import { Box, type BoxProps } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { ControlHeight, FontSize, Radius } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
+import { ButtonBase } from "../ButtonBase";
 
 export const ButtonTheme = {
 	default: { bg: Colors.BackgroundLight, text: Colors.Text },
@@ -67,41 +68,38 @@ export const Button = ({
 	const textColor = useSelected ? Colors.Text : color && variant !== "primary" ? color : vs.text;
 
 	return (
-		<Box<typeof Pressable>
-			component={Pressable}
-			role="button"
-			disabled={dimmed}
-			onPress={onPress}
-			direction="row"
-			align="center"
-			justify="center"
-			gap={Spacing.xs}
-			radius={Radius.Default}
-			px={ss.ph}
-			bg={bg}
-			op={dimmed ? 0.4 : undefined}
-			mih={ss.h}
-			style={[
-				{
-					outlineColor: Colors.Primary,
-				},
-				style,
-			]}
-			accessibilityRole="button"
-			{...(rest as any)}
-		>
-			{leftSection}
-			{loading && <ActivityIndicator size="small" color={textColor} />}
-			{stringLikeChildren(children) ? (
-				<Text fz={ss.fz} c={textColor}>
-					{children}
-				</Text>
-			) : (
-				<Box flex={1} direction="row" align="center" gap={rest.gap}>
-					{children}
-				</Box>
-			)}
-			{rightSection}
-		</Box>
+		<ButtonBase disabled={dimmed} onPress={onPress}>
+			<Box
+				direction="row"
+				align="center"
+				justify="center"
+				gap={Spacing.xs}
+				radius={Radius.Default}
+				px={ss.ph}
+				bg={bg}
+				op={dimmed ? 0.4 : undefined}
+				mih={ss.h}
+				style={[
+					{
+						outlineColor: Colors.Primary,
+					},
+					style,
+				]}
+				{...(rest as any)}
+			>
+				{leftSection}
+				{loading && <ActivityIndicator size="small" color={textColor} />}
+				{stringLikeChildren(children) ? (
+					<Text fz={ss.fz} c={textColor}>
+						{children}
+					</Text>
+				) : (
+					<Box flex={1} direction="row" align="center" gap={rest.gap}>
+						{children}
+					</Box>
+				)}
+				{rightSection}
+			</Box>
+		</ButtonBase>
 	);
 };

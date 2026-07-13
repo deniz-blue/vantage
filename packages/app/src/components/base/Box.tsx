@@ -8,7 +8,7 @@ export type { ShorthandStyleProps, Spacing } from "../../theme/shorthand";
 export type BoxProps<T extends ElementType = typeof View> = ShorthandStyleProps &
 	Omit<ComponentPropsWithoutRef<T>, keyof ShorthandStyleProps | "style"> & {
 		component?: T;
-		style?: ComponentPropsWithoutRef<typeof View>["style"];
+		style?: ComponentPropsWithoutRef<T>["style"];
 	};
 
 export const Box = <T extends ElementType = typeof View>(props: BoxProps<T>) => {

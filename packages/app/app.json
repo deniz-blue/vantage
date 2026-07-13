@@ -64,7 +64,7 @@
 			[
 				"expo-font",
 				{
-					"fonts": ["./node_modules/@expo-google-fonts/lexend/400Regular/Lexend_400Regular.ttf"]
+					"fonts": ["./assets/fonts/Lexend_400Regular.ttf"]
 				}
 			],
 			"expo-splash-screen",

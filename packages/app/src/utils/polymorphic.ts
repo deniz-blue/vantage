@@ -11,11 +11,11 @@ import type { ComponentPropsWithoutRef, ElementType } from "react";
  *
  * @example
  * ```ts
- * interface ButtonProps extends PolymorphicProps<typeof TouchableOpacity, {
+ * interface ButtonProps extends PolymorphicProps<typeof Pressable, {
  *   variant?: "primary" | "secondary";
  * }> {}
  *
- * const Button = ({ component: Component = TouchableOpacity, variant, ...rest }: ButtonProps) => (
+ * const Button = ({ component: Component = Pressable, variant, ...rest }: ButtonProps) => (
  *   <Box component={Component} {...rest as any} />
  * );
  * ```

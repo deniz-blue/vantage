@@ -10,17 +10,11 @@ import { Box, Spacing } from "./Box";
 import { Colors } from "../../theme/colors";
 import { useHistoryBack } from "../../hooks/useHistoryBack";
 import { FiberHandle, useContextBridge } from "../../internal/react-context-bridge";
-import {
-	Animated,
-	Modal,
-	ScrollView,
-	ScrollViewProps,
-	TouchableOpacity,
-	useWindowDimensions,
-} from "react-native";
+import { Animated, Modal, ScrollView, ScrollViewProps, useWindowDimensions } from "react-native";
 import { Breakpoints } from "../../theme/breakpoints";
 import { Radius } from "../../theme/sizing";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable } from "react-native";
 
 export const HANDLE_BAR_HEIGHT = 28;
 
@@ -113,8 +107,7 @@ export const SheetImplModal = ({
 		<Modal visible={visible} onRequestClose={onClose} animationType="none" transparent>
 			<Box component={Animated.View} style={{ opacity: fadeAnim }} flex={1}>
 				<Box
-					component={TouchableOpacity}
-					activeOpacity={1}
+					component={Pressable}
 					onPress={onClose}
 					justify="center"
 					align="center"
@@ -122,8 +115,7 @@ export const SheetImplModal = ({
 					bg="rgba(0,0,0,0.5)"
 				>
 					<Box
-						component={TouchableOpacity}
-						activeOpacity={1}
+						component={Pressable}
 						onPress={(e) => e.stopPropagation()}
 						bg={Colors.Background}
 						radius={Radius.Default}
