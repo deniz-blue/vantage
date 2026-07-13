@@ -6,6 +6,7 @@
 	"scripts": {
 		"expo": "expo",
 		"android": "expo run:android",
+		"android:build": "bash scripts/local-build.sh",
 		"web": "BROWSER=none expo start --web",
 		"web:build": "expo export --platform web && node scripts/copy-wasm.mjs"
 	},
@@ -62,7 +63,7 @@
 		"react-native-svg": "15.15.4",
 		"react-native-teleport": "^1.1.10",
 		"react-native-web": "^0.21.2",
-		"react-native-worklets": "0.8.3",
+		"react-native-worklets": "0.10.2",
 		"sqlocal": "^0.18.0",
 		"temporal-polyfill-lite": "^0.3.6",
 		"zod": "^4.4.3",
@@ -70,6 +71,8 @@
 	},
 	"devDependencies": {
 		"@types/react": "~19.2.15",
+		"babel-plugin-react-native-web": "^0.21.2",
+		"babel-preset-expo": "^57.0.2",
 		"typescript": "~6.0.3"
 	},
 	"packageManager": "pnpm@11.9.0"

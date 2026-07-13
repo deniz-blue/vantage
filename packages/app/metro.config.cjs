@@ -5,6 +5,8 @@ const fs = require("fs");
 /** @type {import("expo/metro-config").MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
+config.resolver.unstable_enablePackageExports = true;
+
 config.resolver.assetExts.push("wasm");
 config.resolver.sourceExts.push("sql");
 

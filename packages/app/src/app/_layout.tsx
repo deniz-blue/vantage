@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@vantage/core";
 import { Box } from "../components/base/Box";
@@ -10,11 +10,22 @@ import { ComponentStack } from "../components/ComponentStack";
 import { PortalHost, PortalProvider } from "react-native-teleport";
 import { FiberHandle } from "../internal/react-context-bridge";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { initializeDatabase } from "@vantage/db";
 
 export default function RootLayout() {
+	const [ready, setReady] = useState(false);
+
 	useEffect(() => {
-		SplashScreen.hideAsync();
+		(async () => {
+			await initializeDatabase();
+			await SplashScreen.hideAsync();
+			setReady(true);
+		})().catch((err) => {
+			console.error("Error initializing database:", err);
+		});
 	}, []);
+
+	if (!ready) return null;
 
 	return (
 		<ComponentStack
