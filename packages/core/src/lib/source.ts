@@ -18,28 +18,6 @@ export const defineEventSource = <Type extends keyof Vantage.EventSourceMap>(o: 
 	EventSourceRegistry.set(o.type, o);
 };
 
-export const fetchEventSource = async (source: Vantage.EventSource): Promise<EventResolveResult> => {
-	const meta = EventSourceRegistry.get(source.type);
-	if (!meta) throw new Error(`No event source defined for type: ${source.type}`);
-
-	// local data does not have a resolve function
-	if (!meta.resolve) return {
-		raw: null,
-		error: null,
-		revision: {},
-	};
-
-	try {
-		return await meta.resolve(source as any);
-	} catch (err) {
-		return {
-			raw: null,
-			error: convertError(err as any),
-			revision: {},
-		};
-	}
-};
-
 export const convertError = (err: TypeError | SyntaxError | Response | ZodError | FailedClientResponse): Vantage.Error => {
 	const error: Vantage.Error = {
 		kind: "unknown",

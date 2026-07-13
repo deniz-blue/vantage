@@ -16,8 +16,42 @@
 			"typedRoutes": true
 		},
 		"android": {
-			"package": "blue.deniz.vantage",
-			"predictiveBackGestureEnabled": false
+			"package": "lt.tsx.vantage",
+			"predictiveBackGestureEnabled": false,
+			"versionCode": 1,
+			"intentFilters": [
+				{
+					"action": "VIEW",
+					"data": [
+						{
+							"scheme": "https",
+							"host": "vantage.tsx.lt"
+						}
+					],
+					"autoVerify": true,
+					"category": ["BROWSABLE", "DEFAULT"]
+				},
+				{
+					"action": "VIEW",
+					"data": [
+						{
+							"scheme": "https",
+							"host": "eventsl.ink"
+						}
+					],
+					"autoVerify": true,
+					"category": ["BROWSABLE", "DEFAULT"]
+				},
+				{
+					"action": "VIEW",
+					"data": [
+						{
+							"scheme": "vantage"
+						}
+					],
+					"category": ["BROWSABLE", "DEFAULT"]
+				}
+			]
 		},
 		"web": {
 			"output": "single",
