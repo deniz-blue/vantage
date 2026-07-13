@@ -186,7 +186,7 @@ export const EventFormVenues = () => {
 								<Button flex={1} key={type} onPress={() => onAdd(type)}>
 									<Box py="sm" gap="xs" align="center" flex={1}>
 										<ActionIcon size="lg">
-											<Icon size={IconSize.lg} />
+											<Icon size={IconSize.lg} color={Colors.Text} />
 										</ActionIcon>
 
 										<Text fz={FontSize.sm}>{title}</Text>

@@ -1,5 +1,5 @@
 import { useResolvedEvent } from "@vantage/core";
-import { Box, BoxProps } from "../../base/Box";
+import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { FontSize } from "../../../theme/sizing";
@@ -86,7 +86,7 @@ export const EventDetailsHeader = ({
 					onPress={() => (router.canGoBack() ? router.back() : router.push("/"))}
 					size="auto"
 				>
-					<IconArrowLeft size={20} />
+					<IconArrowLeft size={20} color={Colors.Text} />
 				</ActionIcon>
 				{loading && <ActivityIndicator />}
 				<Box flex={1} gap={4}>

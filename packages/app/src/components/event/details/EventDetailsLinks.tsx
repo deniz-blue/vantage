@@ -5,6 +5,7 @@ import { IconExternalLink } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
+import { Colors } from "../../../theme/colors";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { SmallTitle } from "./SmallTitle";
@@ -27,7 +28,7 @@ export const EventDetailsLinks = () => {
 					key={i}
 					onPress={() => Linking.openURL(link.url)}
 					disabled={link.disabled}
-					leftSection={<IconExternalLink size={IconSize.xs} />}
+					leftSection={<IconExternalLink size={IconSize.xs} color={Colors.Text} />}
 				>
 					{link.name ? (
 						<TransText fz={FontSize.sm} value={link.name} />

@@ -80,7 +80,7 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 	if (!instance.start) {
 		return (
 			<MiniBoxSnippet
-				icon={<IconCalendarQuestion size={IconSize.sm} />}
+				icon={<IconCalendarQuestion size={IconSize.sm} color={Colors.Text} />}
 				title={<Text fz={FontSize.md}>Unknown date</Text>}
 			/>
 		);
@@ -111,9 +111,9 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 		// const date = new Date(Date.UTC(parsed.year, parsed.month - 1));
 		// const monthLabel = date.toLocaleDateString(language, { month: "short", timeZone: "UTC" });
 		// icon = <Text fz={FontSize.xs} numberOfLines={1}>{monthLabel}</Text>;
-		icon = <IconCalendar size={IconSize.sm} />;
+		icon = <IconCalendar size={IconSize.sm} color={Colors.Text} />;
 	} else {
-		icon = <IconCalendar size={IconSize.sm} />;
+		icon = <IconCalendar size={IconSize.sm} color={Colors.Text} />;
 	}
 
 	let title: ReactNode;
@@ -198,11 +198,11 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 
 	const icon =
 		venue.$type === "directory.evnt.venue.online" ? (
-			<IconWorld size={IconSize.sm} />
+			<IconWorld size={IconSize.sm} color={Colors.Text} />
 		) : venue.$type === "directory.evnt.venue.physical" ? (
-			<IconMapPin size={IconSize.sm} />
+			<IconMapPin size={IconSize.sm} color={Colors.Text} />
 		) : (
-			<IconWorldPin size={IconSize.sm} />
+			<IconWorldPin size={IconSize.sm} color={Colors.Text} />
 		);
 
 	const title = (
@@ -249,7 +249,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 							<InputWrapper label="Link" />
 							<Button
 								onPress={() => Linking.openURL(link)}
-								leftSection={<IconExternalLink size={IconSize.xs} />}
+								leftSection={<IconExternalLink size={IconSize.xs} color={Colors.Text} />}
 							>
 								<TransText fz={FontSize.md} value={venue.name} fallback="Unnamed" />
 							</Button>

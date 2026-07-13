@@ -1,6 +1,7 @@
 import { Venue } from "@evnt/types";
 import { Button } from "../../base/button/Button";
 import { IconExternalLink } from "@tabler/icons-react-native";
+import { Colors } from "../../../theme/colors";
 import { IconSize } from "../../../theme/sizing";
 import { Fragment, useState } from "react";
 import { Sheet } from "../../base/Sheet";
@@ -18,7 +19,7 @@ export const OpenMapButton = ({ venue }: { venue?: Venue }) => {
 			<Box align="flex-start">
 				<Button
 					size="sm"
-					rightSection={<IconExternalLink size={IconSize.xs} />}
+					rightSection={<IconExternalLink size={IconSize.xs} color={Colors.Text} />}
 					onPress={() => setOpen(true)}
 				>
 					Open in Maps

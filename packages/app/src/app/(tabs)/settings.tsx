@@ -11,6 +11,7 @@ import { Container } from "../../components/base/Container";
 import { FontSize } from "../../theme/sizing";
 import { InputWrapper } from "../../components/base/input/InputWrapper";
 import { Button } from "../../components/base/button/Button";
+import { Colors } from "../../theme/colors";
 import { IconExternalLink } from "@tabler/icons-react-native";
 import { EventsManager, queryClient } from "@vantage/core";
 import { AsyncButton } from "../../components/base/button/AsyncButton";
@@ -44,7 +45,7 @@ export default function Settings() {
 						<Button
 							onPress={() => Linking.openURL("https://github.com/deniz-blue/vantage/issues")}
 							justify="flex-start"
-							rightSection={<IconExternalLink size={FontSize.xs} />}
+							rightSection={<IconExternalLink size={FontSize.xs} color={Colors.Text} />}
 						>
 							Bug Reports / Feedback
 						</Button>

@@ -79,7 +79,7 @@ export default function List() {
 								<Box flex={1}>
 									<TextInput
 										placeholder="Search..."
-										leftSection={<IconSearch size={IconSize.xs} />}
+										leftSection={<IconSearch size={IconSize.xs} color={Colors.Text} />}
 										rightSection={isFetching && <ActivityIndicator />}
 										value={filters.search ?? ""}
 										onChangeText={(text) =>
@@ -90,7 +90,7 @@ export default function List() {
 									/>
 								</Box>
 								<Button
-									rightSection={<IconFilter size={IconSize.xs} />}
+									rightSection={<IconFilter size={IconSize.xs} color={Colors.Text} />}
 									onPress={() => setFiltersOpen(true)}
 								>
 									Filters

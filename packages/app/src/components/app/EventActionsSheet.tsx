@@ -3,6 +3,7 @@ import { Sheet } from "../base/Sheet";
 import { EventsManager, ResolvedEventUtils, useResolvedEvent } from "@vantage/core";
 import { createActionsForEvent } from "../actions/event-actions";
 import { IconPencil, IconShare, IconX } from "@tabler/icons-react-native";
+import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
 import { ActionButtonList } from "../actions/ActionButton";
 import { Box } from "../base/Box";
@@ -37,7 +38,7 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 			label: "Share",
 			type: "copy",
 			value: shareLink,
-			icon: <IconShare size={IconSize.xs} />,
+			icon: <IconShare size={IconSize.xs} color={Colors.Text} />,
 		});
 
 	if (resolved.source.type === "local")
@@ -45,7 +46,7 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 			label: "Edit",
 			type: "fn",
 			onRun: () => router.push(`/event/${resolved.id}/edit`),
-			icon: <IconPencil size={IconSize.xs} />,
+			icon: <IconPencil size={IconSize.xs} color={Colors.Text} />,
 		});
 
 	if (resolved.id)
@@ -53,7 +54,7 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 			label: "Delete",
 			type: "fn",
 			onRun: () => setShowDeleteConfirmation(true),
-			icon: <IconX size={IconSize.xs} />,
+			icon: <IconX size={IconSize.xs} color={Colors.Text} />,
 			danger: true,
 		});
 

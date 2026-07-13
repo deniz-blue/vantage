@@ -12,6 +12,7 @@ import {
 } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
+import { Colors } from "../../../theme/colors";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { SmallTitle } from "./SmallTitle";
 import { Button } from "../../base/button/Button";
@@ -32,7 +33,7 @@ export const EventDetailsSource = () => {
 				<Button
 					key={i}
 					onPress={() => Linking.openURL(comp.url)}
-					leftSection={<IconExternalLink size={IconSize.xs} />}
+					leftSection={<IconExternalLink size={IconSize.xs} color={Colors.Text} />}
 				>
 					<Text fz={FontSize.sm} numberOfLines={1}>
 						Source Link {sourceComponents.length > 1 ? i + 1 : ""}
@@ -47,11 +48,11 @@ export const EventDetailsSource = () => {
 };
 
 const sourceIcons: Record<string, React.ReactNode> = {
-	unknown: <IconQuestionMark size={IconSize.xs} />,
-	local: <IconDatabase size={IconSize.xs} />,
-	at: <IconAt size={IconSize.xs} />,
-	http: <IconWorld size={IconSize.xs} />,
-	mediawiki: <IconBrandWikipedia size={IconSize.xs} />,
+	unknown: <IconQuestionMark size={IconSize.xs} color={Colors.Text} />,
+	local: <IconDatabase size={IconSize.xs} color={Colors.Text} />,
+	at: <IconAt size={IconSize.xs} color={Colors.Text} />,
+	http: <IconWorld size={IconSize.xs} color={Colors.Text} />,
+	mediawiki: <IconBrandWikipedia size={IconSize.xs} color={Colors.Text} />,
 };
 
 const sourceLabels: Record<string, string> = {
@@ -63,10 +64,10 @@ const sourceLabels: Record<string, string> = {
 };
 
 const formatIcons: Record<string, React.ReactNode> = {
-	unknown: <IconQuestionMark size={IconSize.xs} />,
-	"directory.evnt.event": <IconBraces size={IconSize.xs} />,
-	ics: <IconBraces size={IconSize.xs} />,
-	"community.lexicon.calendar.event": <IconBraces size={IconSize.xs} />,
+	unknown: <IconQuestionMark size={IconSize.xs} color={Colors.Text} />,
+	"directory.evnt.event": <IconBraces size={IconSize.xs} color={Colors.Text} />,
+	ics: <IconBraces size={IconSize.xs} color={Colors.Text} />,
+	"community.lexicon.calendar.event": <IconBraces size={IconSize.xs} color={Colors.Text} />,
 };
 
 const formatLabels: Record<string, string> = {
@@ -79,7 +80,7 @@ const formatLabels: Record<string, string> = {
 const Row = ({ icon, label }: { icon: React.ReactNode; label: string }) => {
 	return (
 		<Button
-			leftSection={icon ?? <IconQuestionMark size={IconSize.xs} />}
+			leftSection={icon ?? <IconQuestionMark size={IconSize.xs} color={Colors.Text} />}
 			variant="subtle"
 			justify="flex-start"
 			mih={null}

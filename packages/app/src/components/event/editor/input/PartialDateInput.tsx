@@ -164,7 +164,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 								disabled={!value || timezone === userTimezone}
 								onPress={() => setTimezone(userTimezone)}
 							>
-								<IconReload />
+								<IconReload color={Colors.Text} />
 							</ActionIcon>
 						</Box>
 					</Box>
@@ -184,7 +184,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 						<Button
 							variant="primary"
 							onPress={() => setOpen(false)}
-							leftSection={<IconCheck size={IconSize.sm} />}
+							leftSection={<IconCheck size={IconSize.sm} color={Colors.Text} />}
 						>
 							Done
 						</Button>

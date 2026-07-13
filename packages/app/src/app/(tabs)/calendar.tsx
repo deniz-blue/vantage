@@ -134,7 +134,7 @@ export default function CalendarPage() {
 				<Box direction="row" align="center" justify="space-between" gap="xs" p="md">
 					<Box direction="row" align="center" gap="xs" flex={1}>
 						<ActionIcon onPress={goToPrevMonth} size="sm">
-							<IconChevronLeft size={IconSize.xs} />
+							<IconChevronLeft size={IconSize.xs} color={Colors.Text} />
 						</ActionIcon>
 						<Button size="sm" flex={1}>
 							<Box align="center" flex={1}>
@@ -142,7 +142,7 @@ export default function CalendarPage() {
 							</Box>
 						</Button>
 						<ActionIcon onPress={goToNextMonth} size="sm">
-							<IconChevronRight size={IconSize.xs} />
+							<IconChevronRight size={IconSize.xs} color={Colors.Text} />
 						</ActionIcon>
 					</Box>
 					<Button onPress={goToToday} size="sm">

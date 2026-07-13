@@ -13,6 +13,7 @@ import { Select } from "../../components/base/input/Select";
 import { Divider } from "../../components/base/Divider";
 import { Button } from "../../components/base/button/Button";
 import { ScrollView } from "react-native";
+import { Colors } from "../../theme/colors";
 import { IconDatabase } from "@tabler/icons-react-native";
 import { OpenEvntSchema } from "@evnt/schema";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -83,7 +84,7 @@ export default function NewEventPage() {
 										if (item === "local")
 											return (
 												<Box direction="row" gap="xs" align="center">
-													<IconDatabase size={IconSize.sm} />
+													<IconDatabase size={IconSize.sm} color={Colors.Text} />
 													<Text fz={FontSize.sm}>This Device</Text>
 												</Box>
 											);

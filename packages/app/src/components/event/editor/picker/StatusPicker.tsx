@@ -17,6 +17,7 @@ import {
 } from "@tabler/icons-react-native";
 import { Text } from "../../../base/Text";
 import { InputWrapper } from "../../../base/input/InputWrapper";
+import { Colors } from "../../../../theme/colors";
 import { FontSize } from "../../../../theme/sizing";
 
 const ICONS: Record<EventStatus, ComponentType<IconProps>> = {
@@ -29,6 +30,7 @@ const ICONS: Record<EventStatus, ComponentType<IconProps>> = {
 
 const iconProps: IconProps = {
 	size: 18,
+	color: Colors.Text,
 };
 
 export const StatusPicker = ({

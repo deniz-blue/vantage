@@ -6,6 +6,7 @@ import { Action } from "./action";
 import { Sheet } from "../base/Sheet";
 import { ViewRawSheetContent } from "../app/ViewRawSheet";
 import { IconCopy } from "@tabler/icons-react-native";
+import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
 
 export const ActionButton = ({ action }: { action: Action }) => {
@@ -14,7 +15,7 @@ export const ActionButton = ({ action }: { action: Action }) => {
 			<AppCopyButton
 				justify="flex-start"
 				value={action.value}
-				leftSection={action.icon ?? <IconCopy size={IconSize.xs} />}
+				leftSection={action.icon ?? <IconCopy size={IconSize.xs} color={Colors.Text} />}
 				children={action.label}
 			/>
 		);

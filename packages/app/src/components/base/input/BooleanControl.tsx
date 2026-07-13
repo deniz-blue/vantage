@@ -24,9 +24,9 @@ export const BooleanControl = ({ value, onChange, label, description }: BooleanC
 				value={value}
 				onChange={onChange}
 				options={[
-					{ label: <IconX size={IconSize.xs} />, value: false, color: Colors.Red },
-					{ label: <IconSlash size={IconSize.xs} />, value: null },
-					{ label: <IconCheck size={IconSize.xs} />, value: true, color: Colors.Green },
+					{ label: <IconX size={IconSize.xs} color={Colors.Text} />, value: false, color: Colors.Red },
+					{ label: <IconSlash size={IconSize.xs} color={Colors.Text} />, value: null },
+					{ label: <IconCheck size={IconSize.xs} color={Colors.Text} />, value: true, color: Colors.Green },
 				]}
 				buttonProps={{ size: "sm" }}
 			/>

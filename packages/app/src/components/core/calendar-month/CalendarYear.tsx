@@ -3,6 +3,7 @@ import { Box } from "../../base/Box";
 import { Button } from "../../base/button/Button";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { IconCheck } from "@tabler/icons-react-native";
+import { Colors } from "../../../theme/colors";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Text } from "../../base/Text";
 
@@ -36,7 +37,7 @@ export const CalendarYear = ({ selectedMonth, onSelectMonth }: CalendarYearProps
 								<Button
 									onPress={onSelectMonth ? () => onSelectMonth(month) : undefined}
 									selected={isSelected}
-									rightSection={isSelected && <IconCheck size={IconSize.xs} />}
+									rightSection={isSelected && <IconCheck size={IconSize.xs} color={Colors.Text} />}
 									leftSection={
 										<Text
 											c={isSelected ? "Text" : month === currentMonth ? "Primary" : "TextDimmed"}
