@@ -1,6 +1,6 @@
 import { Fragment } from "react/jsx-runtime";
 import { Colors } from "../../../theme/colors";
-import { Font, FontSize } from "../../../theme/sizing";
+import { Font, FontSize, Radius } from "../../../theme/sizing";
 import { EnrichedMarkdownText, MarkdownStyle } from "react-native-enriched-markdown";
 import { useState } from "react";
 import { ExternalLinkSheet } from "../ExternalLinkSheet";
@@ -57,6 +57,15 @@ const markdownStyle: MarkdownStyle = {
 	h6: {
 		fontFamily,
 		color,
+	},
+	table: {
+		color: Colors.Text,
+		headerBackgroundColor: Colors.Dark5,
+		headerTextColor: Colors.Text,
+		rowOddBackgroundColor: Colors.Dark6,
+		rowEvenBackgroundColor: Colors.Dark6,
+		borderColor: Colors.Dark7,
+		borderRadius: Radius.sm,
 	},
 };
 
