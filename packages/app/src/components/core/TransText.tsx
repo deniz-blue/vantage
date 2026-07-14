@@ -1,7 +1,7 @@
 import { MaybeTranslations } from "@evnt/translations";
 import { Text, TextProps } from "../base/Text";
-import { useTranslator } from "../../hooks/useTranslator";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
+import { useLocaleStore } from "../../stores/useLocaleStore";
 
 export interface TransTextProps extends Omit<TextProps, "children"> {
 	value: MaybeTranslations;
@@ -9,7 +9,17 @@ export interface TransTextProps extends Omit<TextProps, "children"> {
 }
 
 export const TransText = ({ value, fallback, ...rest }: TransTextProps) => {
-	const translate = useTranslator();
+	const userLanguage = useLocaleStore((s) => s.language);
 
-	return <Text {...rest} children={translate(value) || fallback} />;
+	const { lang, text } = useMemo(() => {
+		if (!value) return { lang: "", text: "" };
+		if (value[userLanguage]) return { lang: userLanguage, text: value[userLanguage] };
+		const firstLang = Object.keys(value)[0];
+		if (value[firstLang]) return { lang: firstLang, text: value[firstLang] };
+		return { lang: "en", text: fallback ?? "" };
+	}, [userLanguage, value]);
+
+	if (!text) return null;
+
+	return <Text accessibilityLanguage={lang} {...rest} children={text} />;
 };

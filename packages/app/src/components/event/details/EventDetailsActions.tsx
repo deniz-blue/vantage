@@ -5,7 +5,6 @@ import { Box } from "../../base/Box";
 import { IconDotsVertical, IconPencil, IconShare } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
 import { IconSize } from "../../../theme/sizing";
-import { Spacing } from "../../../theme/spacing";
 import { Button } from "../../base/button/Button";
 import { useState } from "react";
 import { EventActionsSheet } from "../../app/EventActionsSheet";
@@ -20,7 +19,7 @@ export const EventDetailsActions = () => {
 	const shareLink = ResolvedEventUtils.createShareLink(resolved);
 
 	return (
-		<Box direction="row" justify="flex-end" gap={Spacing.xs} wrap="wrap">
+		<Box direction="row" justify="flex-end" gap="xs" wrap="wrap">
 			{shareLink && (
 				<Button
 					size="sm"

@@ -5,6 +5,7 @@ import { Box } from "../Box";
 import type { SheetImplProps } from "./SheetImpl";
 import { ModalBottomSheet } from "@swmansion/react-native-bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable } from "react-native";
 
 export const SheetImpl = ({ open, onClose, children }: SheetImplProps) => {
 	return (
@@ -25,7 +26,26 @@ export const SheetImpl = ({ open, onClose, children }: SheetImplProps) => {
 			}
 		>
 			<KeyboardAvoidingView behavior="padding">
-				<SafeAreaView>{children}</SafeAreaView>
+				<SafeAreaView>
+					<Box>
+						<Box align="center" w="100%">
+							<Box
+								h={8}
+								w={80}
+								my="sm"
+								radius={Radius.md}
+								bg={Colors.BackgroundLight}
+								component={Pressable}
+								onPress={onClose}
+								accessible
+								accessibilityLabel="Close bottom sheet"
+								accessibilityHint="Double tap to close bottom sheet"
+								accessibilityRole="button"
+							/>
+						</Box>
+						<Box w="100%">{children}</Box>
+					</Box>
+				</SafeAreaView>
 			</KeyboardAvoidingView>
 		</ModalBottomSheet>
 	);

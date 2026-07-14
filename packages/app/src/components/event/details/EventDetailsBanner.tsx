@@ -11,7 +11,13 @@ import { Colors } from "../../../theme/colors";
 import { SplashMediaComponent } from "@evnt/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EventBackground } from "../EventBackground";
-import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+	SharedValue,
+	useAnimatedStyle,
+	useSharedValue,
+	withTiming,
+} from "react-native-reanimated";
+import { useEffect } from "react";
 
 export const HEADER_MAX_HEIGHT = 80;
 
@@ -26,14 +32,17 @@ export const useEventSplashMedia = () => {
 	return splash;
 };
 
-export const EventDetailsBannerSpace = ({ scrollY }: { scrollY: SharedValue<number> }) => {
+export const useBannerAnimatedHeight = () => {
 	const splash = useEventSplashMedia();
+	const animatedHeight = useSharedValue(0);
 
-	const style = useAnimatedStyle(() => {
-		return { height: HEADER_MAX_HEIGHT - scrollY.value };
-	});
+	useEffect(() => {
+		animatedHeight.value = withTiming(splash ? HEADER_MAX_HEIGHT : 0, {
+			duration: 300,
+		});
+	}, [splash]);
 
-	return splash ? <Animated.View style={style} /> : null;
+	return animatedHeight;
 };
 
 export const EventDetailsBanner = ({
@@ -45,11 +54,15 @@ export const EventDetailsBanner = ({
 	scrollY: SharedValue<number>;
 	onHeaderLayout?: (e: LayoutChangeEvent) => void;
 }) => {
-	const insets = useSafeAreaInsets();
+	const animatedHeight = useBannerAnimatedHeight();
+
+	const style = useAnimatedStyle(() => {
+		return { height: Math.max(0, animatedHeight.value - scrollY.value) };
+	});
 
 	return (
-		<Box bg={Colors.Background} pt={insets.top}>
-			<EventDetailsBannerSpace scrollY={scrollY} />
+		<Box bg={Colors.Background}>
+			<Animated.View style={style} />
 			<EventBackground />
 			<EventDetailsHeader loading={loading} onLayout={onHeaderLayout} />
 		</Box>
@@ -63,11 +76,13 @@ export const EventDetailsHeader = ({
 	loading?: boolean;
 	onLayout?: (e: LayoutChangeEvent) => void;
 }) => {
+	const { top } = useSafeAreaInsets();
 	const router = useRouter();
 	const { data } = useResolvedEvent();
 
 	return (
 		<Box onLayout={onLayout}>
+			<Box h={top} />
 			<Box
 				direction="row"
 				gap="sm"

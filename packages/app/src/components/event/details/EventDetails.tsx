@@ -1,7 +1,7 @@
 import { useWindowDimensions } from "react-native";
 import { Box } from "../../base/Box";
 import { EventDetailsError } from "./EventDetailsError";
-import { EventDetailsBanner, HEADER_MAX_HEIGHT } from "./EventDetailsBanner";
+import { EventDetailsBanner, useBannerAnimatedHeight } from "./EventDetailsBanner";
 import { EventDetailsInstanceList } from "./EventDetailsInstanceList";
 import { EventDetailsActions } from "./EventDetailsActions";
 import { EventDetailsLinks } from "./EventDetailsLinks";
@@ -29,8 +29,10 @@ export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () =>
 		scrollY.value = event.contentOffset.y;
 	});
 
+	const animatedHeight = useBannerAnimatedHeight();
+
 	const spacerStyle = useAnimatedStyle(() => ({
-		height: bannerHeight.value + HEADER_MAX_HEIGHT + insets.top,
+		height: bannerHeight.value + animatedHeight.value,
 	}));
 
 	const main = (
@@ -65,23 +67,22 @@ export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () =>
 				scrollEventThrottle={16}
 				// TODO: custom scrollbar
 				showsVerticalScrollIndicator={false}
+				gap={0}
 			>
 				<Animated.View style={spacerStyle} />
-				<Box flex={1} pb={insets.bottom}>
-					<Box gap="md" p="md">
-						<EventDetailsActions />
-						{isWide ? (
-							<Box direction="row" gap="md">
-								<Box flex={2}>{main}</Box>
-								<Box flex={1}>{sidebar}</Box>
-							</Box>
-						) : (
-							<>
-								{main}
-								{sidebar}
-							</>
-						)}
-					</Box>
+				<Box gap="md" p="md">
+					<EventDetailsActions />
+					{isWide ? (
+						<Box direction="row" gap="md">
+							<Box flex={2}>{main}</Box>
+							<Box flex={1}>{sidebar}</Box>
+						</Box>
+					) : (
+						<>
+							{main}
+							{sidebar}
+						</>
+					)}
 				</Box>
 				<Box h={200 + insets.bottom} />
 			</Box>

@@ -54,16 +54,17 @@ export default function TabLayout() {
 							<Container direction="row" justify="center" h="100%">
 								{(
 									[
-										{ name: "index", icon: IconHome },
-										{ name: "list", icon: IconList },
-										{ name: "calendar", icon: IconCalendar },
-										{ name: "settings", icon: IconSettings },
+										{ name: "index", icon: IconHome, alt: "Home" },
+										{ name: "list", icon: IconList, alt: "List" },
+										{ name: "calendar", icon: IconCalendar, alt: "Calendar" },
+										{ name: "settings", icon: IconSettings, alt: "Settings" },
 									] as const
-								).map(({ icon: Icon, name }) => {
+								).map(({ icon: Icon, name, alt }) => {
 									const isActive = props.state.routeNames[props.state.index] === name;
 									return (
 										<Box key={name} flex={1} direction="row" justify="center">
 											<ActionIcon
+												aria-label={alt}
 												onPress={() => props.navigation.navigate(name)}
 												size="auto"
 												w="100%"

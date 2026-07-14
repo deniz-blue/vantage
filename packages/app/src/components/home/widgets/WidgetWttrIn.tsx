@@ -116,11 +116,15 @@ export const WidgetWttrIn = () => {
 				<Box direction="row" gap="sm" align="center">
 					<Box w={48} h={48} radius={Radius.sm} bg="Background" align="center" justify="center">
 						{current ? (
-							<Text fz={28}>{codeToEmoji(current.weatherCode)}</Text>
+							<Text fz={28} aria-hidden>
+								{codeToEmoji(current.weatherCode)}
+							</Text>
 						) : query.isLoading ? (
 							<Loader />
 						) : (
-							<Text fz={28}>❓</Text>
+							<Text fz={28} aria-hidden>
+								❓
+							</Text>
 						)}
 					</Box>
 					<Box flex={1} gap={2}>
@@ -137,30 +141,6 @@ export const WidgetWttrIn = () => {
 					</Box>
 				</Box>
 			</Box>
-
-			{/* {hourly.length > 0 && (
-				<Box component={ScrollView} horizontal showsHorizontalScrollIndicator={false}>
-					<Box direction="row" gap="sm" px="md">
-						{hourly.map((hour) => (
-							<Box
-								key={hour.time}
-								align="center"
-								gap={4}
-								bg="BackgroundLight"
-								radius={Radius.sm}
-								py="xs"
-								w={48}
-							>
-								<Text fz={12} c="TextDimmed">
-									{formatTime24(hour.time)}
-								</Text>
-								<Text fz={20}>{codeToEmoji(hour.weatherCode)}</Text>
-								<Text fz={FontSize.sm}>{hour.tempC}°</Text>
-							</Box>
-						))}
-					</Box>
-				</Box>
-			)} */}
 		</Box>
 	);
 };

@@ -32,6 +32,7 @@ export const PlusFab = () => {
 	return (
 		<Fragment>
 			<Fab
+				aria-label="Add Event"
 				wrapperProps={{ style: { marginBottom: 56 + insets.bottom } }}
 				icon={<IconPlus color="#fff" />}
 				onPress={() => setState("fab")}
