@@ -1,4 +1,4 @@
-import { ComponentType, useMemo } from "react";
+import { Fragment, useCallback, useMemo } from "react";
 import { useResolvedEvent } from "@vantage/core";
 import { groupDates, formatDate, formatTimeRange } from "@evnt/pretty";
 import type { Venue } from "@evnt/types";
@@ -11,17 +11,18 @@ import {
 	IconCalendar,
 	IconClock,
 	IconMapPin,
-	IconProps,
 	IconWorld,
 	IconWorldPin,
 } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
 import { FontSize, IconSize } from "../../../theme/sizing";
+import { useMappingHelper } from "@shopify/flash-list";
 
 const MAX_VISIBLE = 3;
 
 export const EventCardSummary = () => {
 	const { data } = useResolvedEvent();
+	const { getMappingKey } = useMappingHelper();
 	const locale = useLocaleStore((s) => s.language);
 	const timezone = useLocaleStore((s) => s.timezone);
 	const translate = useTranslator();
@@ -36,35 +37,39 @@ export const EventCardSummary = () => {
 		return new Map(data.venues.map((v) => [v.id, v]));
 	}, [data?.venues]);
 
-	const shown = groups.slice(0, MAX_VISIBLE);
-	const overflow = groups.length - MAX_VISIBLE;
-	const config = { language: locale, timezone, compactDates: true };
-
-	// If all shown groups share the same venueIds, render venues once at top
-	const allShareVenues =
-		shown.length > 1
-			? shown.every(
-					(g) =>
-						g.venueIds.length === shown[0].venueIds.length &&
-						g.venueIds.every((id, i) => id === shown[0].venueIds[i]),
-				)
-			: false;
-	const sharedVenues = allShareVenues ? shown[0].venueIds : null;
-
-	const getVenueSnippetProps = (venue: Venue): SummarySnippetProps => {
-		return {
-			icon:
-				venue.$type === "directory.evnt.venue.online"
-					? IconWorld
-					: venue.$type === "directory.evnt.venue.physical"
-						? IconMapPin
-						: IconWorldPin,
-			text: TranslationsUtil.isEmpty(venue.name) ? "Unnamed venue" : translate(venue.name),
-		};
-	};
+	const getVenueSnippetProps = useCallback(
+		(venue: Venue): SummarySnippetProps => {
+			return {
+				icon:
+					venue.$type === "directory.evnt.venue.online"
+						? "world"
+						: venue.$type === "directory.evnt.venue.physical"
+							? "map-pin"
+							: "world-pin",
+				text: TranslationsUtil.isEmpty(venue.name) ? "Unnamed venue" : translate(venue.name),
+			};
+		},
+		[translate],
+	);
 
 	const children = useMemo(() => {
 		const children: SummarySnippetProps[] = [];
+
+		const shown = groups.slice(0, MAX_VISIBLE);
+		const overflow = groups.length - MAX_VISIBLE;
+		const config = { language: locale, timezone, compactDates: true };
+
+		// If all shown groups share the same venueIds, render venues once at top
+		const allShareVenues =
+			shown.length > 1
+				? shown.every(
+						(g) =>
+							g.venueIds.length === shown[0].venueIds.length &&
+							g.venueIds.every((id, i) => id === shown[0].venueIds[i]),
+					)
+				: false;
+
+		const sharedVenues = allShareVenues ? shown[0].venueIds : null;
 
 		for (const venueId of sharedVenues ?? []) {
 			const venue = venueMap.get(venueId);
@@ -75,7 +80,7 @@ export const EventCardSummary = () => {
 		for (const { dates, times, venueIds } of shown) {
 			if (dates.type === "single") {
 				children.push({
-					icon: IconCalendar,
+					icon: "calendar",
 					text: formatDate(dates.date, config) ?? "",
 				});
 			} else if (dates.type === "range") {
@@ -87,7 +92,7 @@ export const EventCardSummary = () => {
 			} else if (dates.type === "list") {
 				for (const date of dates.dates) {
 					children.push({
-						icon: IconCalendar,
+						icon: "calendar",
 						text: formatDate(date, config) ?? "",
 					});
 				}
@@ -95,7 +100,7 @@ export const EventCardSummary = () => {
 
 			for (const time of times) {
 				children.push({
-					icon: IconClock,
+					icon: "clock",
 					text: formatTimeRange(time.start, time.end, config) ?? "",
 				});
 			}
@@ -109,34 +114,37 @@ export const EventCardSummary = () => {
 
 		if (overflow > 0)
 			children.push({
-				icon: IconCalendar,
+				icon: "calendar",
 				text: `+${overflow} more`,
 			});
 
 		return children;
-	}, []);
+	}, [groups, venueMap, getVenueSnippetProps, locale, timezone]);
 
 	return (
 		<Box mt="xs" gap={0}>
 			{children.map((child, index) => (
-				<SummarySnippet key={index} icon={child.icon} text={child.text} />
+				<SummarySnippet key={getMappingKey(index, index)} {...child} />
 			))}
 		</Box>
 	);
 };
 
 export interface SummarySnippetProps {
-	icon: ComponentType<IconProps>;
+	icon: "calendar" | "clock" | "map-pin" | "world" | "world-pin";
 	text: string;
 }
 
-export const SummarySnippet = ({
-	icon: Icon,
-	text,
-}: {
-	icon: ComponentType<IconProps>;
-	text: string;
-}) => {
+export const SummarySnippet = ({ icon, text }: SummarySnippetProps) => {
+	const Icon = useMemo(() => {
+		if (icon === "calendar") return IconCalendar;
+		if (icon === "clock") return IconClock;
+		if (icon === "map-pin") return IconMapPin;
+		if (icon === "world") return IconWorld;
+		if (icon === "world-pin") return IconWorldPin;
+		return Fragment;
+	}, [icon]);
+
 	return (
 		<Box direction="row" align="center" gap={0}>
 			<Icon size={IconSize.sm} color={Colors.Text} />

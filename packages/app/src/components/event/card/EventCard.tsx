@@ -3,19 +3,16 @@ import { Box } from "../../base/Box";
 import { EventCardTitle } from "./EventCardTitle";
 import { EventCardSummary } from "./EventCardSummary";
 import { EventBackground } from "../EventBackground";
-import { useState } from "react";
-import { EventActionsSheet } from "../../app/EventActionsSheet";
 import { ButtonBase } from "../../base/ButtonBase";
 
 export interface EventCardProps {
 	onPress?: () => void;
+	onLongPress?: () => void;
 }
 
-export const EventCard = ({ onPress }: EventCardProps) => {
-	const [open, setOpen] = useState(false);
-
+export const EventCard = ({ onPress, onLongPress }: EventCardProps) => {
 	return (
-		<ButtonBase onPress={onPress} onLongPress={() => setOpen(true)} style={{ flex: 1 }}>
+		<ButtonBase onPress={onPress} onLongPress={onLongPress} style={{ flex: 1 }}>
 			<Card flex={1} bg="Dark6" style={{ overflow: "hidden" }}>
 				<EventBackground />
 				<Box direction="row" align="center" gap={6}>
@@ -23,8 +20,6 @@ export const EventCard = ({ onPress }: EventCardProps) => {
 				</Box>
 				<EventCardSummary />
 			</Card>
-
-			<EventActionsSheet open={open} onClose={() => setOpen(false)} />
 		</ButtonBase>
 	);
 };

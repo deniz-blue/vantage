@@ -59,6 +59,7 @@ export const Box = <T extends ElementType = typeof View>(props: BoxProps<T>) => 
 		wrap,
 		absoluteFill,
 		style,
+		zIndex,
 		...passthrough
 	} = rest;
 
@@ -106,6 +107,7 @@ export const Box = <T extends ElementType = typeof View>(props: BoxProps<T>) => 
 		justify,
 		wrap,
 		absoluteFill,
+		zIndex,
 	};
 
 	return <Component style={[resolveShorthand(shorthand), style]} {...passthrough} />;

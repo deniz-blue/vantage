@@ -15,6 +15,7 @@ export interface ShorthandStyleProps {
 	mih?: DimensionValue;
 	mah?: DimensionValue;
 	aspectRatio?: ViewStyle["aspectRatio"];
+	zIndex?: ViewStyle["zIndex"];
 
 	pos?: ViewStyle["position"];
 	top?: DimensionValue;
@@ -78,6 +79,7 @@ const MAP: Entry[] = [
 	["mah", "maxHeight"],
 	["aspectRatio", "aspectRatio"],
 	["pos", "position"],
+	["zIndex", "zIndex"],
 	["top", "top"],
 	["right", "right"],
 	["bottom", "bottom"],
