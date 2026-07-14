@@ -78,6 +78,7 @@ export default {
 			"expo-sharing",
 			"react-native-enriched-markdown",
 			"expo-sqlite",
+			"expo-image",
 		],
 		extra: {
 			router: {},
