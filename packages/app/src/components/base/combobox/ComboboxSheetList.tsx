@@ -4,7 +4,7 @@ import { IconCheck } from "@tabler/icons-react-native";
 import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
-import { SheetScrollView } from "../Sheet";
+import { SheetScrollView } from "../sheet/Sheet";
 
 export interface ComboboxListProps<T> {
 	data: readonly T[];

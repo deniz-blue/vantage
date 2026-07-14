@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../base/sheet/Sheet";
 import { EventsManager, ResolvedEventUtils, useResolvedEvent } from "@vantage/core";
 import { createActionsForEvent } from "../actions/event-actions";
 import { IconPencil, IconShare, IconX } from "@tabler/icons-react-native";

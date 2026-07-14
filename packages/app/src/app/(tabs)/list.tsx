@@ -15,7 +15,7 @@ import { IconSize, Radius } from "../../theme/sizing";
 import { UseQueryResult } from "@tanstack/react-query";
 import { Draft, produce } from "immer";
 import { Spacing } from "../../theme/spacing";
-import { Sheet } from "../../components/base/Sheet";
+import { Sheet } from "../../components/base/sheet/Sheet";
 import { SegmentedControl } from "../../components/base/input/SegmentedControl";
 import { BooleanControl } from "../../components/base/input/BooleanControl";
 import { Text } from "../../components/base/Text";

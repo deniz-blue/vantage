@@ -4,7 +4,7 @@ import { IconExternalLink } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
 import { IconSize } from "../../../theme/sizing";
 import { Fragment, useState } from "react";
-import { Sheet } from "../../base/Sheet";
+import { Sheet } from "../../base/sheet/Sheet";
 import { Box } from "../../base/Box";
 import { Linking } from "react-native";
 

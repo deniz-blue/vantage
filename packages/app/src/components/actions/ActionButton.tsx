@@ -3,7 +3,7 @@ import { Box } from "../base/Box";
 import { Button } from "../base/button/Button";
 import { AppCopyButton } from "../core/AppCopyButton";
 import { Action } from "./action";
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../base/sheet/Sheet";
 import { ViewRawSheetContent } from "../app/ViewRawSheet";
 import { IconCopy } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";

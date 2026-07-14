@@ -1,5 +1,5 @@
 import { Linking } from "react-native";
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../base/sheet/Sheet";
 import { Box } from "../base/Box";
 import { InputWrapper } from "../base/input/InputWrapper";
 import { Text } from "../base/Text";

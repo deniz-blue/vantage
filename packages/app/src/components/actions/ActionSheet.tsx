@@ -1,4 +1,4 @@
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../base/sheet/Sheet";
 import { Action } from "./action";
 import { ActionButtonList } from "./ActionButton";
 

@@ -3,7 +3,7 @@ import { Box } from "../../../base/Box";
 import { Button } from "../../../base/button/Button";
 import { InputWrapper } from "../../../base/input/InputWrapper";
 import { useState } from "react";
-import { Sheet } from "../../../base/Sheet";
+import { Sheet } from "../../../base/sheet/Sheet";
 import { Text } from "../../../base/Text";
 import { PartialDateUtil } from "@evnt/partial-date";
 import { TimezoneSelect } from "../../../core/timezone-select";

@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { Sheet } from "../../base/Sheet";
+import { Sheet } from "../sheet/Sheet";
 import { useComboboxCtx } from "./combobox-context";
 
 export const ComboboxSheet = ({ children }: PropsWithChildren) => {

@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { OpenEvntSchema } from "@evnt/schema";
 import { EventsManager } from "@vantage/core";
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../base/sheet/Sheet";
 import { Box } from "../base/Box";
 import { Text } from "../base/Text";
 import { TextInput } from "../base/input/TextInput";

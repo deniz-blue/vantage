@@ -11,7 +11,7 @@ import { CalendarMonth } from "../../components/core/calendar-month/CalendarMont
 import type { CalendarDay } from "../../components/core/calendar-month/calendar-month-utils";
 import { Colors } from "../../theme/colors";
 import { FontSize, IconSize } from "../../theme/sizing";
-import { Sheet } from "../../components/base/Sheet";
+import { Sheet } from "../../components/base/sheet/Sheet";
 import { EventCard } from "../../components/event/card/EventCard";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { EmptyState } from "../../components/base/EmptyState";

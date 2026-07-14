@@ -9,7 +9,7 @@ import {
 	EventsManager,
 	ResolvedEventContext,
 } from "@vantage/core";
-import { Sheet } from "../base/Sheet";
+import { Sheet } from "../base/sheet/Sheet";
 import { Box } from "../base/Box";
 import { Button } from "../base/button/Button";
 import { TextInput } from "../base/input/TextInput";

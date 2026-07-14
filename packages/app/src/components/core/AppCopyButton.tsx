@@ -10,9 +10,9 @@ export const AppCopyButton = ({ value, duration, ...props }: AppCopyButtonProps)
 			{({ copied, loading, onPress }) => (
 				<Button
 					{...props}
-					onPress={() => {
+					onPress={(e) => {
 						onPress();
-						props.onPress?.();
+						props.onPress?.(e);
 					}}
 					{...(copied
 						? {

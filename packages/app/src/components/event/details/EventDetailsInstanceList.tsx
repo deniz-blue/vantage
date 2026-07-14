@@ -18,7 +18,7 @@ import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 import { MapsSheetContent } from "../venue/OpenMapButton";
-import { Sheet } from "../../base/Sheet";
+import { Sheet } from "../../base/sheet/Sheet";
 import { InputWrapper } from "../../base/input/InputWrapper";
 import { AppCopyButton } from "../../core/AppCopyButton";
 import { Colors } from "../../../theme/colors";

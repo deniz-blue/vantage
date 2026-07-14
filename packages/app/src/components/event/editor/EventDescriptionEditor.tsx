@@ -3,7 +3,7 @@ import { TextInput } from "../../base/input/TextInput";
 import { Editor } from "./editor";
 import { Box } from "../../base/Box";
 import { Button } from "../../base/button/Button";
-import { Sheet } from "../../base/Sheet";
+import { Sheet } from "../../base/sheet/Sheet";
 import { useState } from "react";
 import { MarkdownRichtext } from "../../core/richtext/MarkdownRichtext";
 import { Text } from "../../base/Text";

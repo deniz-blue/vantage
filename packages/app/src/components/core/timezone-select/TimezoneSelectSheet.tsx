@@ -7,7 +7,7 @@ import { Divider } from "../../base/Divider";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";
 import { formatOffset } from "@vantage/intl";
-import { SheetScrollView } from "../../base/Sheet";
+import { SheetScrollView } from "../../base/sheet/Sheet";
 
 const RegionRow = ({
 	region,

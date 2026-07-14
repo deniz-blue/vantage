@@ -9,7 +9,7 @@ import { Divider } from "../../base/Divider";
 import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
 import { Fragment, ReactNode, useState } from "react";
-import { Sheet } from "../../base/Sheet";
+import { Sheet } from "../../base/sheet/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
 import { FontSize, IconSize } from "../../../theme/sizing";

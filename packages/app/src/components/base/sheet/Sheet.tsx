@@ -6,13 +6,13 @@ import {
 	type BottomSheetBackdropProps,
 	type BottomSheetBackgroundProps,
 } from "@gorhom/bottom-sheet";
-import { Box, Spacing } from "./Box";
-import { Colors } from "../../theme/colors";
-import { useHistoryBack } from "../../hooks/useHistoryBack";
-import { FiberHandle, useContextBridge } from "../../internal/react-context-bridge";
+import { Box, Spacing } from "../Box";
+import { Colors } from "../../../theme/colors";
+import { useHistoryBack } from "../../../hooks/useHistoryBack";
+import { FiberHandle, useContextBridge } from "../../../internal/react-context-bridge";
 import { Animated, Modal, ScrollView, ScrollViewProps, useWindowDimensions } from "react-native";
-import { Breakpoints } from "../../theme/breakpoints";
-import { Radius } from "../../theme/sizing";
+import { Breakpoints } from "../../../theme/breakpoints";
+import { Radius } from "../../../theme/sizing";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Pressable } from "react-native";
 
