@@ -1,7 +1,9 @@
 console.log("Initializing app...");
 
 import { SplashScreen } from "expo-router";
+import { enableFreeze } from "react-native-screens";
 SplashScreen.preventAutoHideAsync();
+enableFreeze(true);
 
 // == Polyfills ==
 import "temporal-polyfill-lite/global";
