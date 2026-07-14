@@ -1,5 +1,7 @@
 const DEV = process.env.APP_VARIANT === "development";
 
+if (DEV) console.log("[app.config.js] Running in development mode");
+
 export default {
 	/** @type {import("expo/config").ExpoConfig} */
 	expo: {
