@@ -18,7 +18,7 @@ import { memo } from "react";
 
 const WIDE_BREAKPOINT = 768;
 
-export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () => void }) => {
+export const EventDetails = memo(({ loading }: { loading?: boolean; onRefresh?: () => void }) => {
 	const insets = useSafeAreaInsets();
 
 	const scrollY = useSharedValue(0);
@@ -60,7 +60,7 @@ export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () =>
 			</Box>
 		</Box>
 	);
-};
+});
 
 export const EventDetailsInnerLayout = memo(() => {
 	const { width: screenWidth } = useWindowDimensions();

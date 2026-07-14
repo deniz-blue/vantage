@@ -62,8 +62,6 @@ export default function NewEventPage() {
 		},
 	});
 
-	// return null; // TODO: Re-enable new event page
-
 	return (
 		<Box component={SafeAreaView} flex={1}>
 			<Box component={ScrollView}>
@@ -77,22 +75,7 @@ export default function NewEventPage() {
 							</Box>
 
 							<Box>
-								<Select
-									label="Save to..."
-									value="local"
-									onChange={() => {}}
-									data={["local"]}
-									renderItem={(item) => {
-										if (item === "local")
-											return (
-												<Box direction="row" gap="xs" align="center">
-													<IconDatabase size={IconSize.sm} color={Colors.Text} />
-													<Text fz={FontSize.sm}>This Device</Text>
-												</Box>
-											);
-										return item;
-									}}
-								/>
+								<SaveToSelect />
 							</Box>
 
 							<Divider />
@@ -117,3 +100,26 @@ export default function NewEventPage() {
 		</Box>
 	);
 }
+
+export const SaveToSelect = () => {
+	const renderItem = useCallback(({ value }: { value: string }) => {
+		if (value === "local")
+			return (
+				<Box direction="row" gap="xs" align="center">
+					<IconDatabase size={IconSize.sm} color={Colors.Text} />
+					<Text fz={FontSize.sm}>This Device</Text>
+				</Box>
+			);
+		return value;
+	}, []);
+
+	return (
+		<Select
+			label="Save to"
+			value="local"
+			onChange={() => {}}
+			data={["local"]}
+			renderItem={renderItem}
+		/>
+	);
+};

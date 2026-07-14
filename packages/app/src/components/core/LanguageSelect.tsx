@@ -5,15 +5,10 @@ import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
 import { ActionIcon } from "../base/button/ActionIcon";
 import { InputWrapper, type InputWrapperProps } from "../base/input/InputWrapper";
-import {
-	Combobox,
-	ComboboxTrigger,
-	ComboboxSheet,
-	ComboboxSearch,
-	ComboboxSheetList,
-} from "../base/combobox";
+import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSheetList } from "../base/combobox";
 import { FontSize, IconSize } from "../../theme/sizing";
 import { Button } from "../base/button/Button";
+import { memo } from "react";
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
@@ -30,35 +25,6 @@ const filter = (code: string, search: string): boolean => {
 	);
 };
 
-const renderLanguageItem = (code: string, selected: boolean) => (
-	<>
-		<Box
-			miw={36}
-			h={36}
-			radius={8}
-			bg={selected ? Colors.Primary : Colors.BackgroundLight}
-			align="center"
-			justify="center"
-			mr="md"
-			px={8}
-		>
-			<Text fz={12} fw="700" c={selected ? "#fff" : Colors.TextDimmed}>
-				{code.toUpperCase()}
-			</Text>
-		</Box>
-		<Box flex={1}>
-			<Text fz={15} fw={selected ? "600" : "400"}>
-				{getAutonym(code)}
-			</Text>
-			<Box mt={1}>
-				<Text fz={12} c={Colors.TextDimmed}>
-					{getEnglishName(code)}
-				</Text>
-			</Box>
-		</Box>
-	</>
-);
-
 export interface LanguageSelectProps extends Pick<
 	InputWrapperProps,
 	"label" | "description" | "error" | "required"
@@ -67,52 +33,56 @@ export interface LanguageSelectProps extends Pick<
 	onChange: (value: string) => void;
 }
 
-export const LanguageSelect = ({
-	label,
-	description,
-	error,
-	required,
-	value,
-	onChange,
-}: LanguageSelectProps) => {
-	return (
-		<InputWrapper label={label} description={description} error={error} required={required}>
-			<Combobox value={value} onChange={onChange}>
-				<Box>
-					<ComboboxTrigger py="sm" px="sm" gap="sm">
-						<ActionIcon bg={Colors.PrimaryLight + "33"}>
-							<IconLanguage size={IconSize.md} color={Colors.Primary} />
-						</ActionIcon>
-						<Box flex={1}>
-							<Text fz={FontSize.sm} fw="600">
-								{getAutonym(value)}
-							</Text>
-							<Box mt={1}>
-								<Text fz={FontSize.xs} c={Colors.TextDimmed}>
-									{getEnglishName(value)}
-								</Text>
-							</Box>
-						</Box>
-					</ComboboxTrigger>
+export const LanguageSelect = memo(
+	({ label, description, error, required, value, onChange }: LanguageSelectProps) => {
+		return (
+			<InputWrapper label={label} description={description} error={error} required={required}>
+				<Combobox value={value} onChange={onChange}>
+					<Box>
+						<ComboboxTrigger py="sm" px="sm" gap="sm">
+							<ActionIcon bg={Colors.PrimaryLight + "33"}>
+								<IconLanguage size={IconSize.md} color={Colors.Primary} />
+							</ActionIcon>
+							<LanguageItem value={value} selected={true} />
+						</ComboboxTrigger>
 
-					{value !== "en" && (
-						<Button
-							onPress={() => onChange("en")}
-							mt="sm"
-							justify="flex-start"
-							leftSection={<IconArrowUp size={IconSize.sm} color={Colors.TextDimmed} />}
-						>
-							Use English
-						</Button>
-					)}
-				</Box>
-				<ComboboxSheet>
-					<Box flex={1}>
-						<ComboboxSearch placeholder="Search languages…" />
-						<ComboboxSheetList data={LANGUAGES} filter={filter} renderItem={renderLanguageItem} />
+						{value !== "en" && (
+							<Button
+								onPress={() => onChange("en")}
+								mt="sm"
+								justify="flex-start"
+								leftSection={<IconArrowUp size={IconSize.sm} color={Colors.TextDimmed} />}
+							>
+								Use English
+							</Button>
+						)}
 					</Box>
-				</ComboboxSheet>
-			</Combobox>
-		</InputWrapper>
+					<ComboboxSheet>
+						<ComboboxSheetList
+							data={LANGUAGES}
+							filter={filter}
+							renderItem={LanguageItem}
+							searchable
+						/>
+					</ComboboxSheet>
+				</Combobox>
+			</InputWrapper>
+		);
+	},
+);
+
+export const LanguageItem = memo(({ value }: { value: string; selected: boolean }) => {
+	const autonym = getAutonym(value);
+	const englishName = getEnglishName(value);
+
+	return (
+		<Box direction="row" flex={1}>
+			<Box flex={1}>
+				<Text fz={FontSize.sm}>{autonym}</Text>
+				<Text fz={FontSize.xs} c={Colors.TextDimmed}>
+					{englishName}
+				</Text>
+			</Box>
+		</Box>
 	);
-};
+});

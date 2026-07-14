@@ -3,8 +3,9 @@ import type { SplashMediaComponent } from "@evnt/types";
 import { Image } from "expo-image";
 import { Box } from "../base/Box";
 import { useTranslator } from "../../hooks/useTranslator";
+import { memo } from "react";
 
-export const EventBackground = ({ dimmed = true }: { dimmed?: boolean }) => {
+export const EventBackground = memo(({ dimmed = true }: { dimmed?: boolean }) => {
 	const { data } = useResolvedEvent();
 	const t = useTranslator();
 
@@ -31,4 +32,4 @@ export const EventBackground = ({ dimmed = true }: { dimmed?: boolean }) => {
 			{dimmed && <Box absoluteFill bg="Black" op={0.8} />}
 		</Box>
 	);
-};
+});

@@ -9,6 +9,7 @@ import { Colors } from "../theme/colors";
 import { ComponentStack } from "../components/ComponentStack";
 import { initializeDatabase } from "@vantage/db";
 import { BottomSheetProvider } from "@swmansion/react-native-bottom-sheet";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 export default function RootLayout() {
 	console.log("RootLayout render");
@@ -32,6 +33,7 @@ export default function RootLayout() {
 		<ComponentStack
 			stack={[
 				[GestureHandlerRootView, {}],
+				[KeyboardProvider, {}],
 				[BottomSheetProvider, {}],
 				[QueryClientProvider, { client: queryClient }],
 			]}

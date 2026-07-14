@@ -23,7 +23,6 @@ export const SegmentedControl = <T,>({
 		<InputWrapper {...rest}>
 			<Box
 				direction="row"
-				flex={1}
 				gap="xs"
 				p={4}
 				bg={Colors.BackgroundLight}

@@ -2,7 +2,7 @@ import { Fragment } from "react/jsx-runtime";
 import { Colors } from "../../../theme/colors";
 import { Font, FontSize, Radius } from "../../../theme/sizing";
 import { EnrichedMarkdownText, MarkdownStyle } from "react-native-enriched-markdown";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { ExternalLinkSheet } from "../ExternalLinkSheet";
 
 export interface MarkdownRichtextProps {
@@ -69,7 +69,7 @@ const markdownStyle: MarkdownStyle = {
 	},
 };
 
-export const MarkdownRichtext = ({ content }: MarkdownRichtextProps) => {
+export const MarkdownRichtext = memo(({ content }: MarkdownRichtextProps) => {
 	const [link, setLink] = useState<string | null>(null);
 
 	return (
@@ -85,4 +85,4 @@ export const MarkdownRichtext = ({ content }: MarkdownRichtextProps) => {
 			<ExternalLinkSheet link={link} onClose={() => setLink(null)} />
 		</Fragment>
 	);
-};
+});

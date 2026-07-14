@@ -6,7 +6,7 @@ export const ComboboxSheet = ({ children }: PropsWithChildren) => {
 	const ctx = useComboboxCtx();
 
 	return (
-		<Sheet open={ctx.opened} onClose={ctx.close} scrollable={false} p={0}>
+		<Sheet open={ctx.opened} onClose={ctx.close}>
 			{children}
 		</Sheet>
 	);

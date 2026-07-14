@@ -1,21 +1,15 @@
 import { useMemo } from "react";
-import { segmentize, type Facet } from "@atcute/bluesky-richtext-segmenter";
-import type { BlueSkyRichtextComponent } from "@evnt/types";
+import { segmentize } from "@atcute/bluesky-richtext-segmenter";
+import type { RichTextBlueskyComponent } from "@evnt/types";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";
 
-type BskyFeature = BlueSkyRichtextComponent["facets"][number]["features"][number];
-
 export interface BlueskyRichtextProps {
-	text: string;
-	facets?: BlueSkyRichtextComponent["facets"];
+	content: Omit<RichTextBlueskyComponent, "$type">;
 }
 
-export const BlueskyRichtext = ({ text, facets }: BlueskyRichtextProps) => {
-	const segments = useMemo(
-		() => segmentize<BskyFeature>(text, facets as Facet<BskyFeature>[] | undefined),
-		[text, facets],
-	);
+export const BlueskyRichtext = ({ content: { text, facets } }: BlueskyRichtextProps) => {
+	const segments = useMemo(() => segmentize(text, facets), [text, facets]);
 
 	return (
 		<Text fz={FontSize.md}>

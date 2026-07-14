@@ -1,13 +1,6 @@
-import { useCallback, type ReactNode } from "react";
-import {
-	Combobox,
-	ComboboxTrigger,
-	ComboboxSheet,
-	ComboboxSearch,
-	ComboboxSheetList,
-} from "../combobox";
+import { ComponentType, useCallback } from "react";
+import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSheetList } from "../combobox";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
-import { Box } from "../Box";
 import { Text } from "../Text";
 import { FontSize } from "../../../theme/sizing";
 
@@ -18,17 +11,21 @@ export interface SelectProps<T> extends Pick<
 	data: readonly T[];
 	value: T;
 	onChange: (value: T) => void;
-	renderItem: (item: T) => ReactNode;
+	renderItem: ComponentType<{ value: T; selected: boolean }>;
 	getSearchText?: (item: T) => string;
 	placeholder?: string;
 	searchable?: boolean;
 }
 
+const DefaultItemComponent = <T,>({ value }: { value: T }) => (
+	<Text fz={FontSize.sm}>{String(value)}</Text>
+);
+
 export const Select = <T,>({
 	data,
 	value,
 	onChange,
-	renderItem,
+	renderItem: ItemComponent,
 	getSearchText,
 	placeholder = "Select…",
 	searchable = false,
@@ -49,18 +46,16 @@ export const Select = <T,>({
 		<InputWrapper label={label} description={description} error={error} required={required}>
 			<Combobox value={value} onChange={onChange}>
 				<ComboboxTrigger>
-					<Text fz={FontSize.sm}>{renderItem(value) || placeholder}</Text>
+					<Text fz={FontSize.sm}>
+						{ItemComponent ? <ItemComponent value={value} selected={true} /> : placeholder}
+					</Text>
 				</ComboboxTrigger>
 				<ComboboxSheet>
-					{searchable && <ComboboxSearch />}
 					<ComboboxSheetList
 						data={data}
 						filter={filter}
-						renderItem={(item, _selected) => (
-							<Box flex={1}>
-								<Text fz={FontSize.sm}>{renderItem(item)}</Text>
-							</Box>
-						)}
+						searchable={searchable}
+						renderItem={ItemComponent || DefaultItemComponent}
 					/>
 				</ComboboxSheet>
 			</Combobox>

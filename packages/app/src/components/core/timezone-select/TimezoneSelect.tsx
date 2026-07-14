@@ -27,8 +27,7 @@ export const TimezoneSelect = ({
 		</InputWrapper>
 
 		<ComboboxSheet>
-			<ComboboxSearch placeholder="Search timezones…" />
-			<TimezoneSelectSheet />
+			{/* <TimezoneSelectSheet /> */}
 		</ComboboxSheet>
 	</Combobox>
 );

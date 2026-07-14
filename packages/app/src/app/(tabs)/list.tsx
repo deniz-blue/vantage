@@ -155,7 +155,7 @@ export const ListFiltersSheet = ({ open, onClose }: { open: boolean; onClose: ()
 	return (
 		<Sheet open={open} onClose={onClose}>
 			<Box gap="sm">
-				<Box direction="row" gap="sm" align="center">
+				<Box direction="row" gap="sm">
 					<Box flex={1}>
 						<Text>Filter by</Text>
 					</Box>

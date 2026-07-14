@@ -1,5 +1,5 @@
 import { useResolvedEvent } from "@vantage/core";
-import type { MarkdownComponent, BlueSkyRichtextComponent } from "@evnt/types";
+import type { RichTextMarkdownComponent, RichTextBlueskyComponent } from "@evnt/types";
 import { Box } from "../../base/Box";
 import { SmallTitle } from "./SmallTitle";
 import { Spacing } from "../../../theme/spacing";
@@ -21,8 +21,7 @@ export const EventDetailsRichtext = () => {
 			{richtexts.map((comp, i) => {
 				switch (comp.$type) {
 					case "directory.evnt.richtext.markdown": {
-						const md = comp as MarkdownComponent;
-						console.log(md);
+						const md = comp as RichTextMarkdownComponent;
 						return (
 							<Box key={i} gap={4}>
 								<SmallTitle>Description</SmallTitle>
@@ -31,11 +30,11 @@ export const EventDetailsRichtext = () => {
 						);
 					}
 					case "directory.evnt.richtext.bsky": {
-						const bsky = comp as BlueSkyRichtextComponent;
+						const bsky = comp as RichTextBlueskyComponent;
 						return (
 							<Box key={i} gap={4}>
 								<SmallTitle>Description</SmallTitle>
-								<BlueskyRichtext text={bsky.text} facets={bsky.facets} />
+								<BlueskyRichtext content={bsky} />
 							</Box>
 						);
 					}

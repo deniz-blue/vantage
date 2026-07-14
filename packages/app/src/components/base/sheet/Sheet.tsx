@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { Box, Spacing } from "../Box";
+import { Spacing } from "../Box";
 import { useHistoryBack } from "../../../hooks/useHistoryBack";
 import { ScrollView, ScrollViewProps } from "react-native";
 import { SheetImpl } from "./SheetImpl";
@@ -10,7 +10,6 @@ export const Sheet = ({
 	children,
 	onClose,
 	open,
-	p = "sm",
 }: PropsWithChildren<{
 	open: boolean;
 	onClose: () => void;
@@ -19,9 +18,7 @@ export const Sheet = ({
 }>) => {
 	useHistoryBack(open, onClose);
 
-	const child = <Box p={p}>{children}</Box>;
-
-	return <SheetImpl open={open} onClose={onClose} children={child} />;
+	return <SheetImpl open={open} onClose={onClose} children={children} />;
 };
 
 export const SheetScrollView = ({
