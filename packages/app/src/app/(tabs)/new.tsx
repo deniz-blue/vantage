@@ -62,6 +62,8 @@ export default function NewEventPage() {
 		},
 	});
 
+	// return null; // TODO: Re-enable new event page
+
 	return (
 		<Box component={SafeAreaView} flex={1}>
 			<Box component={ScrollView}>

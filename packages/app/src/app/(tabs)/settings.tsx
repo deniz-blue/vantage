@@ -25,6 +25,8 @@ export default function Settings() {
 	const setTimezone = useLocaleStore((s) => s.setTimezone);
 	const [jsonImportOpen, setJsonImportOpen] = useState(false);
 
+	// return null; // TODO: Re-enable settings page
+
 	return (
 		<Box component={ScrollView} flex={1}>
 			<Box component={SafeAreaView} flex={1}>

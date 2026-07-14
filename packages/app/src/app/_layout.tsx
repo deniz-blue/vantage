@@ -7,10 +7,8 @@ import { queryClient } from "@vantage/core";
 import { Box } from "../components/base/Box";
 import { Colors } from "../theme/colors";
 import { ComponentStack } from "../components/ComponentStack";
-import { PortalHost, PortalProvider } from "react-native-teleport";
-import { FiberHandle } from "../internal/react-context-bridge";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { initializeDatabase } from "@vantage/db";
+import { BottomSheetProvider } from "@swmansion/react-native-bottom-sheet";
 
 export default function RootLayout() {
 	console.log("RootLayout render");
@@ -34,13 +32,10 @@ export default function RootLayout() {
 		<ComponentStack
 			stack={[
 				[GestureHandlerRootView, {}],
-				[BottomSheetModalProvider, {}],
-				[FiberHandle, {}],
-				[PortalProvider, {}],
+				[BottomSheetProvider, {}],
 				[QueryClientProvider, { client: queryClient }],
 			]}
 		>
-			<PortalHost name="overlay" />
 			<Box flex={1} bg={Colors.Background}>
 				<Stack
 					screenOptions={{
