@@ -14,7 +14,6 @@ import { EventBackground } from "../EventBackground";
 import Animated, {
 	SharedValue,
 	useAnimatedStyle,
-	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
 import { useEffect } from "react";
@@ -32,30 +31,27 @@ export const useEventSplashMedia = () => {
 	return splash;
 };
 
-export const useBannerAnimatedHeight = () => {
+export const useBannerAnimatedHeight = (animatedHeight: SharedValue<number>) => {
 	const splash = useEventSplashMedia();
-	const animatedHeight = useSharedValue(0);
 
 	useEffect(() => {
 		animatedHeight.value = withTiming(splash ? HEADER_MAX_HEIGHT : 0, {
 			duration: 300,
 		});
 	}, [splash]);
-
-	return animatedHeight;
 };
 
 export const EventDetailsBanner = ({
 	loading,
 	scrollY,
+	animatedHeight,
 	onHeaderLayout,
 }: {
 	loading?: boolean;
+	animatedHeight: SharedValue<number>;
 	scrollY: SharedValue<number>;
 	onHeaderLayout?: (e: LayoutChangeEvent) => void;
 }) => {
-	const animatedHeight = useBannerAnimatedHeight();
-
 	const style = useAnimatedStyle(() => {
 		return { height: Math.max(0, animatedHeight.value - scrollY.value) };
 	});

@@ -14,13 +14,12 @@ import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 } from "react-native-reanimated";
+import { memo } from "react";
 
 const WIDE_BREAKPOINT = 768;
 
 export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () => void }) => {
 	const insets = useSafeAreaInsets();
-	const { width: screenWidth } = useWindowDimensions();
-	const isWide = screenWidth >= WIDE_BREAKPOINT;
 
 	const scrollY = useSharedValue(0);
 	const bannerHeight = useSharedValue(0);
@@ -29,11 +28,43 @@ export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () =>
 		scrollY.value = event.contentOffset.y;
 	});
 
-	const animatedHeight = useBannerAnimatedHeight();
+	const animatedHeight = useSharedValue(0);
+	useBannerAnimatedHeight(animatedHeight);
 
 	const spacerStyle = useAnimatedStyle(() => ({
 		height: bannerHeight.value + animatedHeight.value,
 	}));
+
+	return (
+		<Box flex={1}>
+			<Box absoluteFill style={{ zIndex: 1, pointerEvents: "box-none" }}>
+				<EventDetailsBanner
+					loading={loading}
+					scrollY={scrollY}
+					animatedHeight={animatedHeight}
+					onHeaderLayout={(e) => (bannerHeight.value = e.nativeEvent.layout.height)}
+				/>
+			</Box>
+			<Box
+				component={Animated.ScrollView}
+				flex={1}
+				onScroll={scrollHandler}
+				scrollEventThrottle={16}
+				// TODO: custom scrollbar
+				showsVerticalScrollIndicator={false}
+				gap={0}
+			>
+				<Animated.View style={spacerStyle} />
+				<EventDetailsInnerLayout />
+				<Box h={200 + insets.bottom} />
+			</Box>
+		</Box>
+	);
+};
+
+export const EventDetailsInnerLayout = memo(() => {
+	const { width: screenWidth } = useWindowDimensions();
+	const isWide = screenWidth >= WIDE_BREAKPOINT;
 
 	const main = (
 		<Box gap="md">
@@ -52,40 +83,19 @@ export const EventDetails = ({ loading }: { loading?: boolean; onRefresh?: () =>
 	);
 
 	return (
-		<Box flex={1}>
-			<Box absoluteFill style={{ zIndex: 1, pointerEvents: "box-none" }}>
-				<EventDetailsBanner
-					loading={loading}
-					scrollY={scrollY}
-					onHeaderLayout={(e) => (bannerHeight.value = e.nativeEvent.layout.height)}
-				/>
-			</Box>
-			<Box
-				component={Animated.ScrollView}
-				flex={1}
-				onScroll={scrollHandler}
-				scrollEventThrottle={16}
-				// TODO: custom scrollbar
-				showsVerticalScrollIndicator={false}
-				gap={0}
-			>
-				<Animated.View style={spacerStyle} />
-				<Box gap="md" p="md">
-					<EventDetailsActions />
-					{isWide ? (
-						<Box direction="row" gap="md">
-							<Box flex={2}>{main}</Box>
-							<Box flex={1}>{sidebar}</Box>
-						</Box>
-					) : (
-						<>
-							{main}
-							{sidebar}
-						</>
-					)}
+		<Box gap="md" p="md">
+			<EventDetailsActions />
+			{isWide ? (
+				<Box direction="row" gap="md">
+					<Box flex={2}>{main}</Box>
+					<Box flex={1}>{sidebar}</Box>
 				</Box>
-				<Box h={200 + insets.bottom} />
-			</Box>
+			) : (
+				<>
+					{main}
+					{sidebar}
+				</>
+			)}
 		</Box>
 	);
-};
+});
