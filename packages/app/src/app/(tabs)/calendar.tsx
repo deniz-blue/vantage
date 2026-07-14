@@ -102,12 +102,11 @@ export default function CalendarPage() {
 			return (
 				<ActionIcon
 					onPress={() => handleDayPress(day)}
-					w="100%"
-					h="100%"
-					style={{ aspectRatio: 1 }}
+					flex={1}
+					aspectRatio={1}
 					variant={day.isToday ? "light" : "subtle"}
 				>
-					<Box flex={1} aspectRatio={1} align="center" justify="center" gap={2}>
+					<Box flex={1} align="center" justify="center" gap={2}>
 						<Text
 							fz={FontSize.sm}
 							c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}

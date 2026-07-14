@@ -96,7 +96,7 @@ export const CalendarMonth = ({
 			{weeks.map((week, wi) => (
 				<Box direction="row" gap={gap} key={wi}>
 					{week.map((day, di) => (
-						<Box flex={1} key={di}>
+						<Box flex={1} aspectRatio={1} key={di}>
 							{renderDay(day)}
 						</Box>
 					))}
