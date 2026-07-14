@@ -45,6 +45,8 @@ export default function TabLayout() {
 					},
 					tabBarShowLabel: false,
 					headerShown: false,
+					animation: "shift",
+					lazy: false,
 				}}
 				tabBar={(props) => (
 					<Box bg={Colors.BackgroundLight} pb={insets.bottom}>
@@ -82,9 +84,9 @@ export default function TabLayout() {
 			>
 				<Tabs.Screen name="index" />
 				<Tabs.Screen name="list" />
+				<Tabs.Screen name="calendar" />
 				<Tabs.Screen name="settings" />
 				<Tabs.Screen name="new" />
-				<Tabs.Screen name="calendar" />
 			</Tabs>
 		</>
 	);
