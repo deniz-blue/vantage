@@ -57,8 +57,6 @@ export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 				renderMarkdown(resolved.data!, {
 					timezone: useLocaleStore.getState().timezone,
 					language: useLocaleStore.getState().language,
-					mergeInstances: true,
-					compactDates: true,
 				}),
 		});
 

@@ -2,6 +2,7 @@ import type { TextStyle } from "react-native";
 import { TextProps as RNTextProps, Text as RNText } from "react-native";
 import { Colors, getThemeColor, type ThemeColor } from "../../theme/colors";
 import { FontSize, Font } from "../../theme/sizing";
+import { memo } from "react";
 
 export interface TextProps extends RNTextProps {
 	c?: ThemeColor;
@@ -14,7 +15,7 @@ export interface TextProps extends RNTextProps {
 	lh?: number;
 }
 
-export const Text = (props: TextProps) => {
+export const Text = memo((props: TextProps) => {
 	const { c, fz, fw, fst, ta, tt, tdl, lh, style, ...rest } = props;
 
 	if (!props.children) return null;
@@ -38,4 +39,4 @@ export const Text = (props: TextProps) => {
 			{...rest}
 		/>
 	);
-};
+});

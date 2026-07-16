@@ -2,12 +2,15 @@ const DEV = process.env.APP_VARIANT === "development";
 
 if (DEV) console.log("[app.config.js] Running in development mode");
 
+const version = "0.1.0";
+const versionCode = 3;
+
 export default {
 	/** @type {import("expo/config").ExpoConfig} */
 	expo: {
 		name: DEV ? "Vantage (Development)" : "Vantage",
 		slug: "vantage",
-		version: "0.1.0",
+		version,
 		orientation: "portrait",
 		icon: "./public/icon512-maskable.png",
 		userInterfaceStyle: "dark",
@@ -22,8 +25,8 @@ export default {
 		},
 		android: {
 			package: DEV ? "lt.tsx.vantage.dev" : "lt.tsx.vantage",
+			versionCode,
 			predictiveBackGestureEnabled: false,
-			versionCode: 2,
 			intentFilters: [
 				{
 					action: "VIEW",

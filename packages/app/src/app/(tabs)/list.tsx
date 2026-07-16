@@ -1,18 +1,14 @@
-import { useCallback, useMemo, useState } from "react";
-import { FlatList, ActivityIndicator, useWindowDimensions } from "react-native";
-import { useRouter } from "expo-router";
-import { ListOptions, ResolvedEventContext, useEventListInfiniteQuery } from "@vantage/core";
+import { useMemo, useState } from "react";
+import { ActivityIndicator } from "react-native";
+import { ListOptions, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
 import { Loader } from "../../components/base/Loader";
-import { EmptyState } from "../../components/base/EmptyState";
-import { EventCard } from "../../components/event/card/EventCard";
 import { TextInput } from "../../components/base/input/TextInput";
 import { Card } from "../../components/base/Card";
 import { Colors } from "../../theme/colors";
 import { Button } from "../../components/base/button/Button";
 import { IconFilter, IconSearch } from "@tabler/icons-react-native";
 import { IconSize, Radius } from "../../theme/sizing";
-import { UseQueryResult } from "@tanstack/react-query";
 import { Spacing } from "../../theme/spacing";
 import { Sheet } from "../../components/base/sheet/Sheet";
 import { SegmentedControl } from "../../components/base/input/SegmentedControl";
@@ -21,10 +17,9 @@ import { Text } from "../../components/base/Text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { EventActionsSheet } from "../../components/app/EventActionsSheet";
+import { EventList } from "../../components/event/list/EventList";
 
 const PAGE_SIZE = 50;
-const CARD_WIDTH = 200;
 
 export const useListFiltersStore = create<ListOptions>()(
 	immer(() => ({
@@ -33,38 +28,10 @@ export const useListFiltersStore = create<ListOptions>()(
 	})),
 );
 
-type ListItem = UseQueryResult<Vantage.ResolvedEvent>;
-
 export default function List() {
 	const insets = useSafeAreaInsets();
 	const filters = useListFiltersStore();
-	const router = useRouter();
-	const { queries, fetchNextPage, isFetchingNextPage, isFetching } =
-		useEventListInfiniteQuery(filters);
-	const [showSheetFor, setShowSheetFor] = useState<string | null>(null);
-
-	const { width } = useWindowDimensions();
-	const numColumns = Math.round(width / CARD_WIDTH) || 1;
-
-	const renderItem = useCallback(
-		({ item }: { item: ListItem }) => {
-			const onPress = item.data?.id ? () => router.push(`/event/${item.data!.id}`) : undefined;
-			const onLongPress = item.data?.id ? () => setShowSheetFor(item.data!.id) : undefined;
-
-			return (
-				<ResolvedEventContext value={item.data ?? null}>
-					<Box flex={1} p="xs">
-						<EventCard onPress={onPress} onLongPress={onLongPress} />
-					</Box>
-				</ResolvedEventContext>
-			);
-		},
-		[router, setShowSheetFor],
-	);
-
-	const items: ListItem[] = queries;
-
-	const resolvedForSheet = queries.find((q) => q.data?.id === showSheetFor)?.data ?? null;
+	const { queries, fetchNextPage, isFetching } = useEventListInfiniteQuery(filters);
 
 	return (
 		<Box flex={1}>
@@ -78,25 +45,14 @@ export default function List() {
 				<ListHeader loading={isFetching} />
 			</Box>
 
-			<ResolvedEventContext value={resolvedForSheet}>
-				<EventActionsSheet open={!!resolvedForSheet} onClose={() => setShowSheetFor(null)} />
-			</ResolvedEventContext>
-
-			<FlatList
-				style={{ flex: 1 }}
+			<EventList
 				contentContainerStyle={{
 					paddingTop: insets.top + Spacing.sm * 2 + 48, // 48 = header height
 					paddingBottom: insets.bottom + Spacing.sm,
 					paddingHorizontal: Spacing.sm,
 				}}
-				data={items}
-				renderItem={renderItem}
-				keyExtractor={(item, idx) => idx.toString()}
-				ListEmptyComponent={<EmptyState message="No events found" />}
+				queries={queries}
 				onEndReached={() => fetchNextPage()}
-				numColumns={numColumns}
-				key={numColumns}
-				ListFooterComponent={<ListFooter isFetchingNextPage={isFetchingNextPage} />}
 			/>
 		</Box>
 	);

@@ -8,7 +8,7 @@ import { InputWrapper, type InputWrapperProps } from "../base/input/InputWrapper
 import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSheetList } from "../base/combobox";
 import { FontSize, IconSize } from "../../theme/sizing";
 import { Button } from "../base/button/Button";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
@@ -72,8 +72,8 @@ export const LanguageSelect = memo(
 );
 
 export const LanguageItem = memo(({ value }: { value: string; selected: boolean }) => {
-	const autonym = getAutonym(value);
-	const englishName = getEnglishName(value);
+	const autonym = useMemo(() => getAutonym(value), [value]);
+	const englishName = useMemo(() => getEnglishName(value), [value]);
 
 	return (
 		<Box direction="row" flex={1}>

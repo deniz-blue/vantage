@@ -2,8 +2,8 @@ import { db, schema } from "@vantage/db";
 import { invalidateEventListQueries } from "../query/useEventListQuery";
 import { eq } from "drizzle-orm";
 import { createComputedData } from "./computed";
-import { invalidateEventQuery } from "../query/useEventQuery";
 import { randomUUID } from "../utils/uuid";
+import { asyncPipe, EventResolver } from "../lib/resolve";
 
 export const EventsManager = new (class {
 	async addEvent({
@@ -25,8 +25,7 @@ export const EventsManager = new (class {
 			});
 			return id;
 		});
-		invalidateEventQuery(id);
-		invalidateEventListQueries();
+		await invalidateEventListQueries();
 		console.log("Added event with id", id);
 		return id;
 	}
@@ -67,8 +66,7 @@ export const EventsManager = new (class {
 			});
 			return id;
 		});
-		invalidateEventQuery(id);
-		invalidateEventListQueries();
+		await invalidateEventListQueries();
 		return id;
 	}
 
@@ -78,8 +76,7 @@ export const EventsManager = new (class {
 			await tx.delete(schema.eventMeta).where(eq(schema.eventMeta.id, id));
 			await tx.delete(schema.eventCache).where(eq(schema.eventCache.id, id));
 		});
-		invalidateEventQuery(id);
-		invalidateEventListQueries();
+		await invalidateEventListQueries();
 	}
 
 	async updateEventCache(
@@ -97,7 +94,16 @@ export const EventsManager = new (class {
 				computed: createComputedData(parsed),
 			})
 			.where(eq(schema.eventCache.id, id));
-		invalidateEventQuery(id);
-		invalidateEventListQueries();
+		await invalidateEventListQueries();
+	}
+
+	async refetchEvent(id: Vantage.EventId): Promise<void> {
+		await asyncPipe(
+			EventResolver.selectFromDatabase,
+			EventResolver.fetch,
+			EventResolver.parse,
+			EventResolver.upsertToDatabase,
+		)(EventResolver.new({ id }));
+		await invalidateEventListQueries();
 	}
 })();

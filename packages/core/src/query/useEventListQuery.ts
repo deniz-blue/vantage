@@ -2,7 +2,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { and, eq, inArray, SQL, sql } from "drizzle-orm";
 import { db, schema } from "@vantage/db";
 import { queryClient } from "./query-client";
-import { eventQueryFn, eventQueryOptions } from "./useEventQuery";
+import { eventQueryFn, eventQueryKey, eventQueryOptions } from "./useEventQuery";
 import { EventResolver } from "../lib/resolve";
 
 export interface ListOptions {
@@ -128,6 +128,11 @@ export const useEventListQuery = ({ enabled, ...options }: ListQueryOptions) => 
 	};
 };
 
-export const invalidateEventListQueries = () => {
-	queryClient.invalidateQueries({ queryKey: eventListQueryKey() });
+export const invalidateEventListQueries = async () => {
+	await queryClient.invalidateQueries({ queryKey: eventListQueryKey() });
+};
+
+export const invalidateEventQuery = async (id: Vantage.EventId) => {
+	await queryClient.invalidateQueries({ queryKey: eventQueryKey(id) });
+	await invalidateEventListQueries();
 };

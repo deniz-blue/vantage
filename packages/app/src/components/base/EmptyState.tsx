@@ -8,10 +8,11 @@ export interface EmptyStateProps {
 	loading?: boolean;
 	icon?: ReactNode;
 	message?: string;
+	fill?: boolean;
 }
 
-export const EmptyState = ({ loading, icon, message }: EmptyStateProps) => (
-	<Box flex={1} justify="center" align="center" gap="md" p="lg">
+export const EmptyState = ({ loading, icon, message, fill }: EmptyStateProps) => (
+	<Box flex={fill ? 1 : undefined} justify="center" align="center" gap="md" p="lg">
 		{loading ? <Loader /> : icon}
 		{message && <Text style={{ color: Colors.TextDimmed, textAlign: "center" }}>{message}</Text>}
 	</Box>

@@ -9,6 +9,7 @@ import {
 	IconBraces,
 	IconAt,
 	IconBrandWikipedia,
+	IconClock,
 } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
@@ -18,7 +19,7 @@ import { SmallTitle } from "./SmallTitle";
 import { Button } from "../../base/button/Button";
 
 export const EventDetailsSource = () => {
-	const { source, format, data } = useResolvedEvent();
+	const { source, format, data, updatedAt } = useResolvedEvent();
 
 	const sourceComponents =
 		data?.components?.filter(
@@ -43,6 +44,14 @@ export const EventDetailsSource = () => {
 
 			<Row icon={sourceIcons[source.type]} label={sourceLabels[source.type] ?? source.type} />
 			<Row icon={formatIcons[format.type]} label={formatLabels[format.type] ?? format.type} />
+
+			<Box direction="row" align="center" gap="xs" px="sm">
+				<IconClock size={IconSize.xs} color={Colors.Text} />
+				<Text fz={FontSize.sm}>Last Updated:</Text>
+				<Text c={Colors.TextDimmed} fz={FontSize.sm}>
+					{updatedAt ? updatedAt.toLocaleString() : "Unknown"}
+				</Text>
+			</Box>
 		</Box>
 	);
 };

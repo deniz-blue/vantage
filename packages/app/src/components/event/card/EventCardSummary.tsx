@@ -60,16 +60,15 @@ export const EventCardSummary = () => {
 		const config = { language: locale, timezone, compactDates: true };
 
 		// If all shown groups share the same venueIds, render venues once at top
-		const allShareVenues =
-			shown.length > 1
-				? shown.every(
-						(g) =>
-							g.venueIds.length === shown[0].venueIds.length &&
-							g.venueIds.every((id, i) => id === shown[0].venueIds[i]),
-					)
-				: false;
 
-		const sharedVenues = allShareVenues ? shown[0].venueIds : null;
+		const sharedVenues = shown
+			.filter(
+				(g) =>
+					JSON.stringify(Array.from(g.venueIds ?? []).sort()) ==
+					JSON.stringify(Array.from(new Set(data?.venues?.map((v) => v.id) ?? [])).sort()),
+			)
+			.map((g) => g.venueIds)
+			.flat();
 
 		for (const venueId of sharedVenues ?? []) {
 			const venue = venueMap.get(venueId);
@@ -105,7 +104,7 @@ export const EventCardSummary = () => {
 				});
 			}
 
-			for (const venueId of venueIds) {
+			for (const venueId of venueIds.filter((id) => !sharedVenues?.includes(id))) {
 				const venue = venueMap.get(venueId);
 				if (!venue) continue;
 				children.push(getVenueSnippetProps(venue));

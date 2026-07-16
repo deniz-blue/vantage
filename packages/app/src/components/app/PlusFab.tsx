@@ -18,12 +18,15 @@ import { EventCard } from "../event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActionButtonList } from "../actions/ActionButton";
+import { FontSize } from "../../theme/sizing";
+import { Loader } from "../base/Loader";
+import { KeyboardAvoidingView } from "react-native";
 
 export const PlusFab = () => {
 	const router = useRouter();
 	const path = usePathname();
 	const insets = useSafeAreaInsets();
-	const [state, setState] = useState<"none" | "fab" | "import">("none");
+	const [state, setState] = useState<"none" | "fab" | "import" | "jsonfeed">("none");
 
 	const show = path === "/" || path === "/list";
 
@@ -55,11 +58,17 @@ export const PlusFab = () => {
 								type: "fn",
 								onRun: () => setState("import"),
 							},
+							{
+								label: "Import JSON Feed",
+								type: "fn",
+								onRun: () => setState("jsonfeed"),
+							},
 						]}
 					/>
 				)}
 
 				{state === "import" && <Importer onClose={() => setState("none")} />}
+				{state === "jsonfeed" && <JsonFeedImporter onClose={() => setState("none")} />}
 			</Sheet>
 		</Fragment>
 	);
@@ -94,7 +103,14 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 	});
 
 	return (
-		<Box gap="md">
+		<Box gap="md" p="md" flex={1} justify="center">
+			<Box align="center">
+				<Text>Import from the internet</Text>
+				<Text fz={FontSize.sm} c={Colors.TextDimmed} ta="center">
+					Import an event via its URL. The event will be synced to this device.
+				</Text>
+			</Box>
+
 			<TextInput
 				label="URL"
 				value={uri}
@@ -132,6 +148,69 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 				>
 					{resolved.isLoading ? "Resolving…" : "Import"}
 				</Button>
+			)}
+		</Box>
+	);
+};
+
+export const JsonFeedImporter = ({}: { onClose?: () => void }) => {
+	const [feedUrl, setFeedUrl] = useState("");
+
+	const query = useQuery({
+		queryKey: ["jsonfeed", feedUrl],
+		queryFn: async () => {
+			const feed = (await fetch(feedUrl).then((res) => res.json())) as {
+				items: {
+					id: string;
+					url?: string;
+					title?: string;
+					content_text?: string;
+				}[];
+			};
+			return feed;
+		},
+		enabled: feedUrl.trim().length > 0,
+		retry: false,
+	});
+
+	return (
+		<Box gap="md" p="md" flex={1} justify="center">
+			<Box align="center">
+				<Text>Import from JSON Feed</Text>
+				<Text fz={FontSize.sm} c={Colors.TextDimmed}>
+					Pick events to import from a JSON Feed
+				</Text>
+			</Box>
+
+			<KeyboardAvoidingView behavior="padding">
+				<TextInput
+					label="Feed URL"
+					value={feedUrl}
+					onChangeText={setFeedUrl}
+					placeholder="https://example.com/feed.json"
+					autoCapitalize="none"
+					autoCorrect={false}
+					editable={!query.isLoading}
+					error={query.error ? String(query.error) : undefined}
+					rightSection={query.isLoading ? <Loader /> : undefined}
+				/>
+			</KeyboardAvoidingView>
+
+			{query.data && (
+				<Box gap="sm">
+					{query.data.items.map((item) => (
+						<Box key={item.id} p="sm" bg={Colors.Dark1} radius={8}>
+							<Text fz={FontSize.sm} fw="bold">
+								{item.title || item.url || item.id}
+							</Text>
+							{item.content_text && (
+								<Text fz={FontSize.sm} c={Colors.TextDimmed}>
+									{item.content_text}
+								</Text>
+							)}
+						</Box>
+					))}
+				</Box>
 			)}
 		</Box>
 	);

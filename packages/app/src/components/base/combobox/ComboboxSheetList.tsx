@@ -4,7 +4,6 @@ import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
 import { FlashList } from "@shopify/flash-list";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { ComboboxSearch } from "./ComboboxSearch";
 import { FlatList } from "react-native";
 import { Button } from "../button/Button";
@@ -77,21 +76,19 @@ export const ComboboxSheetList = <T,>({
 	const items: ListItem[] = searchable ? [{ kind: "search" }, ...filteredItems] : filteredItems;
 
 	return (
-		<Box flex={1}>
-			<FlatList
-				data={items}
-				renderItem={flashListRenderItem}
-				renderScrollComponent={(props) => <KeyboardAwareScrollView {...props} />}
-				stickyHeaderIndices={searchable ? [0] : undefined}
-				keyExtractor={(item, index) => {
-					if (item.kind === "search") return "search";
-					if (keyExtractor) return keyExtractor(item.value);
-					if (typeof item.value === "string") return item.value;
-					return String(index);
-				}}
-				// initialScrollIndex={initialScrollIndex}
-				style={{ flex: 1 }}
-			/>
-		</Box>
+		<FlashList
+			data={items}
+			renderItem={flashListRenderItem}
+			// renderScrollComponent={(props) => <KeyboardAwareScrollView {...props} />}
+			stickyHeaderIndices={searchable ? [0] : undefined}
+			keyExtractor={(item, index) => {
+				if (item.kind === "search") return "search";
+				if (keyExtractor) return keyExtractor(item.value);
+				if (typeof item.value === "string") return item.value;
+				return String(index);
+			}}
+			// initialScrollIndex={initialScrollIndex}
+			// style={{ flex: 1 }}
+		/>
 	);
 };

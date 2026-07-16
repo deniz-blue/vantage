@@ -5,16 +5,9 @@ import type { SheetImplProps } from "./SheetImpl";
 import { ModalBottomSheet } from "@swmansion/react-native-bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Pressable } from "react-native";
-import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
 
 export const SheetImpl = ({ open, onClose, children }: SheetImplProps) => {
 	const insets = useSafeAreaInsets();
-	const { height } = useReanimatedKeyboardAnimation();
-
-	const style = useAnimatedStyle(() => ({
-		paddingBottom: height.value + insets.bottom,
-	}));
 
 	return (
 		<ModalBottomSheet
@@ -33,24 +26,25 @@ export const SheetImpl = ({ open, onClose, children }: SheetImplProps) => {
 				/>
 			}
 		>
-			<Box component={Animated.View} style={style}>
-				<Box align="center" w="100%">
-					<Box
-						h={8}
-						w={80}
-						my="sm"
-						radius={Radius.md}
-						bg={Colors.BackgroundLight}
-						component={Pressable}
-						onPress={onClose}
-						accessible
-						accessibilityLabel="Close bottom sheet"
-						accessibilityHint="Double tap to close bottom sheet"
-						accessibilityRole="button"
-					/>
-				</Box>
-				<Box w="100%">{children}</Box>
+			<Box align="center" w="100%">
+				<Box
+					h={8}
+					w={80}
+					my="sm"
+					radius={Radius.md}
+					bg={Colors.BackgroundLight}
+					component={Pressable}
+					onPress={onClose}
+					accessible
+					accessibilityLabel="Close bottom sheet"
+					accessibilityHint="Double tap to close bottom sheet"
+					accessibilityRole="button"
+				/>
 			</Box>
+			{children}
+			<Box h={insets.bottom} />
 		</ModalBottomSheet>
 	);
 };
+
+export const KeyboardPadding = () => {};

@@ -1,7 +1,21 @@
 import { useEffect, useRef } from "react";
+import { BackHandler } from "react-native";
 
-/** Pushes history state on open, pops on close, listens for popstate. */
-export const useHistoryBack = (open: boolean, onClose: () => void) => {
+export const useBackHandler = (open: boolean, onClose: () => void) => {
+	const onCloseRef = useRef(onClose);
+	onCloseRef.current = onClose;
+
+	useEffect(() => {
+		console.log("useBackHandler effect, open:", open);
+		if (!open) return;
+		const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+			console.log("Back button pressed, closing sheet");
+			onCloseRef.current();
+			return true;
+		});
+		return () => sub.remove();
+	}, [open]);
+
 	// const didPush = useRef(false);
 
 	// useEffect(() => {

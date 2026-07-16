@@ -11,6 +11,7 @@ declare global {
 			revision: Vantage.Revision;
 			source: Vantage.EventSource;
 			format: Vantage.EventFormat;
+			updatedAt?: Temporal.Instant;
 		}
 	}
 }
@@ -18,15 +19,15 @@ declare global {
 export const ResolvedEventContext = createContext<Vantage.ResolvedEvent | null>(null);
 export const useResolvedEvent = (): Vantage.ResolvedEvent => {
 	const resolved = useContext(ResolvedEventContext);
-	if (!resolved) return {
-		id: null,
-		data: null,
-		raw: null,
-		error: null,
-		revision: {},
-		source: { type: "unknown" } as Vantage.EventSource,
-		format: { type: "unknown" } as Vantage.EventFormat,
-	};
+	if (!resolved)
+		return {
+			id: null,
+			data: null,
+			raw: null,
+			error: null,
+			revision: {},
+			source: { type: "unknown" } as Vantage.EventSource,
+			format: { type: "unknown" } as Vantage.EventFormat,
+		};
 	return resolved;
 };
-

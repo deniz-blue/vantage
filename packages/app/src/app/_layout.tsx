@@ -32,8 +32,8 @@ export default function RootLayout() {
 	return (
 		<ComponentStack
 			stack={[
-				[GestureHandlerRootView, {}],
 				[KeyboardProvider, {}],
+				[GestureHandlerRootView, {}],
 				[BottomSheetProvider, {}],
 				[QueryClientProvider, { client: queryClient }],
 			]}

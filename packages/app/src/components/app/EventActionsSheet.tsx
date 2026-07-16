@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { Sheet } from "../base/sheet/Sheet";
 import { EventsManager, ResolvedEventUtils, useResolvedEvent } from "@vantage/core";
 import { createActionsForEvent } from "../actions/event-actions";
-import { IconPencil, IconShare, IconX } from "@tabler/icons-react-native";
+import { IconPencil, IconRefresh, IconShare, IconX } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
 import { ActionButtonList } from "../actions/ActionButton";
@@ -11,6 +11,8 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../base/button/Button";
 import { Text } from "../base/Text";
+import { AsyncButton } from "../base/button/AsyncButton";
+import { TransText } from "../core/TransText";
 
 export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
 	const router = useRouter();
@@ -61,6 +63,32 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 	return (
 		<Sheet open={open} onClose={onClose}>
 			<Box p="sm" gap="sm">
+				<TransText
+					fw="bold"
+					numberOfLines={1}
+					value={resolved.data?.name}
+					fallback={
+						<Text fst="italic" c="TextDimmed">
+							Untitled event
+						</Text>
+					}
+				/>
+
+				{resolved.id && (
+					<AsyncButton fn={() => EventsManager.refetchEvent(resolved.id!)}>
+						{({ loading, onPress }) => (
+							<Button
+								loading={loading}
+								leftSection={<IconRefresh color={Colors.Text} size={IconSize.xs} />}
+								justify="flex-start"
+								onPress={onPress}
+							>
+								Refetch Event
+							</Button>
+						)}
+					</AsyncButton>
+				)}
+
 				<ActionButtonList actions={actions} />
 			</Box>
 

@@ -5,7 +5,7 @@ import { AppCopyButton } from "../core/AppCopyButton";
 import { Action } from "./action";
 import { Sheet } from "../base/sheet/Sheet";
 import { ViewRawSheetContent } from "../app/ViewRawSheet";
-import { IconCopy } from "@tabler/icons-react-native";
+import { IconCode, IconCopy } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
 
@@ -42,7 +42,7 @@ export const RawActionButton = ({ action }: { action: Extract<Action, { type: "r
 	return (
 		<Fragment>
 			<Button
-				leftSection={action.icon}
+				leftSection={action.icon ?? <IconCode size={IconSize.xs} color={Colors.Text} />}
 				children={action.label}
 				onPress={() => setOpen(true)}
 				justify="flex-start"

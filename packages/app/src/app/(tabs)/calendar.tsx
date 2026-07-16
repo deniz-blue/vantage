@@ -129,17 +129,18 @@ export default function CalendarPage() {
 	return (
 		<Box component={SafeAreaView} flex={1}>
 			<Container flex={1}>
-				{/* Header */}
 				<Box direction="row" align="center" justify="space-between" gap="xs" p="md">
 					<Box direction="row" align="center" gap="xs" flex={1}>
 						<ActionIcon onPress={goToPrevMonth} size="sm">
 							<IconChevronLeft size={IconSize.xs} color={Colors.Text} />
 						</ActionIcon>
-						<Button size="sm" flex={1}>
-							<Box align="center" flex={1}>
-								<Text fw="bold">{monthLabel}</Text>
-							</Box>
-						</Button>
+						<Box flex={1}>
+							<Button size="sm" flex={1}>
+								<Box direction="row" justify="center" flex={1}>
+									<Text fw="bold">{monthLabel}</Text>
+								</Box>
+							</Button>
+						</Box>
 						<ActionIcon onPress={goToNextMonth} size="sm">
 							<IconChevronRight size={IconSize.xs} color={Colors.Text} />
 						</ActionIcon>
@@ -199,8 +200,8 @@ const DayEventsContent = ({ day, onClose }: { day: string; onClose: () => void }
 	}, [day, locale]);
 
 	return (
-		<Box flex={1} gap="md">
-			<Box direction="row" justify="space-between">
+		<Box>
+			<Box direction="row" justify="space-between" p="md">
 				<Box direction="row">
 					<Text fz={FontSize.lg} fw="bold">
 						{dateLabel}
@@ -234,7 +235,7 @@ const DayEventsContent = ({ day, onClose }: { day: string; onClose: () => void }
 			{events.length === 0 ? (
 				<EmptyState message="No events on this day" />
 			) : (
-				<Box gap="sm">
+				<Box gap="md" px="md" pb="md">
 					{events.map((event, index) => (
 						<ResolvedEventContext.Provider key={event.data?.id ?? index} value={event.data ?? null}>
 							<EventCard
