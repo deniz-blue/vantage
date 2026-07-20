@@ -3,20 +3,23 @@ import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
-import { Container } from "../../components/base/Container";
-import { EventForm } from "../../components/event/editor/EventForm";
-import { createEditor } from "../../components/event/editor/editor";
-import { Box } from "../../components/base/Box";
-import { Text } from "../../components/base/Text";
-import { FontSize, IconSize } from "../../theme/sizing";
-import { Select } from "../../components/base/input/Select";
-import { Divider } from "../../components/base/Divider";
-import { Button } from "../../components/base/button/Button";
+import { Container } from "../components/base/Container";
+import { EventForm } from "../components/event/editor/EventForm";
+import { createEditor } from "../components/event/editor/editor";
+import { Box } from "../components/base/Box";
+import { Text } from "../components/base/Text";
+import { FontSize, IconSize } from "../theme/sizing";
+import { Select } from "../components/base/input/Select";
+import { Divider } from "../components/base/Divider";
+import { Button } from "../components/base/button/Button";
 import { ScrollView } from "react-native";
-import { Colors } from "../../theme/colors";
+import { Colors } from "../theme/colors";
 import { IconDatabase } from "@tabler/icons-react-native";
 import { OpenEvntSchema } from "@evnt/schema";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
+import { useKeyboardHeight } from "../hooks/useKeyboardHeight";
+import { ActionBackButton } from "../components/app/ActionBackButton";
 
 const validJson = (str: any): boolean => {
 	if (typeof str !== "string") return false;
@@ -29,6 +32,8 @@ const validJson = (str: any): boolean => {
 };
 
 export default function NewEventPage() {
+	const insets = useSafeAreaInsets();
+	const keyboardHeight = useKeyboardHeight();
 	const router = useRouter();
 	const { data } = useLocalSearchParams();
 	const [form, setForm] = useState<OpenEvnt>({ v: "0.1", name: {} });
@@ -63,29 +68,39 @@ export default function NewEventPage() {
 	});
 
 	return (
-		<Box component={SafeAreaView} flex={1}>
+		<Box flex={1}>
 			<Box component={ScrollView}>
-				<Container size="sm" flex={1}>
-					<Box py="md" flex={1}>
-						<Box gap="md" flex={1} mb={300}>
-							<Box>
-								<Text fz={FontSize.h1} fw="bold">
-									Create Event
-								</Text>
+				<Box component={SafeAreaView} flex={1}>
+					<Container size="sm" flex={1}>
+						<Box py="md" flex={1}>
+							<Box gap="md" flex={1}>
+								<Box direction="row" align="center" gap="sm">
+									<ActionBackButton />
+									<Text fz={FontSize.h1} fw="bold">
+										Create Event
+									</Text>
+								</Box>
+
+								<Box>
+									<SaveToSelect />
+								</Box>
+
+								<Divider />
+
+								<EventForm editor={editor} />
 							</Box>
-
-							<Box>
-								<SaveToSelect />
-							</Box>
-
-							<Divider />
-
-							<EventForm editor={editor} />
 						</Box>
-					</Box>
-				</Container>
+						<Box h={200} />
+						<Box h={insets.bottom} />
+						<Animated.View
+							style={{
+								height: keyboardHeight,
+							}}
+						/>
+					</Container>
+				</Box>
 			</Box>
-			<Box pos="absolute" style={{ bottom: 0 }} w="100%">
+			<Box pos="absolute" style={{ bottom: insets.bottom }} w="100%">
 				<Container size="sm" flex={1} pb="md">
 					<Button
 						variant="primary"

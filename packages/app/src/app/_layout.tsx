@@ -8,8 +8,8 @@ import { Box } from "../components/base/Box";
 import { Colors } from "../theme/colors";
 import { ComponentStack } from "../components/ComponentStack";
 import { initializeDatabase } from "@vantage/db";
-import { BottomSheetProvider } from "@swmansion/react-native-bottom-sheet";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { SheetProvider } from "../components/base/sheet/SheetProvider";
 
 export default function RootLayout() {
 	console.log("RootLayout render");
@@ -34,7 +34,7 @@ export default function RootLayout() {
 			stack={[
 				[KeyboardProvider, {}],
 				[GestureHandlerRootView, {}],
-				[BottomSheetProvider, {}],
+				[SheetProvider, {}],
 				[QueryClientProvider, { client: queryClient }],
 			]}
 		>
@@ -45,6 +45,7 @@ export default function RootLayout() {
 					}}
 				>
 					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					<Stack.Screen name="new" options={{ headerShown: false }} />
 					<Stack.Screen name="event/index" options={{ headerShown: false }} />
 					<Stack.Screen name="event/[id]" options={{ headerShown: false }} />
 					<Stack.Screen name="event/[id]/edit" options={{ headerShown: false }} />

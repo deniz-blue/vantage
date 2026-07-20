@@ -3,10 +3,9 @@ import { LANGUAGES } from "@vantage/intl";
 import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
-import { ActionIcon } from "../base/button/ActionIcon";
 import { InputWrapper, type InputWrapperProps } from "../base/input/InputWrapper";
 import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSheetList } from "../base/combobox";
-import { FontSize, IconSize } from "../../theme/sizing";
+import { FontSize, IconSize, Radius } from "../../theme/sizing";
 import { Button } from "../base/button/Button";
 import { memo, useMemo } from "react";
 
@@ -40,9 +39,9 @@ export const LanguageSelect = memo(
 				<Combobox value={value} onChange={onChange}>
 					<Box>
 						<ComboboxTrigger py="sm" px="sm" gap="sm">
-							<ActionIcon bg={Colors.PrimaryLight + "33"}>
+							<Box p="xs" radius={Radius.Default} bg={Colors.PrimaryLight + "33"}>
 								<IconLanguage size={IconSize.md} color={Colors.Primary} />
-							</ActionIcon>
+							</Box>
 							<LanguageItem value={value} selected={true} />
 						</ComboboxTrigger>
 

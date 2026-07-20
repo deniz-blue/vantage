@@ -10,6 +10,7 @@ import {
 	IconAt,
 	IconBrandWikipedia,
 	IconClock,
+	IconProps,
 } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
@@ -17,6 +18,7 @@ import { Colors } from "../../../theme/colors";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { SmallTitle } from "./SmallTitle";
 import { Button } from "../../base/button/Button";
+import { ComponentType } from "react";
 
 export const EventDetailsSource = () => {
 	const { source, format, data, updatedAt } = useResolvedEvent();
@@ -56,12 +58,12 @@ export const EventDetailsSource = () => {
 	);
 };
 
-const sourceIcons: Record<string, React.ReactNode> = {
-	unknown: <IconQuestionMark size={IconSize.xs} color={Colors.Text} />,
-	local: <IconDatabase size={IconSize.xs} color={Colors.Text} />,
-	at: <IconAt size={IconSize.xs} color={Colors.Text} />,
-	http: <IconWorld size={IconSize.xs} color={Colors.Text} />,
-	mediawiki: <IconBrandWikipedia size={IconSize.xs} color={Colors.Text} />,
+const sourceIcons: Record<string, ComponentType<IconProps>> = {
+	unknown: IconQuestionMark,
+	local: IconDatabase,
+	at: IconAt,
+	http: IconWorld,
+	mediawiki: IconBrandWikipedia,
 };
 
 const sourceLabels: Record<string, string> = {
@@ -72,11 +74,11 @@ const sourceLabels: Record<string, string> = {
 	mediawiki: "MediaWiki",
 };
 
-const formatIcons: Record<string, React.ReactNode> = {
-	unknown: <IconQuestionMark size={IconSize.xs} color={Colors.Text} />,
-	"directory.evnt.event": <IconBraces size={IconSize.xs} color={Colors.Text} />,
-	ics: <IconBraces size={IconSize.xs} color={Colors.Text} />,
-	"community.lexicon.calendar.event": <IconBraces size={IconSize.xs} color={Colors.Text} />,
+const formatIcons: Record<string, ComponentType<IconProps>> = {
+	unknown: IconQuestionMark,
+	"directory.evnt.event": IconBraces,
+	ics: IconBraces,
+	"community.lexicon.calendar.event": IconBraces,
 };
 
 const formatLabels: Record<string, string> = {
@@ -86,16 +88,11 @@ const formatLabels: Record<string, string> = {
 	"community.lexicon.calendar.event": "Community Lexicon",
 };
 
-const Row = ({ icon, label }: { icon: React.ReactNode; label: string }) => {
+const Row = ({ icon: Icon, label }: { icon: ComponentType<IconProps>; label: string }) => {
 	return (
-		<Button
-			leftSection={icon ?? <IconQuestionMark size={IconSize.xs} color={Colors.Text} />}
-			variant="subtle"
-			justify="flex-start"
-			mih={null}
-			py="xs"
-		>
-			{label}
-		</Button>
+		<Box direction="row" align="center" gap="xs" px="sm">
+			<Icon size={IconSize.xs} color={Colors.Text} />
+			<Text fz={FontSize.sm}>{label}</Text>
+		</Box>
 	);
 };

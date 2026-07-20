@@ -2,13 +2,12 @@ import { useMemo, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { ListOptions, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
-import { Loader } from "../../components/base/Loader";
 import { TextInput } from "../../components/base/input/TextInput";
 import { Card } from "../../components/base/Card";
 import { Colors } from "../../theme/colors";
 import { Button } from "../../components/base/button/Button";
 import { IconFilter, IconSearch } from "@tabler/icons-react-native";
-import { IconSize, Radius } from "../../theme/sizing";
+import { ControlHeight, IconSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
 import { Sheet } from "../../components/base/sheet/Sheet";
 import { SegmentedControl } from "../../components/base/input/SegmentedControl";
@@ -47,7 +46,7 @@ export default function List() {
 
 			<EventList
 				contentContainerStyle={{
-					paddingTop: insets.top + Spacing.sm * 2 + 48, // 48 = header height
+					paddingTop: insets.top + Spacing.sm * 2 + (Spacing.sm * 2 + ControlHeight.md),
 					paddingBottom: insets.bottom + Spacing.sm,
 					paddingHorizontal: Spacing.sm,
 				}}
@@ -91,28 +90,15 @@ export const ListHeader = ({ loading }: { loading: boolean }) => {
 	);
 };
 
-export const ListFooter = ({ isFetchingNextPage }: { isFetchingNextPage: boolean }) => {
-	return (
-		<Box>
-			{isFetchingNextPage && (
-				<Box p="sm" align="center">
-					<Loader />
-				</Box>
-			)}
-			<Box h={200} />
-		</Box>
-	);
-};
-
 export const ListFiltersSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
 	const filters = useListFiltersStore();
 	const todayMs = useMemo(() => Temporal.Now.instant().epochMilliseconds, []);
 
 	return (
 		<Sheet open={open} onClose={onClose}>
-			<Box gap="sm">
-				<Box direction="row" gap="sm">
-					<Box flex={1}>
+			<Box p="md" gap="md">
+				<Box direction="row" gap="sm" align="center" justify="space-between">
+					<Box>
 						<Text>Filter by</Text>
 					</Box>
 					<SegmentedControl<"" | "future" | "past">
@@ -139,8 +125,8 @@ export const ListFiltersSheet = ({ open, onClose }: { open: boolean; onClose: ()
 					/>
 				</Box>
 
-				<Box direction="row" gap="sm" align="center">
-					<Box flex={1}>
+				<Box direction="row" gap="sm" align="center" justify="space-between">
+					<Box>
 						<Text>Sort by</Text>
 					</Box>
 					<SegmentedControl<Exclude<ListOptions["orderBy"], undefined>>

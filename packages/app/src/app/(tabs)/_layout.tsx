@@ -45,8 +45,8 @@ export default function TabLayout() {
 					},
 					tabBarShowLabel: false,
 					headerShown: false,
-					animation: "shift",
-					lazy: false,
+
+					tabBarButton: (props) => <ActionIcon {...(props as any)} />,
 				}}
 				tabBar={(props) => (
 					<Box bg={Colors.BackgroundLight} pb={insets.bottom}>
@@ -59,12 +59,12 @@ export default function TabLayout() {
 										{ name: "calendar", icon: IconCalendar, alt: "Calendar" },
 										{ name: "settings", icon: IconSettings, alt: "Settings" },
 									] as const
-								).map(({ icon: Icon, name, alt }) => {
+								).map(({ icon: Icon, name, alt }, index, array) => {
 									const isActive = props.state.routeNames[props.state.index] === name;
 									return (
 										<Box key={name} flex={1} direction="row" justify="center">
 											<ActionIcon
-												aria-label={alt}
+												accessibilityLabel={`${isActive ? "Active " : ""}${alt} Tab, ${index + 1} of ${array.length}`}
 												onPress={() => props.navigation.navigate(name)}
 												size="auto"
 												w="100%"
@@ -87,7 +87,6 @@ export default function TabLayout() {
 				<Tabs.Screen name="list" />
 				<Tabs.Screen name="calendar" />
 				<Tabs.Screen name="settings" />
-				<Tabs.Screen name="new" />
 			</Tabs>
 		</>
 	);

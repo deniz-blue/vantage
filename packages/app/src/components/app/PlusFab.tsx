@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { Fab } from "../base/Fab";
-import { IconPlus } from "@tabler/icons-react-native";
+import { IconPlus, IconRss, IconWorldDownload } from "@tabler/icons-react-native";
 import { usePathname, useRouter } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -18,9 +18,8 @@ import { EventCard } from "../event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActionButtonList } from "../actions/ActionButton";
-import { FontSize } from "../../theme/sizing";
+import { FontSize, IconSize } from "../../theme/sizing";
 import { Loader } from "../base/Loader";
-import { KeyboardAvoidingView } from "react-native";
 
 export const PlusFab = () => {
 	const router = useRouter();
@@ -28,7 +27,7 @@ export const PlusFab = () => {
 	const insets = useSafeAreaInsets();
 	const [state, setState] = useState<"none" | "fab" | "import" | "jsonfeed">("none");
 
-	const show = path === "/" || path === "/list";
+	const show = path !== "/settings";
 
 	if (!show) return null;
 
@@ -42,33 +41,38 @@ export const PlusFab = () => {
 			/>
 
 			<Sheet open={state !== "none"} onClose={() => setState("none")}>
-				{state === "fab" && (
-					<ActionButtonList
-						actions={[
-							{
-								label: "Create Event",
-								type: "fn",
-								onRun: () => {
-									setState("none");
-									router.push("/new");
+				<Box p="md">
+					{state === "fab" && (
+						<ActionButtonList
+							actions={[
+								{
+									label: "Create Event",
+									type: "fn",
+									icon: <IconPlus size={IconSize.sm} color={Colors.Text} />,
+									onRun: () => {
+										setState("none");
+										router.push("/new");
+									},
 								},
-							},
-							{
-								label: "Import Event",
-								type: "fn",
-								onRun: () => setState("import"),
-							},
-							{
-								label: "Import JSON Feed",
-								type: "fn",
-								onRun: () => setState("jsonfeed"),
-							},
-						]}
-					/>
-				)}
+								{
+									label: "Import Event from URL",
+									type: "fn",
+									icon: <IconWorldDownload size={IconSize.sm} color={Colors.Text} />,
+									onRun: () => setState("import"),
+								},
+								{
+									label: "Import Events from JSON Feed",
+									type: "fn",
+									icon: <IconRss size={IconSize.sm} color={Colors.Text} />,
+									onRun: () => setState("jsonfeed"),
+								},
+							]}
+						/>
+					)}
 
-				{state === "import" && <Importer onClose={() => setState("none")} />}
-				{state === "jsonfeed" && <JsonFeedImporter onClose={() => setState("none")} />}
+					{state === "import" && <Importer onClose={() => setState("none")} />}
+					{state === "jsonfeed" && <JsonFeedImporter onClose={() => setState("none")} />}
+				</Box>
 			</Sheet>
 		</Fragment>
 	);
@@ -103,7 +107,7 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 	});
 
 	return (
-		<Box gap="md" p="md" flex={1} justify="center">
+		<Box gap="md">
 			<Box align="center">
 				<Text>Import from the internet</Text>
 				<Text fz={FontSize.sm} c={Colors.TextDimmed} ta="center">
@@ -153,7 +157,7 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 	);
 };
 
-export const JsonFeedImporter = ({}: { onClose?: () => void }) => {
+export const JsonFeedImporter = ({ onClose: _ }: { onClose?: () => void }) => {
 	const [feedUrl, setFeedUrl] = useState("");
 
 	const query = useQuery({
@@ -174,7 +178,7 @@ export const JsonFeedImporter = ({}: { onClose?: () => void }) => {
 	});
 
 	return (
-		<Box gap="md" p="md" flex={1} justify="center">
+		<Box gap="md" justify="center">
 			<Box align="center">
 				<Text>Import from JSON Feed</Text>
 				<Text fz={FontSize.sm} c={Colors.TextDimmed}>
@@ -182,19 +186,17 @@ export const JsonFeedImporter = ({}: { onClose?: () => void }) => {
 				</Text>
 			</Box>
 
-			<KeyboardAvoidingView behavior="padding">
-				<TextInput
-					label="Feed URL"
-					value={feedUrl}
-					onChangeText={setFeedUrl}
-					placeholder="https://example.com/feed.json"
-					autoCapitalize="none"
-					autoCorrect={false}
-					editable={!query.isLoading}
-					error={query.error ? String(query.error) : undefined}
-					rightSection={query.isLoading ? <Loader /> : undefined}
-				/>
-			</KeyboardAvoidingView>
+			<TextInput
+				label="Feed URL"
+				value={feedUrl}
+				onChangeText={setFeedUrl}
+				placeholder="https://example.com/feed.json"
+				autoCapitalize="none"
+				autoCorrect={false}
+				editable={!query.isLoading}
+				error={query.error ? String(query.error) : undefined}
+				rightSection={query.isLoading ? <Loader /> : undefined}
+			/>
 
 			{query.data && (
 				<Box gap="sm">

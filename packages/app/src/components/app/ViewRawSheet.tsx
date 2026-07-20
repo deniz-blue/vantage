@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { Box } from "../base/Box";
-import { Button } from "../base/button/Button";
 import { Text } from "../base/Text";
 import { AppCopyButton } from "../core/AppCopyButton";
-import { ScrollView } from "react-native";
+import { FontSize } from "../../theme/sizing";
+import { ScrollView } from "react-native-gesture-handler";
 
 export const ViewRawSheetContent = ({ raw }: { raw: string }) => {
-	const [wrap, setWrap] = useState(false);
-
 	let json = null;
 	try {
 		json = JSON.parse(raw);
@@ -16,18 +13,17 @@ export const ViewRawSheetContent = ({ raw }: { raw: string }) => {
 	const str = json ? JSON.stringify(json, null, 2) : raw;
 
 	return (
-		<Box gap="md">
-			<Box direction="row" gap="sm">
-				<AppCopyButton value={str}>Copy</AppCopyButton>
-				<Button onPress={() => setWrap((w) => !w)}>Toggle Wrap</Button>
+		<ScrollView>
+			<Box gap="md" p="md" w="100%">
+				<Box direction="row" gap="sm" w="100%">
+					<AppCopyButton value={str} w="100%">
+						Copy
+					</AppCopyButton>
+				</Box>
+				<Text selectable fz={FontSize.xs} style={{ fontFamily: "monospace" }}>
+					{str}
+				</Text>
 			</Box>
-			<Box>
-				<ScrollView horizontal={!wrap}>
-					<Text selectable style={{ fontFamily: "monospace" }}>
-						{str}
-					</Text>
-				</ScrollView>
-			</Box>
-		</Box>
+		</ScrollView>
 	);
 };

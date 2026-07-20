@@ -2,11 +2,10 @@ import { IconWorld, IconArrowUp } from "@tabler/icons-react-native";
 import { useComboboxCtx, ComboboxTrigger } from "../../base/combobox";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
-import { ActionIcon } from "../../base/button/ActionIcon";
 import { Button } from "../../base/button/Button";
 import { Colors } from "../../../theme/colors";
 import { formatOffset, getDetectedTz } from "@vantage/intl";
-import { FontSize, IconSize } from "../../../theme/sizing";
+import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 
 export interface TimezoneSelectTriggerProps {
 	variant: "settings" | "form";
@@ -29,9 +28,9 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 		<Box>
 			<ComboboxTrigger py="sm" px="sm">
 				<Box direction="row" align="center" gap="sm">
-					<ActionIcon bg={Colors.PrimaryLight + "33"}>
+					<Box p="xs" radius={Radius.Default} bg={Colors.PrimaryLight + "33"}>
 						<IconWorld size={IconSize.md} color={Colors.Primary} />
-					</ActionIcon>
+					</Box>
 					<Box flex={1} gap="xs">
 						<Text fz={FontSize.sm} fw="600">
 							{ctx.value}

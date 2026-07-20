@@ -2,15 +2,16 @@ import type { ReactNode } from "react";
 import { Box, type BoxProps } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { ControlHeight, Radius } from "../../../theme/sizing";
-import { ButtonBase } from "../ButtonBase";
+import { ButtonBase, ButtonBaseProps } from "../ButtonBase";
 
 export type ActionIconVariant = "light" | "subtle";
 
-export interface ActionIconProps extends BoxProps {
+export interface ActionIconProps
+	extends BoxProps, Pick<ButtonBaseProps, "onPress" | "onLongPress" | "disabled"> {
 	children: ReactNode;
 	color?: string;
-	disabled?: boolean;
-	onPress?: () => void;
+	selected?: boolean;
+	disabled?: boolean | null;
 	variant?: ActionIconVariant;
 	size?: "auto" | keyof typeof SIZES;
 }
@@ -24,28 +25,36 @@ const SIZES = {
 
 export const ActionIcon = ({
 	children,
-	disabled,
 	onPress,
+	onLongPress,
+	disabled,
 	variant = "light",
 	size = "md",
+	color,
+	selected,
 	...rest
 }: ActionIconProps) => {
 	const s = size === "auto" ? undefined : SIZES[size];
 
+	const bg = selected
+		? (color ?? Colors.Primary)
+		: variant === "light"
+			? Colors.BackgroundLight
+			: undefined;
+
 	return (
-		<Box
-			component={ButtonBase}
-			{...(s?.s !== undefined ? { w: s.s, h: s.s } : {})}
-			radius={s?.radius}
-			bg={variant === "light" ? Colors.BackgroundLight : undefined}
-			align="center"
-			justify="center"
-			op={disabled ? 0.4 : undefined}
-			disabled={disabled}
-			onPress={onPress}
-			{...(rest as any)}
-		>
-			{children}
-		</Box>
+		<ButtonBase onPress={onPress} onLongPress={onLongPress} disabled={disabled}>
+			<Box
+				{...(s?.s !== undefined ? { w: s.s, h: s.s } : {})}
+				radius={s?.radius}
+				bg={bg}
+				align="center"
+				justify="center"
+				op={disabled ? 0.4 : undefined}
+				{...rest}
+			>
+				{children}
+			</Box>
+		</ButtonBase>
 	);
 };

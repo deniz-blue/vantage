@@ -15,6 +15,7 @@ import Animated, {
 	useSharedValue,
 } from "react-native-reanimated";
 import { memo } from "react";
+import { Platform } from "react-native";
 
 const WIDE_BREAKPOINT = 768;
 
@@ -37,7 +38,7 @@ export const EventDetails = memo(({ loading }: { loading?: boolean; onRefresh?: 
 
 	return (
 		<Box flex={1}>
-			<Box absoluteFill style={{ zIndex: 1, pointerEvents: "box-none" }}>
+			<Box absoluteFill style={{ zIndex: 1, pointerEvents: Platform.OS === "web" ? "none" : "box-none" }}>
 				<EventDetailsBanner
 					loading={loading}
 					scrollY={scrollY}

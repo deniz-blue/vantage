@@ -4,10 +4,26 @@ import { Box } from "../Box";
 import type { SheetImplProps } from "./SheetImpl";
 import { ModalBottomSheet } from "@swmansion/react-native-bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Pressable } from "react-native";
+import { Pressable, BackHandler } from "react-native";
+import { useEffect } from "react";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { useKeyboardHeight } from "../../../hooks/useKeyboardHeight";
 
 export const SheetImpl = ({ open, onClose, children }: SheetImplProps) => {
 	const insets = useSafeAreaInsets();
+	const keyboardHeight = useKeyboardHeight(!open);
+	const keyboardStyle = useAnimatedStyle(() => ({
+		height: keyboardHeight.value,
+	}));
+
+	useEffect(() => {
+		if (!open) return;
+		const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+			onClose();
+			return true;
+		});
+		return () => sub.remove();
+	}, [open]);
 
 	return (
 		<ModalBottomSheet
@@ -42,6 +58,7 @@ export const SheetImpl = ({ open, onClose, children }: SheetImplProps) => {
 				/>
 			</Box>
 			{children}
+			<Animated.View style={keyboardStyle} />
 			<Box h={insets.bottom} />
 		</ModalBottomSheet>
 	);

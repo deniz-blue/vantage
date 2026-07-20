@@ -3,20 +3,14 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { FontSize } from "../../../theme/sizing";
-import { useRouter } from "expo-router";
-import { ActionIcon } from "../../base/button/ActionIcon";
-import { IconArrowLeft } from "@tabler/icons-react-native";
 import { ActivityIndicator, type LayoutChangeEvent } from "react-native";
 import { Colors } from "../../../theme/colors";
 import { SplashMediaComponent } from "@evnt/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EventBackground } from "../EventBackground";
-import Animated, {
-	SharedValue,
-	useAnimatedStyle,
-	withTiming,
-} from "react-native-reanimated";
+import Animated, { SharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { useEffect } from "react";
+import { ActionBackButton } from "../../app/ActionBackButton";
 
 export const HEADER_MAX_HEIGHT = 80;
 
@@ -57,7 +51,7 @@ export const EventDetailsBanner = ({
 	});
 
 	return (
-		<Box bg={Colors.Background}>
+		<Box bg={Colors.Background} style={{ pointerEvents: "auto" }}>
 			<Animated.View style={style} />
 			<EventBackground />
 			<EventDetailsHeader loading={loading} onLayout={onHeaderLayout} />
@@ -73,11 +67,10 @@ export const EventDetailsHeader = ({
 	onLayout?: (e: LayoutChangeEvent) => void;
 }) => {
 	const { top } = useSafeAreaInsets();
-	const router = useRouter();
 	const { data } = useResolvedEvent();
 
 	return (
-		<Box onLayout={onLayout}>
+		<Box onLayout={onLayout} style={{ pointerEvents: "auto" }}>
 			<Box h={top} />
 			<Box
 				direction="row"
@@ -91,14 +84,9 @@ export const EventDetailsHeader = ({
 					shadowRadius: 6,
 					elevation: 4,
 				}}
+				align="center"
 			>
-				<ActionIcon
-					variant="subtle"
-					onPress={() => (router.canGoBack() ? router.back() : router.push("/"))}
-					size="auto"
-				>
-					<IconArrowLeft size={20} color={Colors.Text} />
-				</ActionIcon>
+				<ActionBackButton />
 				{loading && <ActivityIndicator />}
 				<Box flex={1} gap={4}>
 					<TransText

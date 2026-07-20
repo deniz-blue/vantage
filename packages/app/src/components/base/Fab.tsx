@@ -1,4 +1,4 @@
-import { type ViewStyle } from "react-native";
+import { Platform, type ViewStyle } from "react-native";
 import { ActionIcon, type ActionIconProps } from "./button/ActionIcon";
 import { resolveColor } from "../../theme/colors";
 import { Radius } from "../../theme/sizing";
@@ -33,7 +33,10 @@ export const Fab = ({
 			align="flex-end"
 			justify="flex-end"
 			p="md"
-			style={[{ zIndex: 100, pointerEvents: "box-none" }, wrapperStyle]}
+			style={[
+				{ zIndex: 100, pointerEvents: Platform.OS === "web" ? "none" : "box-none" },
+				wrapperStyle,
+			]}
 			{...wrapperProps}
 		>
 			<ActionIcon
@@ -41,7 +44,7 @@ export const Fab = ({
 				h={FAB_SIZE}
 				radius={Radius.xl}
 				bg={resolveColor(color)}
-				style={[shadow, style]}
+				style={[shadow, { pointerEvents: "auto", zIndex: 100 }, style]}
 				{...(rest as any)}
 			>
 				{icon}

@@ -62,7 +62,7 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 
 	return (
 		<Sheet open={open} onClose={onClose}>
-			<Box p="sm" gap="sm">
+			<Box p="md" gap="sm">
 				<TransText
 					fw="bold"
 					numberOfLines={1}
@@ -93,7 +93,7 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 			</Box>
 
 			<Sheet open={showDeleteConfirmation} onClose={() => setShowDeleteConfirmation(false)}>
-				<Box p="sm" gap="sm">
+				<Box p="md" gap="sm">
 					<Text>
 						{resolved.source.type !== "local"
 							? "Are you sure you want to stop following this event?"
