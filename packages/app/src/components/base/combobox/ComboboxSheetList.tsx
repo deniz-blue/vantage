@@ -3,10 +3,10 @@ import { IconCheck } from "@tabler/icons-react-native";
 import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
-import { FlashList } from "@shopify/flash-list";
 import { ComboboxSearch } from "./ComboboxSearch";
 import { FlatList } from "react-native";
 import { Button } from "../button/Button";
+import { Spacing } from "../../../theme/spacing";
 
 export interface ComboboxListProps<T> {
 	data: readonly T[];
@@ -42,7 +42,7 @@ export const ComboboxSheetList = <T,>({
 			const selected = item === ctx.value;
 
 			return (
-				<Button m="xs" onPress={() => onPress(item.value)}>
+				<Button m="xs" selected={selected} onPress={() => onPress(item.value)}>
 					<Box direction="row" flex={1}>
 						<ItemComponent value={item.value} selected={selected} />
 						{selected && <IconCheck size={20} color={Colors.Primary} />}
@@ -76,10 +76,10 @@ export const ComboboxSheetList = <T,>({
 	const items: ListItem[] = searchable ? [{ kind: "search" }, ...filteredItems] : filteredItems;
 
 	return (
-		<FlashList
+		<FlatList
 			data={items}
 			renderItem={flashListRenderItem}
-			// renderScrollComponent={(props) => <KeyboardAwareScrollView {...props} />}
+			renderScrollComponent={!searchable ? (props) => <Box {...props} /> : undefined}
 			stickyHeaderIndices={searchable ? [0] : undefined}
 			keyExtractor={(item, index) => {
 				if (item.kind === "search") return "search";
@@ -87,6 +87,7 @@ export const ComboboxSheetList = <T,>({
 				if (typeof item.value === "string") return item.value;
 				return String(index);
 			}}
+			contentContainerStyle={{ padding: Spacing.md }}
 			// initialScrollIndex={initialScrollIndex}
 			// style={{ flex: 1 }}
 		/>

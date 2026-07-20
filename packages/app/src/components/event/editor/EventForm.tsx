@@ -8,7 +8,7 @@ import { Text } from "../../base/Text";
 import { Divider } from "../../base/Divider";
 import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
-import { Fragment, ReactNode, useState } from "react";
+import { Fragment, ReactNode, useMemo, useState } from "react";
 import { Sheet } from "../../base/sheet/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
@@ -18,14 +18,12 @@ import { ActionIcon } from "../../base/button/ActionIcon";
 import { Colors } from "../../../theme/colors";
 
 export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
+	const name = useMemo(() => editor.field((e) => e.name), [editor]);
+
 	return (
 		<EventFormContext value={{ editor }}>
 			<Box gap="md">
-				<TranslationsInput
-					label="Event Name"
-					placeholder="My Event"
-					editor={editor.field((e) => e.name)}
-				/>
+				<TranslationsInput label="Event Name" placeholder="My Event" editor={name} />
 
 				<StatusPicker
 					value={editor.value.status || "planned"}

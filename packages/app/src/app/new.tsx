@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
 import { Container } from "../components/base/Container";
@@ -37,7 +37,7 @@ export default function NewEventPage() {
 	const router = useRouter();
 	const { data } = useLocalSearchParams();
 	const [form, setForm] = useState<OpenEvnt>({ v: "0.1", name: {} });
-	const editor = createEditor(form, setForm);
+	const editor = useMemo(() => createEditor(form, setForm), [form, setForm]);
 
 	useEffect(() => {}, [data, setForm]);
 

@@ -43,6 +43,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 		setTimezone,
 	} = usePartialDateEditor(value, onChange);
 
+	const charWidth = 14;
 	const colonNormal = <Text fz={FontSize.md}>:</Text>;
 	const colonDimmed = (
 		<Text fz={FontSize.md} c={Colors.TextDimmed}>
@@ -72,23 +73,17 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 			</InputWrapper>
 
 			<Sheet open={open} onClose={() => setOpen(false)}>
-				<Box gap="md">
+				<Box p="md" gap="md">
 					<Box gap="xs">
-						<Box direction="row" justify="space-between" align="center">
-							<InputWrapper label="Date" />
-							<Box direction="row" gap="sm">
-								{/* Time toggle removed; time fields are always shown and controlled by disabledTime */}
-							</Box>
-						</Box>
-
-						<Box direction="row" flex={1} gap="md" justify="space-between" align="center">
-							<Box direction="row" gap="sm">
+						<Box direction="row" gap="md" justify="space-between" align="center">
+							<Box>
+								<InputWrapper label="Date" />
 								<SegmentedTextInput
 									segments={[
 										{
 											value: paddedYear,
 											onChangeText: (text) => handleDateChange("year", text),
-											style: { width: 44 },
+											style: { width: 4*charWidth },
 											placeholder: "----",
 											renderAfter: value
 												? PartialDateUtil.has(value, "month")
@@ -115,7 +110,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 										},
 									]}
 									common={{
-										style: { width: 22 },
+										style: { width: 2*charWidth, textAlign: "center" },
 										selectTextOnFocus: true,
 										placeholder: "--",
 										keyboardType: "decimal-pad",
@@ -123,27 +118,30 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 								/>
 							</Box>
 
-							<SegmentedTextInput
-								segments={[
-									{
-										value: paddedHour,
-										onChangeText: (text) => handleTimeChange("hour", text),
-										renderAfter: !disabledTime ? colonNormal : colonDimmed,
-									},
-									{
-										value: paddedMinute,
-										onChangeText: (text) => handleTimeChange("minute", text),
-									},
-								]}
-								common={{
-									style: { width: 22, textAlign: "center" },
-									selectTextOnFocus: true,
-									placeholder: "--",
-									keyboardType: "decimal-pad",
-									readOnly: disabledTime,
-									focusable: !disabledTime,
-								}}
-							/>
+							<Box>
+								<InputWrapper label="Time" />
+								<SegmentedTextInput
+									segments={[
+										{
+											value: paddedHour,
+											onChangeText: (text) => handleTimeChange("hour", text),
+											renderAfter: !disabledTime ? colonNormal : colonDimmed,
+										},
+										{
+											value: paddedMinute,
+											onChangeText: (text) => handleTimeChange("minute", text),
+										},
+									]}
+									common={{
+										style: { width: 2*charWidth, textAlign: "center" },
+										selectTextOnFocus: true,
+										placeholder: "--",
+										keyboardType: "decimal-pad",
+										readOnly: disabledTime,
+										focusable: !disabledTime,
+									}}
+								/>
+							</Box>
 						</Box>
 					</Box>
 

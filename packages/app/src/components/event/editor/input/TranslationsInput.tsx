@@ -7,34 +7,37 @@ import { ActionIcon } from "../../../base/button/ActionIcon";
 import { Colors } from "../../../../theme/colors";
 import { IconLanguage } from "@tabler/icons-react-native";
 import { useTranslator } from "../../../../hooks/useTranslator";
+import { memo } from "react";
 
-export const TranslationsInput = ({
-	editor,
-	placeholder,
-	...props
-}: InputWrapperProps & {
-	editor: Editor<Translations>;
-	placeholder?: string;
-}) => {
-	const userLanguage = useLocaleStore((s) => s.language);
-	const t = useTranslator();
+export const TranslationsInput = memo(
+	({
+		editor,
+		placeholder,
+		...props
+	}: InputWrapperProps & {
+		editor: Editor<Translations>;
+		placeholder?: string;
+	}) => {
+		const userLanguage = useLocaleStore((s) => s.language);
+		const t = useTranslator();
 
-	return (
-		<InputWrapper {...props}>
-			<TextInput
-				value={editor.value[userLanguage] || ""}
-				onChangeText={(text) =>
-					editor.update((d) => {
-						d[userLanguage] = text;
-					})
-				}
-				placeholder={t(editor.value) || placeholder || "Translation..."}
-				rightSection={
-					<ActionIcon variant="light" size="sm">
-						<IconLanguage size={20} color={Colors.Text} />
-					</ActionIcon>
-				}
-			/>
-		</InputWrapper>
-	);
-};
+		return (
+			<InputWrapper {...props}>
+				<TextInput
+					value={editor.value[userLanguage] || ""}
+					onChangeText={(text) =>
+						editor.update((d) => {
+							d[userLanguage] = text;
+						})
+					}
+					placeholder={t(editor.value) || placeholder || "Translation..."}
+					rightSection={
+						<ActionIcon variant="light" size="sm">
+							<IconLanguage size={20} color={Colors.Text} />
+						</ActionIcon>
+					}
+				/>
+			</InputWrapper>
+		);
+	},
+);

@@ -1,7 +1,7 @@
-import { Combobox, ComboboxSheet, ComboboxSearch } from "../../base/combobox";
+import { Combobox, ComboboxSheet, ComboboxSheetList } from "../../base/combobox";
 import { TimezoneSelectTrigger } from "./TimezoneSelectTrigger";
-import { TimezoneSelectSheet } from "./TimezoneSelectSheet";
 import { InputWrapper, type InputWrapperProps } from "../../base/input/InputWrapper";
+import { TimezoneItem } from "./TimezoneItem";
 
 export interface TimezoneSelectProps extends Pick<
 	InputWrapperProps,
@@ -11,6 +11,8 @@ export interface TimezoneSelectProps extends Pick<
 	onChange: (value: string) => void;
 	variant?: "settings" | "form";
 }
+
+const tz = Intl.supportedValuesOf("timeZone").sort((a, b) => a.localeCompare(b));
 
 export const TimezoneSelect = ({
 	label,
@@ -27,7 +29,11 @@ export const TimezoneSelect = ({
 		</InputWrapper>
 
 		<ComboboxSheet>
-			{/* <TimezoneSelectSheet /> */}
+			<ComboboxSheetList
+				data={tz}
+				searchable
+				renderItem={TimezoneItem}
+			/>
 		</ComboboxSheet>
 	</Combobox>
 );
