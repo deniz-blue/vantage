@@ -3,8 +3,10 @@
 		"relation": ["delegate_permission/common.handle_all_urls"],
 		"target": {
 			"namespace": "android_app",
-			"package_name": "lt.tsx.cos",
-			"sha256_cert_fingerprints": []
+			"package_name": "lt.tsx.vantage",
+			"sha256_cert_fingerprints": [
+				"A6:6E:96:92:08:9D:3C:F6:77:6A:E6:30:6E:6E:87:5D:DB:7B:CE:FB:21:26:E4:4C:96:DA:3F:05:1D:18:33:DF"
+			]
 		}
 	}
 ]
