@@ -5,6 +5,7 @@ import { EventCardSummary } from "./EventCardSummary";
 import { EventBackground } from "../EventBackground";
 import { ButtonBase } from "../../base/ButtonBase";
 import { memo } from "react";
+import { EventCardBadges } from "./EventCardBadges";
 
 export interface EventCardProps {
 	onPress?: () => void;
@@ -21,6 +22,7 @@ export const EventCard = memo(({ onPress, onLongPress, fill }: EventCardProps) =
 					<EventCardTitle />
 				</Box>
 				<EventCardSummary />
+				<EventCardBadges />
 			</Card>
 		</ButtonBase>
 	);

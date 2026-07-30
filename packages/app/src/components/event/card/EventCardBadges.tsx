@@ -3,16 +3,16 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { FontSize } from "../../../theme/sizing";
 
-export const EventCardError = () => {
+export const EventCardBadges = () => {
 	const { error } = useResolvedEvent();
 
-	if (!error) return null;
-
 	return (
-		<Box direction="row" gap={4} mt={4}>
-			<Text fz={FontSize.md} c="Red">
-				{error.kind ?? "error"}: {error.message}
-			</Text>
+		<Box direction="row" gap={4}>
+			{error && (
+				<Text fz={FontSize.xs} c="Error" fw="bold">
+					E
+				</Text>
+			)}
 		</Box>
 	);
 };

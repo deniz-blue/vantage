@@ -1,62 +1,39 @@
 import { parseResourceUri, type CanonicalResourceUri } from "@atcute/lexicons";
-import { eventQueryFnNoId } from "../query/useEventQuery";
-import { parseEventFormat } from "../lib/format";
 import { isDid, isHandle } from "@atcute/lexicons/syntax";
 import { handleResolver } from "@vantage/atproto";
+import { EventResolver } from "../lib/resolve";
+import { EventsLink } from "./eventslink";
 
-export const eventQueryFnDataOrSourceStr = async ({
-	data,
-	source,
-}: {
-	data?: unknown;
-	source?: string;
-}): Promise<Vantage.ResolvedEvent> => {
-	if (data) {
-		const raw = JSON.stringify(data);
-		const format: Vantage.EventFormat = { type: "directory.evnt.event" };
-		const { parsed, error } = parseEventFormat(raw, format);
-		return {
-			id: null,
-			data: parsed,
-			raw,
-			error,
-			revision: {},
-			source: { type: "unknown" },
-			format,
-		};
-	}
+export const FromStr = {
+	infer: async (str: string): Promise<Vantage.ResolvedEvent> => {
+		if (str.startsWith("https://eventsl.ink/")) {
+			const intent = EventsLink.parseIntent(new URL(str));
+			if (intent?.type === "event") {
+				if (intent.at) return FromStr.inferAtUri(intent.at);
+				if (intent.url) return FromStr.inferHttpUrl(intent.url);
+				if (intent.data)
+					return EventResolver.new({
+						format: { type: "directory.evnt.event" },
+						source: { type: "unknown" },
+						raw: intent.data,
+					});
+			}
+		}
 
-	if (!source) throw new Error("Either source or data must be provided");
+		const mw = await FromStr.tryInferMediawiki(str);
+		if (mw) return mw;
 
-	return await eventQueryFnInferFromStr(source);
-};
+		if (str.startsWith("at://")) {
+			return FromStr.inferAtUri(str);
+		} else if (str.startsWith("http://") || str.startsWith("https://")) {
+			return FromStr.inferHttpUrl(str);
+		} else {
+			throw new Error("Unsupported URL scheme");
+		}
+	},
 
-export const eventQueryFnInferFromStr = async (str: string) => {
-	console.log("Inferring event from string:", str);
-	const { source, format } = await inferSourceFormat(str);
-	console.log("Inferred source and format:", source, format);
-	return await eventQueryFnNoId(source, format);
-};
-
-export const inferSourceFormat = async (str: string): Promise<{
-	source: Vantage.EventSource;
-	format: Vantage.EventFormat;
-}> => {
-	const mediawikiRegex = /^https?:\/\/(.*)\/rest.php\/v1\/page\/(.*)$/;
-	if (mediawikiRegex.test(str)) {
-		const match = str.match(mediawikiRegex);
-		if (!match) throw new Error("Invalid MediaWiki URL");
-		const wikiUrl = `https://${match[1]}/`;
-		const title = decodeURIComponent(match[2]!);
-
-		return {
-			format: { type: "directory.evnt.event" },
-			source: { type: "mediawiki", url: wikiUrl, title },
-		};
-	}
-
-	if (str.startsWith("at://")) {
-		const { repo, collection, rkey } = parseResourceUri(str);
+	inferAtUri: async (uri: string): Promise<Vantage.ResolvedEvent> => {
+		const { repo, collection, rkey } = parseResourceUri(uri);
 		if (collection !== "directory.evnt.event" && collection !== "community.lexicon.calendar.event")
 			throw new Error("Unsupported collection: " + collection);
 
@@ -67,33 +44,64 @@ export const inferSourceFormat = async (str: string): Promise<{
 			did = await handleResolver.resolve(repo);
 		}
 
-		return {
+		return EventResolver.new({
 			format: { type: collection },
 			source: { type: "at", uri: `at://${did}/${collection}/${rkey}` as CanonicalResourceUri },
-		};
-	} else if (str.startsWith("http://") || str.startsWith("https://")) {
-		let source: Vantage.EventSource = { type: "http", url: str };
-		const response = await fetch(str);
-		if (!response.ok) throw new Error("Failed to fetch URL: " + response.statusText);
-		let format: Vantage.EventFormat = { type: "unknown" } as const;
-		const contentType = response.headers.get("content-type") ?? "";
-		if (contentType.includes("application/json") || str.endsWith(".json")) {
-			const data = await response.json();
-			if (data && typeof data === "object" && "$type" in data && typeof data.$type === "string") {
-				if (data.$type === "directory.evnt.event" || data.$type === "community.lexicon.calendar.event") {
-					format = { type: data.$type };
-				}
-			} else if (data && typeof data === "object" && "v" in data && "name" in data) {
-				format = { type: "directory.evnt.event" };
-			}
-		} else if (contentType.includes("text/calendar") || str.endsWith(".ics")) {
-			format = { type: "ics" };
+		});
+	},
+
+	tryInferMediawiki: async (url: string): Promise<Vantage.ResolvedEvent | null> => {
+		const mediawikiRegex = /^https?:\/\/(.*)\/rest.php\/v1\/page\/(.*)$/;
+		if (mediawikiRegex.test(url)) {
+			const match = url.match(mediawikiRegex);
+			if (!match) throw new Error("Invalid MediaWiki URL");
+			const wikiUrl = `https://${match[1]}/`;
+			const title = decodeURIComponent(match[2]!);
+
+			return EventResolver.new({
+				format: { type: "directory.evnt.event" },
+				source: { type: "mediawiki", url: wikiUrl, title },
+			});
 		}
-		return {
+
+		return null;
+	},
+
+	inferHttpUrl: async (url: string): Promise<Vantage.ResolvedEvent> => {
+		let source: Vantage.EventSource = { type: "http", url };
+		let format: Vantage.EventFormat = { type: "unknown" };
+
+		if (url.endsWith(".evnt.json")) format = { type: "directory.evnt.event" };
+		if (url.endsWith(".json")) format = { type: "directory.evnt.event" };
+		if (url.endsWith(".ics")) format = { type: "ics" };
+
+		const probe = async () => {
+			const response = await fetch(url, { method: "HEAD" });
+			if (!response.ok) throw new Error("Failed to fetch URL: " + response.statusText);
+
+			const contentType = response.headers.get("content-type") ?? "";
+			if (contentType.includes("application/json")) {
+				const data = await response.json();
+				if (data && typeof data === "object" && "$type" in data && typeof data.$type === "string") {
+					if (
+						data.$type === "directory.evnt.event" ||
+						data.$type === "community.lexicon.calendar.event"
+					) {
+						format = { type: data.$type };
+					}
+				} else if (data && typeof data === "object" && "v" in data && "name" in data) {
+					format = { type: "directory.evnt.event" };
+				}
+			} else if (contentType.includes("text/calendar") || url.endsWith(".ics")) {
+				format = { type: "ics" };
+			}
+		};
+
+		if (format.type === "unknown") await probe();
+
+		return EventResolver.new({
 			format,
 			source,
-		};
-	} else {
-		throw new Error("Unsupported URL scheme");
-	}
+		});
+	},
 };

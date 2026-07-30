@@ -27,3 +27,5 @@ export * from "./query/useEventListInfiniteQuery";
 export * from "./utils/uuid";
 export * from "./utils/resolved-utils";
 export * from "./utils/from-str";
+export * from "./utils/error";
+export * from "./utils/eventslink";

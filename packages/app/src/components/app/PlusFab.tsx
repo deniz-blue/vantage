@@ -3,12 +3,7 @@ import { Fab } from "../base/Fab";
 import { IconPlus, IconRss, IconWorldDownload } from "@tabler/icons-react-native";
 import { usePathname, useRouter } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-	inferSourceFormat,
-	eventQueryFnNoId,
-	EventsManager,
-	ResolvedEventContext,
-} from "@vantage/core";
+import { EventsManager, ResolvedEventContext, FromStr, eventQueryFn } from "@vantage/core";
 import { Sheet } from "../base/sheet/Sheet";
 import { Box } from "../base/Box";
 import { Button } from "../base/button/Button";
@@ -84,8 +79,8 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 	const resolved = useQuery({
 		queryKey: ["import-resolve", uri],
 		queryFn: async () => {
-			const { source, format } = await inferSourceFormat(uri);
-			return await eventQueryFnNoId(source, format);
+			const resolved = await FromStr.infer(uri);
+			return await eventQueryFn(resolved);
 		},
 		enabled: uri.trim().length > 0,
 		retry: false,
@@ -125,10 +120,10 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 				editable={!resolved.isLoading}
 			/>
 
-			{resolved.error && (
+			{(resolved.error ?? resolved.data?.error) && (
 				<Box p="sm" bg={Colors.Red + "11"} radius={8}>
 					<Text fz={13} c={Colors.Red}>
-						{String(resolved.error)}
+						{String(resolved.error ?? resolved.data?.error?.message)}
 					</Text>
 				</Box>
 			)}

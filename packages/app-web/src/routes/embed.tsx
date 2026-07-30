@@ -1,13 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { Center, Stack, Text } from "@mantine/core";
 import { EventCard } from "../components/content/event/card/EventCard";
 import { useQuery } from "@tanstack/react-query";
 import { RemoteUriSchema } from "../lib/intent";
-import { eventQueryFnDataOrSourceStr, inferSourceFormat, parseEventFormat } from "@vantage/core";
-import { ResolvedEventContext } from "@vantage/core";
-import { eventQueryFnNoId } from "@vantage/core";
+import { eventQueryFn, EventResolver, ResolvedEventContext } from "@vantage/core";
+import { FromStr } from "@vantage/core";
 
 export const sourceOrDataSchema = z.object({
 	source: RemoteUriSchema.optional(),
@@ -24,16 +23,28 @@ export function EmbedPage() {
 
 	const query = useQuery({
 		queryKey: ["embed-event-data", JSON.stringify(search.data)],
-		queryFn: () => eventQueryFnDataOrSourceStr(search),
+		queryFn: async () => {
+			if (search.source) return eventQueryFn(await FromStr.infer(search.source));
+			if (search.data)
+				return eventQueryFn(
+					EventResolver.new({
+						format: { type: "directory.evnt.event" },
+						source: { type: "unknown" },
+						raw: typeof search.data === "string" ? search.data : JSON.stringify(search.data),
+					}),
+				);
+			throw new Error("Either source or data must be provided");
+		},
 	});
 
-	if (query.error) return (
-		<Center w="100%" h="100%" style={{ height: "100%" }}>
-			<Text c="yellow">
-				{`Failed to load event data: ${query.error instanceof Error ? query.error.message : String(query.error)}`}
-			</Text>
-		</Center>
-	)
+	if (query.error)
+		return (
+			<Center w="100%" h="100%" style={{ height: "100%" }}>
+				<Text c="yellow">
+					{`Failed to load event data: ${query.error instanceof Error ? query.error.message : String(query.error)}`}
+				</Text>
+			</Center>
+		);
 
 	return (
 		<Stack align="center" justify="center" style={{ height: "100%" }}>
@@ -47,5 +58,5 @@ export function EmbedPage() {
 			</ResolvedEventContext>
 			<style children="html, body, #root { height: 100%; margin: 0; background: transparent !important; }" />
 		</Stack>
-	)
+	);
 }
