@@ -20,9 +20,10 @@ defineEventSource({
 	type: "http",
 	editable: false,
 
-	shareLink: ({ url }) => `https://eventsl.ink/e?${new URLSearchParams({
-		url,
-	})}`,
+	shareLink: ({ url }) =>
+		`https://eventsl.ink/e?${new URLSearchParams({
+			url,
+		})}`,
 
 	resolve: async ({ url }) => {
 		const res = await fetch(url);

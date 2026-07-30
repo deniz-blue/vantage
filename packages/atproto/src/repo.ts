@@ -3,7 +3,7 @@ import { parseCanonicalResourceUri, type AtprotoDid, type Nsid } from "@atcute/l
 import { getPdsEndpoint } from "@atcute/identity";
 import { didDocumentResolver } from "./services";
 import { Client, ok, simpleFetchHandler } from "@atcute/client";
-import type { } from "@atcute/atproto";
+import type {} from "@atcute/atproto";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 export const repoClient = async (repo: AtprotoDid) => {
@@ -33,7 +33,11 @@ export const repoGetRecord = async (repo: AtprotoDid, collection: Nsid, rkey: st
 	});
 };
 
-export const repoListRecords = async (repo: AtprotoDid, collection: Nsid, opts?: { limit?: number; cursor?: string }) => {
+export const repoListRecords = async (
+	repo: AtprotoDid,
+	collection: Nsid,
+	opts?: { limit?: number; cursor?: string },
+) => {
 	const rpc = await repoClient(repo);
 	return await rpc.get("com.atproto.repo.listRecords", {
 		params: {

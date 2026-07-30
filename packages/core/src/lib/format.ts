@@ -19,20 +19,27 @@ export type EventFormat<Format extends keyof Vantage.EventFormatMap> = {
 
 export const EventFormatRegistry = new Map<string, EventFormat<any>>();
 
-export const defineEventFormat = <Type extends keyof Vantage.EventFormatMap>(fmt: EventFormat<Type>) => {
+export const defineEventFormat = <Type extends keyof Vantage.EventFormatMap>(
+	fmt: EventFormat<Type>,
+) => {
 	EventFormatRegistry.set(fmt.type, fmt);
 };
 
-export const parseEventFormat = (raw: string, fmt: Vantage.EventFormat, src?: Vantage.EventSource): EventParseResult => {
+export const parseEventFormat = (
+	raw: string,
+	fmt: Vantage.EventFormat,
+	src?: Vantage.EventSource,
+): EventParseResult => {
 	const format = EventFormatRegistry.get(fmt.type);
 
-	if (!format) return {
-		parsed: null,
-		error: {
-			kind: "unknown-format",
-			message: `No parser defined for format type: ${fmt.type}`,
-		},
-	};
+	if (!format)
+		return {
+			parsed: null,
+			error: {
+				kind: "unknown-format",
+				message: `No parser defined for format type: ${fmt.type}`,
+			},
+		};
 
 	try {
 		return format.parse(raw, fmt, { source: src });

@@ -3,9 +3,9 @@ export class RequestBuilder {
 	private init: Omit<RequestInit, "headers"> & {
 		headers: Headers;
 	} = {
-			method: "GET",
-			headers: new Headers(),
-		};
+		method: "GET",
+		headers: new Headers(),
+	};
 	private checkOk: boolean = false;
 
 	private constructor(url: string | URL) {
@@ -64,5 +64,5 @@ export class RequestBuilder {
 		const res = await fetch(this.url, this.build());
 		if (this.checkOk && !res.ok) throw new Error(`Request failed with status ${res.status}`);
 		return res;
-	};
+	}
 }

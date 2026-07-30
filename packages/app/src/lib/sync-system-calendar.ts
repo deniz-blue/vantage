@@ -17,6 +17,4 @@ export const upsertCalendar = async () => {
 	return vantageCalendar;
 };
 
-export const syncCalendar = async () => {
-
-};
+export const syncCalendar = async () => {};

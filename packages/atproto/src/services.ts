@@ -1,4 +1,12 @@
-import { CompositeDidDocumentResolver, CompositeHandleResolver, DohJsonHandleResolver, LocalActorResolver, PlcDidDocumentResolver, WebDidDocumentResolver, XrpcHandleResolver } from "@atcute/identity-resolver";
+import {
+	CompositeDidDocumentResolver,
+	CompositeHandleResolver,
+	DohJsonHandleResolver,
+	LocalActorResolver,
+	PlcDidDocumentResolver,
+	WebDidDocumentResolver,
+	XrpcHandleResolver,
+} from "@atcute/identity-resolver";
 
 export const handleResolver = new CompositeHandleResolver({
 	methods: {

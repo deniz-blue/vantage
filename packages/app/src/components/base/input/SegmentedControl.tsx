@@ -21,13 +21,7 @@ export const SegmentedControl = <T,>({
 }: SegmentedControlProps<T>) => {
 	return (
 		<InputWrapper {...rest}>
-			<Box
-				direction="row"
-				gap="xs"
-				p={4}
-				bg={Colors.BackgroundLight}
-				radius={Radius.Default}
-			>
+			<Box direction="row" gap="xs" p={4} bg={Colors.BackgroundLight} radius={Radius.Default}>
 				{options.map((option) => (
 					<Button
 						size="md"

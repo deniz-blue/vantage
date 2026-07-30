@@ -1,4 +1,4 @@
-export const VantageError = new class {
+export const VantageError = new (class {
 	getColor(error: Vantage.Error): string {
 		switch (error.kind) {
 			case "fetch":
@@ -28,4 +28,4 @@ export const VantageError = new class {
 				return error.kind ?? "Error";
 		}
 	}
-};
+})();

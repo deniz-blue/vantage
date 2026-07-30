@@ -38,7 +38,10 @@ export const EventDetails = memo(({ loading }: { loading?: boolean; onRefresh?: 
 
 	return (
 		<Box flex={1}>
-			<Box absoluteFill style={{ zIndex: 1, pointerEvents: Platform.OS === "web" ? "none" : "box-none" }}>
+			<Box
+				absoluteFill
+				style={{ zIndex: 1, pointerEvents: Platform.OS === "web" ? "none" : "box-none" }}
+			>
 				<EventDetailsBanner
 					loading={loading}
 					scrollY={scrollY}

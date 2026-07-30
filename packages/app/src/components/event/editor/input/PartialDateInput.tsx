@@ -83,7 +83,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 										{
 											value: paddedYear,
 											onChangeText: (text) => handleDateChange("year", text),
-											style: { width: 4*charWidth },
+											style: { width: 4 * charWidth },
 											placeholder: "----",
 											renderAfter: value
 												? PartialDateUtil.has(value, "month")
@@ -110,7 +110,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 										},
 									]}
 									common={{
-										style: { width: 2*charWidth, textAlign: "center" },
+										style: { width: 2 * charWidth, textAlign: "center" },
 										selectTextOnFocus: true,
 										placeholder: "--",
 										keyboardType: "decimal-pad",
@@ -133,7 +133,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 										},
 									]}
 									common={{
-										style: { width: 2*charWidth, textAlign: "center" },
+										style: { width: 2 * charWidth, textAlign: "center" },
 										selectTextOnFocus: true,
 										placeholder: "--",
 										keyboardType: "decimal-pad",

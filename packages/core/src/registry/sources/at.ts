@@ -1,7 +1,11 @@
 import { defineEventSource } from "../../lib/source";
 import { type CanonicalResourceUri } from "@atcute/lexicons/syntax";
-import { CompositeDidDocumentResolver, PlcDidDocumentResolver, WebDidDocumentResolver } from "@atcute/identity-resolver";
-import type { } from "@atcute/atproto";
+import {
+	CompositeDidDocumentResolver,
+	PlcDidDocumentResolver,
+	WebDidDocumentResolver,
+} from "@atcute/identity-resolver";
+import type {} from "@atcute/atproto";
 import { repoGetRecordUri } from "@vantage/atproto";
 import { ok } from "@atcute/client";
 

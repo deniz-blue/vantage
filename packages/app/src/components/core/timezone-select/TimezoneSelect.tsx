@@ -29,11 +29,7 @@ export const TimezoneSelect = ({
 		</InputWrapper>
 
 		<ComboboxSheet>
-			<ComboboxSheetList
-				data={tz}
-				searchable
-				renderItem={TimezoneItem}
-			/>
+			<ComboboxSheetList data={tz} searchable renderItem={TimezoneItem} />
 		</ComboboxSheet>
 	</Combobox>
 );

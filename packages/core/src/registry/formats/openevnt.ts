@@ -18,5 +18,5 @@ defineEventFormat({
 			parsed,
 			error: null,
 		};
-	}
+	},
 });

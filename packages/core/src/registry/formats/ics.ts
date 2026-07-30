@@ -4,7 +4,7 @@ import { icalendar } from "@evnt/convert";
 declare global {
 	namespace Vantage {
 		interface EventFormatMap {
-			"ics": {};
+			ics: {};
 		}
 	}
 }
@@ -22,5 +22,5 @@ defineEventFormat({
 				error: { kind: "parse-error", message: e.message ?? "Failed to parse ICS" },
 			};
 		}
-	}
+	},
 });

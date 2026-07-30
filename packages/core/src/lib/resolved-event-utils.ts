@@ -1,10 +1,10 @@
 import { EventFormatRegistry, type EventFormat } from "./format";
 import { EventSourceRegistry, type EventSourceMeta } from "./source";
 
-export const ResolvedEventUtils = new class {
+export const ResolvedEventUtils = new (class {
 	resolveMetadata(resolved: Vantage.ResolvedEvent): {
-		source: EventSourceMeta<any>,
-		format: EventFormat<any>,
+		source: EventSourceMeta<any>;
+		format: EventFormat<any>;
 	} {
 		const source = EventSourceRegistry.get(resolved.source.type);
 		const format = EventFormatRegistry.get(resolved.format.type);
@@ -15,7 +15,7 @@ export const ResolvedEventUtils = new class {
 		return {
 			source,
 			format,
-		}
+		};
 	}
 
 	createShareLink(resolved: Vantage.ResolvedEvent): string | null {
@@ -25,4 +25,4 @@ export const ResolvedEventUtils = new class {
 	isNetworkSource(resolved: Vantage.ResolvedEvent): boolean {
 		return this.resolveMetadata(resolved).source.network ?? false;
 	}
-};
+})();

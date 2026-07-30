@@ -1,5 +1,5 @@
 import { Client, simpleFetchHandler } from "@atcute/client";
-import type { } from "@atcute/bluesky";
+import type {} from "@atcute/bluesky";
 
 export const TYPEAHEAD_SERVICE_URL = "https://typeahead.waow.tech";
 

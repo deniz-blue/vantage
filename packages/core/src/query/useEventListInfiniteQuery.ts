@@ -55,6 +55,6 @@ export const useEventListInfiniteQuery = ({
 		hasNextPage: rowsQuery.hasNextPage,
 		isFetchingNextPage: rowsQuery.isFetchingNextPage,
 		isLoading: rowsQuery.isLoading,
-		isFetching: rowsQuery.isFetching || queries.some(q => q.isFetching),
+		isFetching: rowsQuery.isFetching || queries.some((q) => q.isFetching),
 	};
 };

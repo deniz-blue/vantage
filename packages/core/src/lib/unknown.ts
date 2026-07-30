@@ -4,18 +4,20 @@ import { defineEventFormat } from "./format";
 declare global {
 	namespace Vantage {
 		interface EventFormatMap {
-			"unknown": {};
+			unknown: {};
 		}
 
 		interface EventSourceMap {
-			"unknown": {};
+			unknown: {};
 		}
 	}
 }
 
 defineEventFormat({
 	type: "unknown",
-	parse: () => { throw new Error("Unknown event format") },
+	parse: () => {
+		throw new Error("Unknown event format");
+	},
 });
 
 defineEventSource({

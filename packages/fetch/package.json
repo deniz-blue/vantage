@@ -2,10 +2,10 @@
 	"name": "@vantage/fetch",
 	"private": true,
 	"main": "src/index.ts",
-	"devDependencies": {
-		"typescript": "^6.0.3"
-	},
 	"dependencies": {
 		"@vantage/db": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.3"
 	}
 }

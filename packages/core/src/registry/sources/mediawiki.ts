@@ -33,13 +33,13 @@ export namespace MediaWiki {
 		content_model: string;
 		license?: {};
 		source: string;
-	};
+	}
 
 	export interface SearchResult {
 		id: number;
 		key: string;
 		title: string;
-	};
+	}
 
 	export interface CreateBody {
 		source: string;
@@ -47,15 +47,15 @@ export namespace MediaWiki {
 		comment: string | null;
 		content_model?: string;
 		token?: string;
-	};
+	}
 
 	export interface UpdateBody {
 		source: string;
 		comment: string | null;
 		latest?: PageRevision;
 		token?: string;
-	};
-};
+	}
+}
 
 defineEventSource({
 	type: "mediawiki",
@@ -74,12 +74,14 @@ defineEventSource({
 		const res = await fetch(endpoint);
 		if (!res.ok) throw res;
 
-		const data = await res.json() as MediaWiki.Page;
+		const data = (await res.json()) as MediaWiki.Page;
 
 		return {
 			raw: data.source,
 			revision: {
-				lastUpdatedMs: data.latest.timestamp ? new Date(data.latest.timestamp).getTime() : undefined,
+				lastUpdatedMs: data.latest.timestamp
+					? new Date(data.latest.timestamp).getTime()
+					: undefined,
 				revisionId: data.latest.id,
 			},
 			error: null,
@@ -89,10 +91,13 @@ defineEventSource({
 
 export const mediawiki = {
 	getCsrfToken: async (url: string): Promise<string> => {
-		const endpoint = new URL(`api.php?${new URLSearchParams({ action: "query", meta: "tokens", type: "csrf", format: "json" })}`, url);
+		const endpoint = new URL(
+			`api.php?${new URLSearchParams({ action: "query", meta: "tokens", type: "csrf", format: "json" })}`,
+			url,
+		);
 		const res = await fetch(endpoint);
 		if (!res.ok) throw res;
-		const data = await res.json() as {
+		const data = (await res.json()) as {
 			query: { tokens: { csrftoken: string } };
 		};
 		return data.query.tokens.csrftoken;
@@ -102,21 +107,24 @@ export const mediawiki = {
 		const endpoint = new URL(`rest.php/v1/page/${title}`, url);
 		const res = await fetch(endpoint);
 		if (!res.ok) throw res;
-		const data = await res.json() as MediaWiki.Page;
+		const data = (await res.json()) as MediaWiki.Page;
 		return data;
 	},
 
 	searchPages: async (url: string, query: string, limit: number = 10): Promise<string[]> => {
-		const endpoint = new URL(`rest.php/v1/search/page?${new URLSearchParams([
-			["q", query],
-			["limit", limit.toString()],
-		])}`, url);
+		const endpoint = new URL(
+			`rest.php/v1/search/page?${new URLSearchParams([
+				["q", query],
+				["limit", limit.toString()],
+			])}`,
+			url,
+		);
 		const res = await fetch(endpoint);
 		if (!res.ok) throw res;
-		const json = await res.json() as {
+		const json = (await res.json()) as {
 			pages: MediaWiki.SearchResult[];
 		};
-		return json.pages.map(page => page.key);
+		return json.pages.map((page) => page.key);
 	},
 
 	createPage: async (url: string, data: MediaWiki.CreateBody): Promise<MediaWiki.Page> => {
@@ -129,10 +137,14 @@ export const mediawiki = {
 			body: JSON.stringify(data),
 		});
 		if (!res.ok) throw res;
-		return await res.json() as MediaWiki.Page;
+		return (await res.json()) as MediaWiki.Page;
 	},
 
-	updatePage: async (url: string, title: string, data: MediaWiki.UpdateBody): Promise<MediaWiki.Page> => {
+	updatePage: async (
+		url: string,
+		title: string,
+		data: MediaWiki.UpdateBody,
+	): Promise<MediaWiki.Page> => {
 		const endpoint = new URL(`rest.php/v1/page/${title}`, url);
 		const res = await fetch(endpoint, {
 			method: "PUT",
@@ -142,6 +154,6 @@ export const mediawiki = {
 			body: JSON.stringify(data),
 		});
 		if (!res.ok) throw res;
-		return await res.json() as MediaWiki.Page;
+		return (await res.json()) as MediaWiki.Page;
 	},
 };

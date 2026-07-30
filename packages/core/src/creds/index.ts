@@ -12,11 +12,11 @@ declare global {
 	}
 }
 
-export const Credentials = new class {
+export const Credentials = new (class {
 	async getAll(): Promise<Vantage.Credential[]> {
 		return await db
 			.select()
 			.from(schema.credentials)
-			.then(rows => rows.map(row => row.data));
+			.then((rows) => rows.map((row) => row.data));
 	}
-};
+})();

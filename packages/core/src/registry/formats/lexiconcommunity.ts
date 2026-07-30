@@ -14,9 +14,7 @@ defineEventFormat({
 	parse: (raw, _fmt, ctx) => {
 		try {
 			if (!communityLexicon.from) throw new Error("Converter does not support `from`");
-			const did = ctx?.source?.type === "at"
-				? (ctx.source as any).did
-				: undefined;
+			const did = ctx?.source?.type === "at" ? (ctx.source as any).did : undefined;
 			const parsed = communityLexicon.from(raw, { did });
 			return { parsed, error: null };
 		} catch (e: any) {
@@ -25,5 +23,5 @@ defineEventFormat({
 				error: { kind: "parse-error", message: e.message ?? "Failed to parse" },
 			};
 		}
-	}
+	},
 });

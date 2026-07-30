@@ -10,7 +10,7 @@ declare global {
 			};
 		}
 
-		interface Revision { }
+		interface Revision {}
 	}
 }
 
@@ -19,8 +19,7 @@ defineEventSource({
 	editable: true,
 
 	resolve: async ({ url, path }) => {
-		const res = await fetch(url);
-		if (!res.ok) throw res;
+		const res = await webdav.read(url, path);
 		const raw = await res.text();
 		return {
 			raw,
@@ -35,17 +34,20 @@ defineEventSource({
 
 export const webdav = {
 	read: async (url: string, path: string) => {
-		const res = await fetch(url);
+		const res = await fetch(new URL(path, url).href, {
+			method: "GET",
+		});
 		if (!res.ok) throw res;
-		return await res.text();
+		return res;
 	},
 
 	write: async (url: string, path: string, content: string) => {
-		const res = await fetch(url, {
+		const res = await fetch(new URL(path, url).href, {
 			method: "PUT",
 			body: content,
 		});
 		if (!res.ok) throw res;
+		return res;
 	},
 
 	list: async (url: string, path: string) => {
