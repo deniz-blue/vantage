@@ -27,7 +27,7 @@ echo "🔨 Generating Android project (Expo CNG)..."
 npx expo prebuild --platform android --clean --no-install
 
 echo "🧩 Patching generated build.gradle with release signing config..."
-node scripts/patch-gradle-signing.mjs
+node scripts/patch-gradle.mjs
 
 echo "🔐 Injecting keystore..."
 cp "$KEYSTORE_PATH" android/app/cos-release.keystore

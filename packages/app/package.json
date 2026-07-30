@@ -6,7 +6,7 @@
 	"scripts": {
 		"expo": "APP_VARIANT=development expo",
 		"android": "APP_VARIANT=development expo run:android",
-		"android:cng": "APP_VARIANT=development expo prebuild --platform android",
+		"android:cng": "APP_VARIANT=development expo prebuild --platform android && node scripts/patch-gradle.mjs",
 		"android:build": "bash scripts/local-build.sh",
 		"web": "BROWSER=none expo start --web",
 		"web:build": "expo export --platform web && node scripts/copy-wasm.mjs"
