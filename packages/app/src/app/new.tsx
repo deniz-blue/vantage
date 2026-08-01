@@ -135,6 +135,7 @@ export const SaveToSelect = () => {
 			onChange={() => {}}
 			data={["local"]}
 			renderItem={renderItem}
+			searchable={false}
 		/>
 	);
 };

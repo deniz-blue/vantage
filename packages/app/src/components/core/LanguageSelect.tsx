@@ -4,7 +4,13 @@ import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
 import { InputWrapper, type InputWrapperProps } from "../base/input/InputWrapper";
-import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSheetList } from "../base/combobox";
+import {
+	Combobox,
+	ComboboxTrigger,
+	ComboboxSheet,
+	ComboboxSheetList,
+	ComboboxSheetSearch,
+} from "../base/combobox";
 import { FontSize, IconSize, Radius } from "../../theme/sizing";
 import { Button } from "../base/button/Button";
 import { memo, useMemo } from "react";
@@ -56,13 +62,8 @@ export const LanguageSelect = memo(
 							</Button>
 						)}
 					</Box>
-					<ComboboxSheet>
-						<ComboboxSheetList
-							data={LANGUAGES}
-							filter={filter}
-							renderItem={LanguageItem}
-							searchable
-						/>
+					<ComboboxSheet header={ComboboxSheetSearch}>
+						<ComboboxSheetList data={LANGUAGES} filter={filter} renderItem={LanguageItem} />
 					</ComboboxSheet>
 				</Combobox>
 			</InputWrapper>

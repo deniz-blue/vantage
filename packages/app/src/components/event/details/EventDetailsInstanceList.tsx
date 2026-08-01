@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState, type ReactNode } from "react";
+import { Fragment, useMemo, useRef, type ReactNode } from "react";
 import { Linking } from "react-native";
 import { useResolvedEvent } from "@vantage/core";
 import type { EventInstance, PartialDate, PhysicalVenue, Venue } from "@evnt/types";
@@ -17,8 +17,8 @@ import { Text, TextProps } from "../../base/Text";
 import { TransText } from "../../core/TransText";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { FontSize, IconSize, Radius } from "../../../theme/sizing";
-import { MapsSheetContent } from "../venue/OpenMapButton";
-import { Sheet } from "../../base/sheet/Sheet";
+import { MapsButtonList } from "../venue/MapsButtonList";
+import { Sheet, SheetRef } from "../../base/sheet/Sheet";
 import { InputWrapper } from "../../base/input/InputWrapper";
 import { AppCopyButton } from "../../core/AppCopyButton";
 import { Colors } from "../../../theme/colors";
@@ -74,7 +74,7 @@ export const EventDetailsInstanceList = () => {
 };
 
 const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
-	const [open, setOpen] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 	const language = useLocaleStore((s) => s.language);
 
 	if (!instance.start) {
@@ -171,9 +171,14 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 
 	return (
 		<Fragment>
-			<MiniBoxSnippet icon={icon} title={title} subtitle={subtitle} onPress={() => setOpen(true)} />
+			<MiniBoxSnippet
+				icon={icon}
+				title={title}
+				subtitle={subtitle}
+				onPress={() => sheet.current?.present()}
+			/>
 
-			<Sheet open={open} onClose={() => setOpen(false)}>
+			<Sheet ref={sheet}>
 				<Box gap="sm">
 					{instance.start && (
 						<Fragment>
@@ -194,7 +199,7 @@ const MiniBoxInstance = ({ instance }: { instance: EventInstance }) => {
 };
 
 const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
-	const [open, setOpen] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 
 	const icon =
 		venue.$type === "directory.evnt.venue.online" ? (
@@ -222,9 +227,14 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 
 	return (
 		<Fragment>
-			<MiniBoxSnippet icon={icon} title={title} onPress={() => setOpen(true)} subtitle={subtitle} />
+			<MiniBoxSnippet
+				icon={icon}
+				title={title}
+				onPress={() => sheet.current?.present()}
+				subtitle={subtitle}
+			/>
 
-			<Sheet open={open} onClose={() => setOpen(false)}>
+			<Sheet ref={sheet}>
 				<Box p="sm" gap="sm">
 					<Box>
 						<InputWrapper label="Location" />
@@ -241,7 +251,7 @@ const MiniBoxVenue = ({ venue }: { venue: Venue }) => {
 								<Fragment>
 									<AppCopyButton value={address.addr}>Copy Address</AppCopyButton>
 									<InputWrapper label="Open in Maps" />
-									<MapsSheetContent addr={address.addr} />
+									<MapsButtonList addr={address.addr} />
 								</Fragment>
 							)}
 						</Box>

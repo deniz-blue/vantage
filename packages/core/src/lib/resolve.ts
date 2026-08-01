@@ -48,11 +48,11 @@ export const EventResolver = new (class {
 			id: result.event_meta.id,
 			source,
 			format,
-			data: cached?.parsed || null,
-			raw: cached?.raw || null,
-			error: cached?.error || null,
-			revision: cached?.revision || {},
-			updatedAt: cached?.updatedAt,
+			data: cached?.parsed || resolved.data || null,
+			raw: cached?.raw || resolved.raw || null,
+			error: cached?.error || resolved.error || null,
+			revision: cached?.revision || resolved.revision || {},
+			updatedAt: cached?.updatedAt || resolved.updatedAt,
 		};
 	}
 

@@ -1,9 +1,9 @@
-import { Fragment, useState } from "react";
+import { Fragment, useRef } from "react";
 import { Box } from "../base/Box";
 import { Button } from "../base/button/Button";
 import { AppCopyButton } from "../core/AppCopyButton";
 import { Action } from "./action";
-import { Sheet } from "../base/sheet/Sheet";
+import { Sheet, SheetRef } from "../base/sheet/Sheet";
 import { ViewRawSheetContent } from "../app/ViewRawSheet";
 import { IconCode, IconCopy } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
@@ -37,17 +37,17 @@ export const ActionButton = ({ action }: { action: Action }) => {
 };
 
 export const RawActionButton = ({ action }: { action: Extract<Action, { type: "raw" }> }) => {
-	const [open, setOpen] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 
 	return (
 		<Fragment>
 			<Button
 				leftSection={action.icon ?? <IconCode size={IconSize.xs} color={Colors.Text} />}
 				children={action.label}
-				onPress={() => setOpen(true)}
+				onPress={() => sheet.current?.present()}
 				justify="flex-start"
 			/>
-			<Sheet open={open} onClose={() => setOpen(false)}>
+			<Sheet ref={sheet}>
 				<ViewRawSheetContent raw={action.value} />
 			</Sheet>
 		</Fragment>

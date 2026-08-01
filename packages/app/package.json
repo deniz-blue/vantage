@@ -66,6 +66,7 @@
 		"react-native-keyboard-controller": "1.21.9",
 		"react-native-map-link": "^3.13.0",
 		"react-native-reanimated": "^4.5.1",
+		"react-native-reorderable-list": "^0.18.1",
 		"react-native-safe-area-context": "~5.7.0",
 		"react-native-screens": "4.26.2",
 		"react-native-svg": "15.15.4",

@@ -1,5 +1,11 @@
 import { ComponentType, useCallback } from "react";
-import { Combobox, ComboboxTrigger, ComboboxSheet, ComboboxSheetList } from "../combobox";
+import {
+	Combobox,
+	ComboboxTrigger,
+	ComboboxSheet,
+	ComboboxSheetList,
+	ComboboxSheetSearch,
+} from "../combobox";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Text } from "../Text";
 import { FontSize } from "../../../theme/sizing";
@@ -28,11 +34,11 @@ export const Select = <T,>({
 	renderItem: ItemComponent,
 	getSearchText,
 	placeholder = "Select…",
-	searchable = false,
 	label,
 	description,
 	error,
 	required,
+	searchable = true,
 }: SelectProps<T>) => {
 	const filter = useCallback(
 		(item: T, search: string) => {
@@ -50,12 +56,15 @@ export const Select = <T,>({
 						{ItemComponent ? <ItemComponent value={value} selected={true} /> : placeholder}
 					</Text>
 				</ComboboxTrigger>
-				<ComboboxSheet>
+				<ComboboxSheet
+					scrollable={searchable}
+					header={searchable ? ComboboxSheetSearch : undefined}
+				>
 					<ComboboxSheetList
 						data={data}
 						filter={filter}
-						searchable={searchable}
 						renderItem={ItemComponent || DefaultItemComponent}
+						withPadding={searchable}
 					/>
 				</ComboboxSheet>
 			</Combobox>

@@ -1,11 +1,14 @@
-import { createContext, useContext } from "react";
+import { createContext, RefObject, useContext } from "react";
+import { SheetRef } from "../sheet/Sheet";
 
 export interface ComboboxContext<T> {
 	value: T;
 	onChange: (value: T) => void;
+
 	search: string;
 	setSearch: (value: string) => void;
-	opened: boolean;
+
+	sheet: RefObject<SheetRef | null>;
 	open: () => void;
 	close: () => void;
 }

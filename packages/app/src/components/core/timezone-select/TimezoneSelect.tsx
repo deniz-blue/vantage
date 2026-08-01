@@ -1,4 +1,9 @@
-import { Combobox, ComboboxSheet, ComboboxSheetList } from "../../base/combobox";
+import {
+	Combobox,
+	ComboboxSheet,
+	ComboboxSheetList,
+	ComboboxSheetSearch,
+} from "../../base/combobox";
 import { TimezoneSelectTrigger } from "./TimezoneSelectTrigger";
 import { InputWrapper, type InputWrapperProps } from "../../base/input/InputWrapper";
 import { TimezoneItem } from "./TimezoneItem";
@@ -28,8 +33,8 @@ export const TimezoneSelect = ({
 			<TimezoneSelectTrigger variant={variant} />
 		</InputWrapper>
 
-		<ComboboxSheet>
-			<ComboboxSheetList data={tz} searchable renderItem={TimezoneItem} />
+		<ComboboxSheet header={ComboboxSheetSearch}>
+			<ComboboxSheetList data={tz} renderItem={TimezoneItem} />
 		</ComboboxSheet>
 	</Combobox>
 );

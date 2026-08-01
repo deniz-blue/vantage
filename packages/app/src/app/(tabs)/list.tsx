@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef } from "react";
 import { ActivityIndicator } from "react-native";
 import { ListOptions, useEventListInfiniteQuery } from "@vantage/core";
 import { Box } from "../../components/base/Box";
@@ -9,7 +9,7 @@ import { Button } from "../../components/base/button/Button";
 import { IconFilter, IconSearch } from "@tabler/icons-react-native";
 import { ControlHeight, IconSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
-import { Sheet } from "../../components/base/sheet/Sheet";
+import { Sheet, SheetRef } from "../../components/base/sheet/Sheet";
 import { SegmentedControl } from "../../components/base/input/SegmentedControl";
 import { BooleanControl } from "../../components/base/input/BooleanControl";
 import { Text } from "../../components/base/Text";
@@ -32,37 +32,43 @@ export default function List() {
 	const filters = useListFiltersStore();
 	const { queries, fetchNextPage, isFetching } = useEventListInfiniteQuery(filters);
 
+	const headerHeight = Spacing.sm * 2 + ControlHeight.md;
+	const listTopPadding = insets.top + headerHeight + 2 * Spacing.sm;
+
 	return (
 		<Box flex={1}>
-			<Box
-				pos="absolute"
-				top={insets.top + Spacing.sm}
-				left={Spacing.sm}
-				right={Spacing.sm}
-				zIndex={1}
-			>
-				<ListHeader loading={isFetching} />
-			</Box>
-
 			<EventList
 				contentContainerStyle={{
-					paddingTop: insets.top + Spacing.sm * 2 + (Spacing.sm * 2 + ControlHeight.md),
+					paddingTop: listTopPadding,
 					paddingBottom: insets.bottom + Spacing.sm,
 					paddingHorizontal: Spacing.sm,
 				}}
 				queries={queries}
 				onEndReached={() => fetchNextPage()}
 			/>
+
+			<Box
+				style={{
+					position: "absolute",
+					top: insets.top,
+					left: 0,
+					right: 0,
+					pointerEvents: "box-none",
+				}}
+				p="sm"
+			>
+				<ListHeader loading={isFetching} />
+			</Box>
 		</Box>
 	);
 }
 
 export const ListHeader = ({ loading }: { loading: boolean }) => {
-	const [filtersOpen, setFiltersOpen] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 	const filters = useListFiltersStore();
 
 	return (
-		<Card radius={Radius.md} p="sm" bg={Colors.Background} flex={1}>
+		<Card radius={Radius.md} p="sm" bg={Colors.Background}>
 			<Box direction="row" gap="sm">
 				<Box flex={1}>
 					<TextInput
@@ -79,80 +85,79 @@ export const ListHeader = ({ loading }: { loading: boolean }) => {
 				</Box>
 				<Button
 					rightSection={<IconFilter size={IconSize.xs} color={Colors.Text} />}
-					onPress={() => setFiltersOpen(true)}
+					onPress={() => sheet.current?.present()}
 				>
 					Filters
 				</Button>
 			</Box>
-
-			<ListFiltersSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} />
+			<Sheet ref={sheet}>
+				<ListFiltersSheetContent />
+			</Sheet>
 		</Card>
 	);
 };
 
-export const ListFiltersSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+export const ListFiltersSheetContent = () => {
 	const filters = useListFiltersStore();
 	const todayMs = useMemo(() => Temporal.Now.instant().epochMilliseconds, []);
 
 	return (
-		<Sheet open={open} onClose={onClose}>
-			<Box p="md" gap="md">
-				<Box direction="row" gap="sm" align="center" justify="space-between">
-					<Box>
-						<Text>Filter by</Text>
-					</Box>
-					<SegmentedControl<"" | "future" | "past">
-						value={filters.afterTimestamp ? "future" : filters.beforeTimestamp ? "past" : ""}
-						onChange={(value) =>
-							useListFiltersStore.setState((q) => {
-								if (value === "future") {
-									q.afterTimestamp = todayMs;
-									q.beforeTimestamp = undefined;
-								} else if (value === "past") {
-									q.beforeTimestamp = todayMs;
-									q.afterTimestamp = undefined;
-								} else {
-									q.beforeTimestamp = undefined;
-									q.afterTimestamp = undefined;
-								}
-							})
-						}
-						options={[
-							{ label: "Past", value: "past" },
-							{ label: "All", value: "" },
-							{ label: "Future", value: "future" },
-						]}
-					/>
+		<Box gap="md">
+			<Box direction="row" gap="sm" align="center" justify="space-between">
+				<Box>
+					<Text>Filter by</Text>
 				</Box>
-
-				<Box direction="row" gap="sm" align="center" justify="space-between">
-					<Box>
-						<Text>Sort by</Text>
-					</Box>
-					<SegmentedControl<Exclude<ListOptions["orderBy"], undefined>>
-						value={filters.orderBy ?? "instanceStart"}
-						onChange={(value) =>
-							useListFiltersStore.setState((q) => {
-								q.orderBy = value;
-							})
-						}
-						options={[
-							{ label: "Date", value: "instanceStart" },
-							{ label: "Name", value: "name" },
-						]}
-					/>
-				</Box>
-
-				<BooleanControl
-					label="Has error"
-					value={filters.error ?? null}
+				<SegmentedControl<"" | "future" | "past">
+					value={filters.afterTimestamp ? "future" : filters.beforeTimestamp ? "past" : ""}
 					onChange={(value) =>
 						useListFiltersStore.setState((q) => {
-							q.error = value ?? undefined;
+							if (value === "future") {
+								q.afterTimestamp = todayMs;
+								q.beforeTimestamp = undefined;
+							} else if (value === "past") {
+								q.beforeTimestamp = todayMs;
+								q.afterTimestamp = undefined;
+							} else {
+								q.beforeTimestamp = undefined;
+								q.afterTimestamp = undefined;
+							}
 						})
 					}
+					options={[
+						{ label: "Past", value: "past" },
+						{ label: "All", value: "" },
+						{ label: "Future", value: "future" },
+					]}
 				/>
 			</Box>
-		</Sheet>
+
+			<Box direction="row" gap="sm" align="center" justify="space-between">
+				<Box>
+					<Text>Sort by</Text>
+				</Box>
+				<SegmentedControl<Exclude<ListOptions["orderBy"], undefined>>
+					value={filters.orderBy ?? "instanceStart"}
+					onChange={(value) =>
+						useListFiltersStore.setState((q) => {
+							q.orderBy = value;
+						})
+					}
+					options={[
+						{ label: "Date", value: "instanceStart" },
+						{ label: "Name", value: "name" },
+					]}
+				/>
+			</Box>
+
+			<BooleanControl
+				label="Has error"
+				value={filters.error ?? null}
+				onChange={(value) =>
+					useListFiltersStore.setState((q) => {
+						q.error = value ?? undefined;
+					})
+				}
+			/>
+		</Box>
 	);
 };

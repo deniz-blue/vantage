@@ -5,7 +5,7 @@ import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { EventCard } from "../../event/card/EventCard";
 import { FontSize } from "../../../theme/sizing";
-import { Divider } from "../../base/Divider";
+import { Line } from "../../base/Divider";
 import { ButtonBase } from "../../base/ButtonBase";
 
 export const WidgetUpcomingEvents = () => {
@@ -20,17 +20,15 @@ export const WidgetUpcomingEvents = () => {
 
 	return (
 		<Box gap={0}>
-			<Divider
-				px="md"
-				leftSection={<Text fw="bold">Upcoming Events</Text>}
-				rightSection={
-					<ButtonBase onPress={() => router.push("/list")}>
-						<Text fz={FontSize.sm} c="Blue">
-							View All
-						</Text>
-					</ButtonBase>
-				}
-			/>
+			<Box direction="row" align="center" px="md" py="sm" gap="sm">
+				<Text fw="bold">Upcoming Events</Text>
+				<Line />
+				<ButtonBase onPress={() => router.push("/list")}>
+					<Text fz={FontSize.sm} c="Blue">
+						View All
+					</Text>
+				</ButtonBase>
+			</Box>
 
 			{events.length === 0 ? (
 				<Box py="md" align="center">

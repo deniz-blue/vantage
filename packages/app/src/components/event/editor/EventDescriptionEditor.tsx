@@ -3,13 +3,14 @@ import { TextInput } from "../../base/input/TextInput";
 import { Editor } from "./editor";
 import { Box } from "../../base/Box";
 import { Button } from "../../base/button/Button";
-import { Sheet } from "../../base/sheet/Sheet";
-import { useState } from "react";
+import { Sheet, SheetRef } from "../../base/sheet/Sheet";
+import { useRef } from "react";
 import { MarkdownRichtext } from "../../core/richtext/MarkdownRichtext";
 import { Text } from "../../base/Text";
+import { Line } from "../../base/Divider";
 
 export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> }) => {
-	const [preview, setPreview] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 
 	const md: any = editor.value.components?.find(
 		(c) => c.$type === "directory.evnt.richtext.markdown",
@@ -48,14 +49,19 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 				onChangeText={onChangeText}
 			/>
 
-			<Button onPress={() => setPreview(true)} disabled={!value.trim()}>
+			<Button onPress={() => sheet.current?.present()} disabled={!value.trim()}>
 				Preview
 			</Button>
 
-			<Sheet open={preview} onClose={() => setPreview(false)}>
+			<Sheet ref={sheet}>
 				<Box gap="md">
-					<Text fw="bold">Description Preview</Text>
+					<Box direction="row" gap="sm" align="center">
+						<Line />
+						<Text fw="bold">Description Preview</Text>
+						<Line />
+					</Box>
 					<MarkdownRichtext content={value} />
+					<Box h={100} />
 				</Box>
 			</Sheet>
 		</Box>

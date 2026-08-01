@@ -1,13 +1,14 @@
 import { UseQueryResult } from "@tanstack/react-query";
 import { ResolvedEventContext } from "@vantage/core";
 import { useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Box } from "../../base/Box";
 import { EventCard } from "../card/EventCard";
 import { FlatList } from "react-native-gesture-handler";
 import { useWindowDimensions, ViewStyle } from "react-native";
 import { EmptyState } from "../../base/EmptyState";
 import { EventActionsSheet } from "../../app/EventActionsSheet";
+import { SheetRef } from "../../base/sheet/Sheet";
 
 type EventQuery = UseQueryResult<Vantage.ResolvedEvent>;
 export type EventListItem = EventQuery;
@@ -22,6 +23,7 @@ export const EventList = ({
 	onEndReached?: () => void;
 }) => {
 	const router = useRouter();
+	const sheet = useRef<SheetRef>(null);
 	const [showSheetFor, setShowSheetFor] = useState<string | null>(null);
 	const resolvedForSheet = queries.find((q) => q.data?.id === showSheetFor)?.data ?? null;
 
@@ -32,7 +34,12 @@ export const EventList = ({
 	const renderItem = useCallback(
 		({ item }: { item: EventListItem }) => {
 			const onPress = item.data?.id ? () => router.push(`/event/${item.data!.id}`) : undefined;
-			const onLongPress = item.data?.id ? () => setShowSheetFor(item.data!.id) : undefined;
+			const onLongPress = item.data?.id
+				? () => {
+						setShowSheetFor(item.data!.id);
+						sheet.current?.present();
+					}
+				: undefined;
 
 			return (
 				<ResolvedEventContext value={item.data ?? null}>
@@ -48,7 +55,7 @@ export const EventList = ({
 	const items = queries.map((query) => query);
 
 	return (
-		<Box flex={1}>
+		<>
 			<FlatList
 				style={{ flex: 1 }}
 				contentContainerStyle={contentContainerStyle}
@@ -63,8 +70,8 @@ export const EventList = ({
 			/>
 
 			<ResolvedEventContext value={resolvedForSheet}>
-				<EventActionsSheet open={!!resolvedForSheet} onClose={() => setShowSheetFor(null)} />
+				<EventActionsSheet sheet={sheet} />
 			</ResolvedEventContext>
-		</Box>
+		</>
 	);
 };

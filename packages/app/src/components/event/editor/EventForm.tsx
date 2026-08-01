@@ -5,17 +5,17 @@ import { TranslationsInput } from "./input/TranslationsInput";
 import { StatusPicker } from "./picker/StatusPicker";
 import { EventInstanceEditor } from "./EventInstanceEditor";
 import { Text } from "../../base/Text";
-import { Divider } from "../../base/Divider";
+import { Line } from "../../base/Divider";
 import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
-import { Fragment, ReactNode, useMemo, useState } from "react";
-import { Sheet } from "../../base/sheet/Sheet";
+import { Fragment, ReactNode, useMemo, useRef } from "react";
+import { Sheet, SheetRef } from "../../base/sheet/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
-import { FontSize, IconSize } from "../../../theme/sizing";
+import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 import { EventDescriptionEditor } from "./EventDescriptionEditor";
-import { ActionIcon } from "../../base/button/ActionIcon";
 import { Colors } from "../../../theme/colors";
+import { ButtonBase } from "../../base/ButtonBase";
 
 export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	const name = useMemo(() => editor.field((e) => e.name), [editor]);
@@ -37,13 +37,12 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 				<EventFormInstances />
 				<EventFormVenues />
 
-				<Divider
-					leftSection={
-						<Text c="TextDimmed" fw="600">
-							Details
-						</Text>
-					}
-				/>
+				<Box direction="row" gap="sm" align="center">
+					<Text c="TextDimmed" fw="bold">
+						Details
+					</Text>
+					<Line />
+				</Box>
 
 				<EventDescriptionEditor editor={editor} />
 			</Box>
@@ -66,24 +65,19 @@ export const FormList = <T,>({
 }) => {
 	return (
 		<Box gap="md">
-			<Divider
-				leftSection={
-					<Text c="TextDimmed" fw="600">
-						{title}
-					</Text>
-				}
-				rightSection={
-					<Button
-						variant="subtle"
-						onPress={onAdd}
-						rightSection={<IconPlus size={IconSize.xs} color={Colors.Primary} />}
-					>
-						<Text fz={FontSize.sm} c={Colors.Primary}>
-							Add
-						</Text>
-					</Button>
-				}
-			/>
+			<Box direction="row" gap="sm" align="center">
+				<Text c="TextDimmed" fw="bold">
+					{title}
+				</Text>
+				<Line />
+				<Button
+					size="sm"
+					onPress={onAdd}
+					rightSection={<IconPlus size={IconSize.xs} color={Colors.Text} />}
+				>
+					Add
+				</Button>
+			</Box>
 
 			{!editor.value?.length && (
 				<Box align="center">
@@ -131,7 +125,7 @@ export const EventFormInstances = () => {
 
 export const EventFormVenues = () => {
 	const { editor } = useEventFormContext();
-	const [open, setOpen] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 
 	const onAdd = (type: Venue["$type"]) => {
 		editor.update((d) => {
@@ -144,7 +138,7 @@ export const EventFormVenues = () => {
 				name: {},
 			});
 		});
-		setOpen(false);
+		sheet.current?.dismiss();
 	};
 
 	return (
@@ -153,20 +147,20 @@ export const EventFormVenues = () => {
 				title="Locations"
 				emptyText="No locations set"
 				editor={editor.field((e) => e.venues)}
-				onAdd={() => setOpen(true)}
+				onAdd={() => sheet.current?.present()}
 				renderItem={({ editor, onDelete }) => (
 					<EventVenueEditor editor={editor} onDelete={onDelete} />
 				)}
 			/>
 
-			<Sheet open={open} onClose={() => setOpen(false)}>
-				<Box gap="md">
+			<Sheet ref={sheet}>
+				<Box gap="md" w="100%">
 					<Text ta="center">Select location type:</Text>
-					<Box direction="row" gap="sm" flex={1}>
+					<Box direction="row" w="100%">
 						{(
 							[
-								"directory.evnt.venue.physical",
 								"directory.evnt.venue.online",
+								"directory.evnt.venue.physical",
 								"directory.evnt.venue.unknown",
 							] as const
 						).map((type) => {
@@ -181,15 +175,23 @@ export const EventFormVenues = () => {
 								}[title] ?? Fragment;
 
 							return (
-								<Button flex={1} key={type} onPress={() => onAdd(type)}>
-									<Box py="sm" gap="xs" align="center" flex={1}>
-										<ActionIcon size="lg">
-											<Icon size={IconSize.lg} color={Colors.Text} />
-										</ActionIcon>
-
-										<Text fz={FontSize.sm}>{title}</Text>
+								<Box key={type} flex={type === "directory.evnt.venue.physical" ? 2 : 1}>
+									<Box px="xs">
+										<ButtonBase onPress={() => onAdd(type)}>
+											<Box
+												bg={Colors.BackgroundLight}
+												radius={Radius.Default}
+												py="sm"
+												gap="xs"
+												align="center"
+												justify="center"
+											>
+												<Icon size={IconSize.lg} color={Colors.Text} />
+												<Text fz={FontSize.sm}>{title}</Text>
+											</Box>
+										</ButtonBase>
 									</Box>
-								</Button>
+								</Box>
 							);
 						})}
 					</Box>

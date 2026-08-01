@@ -1,10 +1,10 @@
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Fab } from "../base/Fab";
 import { IconPlus, IconRss, IconWorldDownload } from "@tabler/icons-react-native";
 import { usePathname, useRouter } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { EventsManager, ResolvedEventContext, FromStr, eventQueryFn } from "@vantage/core";
-import { Sheet } from "../base/sheet/Sheet";
+import { Sheet, SheetRef } from "../base/sheet/Sheet";
 import { Box } from "../base/Box";
 import { Button } from "../base/button/Button";
 import { TextInput } from "../base/input/TextInput";
@@ -20,9 +20,15 @@ export const PlusFab = () => {
 	const router = useRouter();
 	const path = usePathname();
 	const insets = useSafeAreaInsets();
-	const [state, setState] = useState<"none" | "fab" | "import" | "jsonfeed">("none");
+	const sheet = useRef<SheetRef>(null);
+	const [state, setState] = useState<"fab" | "import" | "jsonfeed">("fab");
 
 	const show = path !== "/settings";
+
+	const reset = () => {
+		setState("fab");
+		sheet.current?.dismiss();
+	};
 
 	if (!show) return null;
 
@@ -32,11 +38,13 @@ export const PlusFab = () => {
 				aria-label="Add Event"
 				wrapperProps={{ style: { marginBottom: 56 + insets.bottom } }}
 				icon={<IconPlus color="#fff" />}
-				onPress={() => setState("fab")}
+				onPress={() => {
+					sheet.current?.present();
+				}}
 			/>
 
-			<Sheet open={state !== "none"} onClose={() => setState("none")}>
-				<Box p="md">
+			<Sheet ref={sheet} onDidDismiss={reset}>
+				<Box>
 					{state === "fab" && (
 						<ActionButtonList
 							actions={[
@@ -45,8 +53,8 @@ export const PlusFab = () => {
 									type: "fn",
 									icon: <IconPlus size={IconSize.sm} color={Colors.Text} />,
 									onRun: () => {
-										setState("none");
 										router.push("/new");
+										reset();
 									},
 								},
 								{
@@ -65,8 +73,8 @@ export const PlusFab = () => {
 						/>
 					)}
 
-					{state === "import" && <Importer onClose={() => setState("none")} />}
-					{state === "jsonfeed" && <JsonFeedImporter onClose={() => setState("none")} />}
+					{state === "import" && <Importer onClose={reset} />}
+					{state === "jsonfeed" && <JsonFeedImporter onClose={reset} />}
 				</Box>
 			</Sheet>
 		</Fragment>

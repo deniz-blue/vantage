@@ -1,13 +1,9 @@
 import type { PropsWithChildren } from "react";
-import { Sheet } from "../sheet/Sheet";
+import { Sheet, SheetProps } from "../sheet/Sheet";
 import { useComboboxCtx } from "./combobox-context";
 
-export const ComboboxSheet = ({ children }: PropsWithChildren) => {
+export const ComboboxSheet = (props: PropsWithChildren<Omit<SheetProps, "ref">>) => {
 	const ctx = useComboboxCtx();
 
-	return (
-		<Sheet open={ctx.opened} onClose={ctx.close}>
-			{children}
-		</Sheet>
-	);
+	return <Sheet {...props} ref={ctx.sheet} scrollable={props.scrollable ?? true} />;
 };

@@ -37,6 +37,7 @@ export const StatusPicker = memo(
 				value={value ?? "planned"}
 				onChange={onChange}
 				renderItem={StatusPickerItem}
+				searchable={false}
 			/>
 		);
 	},

@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import { Ctx, type ComboboxContext } from "./combobox-context";
+import { SheetRef } from "../sheet/Sheet";
 
 export interface ComboboxProps<T> {
 	children: ReactNode;
@@ -8,18 +9,18 @@ export interface ComboboxProps<T> {
 }
 
 export const Combobox = <T,>({ children, value, onChange }: ComboboxProps<T>) => {
-	const [opened, setOpened] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 	const [search, setSearch] = useState("");
 
-	const open = useCallback(() => setOpened(true), []);
+	const open = useCallback(() => sheet.current?.present(), []);
 	const close = useCallback(() => {
-		setOpened(false);
+		sheet.current?.dismiss();
 		setSearch("");
 	}, []);
 
 	const ctx = useMemo<ComboboxContext<T>>(
-		() => ({ value, onChange, search, setSearch, opened, open, close }) as ComboboxContext<T>,
-		[value, onChange, search, opened, close],
+		() => ({ value, onChange, search, setSearch, sheet, open, close }) as ComboboxContext<T>,
+		[value, onChange, search, sheet, close],
 	);
 
 	return <Ctx.Provider value={ctx as ComboboxContext<unknown>}>{children}</Ctx.Provider>;

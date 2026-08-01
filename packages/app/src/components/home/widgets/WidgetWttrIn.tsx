@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
-import { Divider } from "../../base/Divider";
+import { Line } from "../../base/Divider";
 import { FontSize, Radius } from "../../../theme/sizing";
 import { Loader } from "../../base/Loader";
 
@@ -110,7 +110,10 @@ export const WidgetWttrIn = () => {
 
 	return (
 		<Box gap={0}>
-			<Divider px="md" leftSection={<Text fw="bold">Weather</Text>} />
+			<Box direction="row" align="center" px="md" py="sm" gap="sm">
+				<Text fw="bold">Weather</Text>
+				<Line />
+			</Box>
 
 			<Box bg="BackgroundLight" radius={Radius.sm} p="sm" gap="sm" mx="md">
 				<Box direction="row" gap="sm" align="center">

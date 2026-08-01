@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Sheet } from "../base/sheet/Sheet";
+import { Sheet, SheetRef } from "../base/sheet/Sheet";
 import { EventsManager, ResolvedEventUtils, useResolvedEvent } from "@vantage/core";
 import { createActionsForEvent } from "../actions/event-actions";
 import { IconPencil, IconRefresh, IconShare, IconX } from "@tabler/icons-react-native";
@@ -7,18 +7,18 @@ import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
 import { ActionButtonList } from "../actions/ActionButton";
 import { Box } from "../base/Box";
-import { useState } from "react";
+import { RefObject, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../base/button/Button";
 import { Text } from "../base/Text";
 import { AsyncButton } from "../base/button/AsyncButton";
 import { TransText } from "../core/TransText";
 
-export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+export const EventActionsSheet = ({ sheet }: { sheet: RefObject<SheetRef | null> }) => {
 	const router = useRouter();
 	const resolved = useResolvedEvent();
 	const actions = [...createActionsForEvent(resolved)];
-	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+	const deleteConfirmSheet = useRef<SheetRef>(null);
 
 	const deleteMutation = useMutation({
 		mutationFn: async () => {
@@ -26,8 +26,8 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 			await EventsManager.removeEvent(resolved.id);
 		},
 		onSuccess: () => {
-			onClose();
-			setShowDeleteConfirmation(false);
+			sheet.current?.dismiss();
+			deleteConfirmSheet.current?.dismiss();
 			if (router.canGoBack()) router.back();
 			else router.replace("/");
 		},
@@ -55,14 +55,14 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 		actions.push({
 			label: "Delete",
 			type: "fn",
-			onRun: () => setShowDeleteConfirmation(true),
+			onRun: () => deleteConfirmSheet.current?.present(),
 			icon: <IconX size={IconSize.xs} color={Colors.Text} />,
 			danger: true,
 		});
 
 	return (
-		<Sheet open={open} onClose={onClose}>
-			<Box p="md" gap="sm">
+		<Sheet ref={sheet}>
+			<Box gap="sm">
 				<TransText
 					fw="bold"
 					numberOfLines={1}
@@ -92,8 +92,8 @@ export const EventActionsSheet = ({ open, onClose }: { open: boolean; onClose: (
 				<ActionButtonList actions={actions} />
 			</Box>
 
-			<Sheet open={showDeleteConfirmation} onClose={() => setShowDeleteConfirmation(false)}>
-				<Box p="md" gap="sm">
+			<Sheet ref={deleteConfirmSheet}>
+				<Box gap="sm">
 					<Text>
 						{resolved.source.type !== "local"
 							? "Are you sure you want to stop following this event?"

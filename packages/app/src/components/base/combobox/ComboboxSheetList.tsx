@@ -3,25 +3,24 @@ import { IconCheck } from "@tabler/icons-react-native";
 import { Box } from "../Box";
 import { Colors } from "../../../theme/colors";
 import { useComboboxCtx } from "./combobox-context";
-import { ComboboxSearch } from "./ComboboxSearch";
 import { FlatList } from "react-native";
 import { Button } from "../button/Button";
 import { Spacing } from "../../../theme/spacing";
 
 export interface ComboboxListProps<T> {
 	data: readonly T[];
-	searchable?: boolean;
 	renderItem: ComponentType<{ value: T; selected: boolean }>;
 	filter?: (item: T, search: string) => boolean;
 	keyExtractor?: (item: T) => string;
+	withPadding?: boolean;
 }
 
 export const ComboboxSheetList = <T,>({
 	data,
 	renderItem: ItemComponent,
 	filter,
-	searchable,
 	keyExtractor,
+	withPadding,
 }: ComboboxListProps<T>) => {
 	const ctx = useComboboxCtx<T>();
 
@@ -33,12 +32,10 @@ export const ComboboxSheetList = <T,>({
 		[ctx],
 	);
 
-	type ListItem = { kind: "item"; value: T } | { kind: "search" };
+	type ListItem = { kind: "item"; value: T };
 
 	const flashListRenderItem = useCallback(
 		({ item }: { item: ListItem }) => {
-			if (item.kind === "search") return <ComboboxSearch />;
-
 			const selected = item === ctx.value;
 
 			return (
@@ -73,23 +70,18 @@ export const ComboboxSheetList = <T,>({
 		[filteredData],
 	);
 
-	const items: ListItem[] = searchable ? [{ kind: "search" }, ...filteredItems] : filteredItems;
+	const items: ListItem[] = filteredItems;
 
 	return (
 		<FlatList
 			data={items}
 			renderItem={flashListRenderItem}
-			renderScrollComponent={!searchable ? (props) => <Box {...props} /> : undefined}
-			stickyHeaderIndices={searchable ? [0] : undefined}
 			keyExtractor={(item, index) => {
-				if (item.kind === "search") return "search";
 				if (keyExtractor) return keyExtractor(item.value);
 				if (typeof item.value === "string") return item.value;
 				return String(index);
 			}}
-			contentContainerStyle={{ padding: Spacing.md }}
-			// initialScrollIndex={initialScrollIndex}
-			// style={{ flex: 1 }}
+			contentContainerStyle={{ padding: withPadding ? Spacing.md : undefined }}
 		/>
 	);
 };

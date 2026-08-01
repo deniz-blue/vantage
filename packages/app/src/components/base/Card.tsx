@@ -1,12 +1,19 @@
 import type { ReactNode } from "react";
 import { Box, type BoxProps } from "./Box";
 import { Colors } from "../../theme/colors";
+import { Radius } from "../../theme/sizing";
 
 export interface CardProps extends BoxProps {
 	children: ReactNode;
 }
 
-export const Card = ({ children, p = "sm", radius = 8, style, ...rest }: CardProps) => (
+export const Card = ({
+	children,
+	p = "sm",
+	radius = Radius.Default,
+	style,
+	...rest
+}: CardProps) => (
 	<Box
 		radius={radius}
 		p={p}

@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Linking, ScrollView } from "react-native";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
 import { Divider } from "../../components/base/Divider";
 import { LanguageSelect } from "../../components/core/LanguageSelect";
-import { JsonImportSheet } from "../../components/app/JsonImportSheet";
+import { JsonImportSheetContent } from "../../components/app/JsonImportSheet";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { TimezoneSelect } from "../../components/core/timezone-select";
 import { Container } from "../../components/base/Container";
@@ -17,15 +16,13 @@ import { EventsManager, queryClient } from "@vantage/core";
 import { AsyncButton } from "../../components/base/button/AsyncButton";
 import { db, schema } from "@vantage/db";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ButtonSheet } from "../../components/app/ButtonSheet";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
 	const setLanguage = useLocaleStore((s) => s.setLanguage);
 	const timezone = useLocaleStore((s) => s.timezone);
 	const setTimezone = useLocaleStore((s) => s.setTimezone);
-	const [jsonImportOpen, setJsonImportOpen] = useState(false);
-
-	// return null; // TODO: Re-enable settings page
 
 	return (
 		<Box component={ScrollView} flex={1}>
@@ -54,10 +51,9 @@ export default function Settings() {
 					</InputWrapper>
 
 					<InputWrapper label="Developer Tools">
-						<Button onPress={() => setJsonImportOpen(true)} justify="flex-start">
-							Import JSON
-						</Button>
-						<JsonImportSheet open={jsonImportOpen} onClose={() => setJsonImportOpen(false)} />
+						<ButtonSheet sheet={<JsonImportSheetContent />}>
+							<Button justify="flex-start">Import JSON</Button>
+						</ButtonSheet>
 
 						<AsyncButton
 							fn={async () => {

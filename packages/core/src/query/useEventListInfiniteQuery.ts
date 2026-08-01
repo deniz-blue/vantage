@@ -15,7 +15,7 @@ export const useEventListInfiniteQuery = ({
 }: InfiniteListOptions = {}) => {
 	const rowsQuery = useInfiniteQuery({
 		queryKey: [...eventListQueryKey(options), "infinite"],
-		queryFn: async ({ pageParam = 0 }) => {
+		queryFn: ({ pageParam = 0 }) => {
 			return eventListQueryFn({
 				...options,
 				limit: pageSize,
@@ -36,7 +36,7 @@ export const useEventListInfiniteQuery = ({
 	const queries = useQueries({
 		queries: rows.map((row) => ({
 			queryKey: ["event", row.event_meta.id, "from-list"],
-			queryFn: async () => eventQueryFn(EventResolver.fromDatabase(EventResolver.new(), row)),
+			queryFn: () => eventQueryFn(EventResolver.fromDatabase(EventResolver.new(), row)),
 			staleTime: 5 * 1000 * 60,
 		})),
 	});

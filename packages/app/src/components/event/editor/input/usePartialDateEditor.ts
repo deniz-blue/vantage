@@ -243,8 +243,8 @@ export const usePartialDateEditor = (
 		[value, onChange, formatPD],
 	);
 
-	const disabledMonth = !parsed || !hasPrecision("month");
-	const disabledDay = !parsed || !hasPrecision("day");
+	const disabledMonth = !parsed || !hasPrecision("year");
+	const disabledDay = !parsed || !hasPrecision("month");
 	const disabledTime = !parsed || !hasPrecision("day");
 
 	const paddedYear = parsed ? String(parsed.year) : EMPTY_YEAR;

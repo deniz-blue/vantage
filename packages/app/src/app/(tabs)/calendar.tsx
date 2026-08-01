@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react-native";
 import { useEventListQuery, ResolvedEventContext } from "@vantage/core";
@@ -11,7 +11,7 @@ import { CalendarMonth } from "../../components/core/calendar-month/CalendarMont
 import type { CalendarDay } from "../../components/core/calendar-month/calendar-month-utils";
 import { Colors } from "../../theme/colors";
 import { FontSize, IconSize } from "../../theme/sizing";
-import { Sheet } from "../../components/base/sheet/Sheet";
+import { Sheet, SheetRef } from "../../components/base/sheet/Sheet";
 import { EventCard } from "../../components/event/card/EventCard";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { EmptyState } from "../../components/base/EmptyState";
@@ -49,6 +49,7 @@ function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined
 }
 
 export default function CalendarPage() {
+	const sheet = useRef<SheetRef>(null);
 	const userLanguage = useLocaleStore((s) => s.language);
 	const userTimezone = useLocaleStore((s) => s.timezone);
 	const [currentDate, setCurrentDate] = useState(Temporal.Now.plainDateISO());
@@ -92,6 +93,7 @@ export default function CalendarPage() {
 	const handleDayPress = useCallback((day: CalendarDay) => {
 		const dayStr = `${day.year}-${String(day.month).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
 		setSelectedDay(dayStr);
+		sheet.current?.present();
 	}, []);
 
 	const renderDay = useCallback(
@@ -159,7 +161,7 @@ export default function CalendarPage() {
 					/>
 				</Box>
 
-				<Sheet open={!!selectedDay} onClose={() => setSelectedDay(null)}>
+				<Sheet ref={sheet}>
 					{selectedDay && (
 						<DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />
 					)}
