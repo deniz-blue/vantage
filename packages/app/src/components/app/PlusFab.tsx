@@ -38,9 +38,7 @@ export const PlusFab = () => {
 				aria-label="Add Event"
 				wrapperProps={{ style: { marginBottom: 56 + insets.bottom } }}
 				icon={<IconPlus color="#fff" />}
-				onPress={() => {
-					sheet.current?.present();
-				}}
+				onPress={() => sheet.current?.present()}
 			/>
 
 			<Sheet ref={sheet} onDidDismiss={reset}>
@@ -64,17 +62,19 @@ export const PlusFab = () => {
 									onRun: () => setState("import"),
 								},
 								{
-									label: "Import Events from JSON Feed",
+									label: "Import Events from a Feed",
 									type: "fn",
 									icon: <IconRss size={IconSize.sm} color={Colors.Text} />,
-									onRun: () => setState("jsonfeed"),
+									onRun: () => {
+										router.push("/feed");
+										reset();
+									},
 								},
 							]}
 						/>
 					)}
 
 					{state === "import" && <Importer onClose={reset} />}
-					{state === "jsonfeed" && <JsonFeedImporter onClose={reset} />}
 				</Box>
 			</Sheet>
 		</Fragment>

@@ -12,14 +12,12 @@ export const TransText = ({ value, fallback, ...rest }: TransTextProps) => {
 	const userLanguage = useLocaleStore((s) => s.language);
 
 	const { lang, text } = useMemo(() => {
-		if (!value) return { lang: "", text: "" };
+		if (!value) return { lang: "und", text: fallback ?? "" };
 		if (value[userLanguage]) return { lang: userLanguage, text: value[userLanguage] };
 		const firstLang = Object.keys(value)[0];
 		if (value[firstLang]) return { lang: firstLang, text: value[firstLang] };
-		return { lang: "en", text: fallback ?? "" };
+		return { lang: "und", text: fallback ?? "" };
 	}, [userLanguage, value]);
-
-	if (!text) return null;
 
 	return <Text accessibilityLanguage={lang} {...rest} children={text} />;
 };

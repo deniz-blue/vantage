@@ -10,7 +10,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { createEditor, Editor } from "./editor";
 import { LinkComponent, OpenEvnt } from "@evnt/types";
 import { LinkEditSheetContent } from "./LinkEditSheetContent";
-import { IconCheck, IconGripHorizontal, IconTrash } from "@tabler/icons-react-native";
+import { IconCheck, IconGripHorizontal, IconLink, IconTrash } from "@tabler/icons-react-native";
 import { Colors } from "../../../theme/colors";
 import { IconSize } from "../../../theme/sizing";
 import { ButtonBase } from "../../base/ButtonBase";
@@ -46,8 +46,6 @@ export const EventFormLinks = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 			[],
 		[components.value],
 	);
-
-	console.log(items);
 
 	const renderItem = useCallback(
 		({ item }: { item: ListItem }) => (
@@ -90,6 +88,7 @@ export const EventFormLinks = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 				renderItem={renderItem}
 				onReorder={onReorder}
 				keyExtractor={({ index }) => index.toString()}
+				scrollEnabled={false}
 			/>
 
 			<Sheet ref={addLinkSheet}>
@@ -127,8 +126,9 @@ export const EventFormLinksItem = ({
 					onPress={() => sheet.current?.present()}
 					onLongPress={startDrag}
 					justify="flex-start"
+					leftSection={<IconLink size={IconSize.sm} color={Colors.TextDimmed} />}
 				>
-					<TransText value={editor.value.name} fallback={editor.value.url} />
+					<TransText value={editor.value.name} fallback={editor.value.url ?? "Unnamed Link"} />
 				</Button>
 			</Box>
 

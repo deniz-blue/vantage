@@ -3,7 +3,7 @@ import { TextInput } from "../../base/input/TextInput";
 import { Editor } from "./editor";
 import { Box } from "../../base/Box";
 import { Sheet, SheetRef } from "../../base/sheet/Sheet";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MarkdownRichtext } from "../../core/richtext/MarkdownRichtext";
 import { Text } from "../../base/Text";
 import { Line } from "../../base/Divider";
@@ -13,6 +13,7 @@ import { FontSize } from "../../../theme/sizing";
 
 export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	const sheet = useRef<SheetRef>(null);
+	const [expanded, setExpanded] = useState(false);
 
 	const md: any = editor.value.components?.find(
 		(c) => c.$type === "directory.evnt.richtext.markdown",
@@ -57,9 +58,17 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 				value={value}
 				multiline
 				textAlignVertical="top"
-				baseProps={{ style: { height: 100 } }}
+				baseProps={{ style: { height: expanded ? 400 : 100 } }}
 				onChangeText={onChangeText}
 			/>
+
+			<ButtonBase onPress={() => setExpanded(e => !e)} disabled={!value.trim()}>
+				{value.trim() ? (
+					<Text fz={FontSize.sm} c="Blue">
+						{expanded ? "Collapse" : "Expand"}
+					</Text>
+				) : null}
+			</ButtonBase>
 
 			<Sheet ref={sheet}>
 				<Box gap="md">

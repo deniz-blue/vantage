@@ -12,7 +12,6 @@ import { FontSize, IconSize } from "../theme/sizing";
 import { Select } from "../components/base/input/Select";
 import { Divider } from "../components/base/Divider";
 import { Button } from "../components/base/button/Button";
-import { ScrollView } from "react-native";
 import { Colors } from "../theme/colors";
 import { IconDatabase } from "@tabler/icons-react-native";
 import { OpenEvntSchema } from "@evnt/schema";
@@ -69,7 +68,7 @@ export default function NewEventPage() {
 
 	return (
 		<Box flex={1}>
-			<Box component={ScrollView}>
+			<Box component={Animated.ScrollView}>
 				<Box component={SafeAreaView} flex={1}>
 					<Container size="sm" flex={1}>
 						<Box py="md" flex={1}>
