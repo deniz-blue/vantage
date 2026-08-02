@@ -1,4 +1,4 @@
-import { OpenEvnt, Venue } from "@evnt/types";
+import { EventInstance, OpenEvnt, Venue } from "@evnt/types";
 import { Box } from "../../base/Box";
 import { Editor } from "./editor";
 import { TranslationsInput } from "./input/TranslationsInput";
@@ -8,7 +8,7 @@ import { Text } from "../../base/Text";
 import { Line } from "../../base/Divider";
 import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
-import { Fragment, ReactNode, useMemo, useRef } from "react";
+import { Fragment, ReactNode, useCallback, useMemo, useRef } from "react";
 import { Sheet, SheetRef } from "../../base/sheet/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
@@ -16,9 +16,10 @@ import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 import { EventDescriptionEditor } from "./EventDescriptionEditor";
 import { Colors } from "../../../theme/colors";
 import { ButtonBase } from "../../base/ButtonBase";
+import { EventFormLinks } from "./EventFormLinks";
 
 export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
-	const name = useMemo(() => editor.field((e) => e.name), [editor]);
+	const name = useMemo(() => editor.field("name"), [editor]);
 
 	return (
 		<EventFormContext value={{ editor }}>
@@ -45,6 +46,8 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 				</Box>
 
 				<EventDescriptionEditor editor={editor} />
+
+				<EventFormLinks editor={editor} />
 			</Box>
 		</EventFormContext>
 	);
@@ -63,6 +66,19 @@ export const FormList = <T,>({
 	emptyText: ReactNode;
 	renderItem: (props: { onDelete: () => void; editor: Editor<T>; index: number }) => ReactNode;
 }) => {
+	const children = useMemo(() => {
+		if (!editor.value?.length) return null;
+		return editor.value.map((_, i) => (
+			<Fragment key={i}>
+				{renderItem({
+					editor: editor.at(i),
+					index: i,
+					onDelete: () => editor.update((d) => void d.splice(i, 1)),
+				})}
+			</Fragment>
+		));
+	}, [editor, renderItem]);
+
 	return (
 		<Box gap="md">
 			<Box direction="row" gap="sm" align="center">
@@ -87,15 +103,7 @@ export const FormList = <T,>({
 				</Box>
 			)}
 
-			{editor.value?.map((_, i) => (
-				<Fragment key={i}>
-					{renderItem({
-						editor: editor.field((v) => v![i]!),
-						index: i,
-						onDelete: () => editor.update((d) => void d?.splice(i, 1)),
-					})}
-				</Fragment>
-			))}
+			{children}
 		</Box>
 	);
 };
@@ -103,22 +111,29 @@ export const FormList = <T,>({
 export const EventFormInstances = () => {
 	const { editor } = useEventFormContext();
 
+	const renderItem = useCallback(
+		({ editor, onDelete }: { editor: Editor<EventInstance>; onDelete: () => void }) => (
+			<EventInstanceEditor editor={editor} onDelete={onDelete} />
+		),
+		[],
+	);
+	
+	const instances = useMemo(() => editor.field("instances", []), [editor]);
+
+	const onAdd = useCallback(() => {
+		instances.push({
+			venueIds: [],
+		});
+	}, [instances]);
+
+
 	return (
 		<FormList
 			title="Date & Time"
 			emptyText="No dates set"
-			editor={editor.field((e) => e.instances)}
-			onAdd={() => {
-				editor.update((d) => {
-					if (!d.instances) d.instances = [];
-					d.instances.push({
-						venueIds: [],
-					});
-				});
-			}}
-			renderItem={({ editor, onDelete }) => (
-				<EventInstanceEditor editor={editor} onDelete={onDelete} />
-			)}
+			editor={instances}
+			onAdd={onAdd}
+			renderItem={renderItem}
 		/>
 	);
 };
@@ -127,30 +142,40 @@ export const EventFormVenues = () => {
 	const { editor } = useEventFormContext();
 	const sheet = useRef<SheetRef>(null);
 
-	const onAdd = (type: Venue["$type"]) => {
-		editor.update((d) => {
-			if (!d.venues) d.venues = [];
-			let nextId = 0;
-			while (d.venues.some((v) => v.id === nextId.toString())) nextId++;
-			d.venues.push({
-				$type: type,
-				id: nextId.toString(),
-				name: {},
+	const onAdd = useCallback(
+		(type: Venue["$type"]) => {
+			editor.update((d) => {
+				if (!d.venues) d.venues = [];
+				let nextId = 0;
+				while (d.venues.some((v) => v.id === nextId.toString())) nextId++;
+				d.venues.push({
+					$type: type,
+					id: nextId.toString(),
+					name: {},
+				});
 			});
-		});
-		sheet.current?.dismiss();
-	};
+			sheet.current?.dismiss();
+		},
+		[editor],
+	);
+
+	const renderItem = useCallback(
+		({ editor, onDelete }: { editor: Editor<Venue>; onDelete: () => void }) => (
+			<EventVenueEditor editor={editor} onDelete={onDelete} />
+		),
+		[],
+	);
+
+	const venues = useMemo(() => editor.field("venues", []), [editor]);
 
 	return (
 		<Fragment>
 			<FormList
 				title="Locations"
 				emptyText="No locations set"
-				editor={editor.field((e) => e.venues)}
+				editor={venues}
 				onAdd={() => sheet.current?.present()}
-				renderItem={({ editor, onDelete }) => (
-					<EventVenueEditor editor={editor} onDelete={onDelete} />
-				)}
+				renderItem={renderItem}
 			/>
 
 			<Sheet ref={sheet}>

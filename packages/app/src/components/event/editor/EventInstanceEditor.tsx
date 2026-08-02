@@ -42,25 +42,31 @@ export const EventInstanceEditor = ({
 					</Box>
 				</Box>
 
-				<PartialDateInput
-					label="Start"
-					value={editor.value.start}
-					onChange={(value) =>
-						editor.update((d) => {
-							d.start = value;
-						})
-					}
-				/>
-
-				<PartialDateInput
-					label="End"
-					value={editor.value.end}
-					onChange={(value) =>
-						editor.update((d) => {
-							d.end = value;
-						})
-					}
-				/>
+				<Box direction="row" gap="sm">
+					<Box flex={1}>
+						<PartialDateInput
+							label="Start"
+							value={editor.value.start}
+							onChange={(value) =>
+								editor.update((d) => {
+									d.start = value;
+								})
+							}
+						/>
+					</Box>
+					<Box flex={1}>
+						<PartialDateInput
+							disabled={!editor.value.start}
+							label="End"
+							value={editor.value.end}
+							onChange={(value) =>
+								editor.update((d) => {
+									d.end = value;
+								})
+							}
+						/>
+					</Box>
+				</Box>
 			</Box>
 		</Card>
 	);

@@ -51,7 +51,7 @@ export default function TabLayout() {
 				tabBar={(props) => (
 					<Box bg={Colors.BackgroundLight} pb={insets.bottom}>
 						<Box h={56}>
-							<Container direction="row" justify="center" h="100%">
+							<Container direction="row" justify="center" h="100%" role="tablist">
 								{(
 									[
 										{ name: "index", icon: IconHome, alt: "Home" },
@@ -64,7 +64,11 @@ export default function TabLayout() {
 									return (
 										<Box key={name} flex={1} direction="row" justify="center">
 											<ActionIcon
+												role="tab"
 												accessibilityLabel={`${isActive ? "Active " : ""}${alt} Tab, ${index + 1} of ${array.length}`}
+												accessibilityState={{
+													selected: isActive,
+												}}
 												onPress={() => props.navigation.navigate(name)}
 												size="auto"
 												w="100%"

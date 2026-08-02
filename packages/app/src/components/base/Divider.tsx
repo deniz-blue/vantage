@@ -26,12 +26,7 @@ export const Line = ({
 	/>
 );
 
-export const Divider = ({
-	color,
-	thickness,
-	vertical,
-	...rest
-}: DividerProps) => {
+export const Divider = ({ color, thickness, vertical, ...rest }: DividerProps) => {
 	return (
 		<Box direction={vertical ? "column" : "row"} align="center" my="sm" {...rest}>
 			<Line color={color} thickness={thickness} vertical={vertical} />

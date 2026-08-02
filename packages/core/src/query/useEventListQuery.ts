@@ -125,6 +125,7 @@ export const useEventListQuery = ({ enabled, ...options }: ListQueryOptions) => 
 	return {
 		rowsQuery,
 		events,
+		isFetching: rowsQuery.isFetching || events.some((q) => q.isFetching),
 	};
 };
 

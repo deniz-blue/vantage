@@ -15,7 +15,7 @@ export const TranslationsInput = memo(
 		placeholder,
 		...props
 	}: InputWrapperProps & {
-		editor: Editor<Translations>;
+		editor: Editor<Translations | undefined>;
 		placeholder?: string;
 	}) => {
 		const userLanguage = useLocaleStore((s) => s.language);
@@ -24,7 +24,7 @@ export const TranslationsInput = memo(
 		return (
 			<InputWrapper {...props}>
 				<TextInput
-					value={editor.value[userLanguage] || ""}
+					value={editor.value?.[userLanguage] || ""}
 					onChangeText={(text) =>
 						editor.update((d) => {
 							d[userLanguage] = text;

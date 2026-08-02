@@ -20,9 +20,10 @@ export interface PartialDateInputProps {
 	value: PartialDate | undefined;
 	onChange: (value: PartialDate | undefined) => void;
 	label?: string;
+	disabled?: boolean;
 }
 
-export const PartialDateInput = ({ value, onChange, label }: PartialDateInputProps) => {
+export const PartialDateInput = ({ value, onChange, label, disabled }: PartialDateInputProps) => {
 	const sheet = useRef<SheetRef>(null);
 	const language = useLocaleStore((s) => s.language);
 	const userTimezone = useLocaleStore((s) => s.timezone);
@@ -37,6 +38,7 @@ export const PartialDateInput = ({ value, onChange, label }: PartialDateInputPro
 				<Button
 					onPress={() => sheet.current?.present()}
 					rightSection={<IconChevronRight size={IconSize.xs} color={Colors.TextDimmed} />}
+					disabled={disabled}
 				>
 					<Text fz={FontSize.sm} c={value ? undefined : Colors.TextDimmed}>
 						{value
@@ -389,11 +391,7 @@ export const PartialDateInputSectionBottom = ({
 					{value ? <PartialDateLabel value={value} /> : <Text c="TextDimmed">Unknown date</Text>}
 				</Box>
 			</Box>
-			<Button
-				variant="primary"
-				onPress={onDone}
-				leftSection={<IconCheck size={IconSize.sm} color={Colors.Text} />}
-			>
+			<Button onPress={onDone} leftSection={<IconCheck size={IconSize.sm} color={Colors.Text} />}>
 				Done
 			</Button>
 		</Box>

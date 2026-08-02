@@ -10,6 +10,12 @@ import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Text } from "../Text";
 import { FontSize } from "../../../theme/sizing";
 
+export interface SelectItemProps<T> {
+	value: T;
+	selected: boolean;
+	trigger?: boolean;
+}
+
 export interface SelectProps<T> extends Pick<
 	InputWrapperProps,
 	"label" | "description" | "error" | "required"
@@ -17,7 +23,7 @@ export interface SelectProps<T> extends Pick<
 	data: readonly T[];
 	value: T;
 	onChange: (value: T) => void;
-	renderItem: ComponentType<{ value: T; selected: boolean }>;
+	renderItem?: ComponentType<SelectItemProps<T>>;
 	getSearchText?: (item: T) => string;
 	placeholder?: string;
 	searchable?: boolean;
@@ -31,7 +37,7 @@ export const Select = <T,>({
 	data,
 	value,
 	onChange,
-	renderItem: ItemComponent,
+	renderItem: ItemComponent = DefaultItemComponent,
 	getSearchText,
 	placeholder = "Select…",
 	label,
@@ -53,7 +59,7 @@ export const Select = <T,>({
 			<Combobox value={value} onChange={onChange}>
 				<ComboboxTrigger>
 					<Text fz={FontSize.sm}>
-						{ItemComponent ? <ItemComponent value={value} selected={true} /> : placeholder}
+						{value ? <ItemComponent value={value} trigger selected /> : placeholder}
 					</Text>
 				</ComboboxTrigger>
 				<ComboboxSheet

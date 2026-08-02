@@ -21,6 +21,7 @@ import { range } from "../../utils/range";
 import { OpenEvnt } from "@evnt/types";
 import { PartialDate } from "@evnt/types";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Loader } from "../../components/base/Loader";
 
 function useEventsByDay(events: { data: Vantage.ResolvedEvent | null | undefined }[]) {
 	return useMemo(() => {
@@ -72,7 +73,7 @@ export default function CalendarPage() {
 		);
 	}, [currentDate]);
 
-	const { events } = useEventListQuery({
+	const { events, isFetching } = useEventListQuery({
 		afterTimestamp: monthStart,
 		beforeTimestamp: monthEnd,
 		limit: 500,
@@ -104,13 +105,15 @@ export default function CalendarPage() {
 			return (
 				<ActionIcon
 					onPress={() => handleDayPress(day)}
-					flex={1}
 					aspectRatio={1}
 					variant={day.isToday ? "light" : "subtle"}
+					w="100%"
+					h="100%"
 				>
 					<Box flex={1} align="center" justify="center" gap={2}>
 						<Text
 							fz={FontSize.sm}
+							ta="center"
 							c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}
 						>
 							{day.day}
@@ -137,7 +140,13 @@ export default function CalendarPage() {
 							<IconChevronLeft size={IconSize.xs} color={Colors.Text} />
 						</ActionIcon>
 						<Box flex={1}>
-							<Button size="sm" flex={1}>
+							<Button
+								size="sm"
+								flex={1}
+								leftSection={isFetching ? <Loader size="small" /> : undefined}
+								rightSection={<Text c="TextDimmed">{`(${events.length})`}</Text>}
+								justify="space-between"
+							>
 								<Box direction="row" justify="center" flex={1}>
 									<Text fw="bold">{monthLabel}</Text>
 								</Box>
@@ -152,18 +161,22 @@ export default function CalendarPage() {
 					</Button>
 				</Box>
 
-				<Box flex={1} p="xs">
-					<CalendarMonth
-						year={currentDate.year}
-						month={currentDate.month}
-						renderDay={renderDay}
-						gap="xs"
-					/>
-				</Box>
+				<CalendarMonth
+					year={currentDate.year}
+					month={currentDate.month}
+					renderDay={renderDay}
+					gap="xs"
+				/>
 
 				<Sheet ref={sheet}>
 					{selectedDay && (
-						<DayEventsContent day={selectedDay} onClose={() => setSelectedDay(null)} />
+						<DayEventsContent
+							day={selectedDay}
+							onClose={() => {
+								setSelectedDay(null);
+								sheet.current?.dismiss();
+							}}
+						/>
 					)}
 				</Sheet>
 			</Container>

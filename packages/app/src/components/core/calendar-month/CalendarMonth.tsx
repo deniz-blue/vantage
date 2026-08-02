@@ -9,7 +9,7 @@ import { useLocaleStore } from "../../../stores/useLocaleStore";
 import type { Spacing } from "../../../theme/shorthand";
 
 const defaultRenderWeekdayHeader = (name: string) => (
-	<Box flex={1} align="center" py={4}>
+	<Box align="center" py={4}>
 		<Text fz={FontSize.xs} ta="center" c="TextDimmed">
 			{name}
 		</Text>
@@ -18,14 +18,17 @@ const defaultRenderWeekdayHeader = (name: string) => (
 
 const defaultRenderDay = (day: CalendarDay) => (
 	<Box
-		flex={1}
 		aspectRatio={1}
 		align="center"
 		justify="center"
 		bg={day.isToday ? Colors.Primary : undefined}
 		radius={Radius.sm}
 	>
-		<Text fz={FontSize.sm} c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}>
+		<Text
+			fz={FontSize.sm}
+			ta="center"
+			c={day.isToday ? "White" : day.isOutsideMonth ? "TextDimmed" : "Text"}
+		>
 			{day.day}
 		</Text>
 	</Box>
@@ -83,8 +86,7 @@ export const CalendarMonth = ({
 
 	return (
 		<Box gap={gap}>
-			{/* Weekday headers */}
-			<Box direction="row">
+			<Box direction="row" gap={gap}>
 				{orderedWeekdays.map((name, i) => (
 					<Box flex={1} key={i}>
 						{renderWeekdayHeader(name, i)}
@@ -92,7 +94,6 @@ export const CalendarMonth = ({
 				))}
 			</Box>
 
-			{/* Day grid */}
 			{weeks.map((week, wi) => (
 				<Box direction="row" gap={gap} key={wi}>
 					{week.map((day, di) => (

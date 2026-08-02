@@ -6,11 +6,12 @@ import { IconDotsVertical, IconPencil, IconShare } from "@tabler/icons-react-nat
 import { Colors } from "../../../theme/colors";
 import { IconSize } from "../../../theme/sizing";
 import { Button } from "../../base/button/Button";
-import { useState } from "react";
+import { useRef } from "react";
 import { EventActionsSheet } from "../../app/EventActionsSheet";
+import { SheetRef } from "../../base/sheet/Sheet";
 
 export const EventDetailsActions = () => {
-	const [open, setOpen] = useState(false);
+	const sheet = useRef<SheetRef>(null);
 	const resolved = useResolvedEvent();
 	const router = useRouter();
 
@@ -42,10 +43,10 @@ export const EventDetailsActions = () => {
 				size="sm"
 				leftSection={<IconDotsVertical size={IconSize.xs} color={Colors.Text} />}
 				children="More"
-				onPress={() => setOpen(!open)}
+				onPress={() => sheet.current?.present()}
 			/>
 
-			<EventActionsSheet open={open} onClose={() => setOpen(false)} />
+			<EventActionsSheet sheet={sheet} />
 		</Box>
 	);
 };

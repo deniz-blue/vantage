@@ -10,6 +10,7 @@ import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { Colors } from "../../../theme/colors";
 import { TextInput } from "../../base/input/TextInput";
+import { CountrySelect } from "./input/CountrySelect";
 
 const ICONS: Record<Venue["$type"], ComponentType<IconProps>> = {
 	"directory.evnt.venue.physical": IconMapPin,
@@ -50,25 +51,35 @@ export const EventVenueEditor = ({
 					</Box>
 				</Box>
 
-				<TranslationsInput
-					label="Name"
-					placeholder="Somewhere"
-					editor={editor.field((e) => e.name)}
-				/>
+				<TranslationsInput label="Name" placeholder="Triangle Bar" editor={editor.field("name")} />
 
 				{editor.value.$type === "directory.evnt.venue.physical" && (
-					<TextInput
-						label="Address"
-						placeholder="123 Main Street"
-						value={editor.value.address?.addr ?? ""}
-						onChangeText={(text) =>
-							editor.update((d) => {
-								if (d.$type !== "directory.evnt.venue.physical") return;
-								d.address ??= {};
-								d.address.addr = text;
-							})
-						}
-					/>
+					<Box direction="row" gap="xs">
+						<Box flex={1}>
+							<TextInput
+								label="Address"
+								placeholder="123 Main Street"
+								value={editor.value.address?.addr ?? ""}
+								onChangeText={(text) =>
+									editor.update((d) => {
+										if (d.$type !== "directory.evnt.venue.physical") return;
+										d.address ??= {};
+										d.address.addr = text;
+									})
+								}
+							/>
+						</Box>
+						<CountrySelect
+							value={editor.value.address?.countryCode}
+							onChange={(countryCode) =>
+								editor.update((d) => {
+									if (d.$type !== "directory.evnt.venue.physical") return;
+									d.address ??= {};
+									d.address.countryCode = countryCode;
+								})
+							}
+						/>
+					</Box>
 				)}
 			</Box>
 		</Card>

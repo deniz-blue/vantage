@@ -1,5 +1,5 @@
 import { IconArrowUp, IconLanguage } from "@tabler/icons-react-native";
-import { LANGUAGES } from "@vantage/intl";
+import { DATA_LANGUAGES } from "@vantage/intl";
 import { Box } from "../base/Box";
 import { Colors } from "../../theme/colors";
 import { Text } from "../base/Text";
@@ -63,7 +63,7 @@ export const LanguageSelect = memo(
 						)}
 					</Box>
 					<ComboboxSheet header={ComboboxSheetSearch}>
-						<ComboboxSheetList data={LANGUAGES} filter={filter} renderItem={LanguageItem} />
+						<ComboboxSheetList data={DATA_LANGUAGES} filter={filter} renderItem={LanguageItem} />
 					</ComboboxSheet>
 				</Combobox>
 			</InputWrapper>
