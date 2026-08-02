@@ -2,8 +2,8 @@ const DEV = process.env.APP_VARIANT === "development";
 
 if (DEV) console.log("[app.config.js] Running in development mode");
 
-const version = "0.1.0";
-const versionCode = 4;
+const version = "0.1.1";
+const versionCode = 5;
 
 export default {
 	/** @type {import("expo/config").ExpoConfig} */
