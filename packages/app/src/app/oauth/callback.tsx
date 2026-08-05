@@ -4,10 +4,11 @@ import { AtOAuthClient, useAtAccounts, useAtClient } from "@vantage/atproto";
 import { Client } from "@atcute/client";
 import { Box } from "../../components/base/Box";
 import { Text } from "../../components/base/Text";
-import { Loader } from "../../components/base/Loader";
 import { Button } from "../../components/base/button/Button";
 import { FontSize } from "../../theme/sizing";
 import { Colors } from "../../theme/colors";
+import { AtprotoDid } from "@atcute/lexicons/syntax";
+import { EmptyState } from "../../components/base/EmptyState";
 
 export default function OAuthCallback() {
 	const params = useLocalSearchParams();
@@ -30,17 +31,17 @@ export default function OAuthCallback() {
 				console.log("[OAuthCallback] session created, DID:", session.sub);
 
 				const client = new Client({ handler: session });
-				useAtClient.getState().setClient(client, session);
+				useAtClient.setState({ client, session });
 
 				const info = await session.getTokenInfo();
 				useAtAccounts.getState().addAccount({
-					did: session.sub,
+					did: session.sub as AtprotoDid,
 					pds: info.aud,
 					lastActiveAt: Date.now(),
 				});
 
 				console.log("[OAuthCallback] success, navigating to tabs");
-				router.replace("/(tabs)");
+				router.replace("/");
 			} catch (err: any) {
 				console.error("[OAuthCallback] callback failed:", err, err.stack);
 				setError(err as Error);
@@ -66,10 +67,5 @@ export default function OAuthCallback() {
 		);
 	}
 
-	return (
-		<Box flex={1} justify="center" align="center" gap="md">
-			<Loader />
-			<Text c="TextDimmed">Signing in…</Text>
-		</Box>
-	);
+	return <EmptyState fill loading message="Signing in..." />;
 }

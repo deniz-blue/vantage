@@ -8,7 +8,7 @@ export const ButtonSheet = ({
 	...props
 }: PropsWithChildren<
 	{
-		sheet: JSX.Element;
+		sheet: JSX.Element | ((ref: React.RefObject<SheetRef | null>) => JSX.Element);
 	} & ButtonProps
 >) => {
 	const ref = useRef<SheetRef>(null);
@@ -23,7 +23,7 @@ export const ButtonSheet = ({
 				}}
 			/>
 
-			<Sheet ref={ref}>{sheet}</Sheet>
+			<Sheet ref={ref}>{typeof sheet === "function" ? sheet(ref) : sheet}</Sheet>
 		</>
 	);
 };
