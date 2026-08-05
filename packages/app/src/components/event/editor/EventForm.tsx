@@ -117,7 +117,7 @@ export const EventFormInstances = () => {
 		),
 		[],
 	);
-	
+
 	const instances = useMemo(() => editor.field("instances", []), [editor]);
 
 	const onAdd = useCallback(() => {
@@ -125,7 +125,6 @@ export const EventFormInstances = () => {
 			venueIds: [],
 		});
 	}, [instances]);
-
 
 	return (
 		<FormList
