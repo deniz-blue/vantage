@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@vantage/core";
 import { Box } from "../components/base/Box";
+import { AppErrorBoundary } from "../components/core/AppErrorBoundary";
 import { Colors } from "../theme/colors";
 import { ComponentStack } from "../components/ComponentStack";
 import { initializeDatabase } from "@vantage/db";
@@ -38,20 +39,22 @@ export default function RootLayout() {
 				[QueryClientProvider, { client: queryClient }],
 			]}
 		>
-			<Box flex={1} bg={Colors.Background}>
-				<Stack
-					screenOptions={{
-						contentStyle: { backgroundColor: Colors.Background },
-					}}
-				>
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-					<Stack.Screen name="new" options={{ headerShown: false }} />
-					<Stack.Screen name="feed" options={{ headerShown: false }} />
-					<Stack.Screen name="event/index" options={{ headerShown: false }} />
-					<Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-					<Stack.Screen name="event/[id]/edit" options={{ headerShown: false }} />
-				</Stack>
-			</Box>
+			<AppErrorBoundary>
+				<Box flex={1} bg={Colors.Background}>
+					<Stack
+						screenOptions={{
+							contentStyle: { backgroundColor: Colors.Background },
+						}}
+					>
+						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+						<Stack.Screen name="new" options={{ headerShown: false }} />
+						<Stack.Screen name="feed" options={{ headerShown: false }} />
+						<Stack.Screen name="event/index" options={{ headerShown: false }} />
+						<Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+						<Stack.Screen name="event/[id]/edit" options={{ headerShown: false }} />
+					</Stack>
+				</Box>
+			</AppErrorBoundary>
 		</ComponentStack>
 	);
 }

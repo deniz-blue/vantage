@@ -62,7 +62,7 @@ export const EventDescriptionEditor = ({ editor }: { editor: Editor<OpenEvnt> })
 				onChangeText={onChangeText}
 			/>
 
-			<ButtonBase onPress={() => setExpanded(e => !e)} disabled={!value.trim()}>
+			<ButtonBase onPress={() => setExpanded((e) => !e)} disabled={!value.trim()}>
 				{value.trim() ? (
 					<Text fz={FontSize.sm} c="Blue">
 						{expanded ? "Collapse" : "Expand"}
