@@ -24,6 +24,9 @@ importers:
 
   packages/app:
     dependencies:
+      '@atcute/atproto':
+        specifier: ^4.0.3
+        version: 4.0.3(@atcute/lexicons@2.0.2)
       '@atcute/bluesky-richtext-segmenter':
         specifier: ^3.0.0
         version: 3.0.1

@@ -1,5 +1,5 @@
 import { db, schema } from "@vantage/db";
-import { invalidateEventListQueries } from "../query/useEventListQuery";
+import { invalidateEventListQueries, invalidateEventQuery } from "../query/useEventListQuery";
 import { eq } from "drizzle-orm";
 import { createComputedData } from "./computed";
 import { randomUUID } from "../utils/uuid";
@@ -104,6 +104,6 @@ export const EventsManager = new (class {
 			EventResolver.parse,
 			EventResolver.upsertToDatabase,
 		)(EventResolver.new({ id }));
-		await invalidateEventListQueries();
+		await invalidateEventQuery(id);
 	}
 })();

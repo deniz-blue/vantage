@@ -95,8 +95,7 @@ export default function NewEventPage() {
 			}
 		},
 		onSuccess: (id) => {
-			router.push(`/event/${id}`);
-			setForm({ v: "0.1", name: {} });
+			router.replace(`/event/${id}`);
 		},
 	});
 

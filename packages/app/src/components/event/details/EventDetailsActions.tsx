@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import * as Clipboard from "expo-clipboard";
+import { Share } from "react-native";
 import { useResolvedEvent, ResolvedEventUtils } from "@vantage/core";
 import { Box } from "../../base/Box";
 import { IconDotsVertical, IconPencil, IconShare } from "@tabler/icons-react-native";
@@ -9,13 +9,13 @@ import { Button } from "../../base/button/Button";
 import { useRef } from "react";
 import { EventActionsSheet } from "../../app/EventActionsSheet";
 import { SheetRef } from "../../base/sheet/Sheet";
+import { useCanEditEvent } from "../../../hooks/useCanEditEvent";
 
 export const EventDetailsActions = () => {
 	const sheet = useRef<SheetRef>(null);
 	const resolved = useResolvedEvent();
 	const router = useRouter();
-
-	const showEdit = resolved.source.type === "local" && !!resolved.id;
+	const canEdit = useCanEditEvent(resolved);
 
 	const shareLink = ResolvedEventUtils.createShareLink(resolved);
 
@@ -25,12 +25,12 @@ export const EventDetailsActions = () => {
 				<Button
 					size="sm"
 					leftSection={<IconShare size={IconSize.xs} color={Colors.Text} />}
-					onPress={() => Clipboard.setStringAsync(shareLink)}
+					onPress={() => Share.share({ message: shareLink, url: shareLink })}
 					children="Share"
 				/>
 			)}
 
-			{showEdit && (
+			{canEdit && (
 				<Button
 					size="sm"
 					leftSection={<IconPencil size={IconSize.xs} color={Colors.Text} />}

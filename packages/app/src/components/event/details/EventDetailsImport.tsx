@@ -37,7 +37,7 @@ export const EventDetailsImport = () => {
 				<Button
 					onPress={() => {
 						const existingId = existing.data?.[0].id;
-						if (existingId) router.replace(`/event/${existingId}`);
+						if (existingId) setTimeout(() => router.replace(`/event/${existingId}`), 0);
 					}}
 					color="blue"
 					h="auto"
@@ -54,7 +54,7 @@ export const EventDetailsImport = () => {
 				<AsyncButton
 					fn={async () => {
 						const id = await EventsManager.addEvent({ source, format });
-						router.replace(`/event/${id}`);
+						setTimeout(() => router.replace(`/event/${id}`), 0);
 					}}
 				>
 					{({ loading, onPress }) => (

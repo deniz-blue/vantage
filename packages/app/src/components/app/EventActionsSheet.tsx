@@ -1,8 +1,8 @@
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { Sheet, SheetRef } from "../base/sheet/Sheet";
-import { EventsManager, ResolvedEventUtils, useResolvedEvent } from "@vantage/core";
+import { EventsManager, useResolvedEvent } from "@vantage/core";
 import { createActionsForEvent } from "../actions/event-actions";
-import { IconPencil, IconRefresh, IconShare, IconX } from "@tabler/icons-react-native";
+import { IconPencil, IconRefresh, IconX } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
 import { ActionButtonList } from "../actions/ActionButton";
@@ -13,12 +13,15 @@ import { Button } from "../base/button/Button";
 import { Text } from "../base/Text";
 import { AsyncButton } from "../base/button/AsyncButton";
 import { TransText } from "../core/TransText";
+import { useCanEditEvent } from "../../hooks/useCanEditEvent";
 
 export const EventActionsSheet = ({ sheet }: { sheet: RefObject<SheetRef | null> }) => {
 	const router = useRouter();
 	const resolved = useResolvedEvent();
 	const actions = [...createActionsForEvent(resolved)];
 	const deleteConfirmSheet = useRef<SheetRef>(null);
+	const pathname = usePathname();
+	const canEdit = useCanEditEvent(resolved);
 
 	const deleteMutation = useMutation({
 		mutationFn: async () => {
@@ -28,22 +31,14 @@ export const EventActionsSheet = ({ sheet }: { sheet: RefObject<SheetRef | null>
 		onSuccess: () => {
 			sheet.current?.dismiss();
 			deleteConfirmSheet.current?.dismiss();
-			if (router.canGoBack()) router.back();
-			else router.replace("/");
+			if (pathname.startsWith(`/event/${resolved.id}`)) {
+				if (router.canGoBack()) router.back();
+				else router.push("/");
+			}
 		},
 	});
 
-	const shareLink = ResolvedEventUtils.createShareLink(resolved);
-
-	if (shareLink)
-		actions.push({
-			label: "Share",
-			type: "copy",
-			value: shareLink,
-			icon: <IconShare size={IconSize.xs} color={Colors.Text} />,
-		});
-
-	if (resolved.source.type === "local")
+	if (canEdit)
 		actions.push({
 			label: "Edit",
 			type: "fn",

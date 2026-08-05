@@ -10,6 +10,7 @@ import { Container } from "../../components/base/Container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect } from "react";
 import { useAtAccounts, useAtClient } from "@vantage/atproto";
+import { ButtonBase } from "../../components/base/ButtonBase";
 
 const WIDE_BREAKPOINT = 640;
 const TAB_BAR_MAX_WIDTH = 240;
@@ -72,22 +73,21 @@ export default function TabLayout() {
 									const isActive = props.state.routeNames[props.state.index] === name;
 									return (
 										<Box key={name} flex={1} direction="row" justify="center">
-											<ActionIcon
+											<ButtonBase
 												role="tab"
 												accessibilityLabel={`${isActive ? "Active " : ""}${alt} Tab, ${index + 1} of ${array.length}`}
 												accessibilityState={{
 													selected: isActive,
 												}}
 												onPress={() => props.navigation.navigate(name)}
-												size="auto"
-												w="100%"
-												h="100%"
 											>
-												<Icon
-													size={IconSize.lg}
-													color={isActive ? Colors.Primary : Colors.TextDimmed}
-												/>
-											</ActionIcon>
+												<Box flex={1} align="center" justify="center">
+													<Icon
+														size={IconSize.lg}
+														color={isActive ? Colors.Primary : Colors.TextDimmed}
+													/>
+												</Box>
+											</ButtonBase>
 										</Box>
 									);
 								})}

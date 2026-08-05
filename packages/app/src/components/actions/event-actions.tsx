@@ -1,40 +1,44 @@
 import { ResolvedEventUtils } from "@vantage/core";
+import { Share } from "react-native";
 import { Action } from "./action";
 import { renderMarkdown } from "@evnt/pretty";
 import { useLocaleStore } from "../../stores/useLocaleStore";
+import { IconSize } from "../../theme/sizing";
+import { IconShare } from "@tabler/icons-react-native";
+import { Colors } from "../../theme/colors";
 
 export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 	const actions: Action[] = [];
 
-	if (resolved.data)
+	if (resolved.error && resolved.data)
 		actions.push({
 			label: "View: Resolved Data",
 			type: "raw",
 			value: JSON.stringify(resolved.data),
 		});
 
-	if (resolved.raw)
+	if (resolved.error && resolved.raw)
 		actions.push({
 			label: "View: Raw Data",
 			type: "raw",
 			value: resolved.raw,
 		});
 
-	if (resolved.format.type !== "directory.evnt.event" && resolved.raw)
+	if (resolved.error && resolved.format.type !== "directory.evnt.event" && resolved.raw)
 		actions.push({
 			label: "Copy Raw Data",
 			type: "copy",
 			value: resolved.raw ?? "",
 		});
 
-	if (resolved.source.type === "http")
+	if (resolved.error && resolved.source.type === "http")
 		actions.push({
 			label: "Copy Data URL",
 			type: "copy",
 			value: resolved.source.url,
 		});
 
-	if (resolved.source.type === "at")
+	if (resolved.error && resolved.source.type === "at")
 		actions.push({
 			label: "Copy at-uri",
 			type: "copy",
@@ -44,9 +48,10 @@ export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 	const shareLink = ResolvedEventUtils.createShareLink(resolved);
 	if (shareLink)
 		actions.push({
-			label: "Copy Share Link",
-			type: "copy",
-			value: shareLink,
+			label: "Share",
+			type: "fn",
+			icon: <IconShare size={IconSize.xs} color={Colors.Text} />,
+			onRun: async () => void (await Share.share({ message: shareLink, url: shareLink })),
 		});
 
 	if (resolved.data)

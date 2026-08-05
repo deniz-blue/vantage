@@ -38,6 +38,7 @@ defineEventSource({
 	shareLink: ({ uri }) => `https://eventsl.ink/e?at=${uri}`,
 
 	resolve: async ({ uri }) => {
+		console.log(">>>", uri);
 		const res = await repoGetRecordUri(uri);
 		const data = ok(res);
 		const raw = JSON.stringify(data.value);
