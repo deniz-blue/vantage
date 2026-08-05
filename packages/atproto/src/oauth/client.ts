@@ -22,7 +22,12 @@ const redirectUri = __DEV__ ? DEV_REDIRECT_URI : PROD_REDIRECT_URI;
 const metadata: PublicClientMetadata = {
 	...(__DEV__ ? {} : { client_id: PROD_CLIENT_ID }),
 	redirect_uris: [redirectUri],
-	scope: "atproto general",
+	scope: [
+		"atproto",
+		"repo:directory.evnt.event",
+		"repo:community.lexicon.calendar.rsvp",
+		"repo:community.lexicon.calendar.event",
+	].join(" "),
 };
 
 const stores: OAuthClientStores = {

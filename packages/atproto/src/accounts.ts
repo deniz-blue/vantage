@@ -12,15 +12,17 @@ export interface AtAccount {
 
 export interface AtAccountsStore {
 	accounts: Record<string, AtAccount>;
+	activeDid: AtprotoDid | null;
 	addAccount: (entry: AtAccount) => void;
-	removeAccount: (did: string) => void;
-	markActive: (did: string) => void;
+	removeAccount: (did: AtprotoDid) => void;
+	markActive: (did: AtprotoDid) => void;
 }
 
 export const useAtAccounts = create<AtAccountsStore>()(
 	persist(
 		immer((set) => ({
 			accounts: {},
+			activeDid: null,
 
 			addAccount: (entry) =>
 				set((state) => {
@@ -35,6 +37,7 @@ export const useAtAccounts = create<AtAccountsStore>()(
 			markActive: (did) =>
 				set((state) => {
 					if (state.accounts[did]) state.accounts[did].lastActiveAt = Date.now();
+					state.activeDid = did;
 				}),
 		})),
 		{

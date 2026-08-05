@@ -5,9 +5,11 @@ import { AppCopyButton } from "../core/AppCopyButton";
 import { Action } from "./action";
 import { Sheet, SheetRef } from "../base/sheet/Sheet";
 import { ViewRawSheetContent } from "../app/ViewRawSheet";
-import { IconCode, IconCopy } from "@tabler/icons-react-native";
+import { IconCode, IconCopy, IconExternalLink } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
+import { Linking } from "react-native";
+import { AsyncButton } from "../base/button/AsyncButton";
 
 export const ActionButton = ({ action }: { action: Action }) => {
 	if (action.type === "copy")
@@ -22,11 +24,26 @@ export const ActionButton = ({ action }: { action: Action }) => {
 
 	if (action.type === "fn")
 		return (
+			<AsyncButton fn={async () => await action.onRun()}>
+				{({ loading, onPress }) => (
+					<Button
+						leftSection={action.icon}
+						children={action.label}
+						onPress={onPress}
+						loading={loading}
+						variant={action.danger ? "danger" : undefined}
+						justify="flex-start"
+					/>
+				)}
+			</AsyncButton>
+		);
+
+	if (action.type === "link")
+		return (
 			<Button
-				leftSection={action.icon}
+				leftSection={action.icon ?? <IconExternalLink size={IconSize.xs} color={Colors.Text} />}
 				children={action.label}
-				onPress={action.onRun}
-				variant={action.danger ? "danger" : undefined}
+				onPress={() => Linking.openURL(action.url)}
 				justify="flex-start"
 			/>
 		);

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
 import { Container } from "../components/base/Container";
@@ -19,6 +19,10 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import Animated from "react-native-reanimated";
 import { useKeyboardHeight } from "../hooks/useKeyboardHeight";
 import { ActionBackButton } from "../components/app/ActionBackButton";
+import { AtprotoDid, CanonicalResourceUri } from "@atcute/lexicons/syntax";
+import { useAtAccounts, useAtClient } from "@vantage/atproto";
+import { AtUserAvatar, AtUserHandle } from "../components/user/AtUserCard";
+import { now } from "@atcute/tid";
 
 const validJson = (str: any): boolean => {
 	if (typeof str !== "string") return false;
@@ -30,15 +34,16 @@ const validJson = (str: any): boolean => {
 	}
 };
 
+type SaveTarget = { type: "local" } | { type: "atproto"; did: AtprotoDid };
+
 export default function NewEventPage() {
 	const insets = useSafeAreaInsets();
 	const keyboardHeight = useKeyboardHeight();
 	const router = useRouter();
 	const { data } = useLocalSearchParams();
 	const [form, setForm] = useState<OpenEvnt>({ v: "0.1", name: {} });
+	const [saveTarget, setSaveTarget] = useState<SaveTarget>({ type: "local" });
 	const editor = useMemo(() => createEditor(form, setForm), [form, setForm]);
-
-	useEffect(() => {}, [data, setForm]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -50,15 +55,44 @@ export default function NewEventPage() {
 	);
 
 	const save = useMutation({
-		mutationFn: async (raw: string) => {
-			console.log("Saving event", raw);
-			return await EventsManager.addEventWithCache({
-				source: { type: "local" },
-				format: { type: "directory.evnt.event" },
-				raw,
-				parsed: editor.value,
-				error: null,
-			});
+		mutationFn: async () => {
+			console.log("Saving event...");
+
+			const data: OpenEvnt = { ...editor.value, $type: "directory.evnt.event" };
+			const raw = JSON.stringify(data);
+
+			switch (saveTarget.type) {
+				case "local": {
+					return await EventsManager.addEventWithCache({
+						source: { type: "local" },
+						format: { type: "directory.evnt.event" },
+						raw,
+						parsed: data,
+						error: null,
+					});
+				}
+				case "atproto": {
+					const did = saveTarget.did;
+					if (!useAtAccounts.getState().accounts[did])
+						throw new Error("No account found for DID: " + did);
+					if (useAtAccounts.getState().activeDid !== did) await useAtClient.getState().signIn(did);
+					const { client } = useAtClient.getState();
+					if (!client) throw new Error("No AT Protocol client available");
+					const res = await client.post("com.atproto.repo.putRecord", {
+						input: {
+							collection: "directory.evnt.event",
+							record: data as any,
+							repo: did,
+							rkey: now(),
+						},
+					});
+					if (!res.ok) throw new Error(res.data.error + ": " + res.data.message);
+					return await EventsManager.addEvent({
+						source: { type: "at", uri: res.data.uri as CanonicalResourceUri },
+						format: { type: "directory.evnt.event" },
+					});
+				}
+			}
 		},
 		onSuccess: (id) => {
 			router.push(`/event/${id}`);
@@ -81,7 +115,7 @@ export default function NewEventPage() {
 								</Box>
 
 								<Box>
-									<SaveToSelect />
+									<SaveTargetSelect value={saveTarget} onChange={setSaveTarget} />
 								</Box>
 
 								<Divider />
@@ -101,12 +135,7 @@ export default function NewEventPage() {
 			</Box>
 			<Box pos="absolute" style={{ bottom: insets.bottom }} w="100%">
 				<Container size="sm" flex={1} pb="md">
-					<Button
-						variant="primary"
-						w="100%"
-						loading={save.isPending}
-						onPress={() => save.mutate(JSON.stringify(editor.value))}
-					>
+					<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
 						{save.isPending ? "Saving…" : "Save"}
 					</Button>
 				</Container>
@@ -115,24 +144,52 @@ export default function NewEventPage() {
 	);
 }
 
-export const SaveToSelect = () => {
-	const renderItem = useCallback(({ value }: { value: string }) => {
-		if (value === "local")
+export const SaveTargetSelect = ({
+	value,
+	onChange,
+}: {
+	value: SaveTarget;
+	onChange: (value: SaveTarget) => void;
+}) => {
+	const accounts = useAtAccounts((s) => s.accounts);
+
+	const accountTargets = useMemo(
+		() =>
+			Object.values(accounts).map(
+				(account) =>
+					({
+						type: "atproto",
+						did: account.did,
+					}) as SaveTarget,
+			),
+		[accounts],
+	);
+
+	const renderItem = useCallback(({ value }: { value: SaveTarget }) => {
+		if (value.type === "local")
 			return (
 				<Box direction="row" gap="xs" align="center">
 					<IconDatabase size={IconSize.sm} color={Colors.Text} />
 					<Text fz={FontSize.sm}>This Device</Text>
 				</Box>
 			);
-		return value;
+		if (value.type === "atproto")
+			return (
+				<Box direction="row" gap="xs" align="center">
+					<AtUserAvatar did={value.did} size={IconSize.sm} />
+					<Text fz={FontSize.sm}>
+						<AtUserHandle did={value.did} />
+					</Text>
+				</Box>
+			);
 	}, []);
 
 	return (
-		<Select
+		<Select<SaveTarget>
 			label="Save to"
-			value="local"
-			onChange={() => {}}
-			data={["local"]}
+			value={value}
+			onChange={onChange}
+			data={[{ type: "local" }, ...accountTargets]}
 			renderItem={renderItem}
 			searchable={false}
 		/>

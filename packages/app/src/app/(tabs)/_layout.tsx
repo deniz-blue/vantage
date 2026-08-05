@@ -8,6 +8,8 @@ import { ActionIcon } from "../../components/base/button/ActionIcon";
 import { IconSize } from "../../theme/sizing";
 import { Container } from "../../components/base/Container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useEffect } from "react";
+import { useAtAccounts, useAtClient } from "@vantage/atproto";
 
 const WIDE_BREAKPOINT = 640;
 const TAB_BAR_MAX_WIDTH = 240;
@@ -16,6 +18,13 @@ export default function TabLayout() {
 	const insets = useSafeAreaInsets();
 	const { width: screenWidth } = useWindowDimensions();
 	const isWide = screenWidth >= WIDE_BREAKPOINT;
+
+	// Late stage initialization
+	useEffect(() => {
+		const { activeDid } = useAtAccounts.getState();
+		if (!activeDid) return;
+		useAtClient.getState().signIn(activeDid);
+	}, []);
 
 	return (
 		<>

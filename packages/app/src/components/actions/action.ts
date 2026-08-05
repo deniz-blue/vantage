@@ -12,11 +12,14 @@ export interface ActionMap {
 		value: CopyButtonProps["value"];
 	};
 	fn: {
-		onRun: () => void;
+		onRun: () => Promise<void> | void;
 		danger?: boolean;
 	};
 	raw: {
 		value: string;
+	};
+	link: {
+		url: string;
 	};
 }
 

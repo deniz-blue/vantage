@@ -44,24 +44,15 @@ export const AtUserCard = ({
 	onLongPress?: () => void;
 	onMenu?: () => void;
 }) => {
-	const avatarUrl = useAtAvatarUrl(did);
-	const handle = useAtHandle(did);
-
 	return (
 		<ButtonBase onPress={onPress} onLongPress={onLongPress}>
 			<Card>
 				<Box direction="row" justify="space-between">
 					<Box direction="row" align="center" gap="xs">
-						<Box
-							component={Image}
-							source={avatarUrl}
-							w={IconSize.xl}
-							h={IconSize.xl}
-							radius={999}
-						/>
+						<AtUserAvatar did={did} size={IconSize.xl} />
 						<Box>
 							<Text fw="bold" fz={FontSize.sm}>
-								{handle ?? "Loading..."}
+								<AtUserHandle did={did} />
 							</Text>
 							<Text c="TextDimmed" fz={FontSize.xs}>
 								{did}
@@ -79,4 +70,22 @@ export const AtUserCard = ({
 			</Card>
 		</ButtonBase>
 	);
+};
+
+export const AtUserAvatar = ({ did, size }: { did: AtprotoDid; size?: number }) => {
+	const avatarUrl = useAtAvatarUrl(did);
+
+	return (
+		<Box
+			component={Image}
+			source={avatarUrl}
+			w={size ?? IconSize.xl}
+			h={size ?? IconSize.xl}
+			radius={999}
+		/>
+	);
+};
+
+export const AtUserHandle = ({ did }: { did: AtprotoDid }) => {
+	return useAtHandle(did);
 };
