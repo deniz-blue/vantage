@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export interface AuthSessionEntry {
+export interface AtAccount {
 	did: string;
 	pds: string;
 	handle?: string;
@@ -11,56 +11,56 @@ export interface AuthSessionEntry {
 	lastActiveAt: number;
 }
 
-export interface AuthStore {
-	sessions: Record<string, AuthSessionEntry>;
+export interface AtAccountsStore {
+	accounts: Record<string, AtAccount>;
 	activeDid: string | null;
-	addSession: (entry: AuthSessionEntry) => void;
-	removeSession: (did: string) => void;
+	addAccount: (entry: AtAccount) => void;
+	removeAccount: (did: string) => void;
 	switchAccount: (did: string) => void;
 	logoutAll: () => void;
-	updateSession: (did: string, patch: Partial<Omit<AuthSessionEntry, "did">>) => void;
+	updateAccount: (did: string, patch: Partial<Omit<AtAccount, "did">>) => void;
 }
 
-export const useAuthStore = create<AuthStore>()(
+export const useAtAccounts = create<AtAccountsStore>()(
 	persist(
 		(set) => ({
-			sessions: {},
+			accounts: {},
 			activeDid: null,
 
-			addSession: (entry) =>
+			addAccount: (entry) =>
 				set((state) => ({
-					sessions: { ...state.sessions, [entry.did]: entry },
+					accounts: { ...state.accounts, [entry.did]: entry },
 					activeDid: entry.did,
 				})),
 
-			removeSession: (did) =>
+			removeAccount: (did) =>
 				set((state) => {
-					const { [did]: _, ...rest } = state.sessions;
+					const { [did]: _, ...rest } = state.accounts;
 					const remaining = Object.keys(rest);
 					return {
-						sessions: rest,
+						accounts: rest,
 						activeDid: state.activeDid === did ? (remaining[0] ?? null) : state.activeDid,
 					};
 				}),
 
 			switchAccount: (did) => set({ activeDid: did }),
 
-			logoutAll: () => set({ sessions: {}, activeDid: null }),
+			logoutAll: () => set({ accounts: {}, activeDid: null }),
 
-			updateSession: (did, patch) =>
+			updateAccount: (did, patch) =>
 				set((state) => {
-					const existing = state.sessions[did];
+					const existing = state.accounts[did];
 					if (!existing) return state;
 					return {
-						sessions: {
-							...state.sessions,
+						accounts: {
+							...state.accounts,
 							[did]: { ...existing, ...patch, lastActiveAt: Date.now() },
 						},
 					};
 				}),
 		}),
 		{
-			name: "vantage:atproto:auth",
+			name: "vantage:atproto:accounts",
 			version: 1,
 			storage: createJSONStorage(() => AsyncStorage),
 		},
