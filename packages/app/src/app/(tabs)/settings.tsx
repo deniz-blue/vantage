@@ -17,6 +17,9 @@ import { AsyncButton } from "../../components/base/button/AsyncButton";
 import { db, schema } from "@vantage/db";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ButtonSheet } from "../../components/app/ButtonSheet";
+import { AtprotoSignInSheetContent } from "../../components/app/AtprotoSignInSheet";
+import { useAtAccounts, useAtClient } from "@vantage/atproto";
+import { DiagnosticsPanel } from "../../components/app/debug/DiagnosticsPanel";
 
 export default function Settings() {
 	const language = useLocaleStore((s) => s.language);
@@ -40,6 +43,8 @@ export default function Settings() {
 
 					<Divider my="md" />
 
+					<AtprotoSection />
+
 					<InputWrapper label="App">
 						<Button
 							onPress={() => Linking.openURL("https://github.com/deniz-blue/vantage/issues")}
@@ -48,6 +53,10 @@ export default function Settings() {
 						>
 							Bug Reports / Feedback
 						</Button>
+					</InputWrapper>
+
+					<InputWrapper label="Diagnostics">
+						<DiagnosticsPanel />
 					</InputWrapper>
 
 					<InputWrapper label="Developer Tools">
@@ -111,3 +120,67 @@ export default function Settings() {
 		</Box>
 	);
 }
+
+const AtprotoSection = () => {
+	const accounts = useAtAccounts((s) => s.accounts);
+	const activeDid = useAtAccounts((s) => s.activeDid);
+	const accountList = Object.values(accounts);
+
+	return (
+		<InputWrapper label="AT Protocol">
+			{accountList.length > 0 ? (
+				<Box gap="xs">
+					{accountList.map((account) => (
+						<Box
+							key={account.did}
+							direction="row"
+							align="center"
+							justify="space-between"
+							bg={Colors.BackgroundLight}
+							p="sm"
+							radius={6}
+						>
+							<Box direction="row" align="center" gap="sm" flex={1}>
+								<Box>
+									<Text fz={FontSize.sm} fw="bold">
+										{account.handle ?? account.did}
+									</Text>
+									<Text fz={FontSize.xs} c="TextDimmed">
+										{account.did}
+										{account.did === activeDid ? " (active)" : ""}
+									</Text>
+								</Box>
+							</Box>
+							<Box direction="row" gap="xs">
+								{account.did !== activeDid && (
+									<Button
+										size="sm"
+										onPress={() => useAtAccounts.getState().switchAccount(account.did)}
+									>
+										Switch
+									</Button>
+								)}
+								<Button
+									size="sm"
+									variant="danger"
+									onPress={() => {
+										useAtAccounts.getState().removeAccount(account.did);
+										if (account.did === activeDid) {
+											useAtClient.getState().clear();
+										}
+									}}
+								>
+									Sign Out
+								</Button>
+							</Box>
+						</Box>
+					))}
+				</Box>
+			) : null}
+
+			<ButtonSheet sheet={<AtprotoSignInSheetContent />}>
+				{accountList.length > 0 ? "Add Account" : "Sign In"}
+			</ButtonSheet>
+		</InputWrapper>
+	);
+};

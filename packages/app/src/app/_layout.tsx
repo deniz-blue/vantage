@@ -49,6 +49,7 @@ export default function RootLayout() {
 						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 						<Stack.Screen name="new" options={{ headerShown: false }} />
 						<Stack.Screen name="feed" options={{ headerShown: false }} />
+						<Stack.Screen name="oauth/callback" options={{ headerShown: false }} />
 						<Stack.Screen name="event/index" options={{ headerShown: false }} />
 						<Stack.Screen name="event/[id]" options={{ headerShown: false }} />
 						<Stack.Screen name="event/[id]/edit" options={{ headerShown: false }} />

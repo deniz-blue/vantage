@@ -24,7 +24,7 @@ export default {
 			typedRoutes: true,
 		},
 		android: {
-			package: DEV ? "lt.tsx.vantage.dev" : "lt.tsx.vantage",
+			package: DEV ? "lt.tsx.dev.vantage" : "lt.tsx.vantage",
 			versionCode,
 			predictiveBackGestureEnabled: false,
 			intentFilters: [

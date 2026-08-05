@@ -2,11 +2,6 @@ import type { Store } from "@atcute/oauth-node-client";
 
 const PREFIX = "vantage:atproto:";
 
-/**
- * Minimal async key-value storage interface.
- *
- * Accepts AsyncStorage (default), or any compatible implementation.
- */
 export interface KVStorage {
 	getItem(key: string): Promise<string | null>;
 	setItem(key: string, value: string): Promise<void>;
@@ -15,11 +10,6 @@ export interface KVStorage {
 	multiRemove(keys: readonly string[]): Promise<void>;
 }
 
-/**
- * Async key-value store implementing atcute's Store<K, V> interface.
- *
- * Values are JSON-serialized. Each namespace gets its own key prefix to avoid collisions.
- */
 export class KVStore<V> implements Store<string, V> {
 	private prefix: string;
 	private storage: KVStorage;
