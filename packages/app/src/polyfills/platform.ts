@@ -1,0 +1,2 @@
+/* Stub file */
+let _;
