@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 
+export type Resolvable<T> = T | (() => T | Promise<T>);
+
 export interface AsyncButtonProps {
 	fn: () => Promise<void>;
 	cooldown?: number;

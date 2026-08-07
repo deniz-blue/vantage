@@ -24,6 +24,7 @@ export const useListFiltersStore = create<ListOptions>()(
 	immer(() => ({
 		limit: PAGE_SIZE,
 		orderBy: "instanceStart",
+		afterTimestamp: Temporal.Now.zonedDateTimeISO().epochMilliseconds,
 	})),
 );
 
@@ -99,7 +100,7 @@ export const ListHeader = ({ loading }: { loading: boolean }) => {
 
 export const ListFiltersSheetContent = () => {
 	const filters = useListFiltersStore();
-	const todayMs = useMemo(() => Temporal.Now.instant().epochMilliseconds, []);
+	const todayMs = useMemo(() => Temporal.Now.zonedDateTimeISO().epochMilliseconds, []);
 
 	return (
 		<Box gap="md">

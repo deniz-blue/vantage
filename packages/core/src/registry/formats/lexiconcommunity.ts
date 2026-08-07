@@ -1,3 +1,4 @@
+import { parseCanonicalResourceUri } from "@atcute/lexicons";
 import { defineEventFormat } from "../../lib/format";
 import { communityLexicon } from "@evnt/convert";
 
@@ -11,10 +12,10 @@ declare global {
 
 defineEventFormat({
 	type: "community.lexicon.calendar.event",
-	parse: (raw, _fmt, ctx) => {
+	parse: ({ raw, source }) => {
 		try {
 			if (!communityLexicon.from) throw new Error("Converter does not support `from`");
-			const did = ctx?.source?.type === "at" ? (ctx.source as any).did : undefined;
+			const did = source.type === "at" ? parseCanonicalResourceUri(source.uri).repo : undefined;
 			const parsed = communityLexicon.from(raw, { did });
 			return { parsed, error: null };
 		} catch (e: any) {

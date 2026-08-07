@@ -1,5 +1,5 @@
 import { ZodError } from "zod";
-import { EventFormatRegistry } from "./format";
+import { EventFormatRegistry, inferFormatFromRaw } from "./format";
 import { EventSourceRegistry } from "./source";
 import { ClientResponseError } from "@atcute/client";
 import { db, schema } from "@vantage/db";
@@ -166,11 +166,19 @@ export const EventResolver = new (class {
 
 		try {
 			const result = await source.resolve(resolved.source);
+			
+			// sniff format from raw data if still unknown
+			let format = resolved.format;
+			if (format.type === "unknown" && result.raw) {
+				format = inferFormatFromRaw(result.raw, resolved.source) ?? format;
+			}
+
 			return {
 				...resolved,
 				raw: result.raw,
 				error: result.error,
 				revision: result.revision,
+				format,
 				updatedAt: Temporal.Now.instant(),
 			};
 		} catch (err) {
@@ -190,7 +198,11 @@ export const EventResolver = new (class {
 		if (!format) return resolved;
 
 		try {
-			const result = format.parse(resolved.raw, format, { source: resolved.source });
+			const result = format.parse({
+				format: resolved.format,
+				raw: resolved.raw,
+				source: resolved.source,
+			});
 			return {
 				...resolved,
 				data: result.parsed,

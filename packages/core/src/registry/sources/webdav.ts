@@ -16,7 +16,6 @@ declare global {
 
 defineEventSource({
 	type: "webdav",
-	editable: true,
 
 	resolve: async ({ url, path }) => {
 		const res = await webdav.read(url, path);

@@ -1,10 +1,9 @@
-import { ResolvedEventUtils } from "@vantage/core";
-import { Share } from "react-native";
+import { FOLIO_BASE_URL, ResolvedEventUtils } from "@vantage/core";
 import { Action } from "./action";
 import { renderMarkdown } from "@evnt/pretty";
 import { useLocaleStore } from "../../stores/useLocaleStore";
 import { IconSize } from "../../theme/sizing";
-import { IconShare } from "@tabler/icons-react-native";
+import { IconUserEdit } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 
 export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
@@ -49,9 +48,8 @@ export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 	if (shareLink)
 		actions.push({
 			label: "Share",
-			type: "fn",
-			icon: <IconShare size={IconSize.xs} color={Colors.Text} />,
-			onRun: async () => void (await Share.share({ message: shareLink, url: shareLink })),
+			type: "share",
+			value: shareLink,
 		});
 
 	if (resolved.data)
@@ -64,6 +62,20 @@ export const createActionsForEvent = (resolved: Vantage.ResolvedEvent) => {
 					language: useLocaleStore.getState().language,
 				}),
 		});
+
+	if (resolved.source.type === "folio" && resolved.source.editToken) {
+		const editUrl = new URL(
+			`/events/${resolved.source.id}`,
+			resolved.source.baseUrl ?? FOLIO_BASE_URL,
+		);
+		editUrl.searchParams.set("token", resolved.source.editToken);
+		actions.push({
+			label: "Share Editing Link",
+			type: "share",
+			value: editUrl.toString(),
+			icon: <IconUserEdit size={IconSize.xs} color={Colors.Text} />,
+		});
+	}
 
 	return actions;
 };

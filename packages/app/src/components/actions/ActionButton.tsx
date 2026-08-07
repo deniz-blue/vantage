@@ -5,10 +5,10 @@ import { AppCopyButton } from "../core/AppCopyButton";
 import { Action } from "./action";
 import { Sheet, SheetRef } from "../base/sheet/Sheet";
 import { ViewRawSheetContent } from "../app/ViewRawSheet";
-import { IconCode, IconCopy, IconExternalLink } from "@tabler/icons-react-native";
+import { IconCode, IconCopy, IconExternalLink, IconShare } from "@tabler/icons-react-native";
 import { Colors } from "../../theme/colors";
 import { IconSize } from "../../theme/sizing";
-import { Linking } from "react-native";
+import { Linking, Share } from "react-native";
 import { AsyncButton } from "../base/button/AsyncButton";
 
 export const ActionButton = ({ action }: { action: Action }) => {
@@ -20,6 +20,28 @@ export const ActionButton = ({ action }: { action: Action }) => {
 				leftSection={action.icon ?? <IconCopy size={IconSize.xs} color={Colors.Text} />}
 				children={action.label}
 			/>
+		);
+
+	if (action.type === "share")
+		return (
+			<AsyncButton
+				fn={async () => {
+					const content = typeof action.value === "function" ? await action.value() : action.value;
+					await Share.share({
+						message: content,
+					});
+				}}
+			>
+				{({ loading, onPress }) => (
+					<Button
+						leftSection={action.icon ?? <IconShare size={IconSize.xs} color={Colors.Text} />}
+						justify="flex-start"
+						onPress={onPress}
+						loading={loading}
+						children={action.label}
+					/>
+				)}
+			</AsyncButton>
 		);
 
 	if (action.type === "fn")

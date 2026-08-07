@@ -11,7 +11,7 @@ declare global {
 
 defineEventFormat({
 	type: "ics",
-	parse: (raw) => {
+	parse: ({ raw }) => {
 		try {
 			if (!icalendar.from) throw new Error("ICS converter does not support `from`");
 			const parsed = icalendar.from(raw);
@@ -22,5 +22,11 @@ defineEventFormat({
 				error: { kind: "parse-error", message: e.message ?? "Failed to parse ICS" },
 			};
 		}
+	},
+	inferFromRaw: ({ raw }) => {
+		if (raw.includes("BEGIN:VCALENDAR") && raw.includes("END:VCALENDAR")) {
+			return { type: "ics" };
+		}
+		return null;
 	},
 });

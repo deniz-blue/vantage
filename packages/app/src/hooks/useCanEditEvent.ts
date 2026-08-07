@@ -9,6 +9,9 @@ export const useCanEditEvent = (resolved: Vantage.ResolvedEvent | null) => {
 
 	return !!(
 		resolved.source.type === "local" ||
-		(resolved.source.type === "at" && accounts[parseCanonicalResourceUri(resolved.source.uri).repo])
+		(resolved.source.type === "at" &&
+			accounts[parseCanonicalResourceUri(resolved.source.uri).repo]) ||
+		resolved.source.type === "mediawiki" ||
+		(resolved.source.type === "folio" && resolved.source.editToken)
 	);
 };

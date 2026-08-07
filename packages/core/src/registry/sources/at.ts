@@ -1,13 +1,14 @@
 import { defineEventSource } from "../../lib/source";
-import { type CanonicalResourceUri } from "@atcute/lexicons/syntax";
+import { parseCanonicalResourceUri, type CanonicalResourceUri } from "@atcute/lexicons/syntax";
 import {
 	CompositeDidDocumentResolver,
 	PlcDidDocumentResolver,
 	WebDidDocumentResolver,
 } from "@atcute/identity-resolver";
 import type {} from "@atcute/atproto";
-import { repoGetRecordUri } from "@vantage/atproto";
+import { repoGetRecordUri, useAtAccounts, useAtClient } from "@vantage/atproto";
 import { ok } from "@atcute/client";
+import { EventsManager } from "../../database/event-manager";
 
 declare global {
 	namespace Vantage {
@@ -33,9 +34,6 @@ export const didDocumentResolver = new CompositeDidDocumentResolver({
 
 defineEventSource({
 	type: "at",
-	editable: false,
-
-	shareLink: ({ uri }) => `https://eventsl.ink/e?at=${uri}`,
 
 	resolve: async ({ uri }) => {
 		console.log(">>>", uri);
@@ -52,5 +50,32 @@ defineEventSource({
 				lastModifiedHeader: res.headers.get("Last-Modified") ?? undefined,
 			},
 		};
+	},
+
+	shareLink: ({ uri }) => `https://eventsl.ink/e?at=${uri}`,
+
+	edit: async ({ id, source, data }) => {
+		const { collection, repo, rkey } = parseCanonicalResourceUri(source.uri);
+		if (!useAtAccounts.getState().accounts[repo])
+			throw new Error("No account found for DID: " + repo);
+		if (useAtAccounts.getState().activeDid !== repo)
+			await useAtClient.getState().signIn(repo as any);
+		const { client } = useAtClient.getState();
+		if (!client) throw new Error("No AT Protocol client available");
+		const res = await client.post("com.atproto.repo.putRecord", {
+			input: {
+				collection,
+				record: data as any,
+				repo,
+				rkey,
+			},
+		});
+		if (!res.ok) throw new Error(res.data.error + ": " + res.data.message);
+		const raw = JSON.stringify(data);
+		await EventsManager.updateEventCache(id as any, {
+			raw,
+			parsed: data,
+			error: null,
+		});
 	},
 });

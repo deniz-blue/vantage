@@ -13,7 +13,7 @@ import { Select } from "../components/base/input/Select";
 import { Divider } from "../components/base/Divider";
 import { Button } from "../components/base/button/Button";
 import { Colors } from "../theme/colors";
-import { IconDatabase } from "@tabler/icons-react-native";
+import { IconBroadcast, IconDatabase } from "@tabler/icons-react-native";
 import { OpenEvntSchema } from "@evnt/schema";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated from "react-native-reanimated";
@@ -34,7 +34,7 @@ const validJson = (str: any): boolean => {
 	}
 };
 
-type SaveTarget = { type: "local" } | { type: "atproto"; did: AtprotoDid };
+type SaveTarget = { type: "local" } | { type: "atproto"; did: AtprotoDid } | { type: "folio" };
 
 export default function NewEventPage() {
 	const insets = useSafeAreaInsets();
@@ -69,6 +69,30 @@ export default function NewEventPage() {
 						raw,
 						parsed: data,
 						error: null,
+					});
+				}
+				case "folio": {
+					const res = await fetch("https://folio.denizblue.workers.dev/events", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: raw,
+					});
+					if (!res.ok)
+						throw new Error(`Failed to create event on Folio: ${res.status} ${res.statusText}`);
+					const json = await res.json();
+					if (!json.id)
+						throw new Error(`Folio response did not contain an event ID: ${JSON.stringify(json)}`);
+					console.log("Created Folio event", json);
+					return await EventsManager.addEvent({
+						source: {
+							type: "folio",
+							id: json.id,
+							editToken: json.edit_token,
+							baseUrl: "https://folio.denizblue.workers.dev",
+						},
+						format: { type: "directory.evnt.event" },
 					});
 				}
 				case "atproto": {
@@ -172,6 +196,13 @@ export const SaveTargetSelect = ({
 					<Text fz={FontSize.sm}>This Device</Text>
 				</Box>
 			);
+		if (value.type === "folio")
+			return (
+				<Box direction="row" gap="xs" align="center">
+					<IconBroadcast size={IconSize.sm} color={Colors.Text} />
+					<Text fz={FontSize.sm}>Folio</Text>
+				</Box>
+			);
 		if (value.type === "atproto")
 			return (
 				<Box direction="row" gap="xs" align="center">
@@ -188,7 +219,7 @@ export const SaveTargetSelect = ({
 			label="Save to"
 			value={value}
 			onChange={onChange}
-			data={[{ type: "local" }, ...accountTargets]}
+			data={[{ type: "local" }, { type: "folio" }, ...accountTargets]}
 			renderItem={renderItem}
 			searchable={false}
 		/>

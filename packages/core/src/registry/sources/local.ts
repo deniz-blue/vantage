@@ -1,3 +1,4 @@
+import { EventsManager } from "../../database/event-manager";
 import { defineEventSource } from "../../lib/source";
 
 declare global {
@@ -12,5 +13,12 @@ declare global {
 
 defineEventSource({
 	type: "local",
-	editable: true,
+	edit: async ({ id, data }) => {
+		const raw = JSON.stringify(data);
+		await EventsManager.updateEventCache(id, {
+			raw,
+			parsed: data,
+			error: null,
+		});
+	},
 });

@@ -1,20 +1,21 @@
 import type { OpenEvnt } from "@evnt/types";
-import { convertError } from "./source";
 
 export type EventParseResult = {
 	parsed: OpenEvnt | null;
 	error: Vantage.Error | null;
 };
 
-export type EventParser<Format extends keyof Vantage.EventFormatMap> = (
-	raw: string,
-	fmt: Extract<Vantage.EventFormat, { type: Format }>,
-	ctx?: { source?: Vantage.EventSource },
-) => EventParseResult;
-
 export type EventFormat<Format extends keyof Vantage.EventFormatMap> = {
 	type: Format;
-	parse: EventParser<Format>;
+	parse: (ctx: {
+		raw: string;
+		format: Vantage.EventFormatMap[Format];
+		source: Vantage.EventSource;
+	}) => EventParseResult;
+	inferFromRaw?: (ctx: {
+		raw: string;
+		source: Vantage.EventSource;
+	}) => Vantage.EventFormatMap[Format] | null;
 };
 
 export const EventFormatRegistry = new Map<string, EventFormat<any>>();
@@ -25,28 +26,15 @@ export const defineEventFormat = <Type extends keyof Vantage.EventFormatMap>(
 	EventFormatRegistry.set(fmt.type, fmt);
 };
 
-export const parseEventFormat = (
+export const inferFormatFromRaw = (
 	raw: string,
-	fmt: Vantage.EventFormat,
-	src?: Vantage.EventSource,
-): EventParseResult => {
-	const format = EventFormatRegistry.get(fmt.type);
-
-	if (!format)
-		return {
-			parsed: null,
-			error: {
-				kind: "unknown-format",
-				message: `No parser defined for format type: ${fmt.type}`,
-			},
-		};
-
-	try {
-		return format.parse(raw, fmt, { source: src });
-	} catch (e) {
-		return {
-			parsed: null,
-			error: convertError(e as any),
-		};
+	source: Vantage.EventSource,
+): Vantage.EventFormat | null => {
+	for (const [, fmt] of EventFormatRegistry) {
+		if (fmt.inferFromRaw) {
+			const result = fmt.inferFromRaw({ raw, source });
+			if (result) return result;
+		}
 	}
+	return null;
 };

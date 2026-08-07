@@ -11,6 +11,7 @@ import {
 	IconBrandWikipedia,
 	IconClock,
 	IconProps,
+	IconBroadcast,
 } from "@tabler/icons-react-native";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
@@ -44,8 +45,14 @@ export const EventDetailsSource = () => {
 				</Button>
 			))}
 
-			<Row icon={sourceIcons[source.type]} label={sourceLabels[source.type] ?? source.type} />
-			<Row icon={formatIcons[format.type]} label={formatLabels[format.type] ?? format.type} />
+			<Row
+				icon={sourceIcons[source.type] ?? IconQuestionMark}
+				label={sourceLabels[source.type] ?? source.type}
+			/>
+			<Row
+				icon={formatIcons[format.type] ?? IconQuestionMark}
+				label={formatLabels[format.type] ?? format.type}
+			/>
 
 			<Box direction="row" align="center" gap="xs" px="sm">
 				<IconClock size={IconSize.xs} color={Colors.Text} />
@@ -58,30 +65,32 @@ export const EventDetailsSource = () => {
 	);
 };
 
-const sourceIcons: Record<string, ComponentType<IconProps>> = {
+const sourceIcons: Partial<Record<string, ComponentType<IconProps>>> = {
 	unknown: IconQuestionMark,
 	local: IconDatabase,
 	at: IconAt,
 	http: IconWorld,
 	mediawiki: IconBrandWikipedia,
+	folio: IconBroadcast,
 };
 
-const sourceLabels: Record<string, string> = {
+const sourceLabels: Partial<Record<string, string>> = {
 	unknown: "Unknown Source",
 	local: "Browser/Device",
 	at: "Atmosphere (AT Protocol)",
 	http: "Internet (HTTP)",
+	folio: "Internet (Folio)",
 	mediawiki: "MediaWiki",
 };
 
-const formatIcons: Record<string, ComponentType<IconProps>> = {
+const formatIcons: Partial<Record<string, ComponentType<IconProps>>> = {
 	unknown: IconQuestionMark,
 	"directory.evnt.event": IconBraces,
 	ics: IconBraces,
 	"community.lexicon.calendar.event": IconBraces,
 };
 
-const formatLabels: Record<string, string> = {
+const formatLabels: Partial<Record<string, string>> = {
 	unknown: "Unknown Format",
 	"directory.evnt.event": "Open Evnt",
 	ics: "iCalendar (ICS)",

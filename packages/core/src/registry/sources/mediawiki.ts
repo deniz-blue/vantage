@@ -60,7 +60,6 @@ export namespace MediaWiki {
 defineEventSource({
 	type: "mediawiki",
 	network: true,
-	editable: true,
 
 	shareLink: ({ url, title }) => {
 		const endpoint = new URL(`rest.php/v1/page/${title}`, url);

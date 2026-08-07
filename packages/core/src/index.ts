@@ -11,6 +11,7 @@ export * from "./registry/formats/ics";
 export * from "./registry/sources/at";
 export * from "./registry/sources/http";
 export * from "./registry/sources/local";
+export * from "./registry/sources/folio";
 export * from "./registry/sources/mediawiki";
 export * from "./registry/sources/webdav";
 
@@ -26,6 +27,6 @@ export * from "./query/useEventListInfiniteQuery";
 
 export * from "./utils/uuid";
 export * from "./utils/resolved-utils";
-export * from "./utils/from-str";
+export * from "./utils/infer";
 export * from "./utils/error";
 export * from "./utils/eventslink";

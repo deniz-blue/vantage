@@ -1,6 +1,7 @@
 import type { schema } from "@vantage/db";
 import { ZodError } from "zod";
 import { ClientResponseError, type FailedClientResponse } from "@atcute/client";
+import type { OpenEvnt } from "@evnt/types";
 
 export type EventResolveResult = Omit<
 	schema.EventCache,
@@ -9,10 +10,14 @@ export type EventResolveResult = Omit<
 
 export interface EventSourceMeta<Type extends keyof Vantage.EventSourceMap> {
 	type: Type;
-	editable?: boolean;
-	network?: boolean;
 	resolve?: (source: Vantage.EventSourceMap[Type]) => Promise<EventResolveResult>;
 	shareLink?: (source: Vantage.EventSourceMap[Type]) => string | null;
+	network?: boolean;
+	edit?: (ctx: {
+		id: Vantage.EventId;
+		source: Vantage.EventSourceMap[Type];
+		data: OpenEvnt;
+	}) => Promise<void>;
 }
 
 export const EventSourceRegistry = new Map<string, EventSourceMeta<any>>();

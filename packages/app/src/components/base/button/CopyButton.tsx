@@ -1,8 +1,8 @@
 import * as Clipboard from "expo-clipboard";
-import { AsyncButton } from "./AsyncButton";
+import { AsyncButton, Resolvable } from "./AsyncButton";
 
 export interface CopyButtonProps {
-	value: string | (() => string | Promise<string>);
+	value: Resolvable<string>;
 	duration?: number;
 	children: (state: { copied: boolean; loading: boolean; onPress: () => void }) => React.ReactNode;
 }

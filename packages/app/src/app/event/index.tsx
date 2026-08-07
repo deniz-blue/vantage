@@ -1,28 +1,10 @@
 import { useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { EventResolver, parseEventFormat, ResolvedEventContext } from "@vantage/core";
+import { EventResolver, Infer, ResolvedEventContext } from "@vantage/core";
 import { Box } from "@/components/base/Box";
 import { Container } from "@/components/base/Container";
 import { EventDetails } from "@/components/event/details/EventDetails";
 import { Text } from "@/components/base/Text";
-
-const detectFormat = (raw: string, contentType: string, url: string): Vantage.EventFormat => {
-	if (contentType.includes("application/json") || url.endsWith(".json")) {
-		try {
-			const data = JSON.parse(raw);
-			if (typeof data?.$type === "string") return { type: data.$type };
-		} catch {
-			/* fall through */
-		}
-		return { type: "directory.evnt.event" };
-	}
-
-	if (contentType.includes("text/calendar") || url.endsWith(".ics")) {
-		return { type: "ics" };
-	}
-
-	return { type: "unknown" };
-};
 
 export default function EventFromIntent() {
 	const { at, url, data, type } = useLocalSearchParams<{
@@ -37,61 +19,24 @@ export default function EventFromIntent() {
 	const query = useQuery<Vantage.ResolvedEvent>({
 		queryKey: ["event-intent", at, url],
 		queryFn: async (): Promise<Vantage.ResolvedEvent> => {
-			if (at) {
-				let resolved = EventResolver.new({
-					source: { type: "at", uri: at as any },
-					format: { type: "unknown" },
-				});
-				resolved = await EventResolver.fetch(resolved);
-
-				if (resolved.raw) {
-					const record = JSON.parse(resolved.raw);
-					if (typeof record.$type === "string") {
-						resolved.format = { type: record.$type };
-					}
-				}
-
-				return await EventResolver.parse(resolved);
-			}
-
-			if (url) {
-				const res = await fetch(url);
-				if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-
-				const raw = await res.text();
-				const contentType = res.headers.get("content-type") ?? "";
-				const format = detectFormat(raw, contentType, url);
-				const { parsed, error } = parseEventFormat(raw, format, { type: "http", url });
-
-				return EventResolver.new({
-					source: { type: "http", url },
-					format,
-					raw,
-					data: parsed,
-					error,
-					revision: {
-						etag: res.headers.get("ETag") ?? undefined,
-						lastModifiedHeader: res.headers.get("Last-Modified") ?? undefined,
-					},
-				});
+			if (at || url) {
+				let resolved = Infer.fromString(at ?? url!);
+				resolved = await EventResolver.fetchIfNeeded(resolved);
+				resolved = await EventResolver.parseIfNeeded(resolved);
+				return resolved;
 			}
 
 			if (data) {
 				const parsed = JSON.parse(data);
-				const raw = JSON.stringify(parsed);
-				const format: Vantage.EventFormat = { type: "directory.evnt.event" };
-				const { parsed: eventData, error } = parseEventFormat(raw, format);
-
 				return EventResolver.new({
 					source: { type: "unknown" },
-					format,
-					raw,
-					data: eventData,
-					error,
+					format: { type: "directory.evnt.event" },
+					raw: data,
+					data: parsed,
 				});
 			}
 
-			throw new Error("No event reference provided");
+			return EventResolver.new();
 		},
 		enabled: hasIntent,
 	});
