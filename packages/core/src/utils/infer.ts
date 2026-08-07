@@ -68,7 +68,13 @@ const matchEventsLink: Matcher = (str) => {
 	if (intent?.type !== "event") return null;
 
 	if (intent.at) return matchAtUri(intent.at);
-	if (intent.url) return matchHttpUrl(intent.url);
+	if (intent.url) {
+		for (const m of matchers) {
+			const result = m(intent.url);
+			if (result) return result;
+		}
+		return null;
+	}
 	if (intent.data)
 		return EventResolver.new({
 			format: { type: "directory.evnt.event" },
