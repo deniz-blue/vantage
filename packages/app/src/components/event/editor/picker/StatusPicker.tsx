@@ -33,6 +33,7 @@ export const StatusPicker = memo(
 	({ value, onChange }: { value: EventStatus; onChange: (status: EventStatus) => void }) => {
 		return (
 			<Select
+				label="Status"
 				data={DATA}
 				value={value ?? "planned"}
 				onChange={onChange}

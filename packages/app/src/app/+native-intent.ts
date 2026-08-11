@@ -4,6 +4,8 @@ export async function redirectSystemPath(intent: {
 	path: string;
 	initial: boolean;
 }): Promise<string> {
+	console.log("redirectSystemPath", intent);
+
 	const url = new URL(intent.path, "https://placeholder");
 
 	if (url.pathname === "/oauth/callback" || url.pathname.startsWith("/oauth/callback/")) {

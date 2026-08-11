@@ -1,4 +1,4 @@
-import { EventInstance, OpenEvnt, Venue } from "@evnt/types";
+import { EventInstance, OpenEvnt, PartialDate, Venue } from "@evnt/types";
 import { Box } from "../../base/Box";
 import { Editor } from "./editor";
 import { TranslationsInput } from "./input/TranslationsInput";
@@ -8,7 +8,7 @@ import { Text } from "../../base/Text";
 import { Line } from "../../base/Divider";
 import { Button } from "../../base/button/Button";
 import { EventFormContext, useEventFormContext } from "./event-form-context";
-import { Fragment, ReactNode, useCallback, useMemo, useRef } from "react";
+import { Fragment, ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import { Sheet, SheetRef } from "../../base/sheet/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
 import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
@@ -17,23 +17,36 @@ import { EventDescriptionEditor } from "./EventDescriptionEditor";
 import { Colors } from "../../../theme/colors";
 import { ButtonBase } from "../../base/ButtonBase";
 import { EventFormLinks } from "./EventFormLinks";
+import { InputWrapper } from "../../base/input/InputWrapper";
+import { InlineTextButton } from "../../base/button/InlineTextButton";
+import { TranslationsUtil } from "@evnt/translations";
+import { PartialDateUtil } from "@evnt/partial-date";
 
 export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
+	const [showLabel, setShowLabel] = useState(false);
+	const hasLabel = !TranslationsUtil.isEmpty(editor.value.label);
 	const name = useMemo(() => editor.field("name"), [editor]);
+	const label = useMemo(() => editor.field("label"), [editor]);
 
 	return (
 		<EventFormContext value={{ editor }}>
 			<Box gap="md">
-				<TranslationsInput label="Event Name" placeholder="My Event" editor={name} />
+				<Box>
+					<Box direction="row" justify="space-between">
+						<InputWrapper label="Event Name" />
+						{!hasLabel && (
+							<InlineTextButton
+								onPress={() => setShowLabel((s) => !s)}
+								children={showLabel ? "[-]" : "[+]"}
+							/>
+						)}
+					</Box>
+					<TranslationsInput placeholder="My Event" editor={name} />
+				</Box>
 
-				<StatusPicker
-					value={editor.value.status || "planned"}
-					onChange={(status) =>
-						editor.update((d) => {
-							d.status = status;
-						})
-					}
-				/>
+				{(showLabel || hasLabel) && (
+					<TranslationsInput label="Subtitle" placeholder="Distinguishing Feature" editor={label} />
+				)}
 
 				<EventFormInstances />
 				<EventFormVenues />
@@ -44,6 +57,15 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 					</Text>
 					<Line />
 				</Box>
+
+				<StatusPicker
+					value={editor.value.status || "planned"}
+					onChange={(status) =>
+						editor.update((d) => {
+							d.status = status;
+						})
+					}
+				/>
 
 				<EventDescriptionEditor editor={editor} />
 
@@ -121,8 +143,31 @@ export const EventFormInstances = () => {
 	const instances = useMemo(() => editor.field("instances", []), [editor]);
 
 	const onAdd = useCallback(() => {
+		const last = instances.value?.[instances.value?.length - 1];
+		let start: PartialDate | undefined = undefined;
+		if (last?.start && PartialDateUtil.has(last.start, "day")) {
+			if (PartialDateUtil.has(last.start, "time")) {
+				let datetime = PartialDateUtil.asPlainDateTime(last.start);
+				datetime = datetime.add({ days: 1 });
+				start = PartialDateUtil.format({
+					...PartialDateUtil.parsedFromTemporal(datetime),
+					timezone: PartialDateUtil.parse(last.start).timezone,
+				});
+			} else {
+				let date = PartialDateUtil.asPlainDate(last.start);
+				date = date.add({ days: 1 });
+				start = PartialDateUtil.format({
+					...PartialDateUtil.parsedFromTemporal(date),
+					timezone: PartialDateUtil.parse(last.start).timezone,
+				});
+			}
+		} else if (last?.start) {
+			start = last.start;
+		}
+
 		instances.push({
 			venueIds: [],
+			start,
 		});
 	}, [instances]);
 

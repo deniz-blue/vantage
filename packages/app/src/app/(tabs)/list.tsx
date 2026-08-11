@@ -11,7 +11,6 @@ import { ControlHeight, IconSize, Radius } from "../../theme/sizing";
 import { Spacing } from "../../theme/spacing";
 import { Sheet, SheetRef } from "../../components/base/sheet/Sheet";
 import { SegmentedControl } from "../../components/base/input/SegmentedControl";
-import { BooleanControl } from "../../components/base/input/BooleanControl";
 import { Text } from "../../components/base/Text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { create } from "zustand";
@@ -149,16 +148,6 @@ export const ListFiltersSheetContent = () => {
 					]}
 				/>
 			</Box>
-
-			<BooleanControl
-				label="Has error"
-				value={filters.error ?? null}
-				onChange={(value) =>
-					useListFiltersStore.setState((q) => {
-						q.error = value ?? undefined;
-					})
-				}
-			/>
 		</Box>
 	);
 };

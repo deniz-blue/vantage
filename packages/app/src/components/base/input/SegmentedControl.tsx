@@ -25,10 +25,11 @@ export const SegmentedControl = <T,>({
 				{options.map((option) => (
 					<Button
 						size="md"
+						compact
+						py="xs"
 						key={typeof option.value === "string" ? option.value : JSON.stringify(option.value)}
 						selected={value === option.value}
 						color={value === option.value ? option.color : undefined}
-						flex={1}
 						onPress={() => onChange(option.value)}
 						{...buttonProps}
 					>

@@ -2,12 +2,12 @@
 	"name": "@vantage/db",
 	"private": true,
 	"main": "src/index.ts",
-	"dependencies": {
+	"devDependencies": {
+		"typescript": "^7.0.2"
+	},
+	"peerDependencies": {
 		"@evnt/schema": "^0.1.0",
 		"@evnt/types": "^0.1.0",
 		"drizzle-orm": "^0.45.2"
-	},
-	"devDependencies": {
-		"typescript": "^6.0.3"
 	}
 }

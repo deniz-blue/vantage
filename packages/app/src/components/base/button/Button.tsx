@@ -31,6 +31,7 @@ export interface ButtonProps extends BoxProps, Omit<PressableProps, "children" |
 	leftSection?: React.ReactNode;
 	rightSection?: React.ReactNode;
 	disabled?: boolean;
+	compact?: boolean;
 }
 
 const stringLikeChildren = (children: React.ReactNode): children is string | number => {
@@ -50,6 +51,7 @@ export const Button = ({
 	onPress,
 	onLongPress,
 	disabled,
+	compact,
 	style,
 	...rest
 }: ButtonProps) => {
@@ -79,7 +81,7 @@ export const Button = ({
 				px={ss.ph}
 				bg={bg}
 				op={dimmed ? 0.4 : undefined}
-				mih={ss.h}
+				mih={compact ? undefined : ss.h}
 				style={[
 					{
 						outlineColor: Colors.Primary,
