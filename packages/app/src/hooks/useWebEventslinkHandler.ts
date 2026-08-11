@@ -8,6 +8,7 @@ export const useWebEventsLinkHandler = () => {
 
 	useEffect(() => {
 		if (Platform.OS !== "web") return;
+		console.log("useWebEventsLinkHandler: checking for events link");
 		const url = new URL(window.location.href);
 		if (url.pathname !== "/") return;
 		const intentData = EventsLink.parseIntent(url);
