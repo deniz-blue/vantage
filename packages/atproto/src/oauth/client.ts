@@ -14,7 +14,7 @@ export { type OAuthSession } from "@atcute/oauth-node-client";
 
 declare const __DEV__: boolean;
 
-export const PROD_CLIENT_ID = "https://vantage.tsx.lt/.well-known/oauth-client.json";
+export const PROD_CLIENT_ID = "https://vantage.tsx.lt/oauth-client-metadata.json";
 export const PROD_REDIRECT_URI = "https://vantage.tsx.lt/oauth/callback";
 export const DEV_REDIRECT_URI = "http://127.0.0.1:3000/oauth/callback";
 
