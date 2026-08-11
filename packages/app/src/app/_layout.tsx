@@ -11,6 +11,7 @@ import { ComponentStack } from "../components/ComponentStack";
 import { initializeDatabase } from "@vantage/db";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SheetProvider } from "../components/base/sheet/SheetProvider";
+import { useWebEventsLinkHandler } from "../hooks/useWebEventslinkHandler";
 
 export default function RootLayout() {
 	console.log("RootLayout render");
@@ -40,6 +41,7 @@ export default function RootLayout() {
 			]}
 		>
 			<AppErrorBoundary>
+				<Inner />
 				<Box flex={1} bg={Colors.Background}>
 					<Stack
 						screenOptions={{
@@ -59,3 +61,8 @@ export default function RootLayout() {
 		</ComponentStack>
 	);
 }
+
+export const Inner = () => {
+	useWebEventsLinkHandler();
+	return null;
+};
