@@ -71,8 +71,26 @@ export default {
 			"expo-status-bar",
 			[
 				"expo-font",
+				/** @type {import("./node_modules/expo-font/plugin/src/withFonts.ts").FontProps} */
 				{
-					fonts: ["./assets/fonts/Lexend_400Regular.ttf"],
+					fonts: ["./assets/fonts/Lexend_400Regular.ttf", "./assets/fonts/Lexend_700Regular.ttf"],
+					android: {
+						fonts: [
+							{
+								fontFamily: "Lexend",
+								fontDefinitions: [
+									{
+										path: "./assets/fonts/Lexend_400Regular.ttf",
+										weight: 400,
+									},
+									{
+										path: "./assets/fonts/Lexend_700Regular.ttf",
+										weight: 700,
+									},
+								],
+							},
+						],
+					},
 				},
 			],
 			"expo-splash-screen",
