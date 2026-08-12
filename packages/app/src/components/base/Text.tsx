@@ -16,7 +16,7 @@ export interface TextProps extends RNTextProps {
 }
 
 export const Text = memo((props: TextProps) => {
-	const { c, fz, fw: _, fst, ta, tt, tdl, lh, style, ...rest } = props;
+	const { c, fz, fw, fst, ta, tt, tdl, lh, style, ...rest } = props;
 
 	if (!props.children) return null;
 
@@ -27,7 +27,7 @@ export const Text = memo((props: TextProps) => {
 					fontFamily: Font.Default,
 					color: c ? getThemeColor(c) : Colors.Text,
 					fontSize: fz ?? FontSize.md,
-					// fontWeight: fw,
+					fontWeight: fw,
 					fontStyle: fst,
 					textAlign: ta,
 					textTransform: tt,

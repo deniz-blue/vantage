@@ -2,8 +2,8 @@ const DEV = process.env.APP_VARIANT === "development";
 
 if (DEV) console.log("[app.config.js] Running in development mode");
 
-const version = "0.1.3";
-const versionCode = 7;
+const version = "0.1.8";
+const versionCode = 8;
 
 export default {
 	/** @type {import("expo/config").ExpoConfig} */
@@ -73,7 +73,7 @@ export default {
 				"expo-font",
 				/** @type {import("./node_modules/expo-font/plugin/src/withFonts.ts").FontProps} */
 				{
-					fonts: ["./assets/fonts/Lexend_400Regular.ttf", "./assets/fonts/Lexend_700Regular.ttf"],
+					fonts: ["./assets/fonts/Lexend_400Regular.ttf", "./assets/fonts/Lexend_700Bold.ttf"],
 					android: {
 						fonts: [
 							{
@@ -84,7 +84,7 @@ export default {
 										weight: 400,
 									},
 									{
-										path: "./assets/fonts/Lexend_700Regular.ttf",
+										path: "./assets/fonts/Lexend_700Bold.ttf",
 										weight: 700,
 									},
 								],

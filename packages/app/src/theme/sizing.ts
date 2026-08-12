@@ -16,8 +16,7 @@ export const ControlHeight = {
 
 export type ThemeFont = keyof typeof Font;
 export const Font = {
-	Default: "Lexend_400Regular",
-	Bold: "Lexend_700Bold",
+	Default: "Lexend",
 } as const;
 
 export type ThemeFontSize = keyof typeof FontSize;
