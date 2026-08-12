@@ -52,67 +52,90 @@ export default function Settings() {
 						>
 							Bug Reports / Feedback
 						</Button>
-					</InputWrapper>
-
-					<InputWrapper label="Diagnostics">
-						<DiagnosticsPanel />
+						<Button
+							onPress={() => Linking.openURL("https://groups.google.com/g/tsxlt")}
+							justify="flex-start"
+							rightSection={<IconExternalLink size={FontSize.xs} color={Colors.Text} />}
+						>
+							Beta Testers Group
+						</Button>
+						<Button
+							onPress={() =>
+								Linking.openURL("https://play.google.com/store/apps/details?id=lt.tsx.vantage")
+							}
+							justify="flex-start"
+							rightSection={<IconExternalLink size={FontSize.xs} color={Colors.Text} />}
+						>
+							App on Google Play Store
+						</Button>
 					</InputWrapper>
 
 					<InputWrapper label="Developer Tools">
-						<ButtonSheet sheet={<JsonImportSheetContent />}>
-							<Button justify="flex-start">Import JSON</Button>
+						<ButtonSheet
+							justify="flex-start"
+							sheet={
+								<Box gap="sm">
+									<ButtonSheet sheet={<JsonImportSheetContent />}>
+										<Button justify="flex-start">Import JSON</Button>
+									</ButtonSheet>
+
+									<DiagnosticsPanel />
+
+									<AsyncButton
+										fn={async () => {
+											const links = [
+												"https://deniz.blue/events-data/2025/tr-cosplay/sakura-festival.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/sanat-marketi.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/the-concastle-ii.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/slurp-serve.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/japon-k-lt-r-festivali.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/dotcon.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/bucon-25.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/cosplay-board-game.evnt.json",
+												"https://deniz.blue/events-data/2025/tr-cosplay/ants-fusion.evnt.json",
+												"https://deniz.blue/events-data/2026/conventions/ccb26.evnt.json",
+											];
+											for (let link of links)
+												await EventsManager.addEvent({
+													format: { type: "directory.evnt.event" },
+													source: { type: "http", url: link },
+												});
+										}}
+									>
+										{({ loading, onPress }) => (
+											<Button onPress={onPress} loading={loading} justify="flex-start">
+												Add Test Events
+											</Button>
+										)}
+									</AsyncButton>
+
+									<AsyncButton
+										fn={async () => {
+											await db.transaction(async (tx) => {
+												await tx.delete(schema.events);
+												await tx.delete(schema.eventMeta);
+												await tx.delete(schema.eventCache);
+												await tx.delete(schema.eventTags);
+											});
+											await queryClient.invalidateQueries();
+										}}
+									>
+										{({ loading, onPress }) => (
+											<Button
+												onLongPress={onPress}
+												loading={loading}
+												variant="danger"
+												justify="flex-start"
+											>
+												Delete ALL Events (hold to confirm)
+											</Button>
+										)}
+									</AsyncButton>
+								</Box>
+							}
+						>
+							Developer Tools Menu
 						</ButtonSheet>
-
-						<AsyncButton
-							fn={async () => {
-								const links = [
-									"https://deniz.blue/events-data/2025/tr-cosplay/sakura-festival.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/sanat-marketi.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/the-concastle-ii.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/slurp-serve.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/japon-k-lt-r-festivali.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/dotcon.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/bucon-25.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/cosplay-board-game.evnt.json",
-									"https://deniz.blue/events-data/2025/tr-cosplay/ants-fusion.evnt.json",
-									"https://deniz.blue/events-data/2026/conventions/ccb26.evnt.json",
-								];
-								for (let link of links)
-									await EventsManager.addEvent({
-										format: { type: "directory.evnt.event" },
-										source: { type: "http", url: link },
-									});
-							}}
-						>
-							{({ loading, onPress }) => (
-								<Button onPress={onPress} loading={loading} justify="flex-start">
-									Add Test Events
-								</Button>
-							)}
-						</AsyncButton>
-
-						<AsyncButton
-							fn={async () => {
-								await db.transaction(async (tx) => {
-									await tx.delete(schema.events);
-									await tx.delete(schema.eventMeta);
-									await tx.delete(schema.eventCache);
-									await tx.delete(schema.eventTags);
-								});
-								await queryClient.invalidateQueries();
-							}}
-						>
-							{({ loading, onPress }) => (
-								<Button
-									onLongPress={onPress}
-									loading={loading}
-									variant="danger"
-									justify="flex-start"
-								>
-									Delete ALL Events (hold to confirm)
-								</Button>
-							)}
-						</AsyncButton>
 					</InputWrapper>
 				</Container>
 			</Box>

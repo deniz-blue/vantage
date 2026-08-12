@@ -13,7 +13,6 @@ import { EventCard } from "../event/card/EventCard";
 import { Colors } from "../../theme/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontSize, IconSize, Radius } from "../../theme/sizing";
-import { Loader } from "../base/Loader";
 import { ButtonBase } from "../base/ButtonBase";
 
 export const PlusFab = () => {
@@ -50,7 +49,7 @@ export const PlusFab = () => {
 								{(
 									[
 										{
-											label: "From URL",
+											label: "From Link",
 											type: "fn",
 											icon: IconWorldDownload,
 											onRun: () => setState("import"),
@@ -139,17 +138,17 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 	return (
 		<Box gap="md">
 			<Box align="center">
-				<Text>Import from the internet</Text>
+				<Text>Import via Link</Text>
 				<Text fz={FontSize.sm} c={Colors.TextDimmed} ta="center">
-					Import an event via its URL. The event will be synced to this device.
+					The event will be synced to this device.
 				</Text>
 			</Box>
 
 			<TextInput
-				label="URL"
+				label="Link to Event"
 				value={uri}
 				onChangeText={setUri}
-				placeholder="https://example.com/file.json"
+				placeholder="https://example.com/sample-event.evnt.json"
 				autoCapitalize="none"
 				autoCorrect={false}
 				editable={!resolved.isLoading}
@@ -182,67 +181,6 @@ export const Importer = ({ onClose }: { onClose?: () => void }) => {
 				>
 					{resolved.isLoading ? "Resolving…" : "Import"}
 				</Button>
-			)}
-		</Box>
-	);
-};
-
-export const JsonFeedImporter = ({ onClose: _ }: { onClose?: () => void }) => {
-	const [feedUrl, setFeedUrl] = useState("");
-
-	const query = useQuery({
-		queryKey: ["jsonfeed", feedUrl],
-		queryFn: async () => {
-			const feed = (await fetch(feedUrl).then((res) => res.json())) as {
-				items: {
-					id: string;
-					url?: string;
-					title?: string;
-					content_text?: string;
-				}[];
-			};
-			return feed;
-		},
-		enabled: feedUrl.trim().length > 0,
-		retry: false,
-	});
-
-	return (
-		<Box gap="md" justify="center">
-			<Box align="center">
-				<Text>Import from JSON Feed</Text>
-				<Text fz={FontSize.sm} c={Colors.TextDimmed}>
-					Pick events to import from a JSON Feed
-				</Text>
-			</Box>
-
-			<TextInput
-				label="Feed URL"
-				value={feedUrl}
-				onChangeText={setFeedUrl}
-				placeholder="https://example.com/feed.json"
-				autoCapitalize="none"
-				autoCorrect={false}
-				editable={!query.isLoading}
-				error={query.error ? String(query.error) : undefined}
-				rightSection={query.isLoading ? <Loader /> : undefined}
-			/>
-
-			{query.data && (
-				<Box gap="sm">
-					{query.data.items.map((item) => (
-						<Box key={item.id} p="sm" bg={Colors.Dark1} radius={8}>
-							<Text fz={FontSize.sm} fw="bold">
-								{item.title || item.url || item.id}
-							</Text>
-							{item.content_text && (
-								<Text fz={FontSize.sm} c={Colors.TextDimmed}>
-									{item.content_text}
-								</Text>
-							)}
-						</Box>
-					))}
-				</Box>
 			)}
 		</Box>
 	);
