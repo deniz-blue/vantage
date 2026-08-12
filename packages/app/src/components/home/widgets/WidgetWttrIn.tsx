@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Box } from "../../base/Box";
 import { Text } from "../../base/Text";
 import { Line } from "../../base/Divider";
-import { FontSize, Radius } from "../../../theme/sizing";
+import { FontSize } from "../../../theme/sizing";
 import { Loader } from "../../base/Loader";
 
 export namespace WttrIn {
@@ -115,9 +115,9 @@ export const WidgetWttrIn = () => {
 				<Line />
 			</Box>
 
-			<Box bg="BackgroundLight" radius={Radius.sm} p="sm" gap="sm" mx="md">
+			<Box p="sm" gap="sm" mx="md">
 				<Box direction="row" gap="sm" align="center">
-					<Box w={48} h={48} radius={Radius.sm} bg="Background" align="center" justify="center">
+					<Box w={48} h={48} align="center" justify="center">
 						{current ? (
 							<Text fz={28} aria-hidden>
 								{codeToEmoji(current.weatherCode)}

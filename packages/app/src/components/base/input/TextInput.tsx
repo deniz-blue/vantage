@@ -1,7 +1,7 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { TextInput as RNTextInput, type TextInputProps as RNTextInputProps } from "react-native";
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
-import { ControlHeight, FontSize } from "../../../theme/sizing";
+import { ControlHeight, Font, FontSize } from "../../../theme/sizing";
 import { Spacing } from "../../../theme/spacing";
 import { Colors } from "../../../theme/colors";
 import { InputBase } from "./InputBase";
@@ -65,7 +65,7 @@ export const TextInput = ({
 					backgroundColor: "transparent",
 					paddingVertical: Spacing.xs,
 					fontSize: inputSize.fz,
-					fontFamily: "Lexend",
+					fontFamily: Font.Default,
 					outlineWidth: 0,
 				},
 				style,

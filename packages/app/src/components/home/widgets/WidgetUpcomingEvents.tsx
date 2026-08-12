@@ -6,7 +6,7 @@ import { Text } from "../../base/Text";
 import { EventCard } from "../../event/card/EventCard";
 import { FontSize } from "../../../theme/sizing";
 import { Line } from "../../base/Divider";
-import { ButtonBase } from "../../base/ButtonBase";
+import { InlineTextButton } from "../../base/button/InlineTextButton";
 
 export const WidgetUpcomingEvents = () => {
 	const router = useRouter();
@@ -23,11 +23,7 @@ export const WidgetUpcomingEvents = () => {
 			<Box direction="row" align="center" px="md" py="sm" gap="sm">
 				<Text fw="bold">Upcoming Events</Text>
 				<Line />
-				<ButtonBase onPress={() => router.push("/list")}>
-					<Text fz={FontSize.sm} c="Blue">
-						View All
-					</Text>
-				</ButtonBase>
+				<InlineTextButton onPress={() => router.push("/list")}>View All</InlineTextButton>
 			</Box>
 
 			{events.length === 0 ? (
