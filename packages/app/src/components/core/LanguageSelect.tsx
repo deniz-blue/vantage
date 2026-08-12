@@ -8,12 +8,12 @@ import {
 	Combobox,
 	ComboboxTrigger,
 	ComboboxSheet,
-	ComboboxSheetList,
+	ComboboxList,
 	ComboboxSheetSearch,
 } from "../base/combobox";
 import { FontSize, IconSize, Radius } from "../../theme/sizing";
 import { Button } from "../base/button/Button";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 
 const getAutonym = (code: string): string =>
 	new Intl.DisplayNames([code], { type: "language" }).of(code) || code;
@@ -40,9 +40,11 @@ export interface LanguageSelectProps extends Pick<
 
 export const LanguageSelect = memo(
 	({ label, description, error, required, value, onChange }: LanguageSelectProps) => {
+		const isSelected = useCallback((item: string) => item === value, [value]);
+
 		return (
 			<InputWrapper label={label} description={description} error={error} required={required}>
-				<Combobox value={value} onChange={onChange}>
+				<Combobox onOptionSubmit={onChange}>
 					<Box>
 						<ComboboxTrigger py="sm" px="sm" gap="sm">
 							<Box p="xs" radius={Radius.Default} bg={Colors.PrimaryLight + "33"}>
@@ -63,7 +65,13 @@ export const LanguageSelect = memo(
 						)}
 					</Box>
 					<ComboboxSheet header={ComboboxSheetSearch}>
-						<ComboboxSheetList data={DATA_LANGUAGES} filter={filter} renderItem={LanguageItem} />
+						<ComboboxList
+							data={DATA_LANGUAGES}
+							filter={filter}
+							renderItem={LanguageItem}
+							isSelected={isSelected}
+							closeOnSelect
+						/>
 					</ComboboxSheet>
 				</Combobox>
 			</InputWrapper>

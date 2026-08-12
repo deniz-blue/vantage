@@ -4,11 +4,10 @@ import { SheetRef } from "../sheet/Sheet";
 
 export interface ComboboxProps<T> {
 	children: ReactNode;
-	value: T;
-	onChange: (value: T) => void;
+	onOptionSubmit: (value: T) => void;
 }
 
-export const Combobox = <T,>({ children, value, onChange }: ComboboxProps<T>) => {
+export const Combobox = <T,>({ children, onOptionSubmit }: ComboboxProps<T>) => {
 	const sheet = useRef<SheetRef>(null);
 	const [search, setSearch] = useState("");
 
@@ -19,9 +18,9 @@ export const Combobox = <T,>({ children, value, onChange }: ComboboxProps<T>) =>
 	}, []);
 
 	const ctx = useMemo<ComboboxContext<T>>(
-		() => ({ value, onChange, search, setSearch, sheet, open, close }) as ComboboxContext<T>,
-		[value, onChange, search, sheet, close],
+		() => ({ onOptionSubmit, search, setSearch, sheet, open, close }) as ComboboxContext<T>,
+		[onOptionSubmit, search, setSearch, sheet, open, close],
 	);
 
-	return <Ctx.Provider value={ctx as ComboboxContext<unknown>}>{children}</Ctx.Provider>;
+	return <Ctx value={ctx as ComboboxContext<unknown>}>{children}</Ctx>;
 };

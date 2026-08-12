@@ -10,75 +10,60 @@ import { Spacing } from "../../../theme/spacing";
 export interface ComboboxListProps<T> {
 	data: readonly T[];
 	renderItem: ComponentType<{ value: T; selected: boolean }>;
+	isSelected?: (item: T) => boolean;
 	filter?: (item: T, search: string) => boolean;
 	keyExtractor?: (item: T) => string;
+	closeOnSelect?: boolean;
 	withPadding?: boolean;
 }
 
-export const ComboboxSheetList = <T,>({
+export const ComboboxList = <T,>({
 	data,
 	renderItem: ItemComponent,
+	isSelected = () => false,
 	filter,
 	keyExtractor,
+	closeOnSelect,
 	withPadding,
 }: ComboboxListProps<T>) => {
 	const ctx = useComboboxCtx<T>();
 
 	const onPress = useCallback(
 		(item: T) => {
-			ctx.onChange(item);
-			ctx.close();
+			ctx.onOptionSubmit(item);
+			if (closeOnSelect) ctx.close();
 		},
-		[ctx],
+		[ctx, closeOnSelect],
 	);
 
-	type ListItem = { kind: "item"; value: T };
-
 	const flashListRenderItem = useCallback(
-		({ item }: { item: ListItem }) => {
-			const selected = item === ctx.value;
+		({ item }: { item: T }) => {
+			const selected = isSelected(item);
 
 			return (
-				<Button m="xs" selected={selected} onPress={() => onPress(item.value)}>
+				<Button m="xs" selected={selected} onPress={() => onPress(item)}>
 					<Box direction="row" flex={1}>
-						<ItemComponent value={item.value} selected={selected} />
+						<ItemComponent value={item} selected={selected} />
 						{selected && <IconCheck size={20} color={Colors.Primary} />}
 					</Box>
 				</Button>
 			);
 		},
-		[ItemComponent, ctx.value, onPress],
+		[ItemComponent, isSelected, onPress],
 	);
 
-	// const initialScrollIndex = useMemo(() => {
-	// 	const index = data.findIndex((item) => item === ctx.value);
-	// 	if (index === -1) return undefined;
-	// 	return searchable ? index + 1 : index;
-	// }, [data, ctx.value, searchable]);
-
-	const filteredData = useMemo(
+	const items = useMemo(
 		() => data.filter((item) => (ctx.search.trim() && filter ? filter(item, ctx.search) : true)),
 		[data, ctx.search, filter],
 	);
-
-	const filteredItems: ListItem[] = useMemo(
-		() =>
-			filteredData.map((item) => ({
-				kind: "item",
-				value: item,
-			})),
-		[filteredData],
-	);
-
-	const items: ListItem[] = filteredItems;
 
 	return (
 		<FlatList
 			data={items}
 			renderItem={flashListRenderItem}
 			keyExtractor={(item, index) => {
-				if (keyExtractor) return keyExtractor(item.value);
-				if (typeof item.value === "string") return item.value;
+				if (keyExtractor) return keyExtractor(item);
+				if (typeof item === "string") return item;
 				return String(index);
 			}}
 			contentContainerStyle={{ padding: withPadding ? Spacing.md : undefined }}

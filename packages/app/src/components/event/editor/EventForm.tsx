@@ -11,7 +11,14 @@ import { EventFormContext, useEventFormContext } from "./event-form-context";
 import { Fragment, ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import { Sheet, SheetRef } from "../../base/sheet/Sheet";
 import { EventVenueEditor } from "./EventVenueEditor";
-import { IconMapPin, IconPlus, IconQuestionMark, IconWorld } from "@tabler/icons-react-native";
+import {
+	IconMapPin,
+	IconPlus,
+	IconQuestionMark,
+	IconSquare,
+	IconSquareCheck,
+	IconWorld,
+} from "@tabler/icons-react-native";
 import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 import { EventDescriptionEditor } from "./EventDescriptionEditor";
 import { Colors } from "../../../theme/colors";
@@ -27,6 +34,8 @@ export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
 	const hasLabel = !TranslationsUtil.isEmpty(editor.value.label);
 	const name = useMemo(() => editor.field("name"), [editor]);
 	const label = useMemo(() => editor.field("label"), [editor]);
+
+	console.log(JSON.stringify(editor.value, null, 2));
 
 	return (
 		<EventFormContext value={{ editor }}>
@@ -81,12 +90,14 @@ export const FormList = <T,>({
 	onAdd,
 	emptyText,
 	renderItem,
+	onDelete,
 }: {
 	title: string;
 	editor: Editor<T[] | undefined>;
 	onAdd: () => void;
 	emptyText: ReactNode;
 	renderItem: (props: { onDelete: () => void; editor: Editor<T>; index: number }) => ReactNode;
+	onDelete?: (props: { index: number; value: T }) => void;
 }) => {
 	const children = useMemo(() => {
 		if (!editor.value?.length) return null;
@@ -95,11 +106,14 @@ export const FormList = <T,>({
 				{renderItem({
 					editor: editor.at(i),
 					index: i,
-					onDelete: () => editor.update((d) => void d.splice(i, 1)),
+					onDelete: () => {
+						editor.update((d) => void d.splice(i, 1));
+						onDelete?.({ index: i, value: editor.value![i]! });
+					},
 				})}
 			</Fragment>
 		));
-	}, [editor, renderItem]);
+	}, [editor, renderItem, onDelete]);
 
 	return (
 		<Box gap="md">
@@ -185,6 +199,7 @@ export const EventFormInstances = () => {
 export const EventFormVenues = () => {
 	const { editor } = useEventFormContext();
 	const sheet = useRef<SheetRef>(null);
+	const [addToAll, setAddToAll] = useState(true);
 
 	const onAdd = useCallback(
 		(type: Venue["$type"]) => {
@@ -197,10 +212,17 @@ export const EventFormVenues = () => {
 					id: nextId.toString(),
 					name: {},
 				});
+
+				if (addToAll) {
+					if (!d.instances) d.instances = [];
+					for (const instance of d.instances) {
+						instance.venueIds.push(nextId.toString());
+					}
+				}
 			});
 			sheet.current?.dismiss();
 		},
-		[editor],
+		[editor, addToAll],
 	);
 
 	const renderItem = useCallback(
@@ -208,6 +230,18 @@ export const EventFormVenues = () => {
 			<EventVenueEditor editor={editor} onDelete={onDelete} />
 		),
 		[],
+	);
+
+	const onDeleteSideEffect = useCallback(
+		({ value }: { index: number; value: Venue }) => {
+			editor.update((d) => {
+				if (!d.instances) return;
+				for (const instance of d.instances) {
+					instance.venueIds = instance.venueIds.filter((id) => id !== value.id);
+				}
+			});
+		},
+		[editor],
 	);
 
 	const venues = useMemo(() => editor.field("venues", []), [editor]);
@@ -220,6 +254,7 @@ export const EventFormVenues = () => {
 				editor={venues}
 				onAdd={() => sheet.current?.present()}
 				renderItem={renderItem}
+				onDelete={onDeleteSideEffect}
 			/>
 
 			<Sheet ref={sheet}>
@@ -264,6 +299,19 @@ export const EventFormVenues = () => {
 							);
 						})}
 					</Box>
+					<Button
+						onPress={() => setAddToAll((s) => !s)}
+						variant="subtle"
+						leftSection={
+							addToAll ? (
+								<IconSquareCheck size={IconSize.sm} color={Colors.Primary} />
+							) : (
+								<IconSquare size={IconSize.sm} color={Colors.Text} />
+							)
+						}
+					>
+						Add location to all dates
+					</Button>
 				</Box>
 			</Sheet>
 		</Fragment>

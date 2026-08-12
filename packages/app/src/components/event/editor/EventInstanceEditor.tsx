@@ -1,15 +1,28 @@
-import { EventInstance } from "@evnt/types";
+import { EventInstance, Venue } from "@evnt/types";
 import { formatDate } from "@evnt/pretty";
 import { Box } from "../../base/Box";
 import { Editor } from "./editor";
 import { Card } from "../../base/Card";
-import { IconCalendar } from "@tabler/icons-react-native";
+import {
+	IconCalendar,
+	IconMapPin,
+	IconProps,
+	IconQuestionMark,
+	IconWorld,
+} from "@tabler/icons-react-native";
 import { CloseButton } from "../../base/button/CloseButton";
 import { Colors } from "../../../theme/colors";
 import { Text } from "../../base/Text";
 import { FontSize, IconSize } from "../../../theme/sizing";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
 import { PartialDateInput } from "./input/PartialDateInput";
+import { TransText } from "../../core/TransText";
+import { SelectItemProps } from "../../base/input/Select";
+import { MultiSelect } from "../../base/input/MultiSelect";
+import { useEventFormContext } from "./event-form-context";
+import { useMemo } from "react";
+import { InputWrapper } from "../../base/input/InputWrapper";
+import { Button } from "../../base/button/Button";
 
 export const EventInstanceEditor = ({
 	editor,
@@ -67,7 +80,75 @@ export const EventInstanceEditor = ({
 						/>
 					</Box>
 				</Box>
+
+				<EventInstanceEditorVenueIds editor={editor} />
 			</Box>
 		</Card>
+	);
+};
+
+export const EventInstanceEditorVenueIds = ({ editor }: { editor: Editor<EventInstance> }) => {
+	const { editor: root } = useEventFormContext();
+
+	const allVenues = useMemo(() => root.value.venues ?? [], [root.value.venues]);
+
+	const venuesOfInstance = useMemo(
+		() => allVenues.filter((v) => editor.value.venueIds.includes(v.id)),
+		[allVenues, editor.value.venueIds],
+	);
+
+	const isAllSelected = allVenues.length === venuesOfInstance.length;
+
+	return (
+		<Box>
+			<InputWrapper label="Locations" />
+			<Box direction="row" gap="sm" align="center">
+				{!isAllSelected && (
+					<Box flex={1}>
+						<Button
+							onPress={() => {
+								editor.update((d) => {
+									d.venueIds = allVenues.map((v) => v.id);
+								});
+							}}
+						>
+							Select All ({venuesOfInstance.length}/{allVenues.length})
+						</Button>
+					</Box>
+				)}
+				<Box flex={1}>
+					<MultiSelect
+						data={allVenues}
+						value={venuesOfInstance}
+						renderItem={EventVenueItem}
+						disabled={!allVenues.length}
+						buttonContent={<Text fz={FontSize.sm}>{venuesOfInstance.length} locations</Text>}
+						onChange={(venues) => {
+							editor.update((d) => {
+								d.venueIds = venues.map((v) => v.id);
+							});
+						}}
+					/>
+				</Box>
+			</Box>
+		</Box>
+	);
+};
+
+export const EventVenueItem = ({ value }: SelectItemProps<Venue>) => {
+	const Icon =
+		(
+			{
+				"directory.evnt.venue.online": IconWorld,
+				"directory.evnt.venue.physical": IconMapPin,
+				"directory.evnt.venue.unknown": IconQuestionMark,
+			} as Record<Venue["$type"], React.ComponentType<IconProps>>
+		)[value.$type] ?? IconQuestionMark;
+
+	return (
+		<Box direction="row" gap="sm" align="center">
+			<Icon size={IconSize.sm} color={Colors.Text} />
+			<TransText value={value.name} />
+		</Box>
 	);
 };

@@ -2,8 +2,7 @@ import { createContext, RefObject, useContext } from "react";
 import { SheetRef } from "../sheet/Sheet";
 
 export interface ComboboxContext<T> {
-	value: T;
-	onChange: (value: T) => void;
+	onOptionSubmit: (value: T) => void;
 
 	search: string;
 	setSearch: (value: string) => void;

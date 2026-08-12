@@ -1,12 +1,8 @@
-import {
-	Combobox,
-	ComboboxSheet,
-	ComboboxSheetList,
-	ComboboxSheetSearch,
-} from "../../base/combobox";
+import { Combobox, ComboboxSheet, ComboboxList, ComboboxSheetSearch } from "../../base/combobox";
 import { TimezoneSelectTrigger } from "./TimezoneSelectTrigger";
 import { InputWrapper, type InputWrapperProps } from "../../base/input/InputWrapper";
 import { TimezoneItem } from "./TimezoneItem";
+import { useCallback } from "react";
 
 export interface TimezoneSelectProps extends Pick<
 	InputWrapperProps,
@@ -27,14 +23,18 @@ export const TimezoneSelect = ({
 	value,
 	onChange,
 	variant = "settings",
-}: TimezoneSelectProps) => (
-	<Combobox value={value} onChange={onChange}>
-		<InputWrapper label={label} description={description} error={error} required={required}>
-			<TimezoneSelectTrigger variant={variant} />
-		</InputWrapper>
+}: TimezoneSelectProps) => {
+	const isSelected = useCallback((item: string) => item === value, [value]);
 
-		<ComboboxSheet header={ComboboxSheetSearch}>
-			<ComboboxSheetList data={tz} renderItem={TimezoneItem} />
-		</ComboboxSheet>
-	</Combobox>
-);
+	return (
+		<Combobox onOptionSubmit={onChange}>
+			<InputWrapper label={label} description={description} error={error} required={required}>
+				<TimezoneSelectTrigger value={value} variant={variant} />
+			</InputWrapper>
+
+			<ComboboxSheet header={ComboboxSheetSearch}>
+				<ComboboxList data={tz} renderItem={TimezoneItem} isSelected={isSelected} closeOnSelect />
+			</ComboboxSheet>
+		</Combobox>
+	);
+};

@@ -7,19 +7,21 @@ import { Colors } from "../../../theme/colors";
 import { formatOffset, getDetectedTz } from "@vantage/intl";
 import { FontSize, IconSize, Radius } from "../../../theme/sizing";
 
-export interface TimezoneSelectTriggerProps {
+export const TimezoneSelectTrigger = ({
+	value,
+	variant,
+}: {
+	value: string;
 	variant: "settings" | "form";
-}
-
-export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) => {
+}) => {
 	const ctx = useComboboxCtx<string>();
-	const currentOffset = formatOffset(ctx.value);
+	const currentOffset = formatOffset(value);
 	const detectedTz = getDetectedTz();
 
 	if (variant === "form") {
 		return (
 			<ComboboxTrigger>
-				<Text fz={FontSize.sm}>{ctx.value || "Select timezone"}</Text>
+				<Text fz={FontSize.sm}>{value || "Select timezone"}</Text>
 			</ComboboxTrigger>
 		);
 	}
@@ -33,7 +35,7 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 					</Box>
 					<Box flex={1} gap="xs">
 						<Text fz={FontSize.sm} fw="600">
-							{ctx.value}
+							{value}
 						</Text>
 						<Text fz={FontSize.xs} c={Colors.TextDimmed}>
 							{currentOffset}
@@ -41,9 +43,9 @@ export const TimezoneSelectTrigger = ({ variant }: TimezoneSelectTriggerProps) =
 					</Box>
 				</Box>
 			</ComboboxTrigger>
-			{detectedTz !== ctx.value && (
+			{detectedTz !== value && (
 				<Button
-					onPress={() => ctx.onChange(detectedTz)}
+					onPress={() => ctx.onOptionSubmit(detectedTz)}
 					mt="sm"
 					justify="flex-start"
 					leftSection={<IconArrowUp size={IconSize.sm} color={Colors.TextDimmed} />}

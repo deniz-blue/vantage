@@ -9,54 +9,59 @@ import {
 import { InputWrapper, type InputWrapperProps } from "./InputWrapper";
 import { Text } from "../Text";
 import { FontSize } from "../../../theme/sizing";
-import { Colors } from "../../../theme/colors";
+import { SelectItemProps } from "./Select";
 
-export interface SelectItemProps<T> {
-	value: T;
-	selected: boolean;
-	trigger?: boolean;
-}
-
-export interface SelectProps<T> extends Pick<
+export interface MultiSelectProps<T> extends Pick<
 	InputWrapperProps,
 	"label" | "description" | "error" | "required"
 > {
 	data: readonly T[];
-	value: T;
-	onChange: (value: T) => void;
+	value: T[];
+	buttonContent: React.ReactNode;
+	onChange: (value: T[]) => void;
 	renderItem?: ComponentType<SelectItemProps<T>>;
 	isSelected?: (item: T) => boolean;
 	getSearchText?: (item: T) => string;
-	placeholder?: string;
 	searchable?: boolean;
+	disabled?: boolean;
 }
 
 const DefaultItemComponent = <T,>({ value }: { value: T }) => (
 	<Text fz={FontSize.sm}>{String(value)}</Text>
 );
 
-export const Select = <T,>({
+export const MultiSelect = <T,>({
 	data,
 	value,
 	onChange,
 	renderItem: ItemComponent = DefaultItemComponent,
-	isSelected: isSelectedProp,
 	getSearchText,
-	placeholder = "Select…",
+	buttonContent,
+	isSelected: isSelectedProp,
 	label,
 	description,
 	error,
 	required,
 	searchable = true,
-}: SelectProps<T>) => {
-	const onOptionSubmit = useCallback((value: T) => onChange(value), [onChange]);
-
+	disabled,
+}: MultiSelectProps<T>) => {
 	const isSelected = useCallback(
 		(item: T) => {
 			if (isSelectedProp) return isSelectedProp(item);
-			return item === value;
+			return value.includes(item);
 		},
 		[value, isSelectedProp],
+	);
+
+	const onOptionSubmit = useCallback(
+		(item: T) => {
+			if (isSelected(item)) {
+				onChange(value.filter((v) => v !== item));
+			} else {
+				onChange([...value, item]);
+			}
+		},
+		[isSelected, onChange],
 	);
 
 	const filter = useCallback(
@@ -70,15 +75,7 @@ export const Select = <T,>({
 	return (
 		<InputWrapper label={label} description={description} error={error} required={required}>
 			<Combobox onOptionSubmit={onOptionSubmit}>
-				<ComboboxTrigger>
-					{value ? (
-						<ItemComponent value={value} trigger selected />
-					) : (
-						<Text fz={FontSize.sm} c={Colors.TextDimmed}>
-							{placeholder}
-						</Text>
-					)}
-				</ComboboxTrigger>
+				<ComboboxTrigger disabled={disabled}>{buttonContent}</ComboboxTrigger>
 				<ComboboxSheet
 					scrollable={searchable}
 					header={searchable ? ComboboxSheetSearch : undefined}
@@ -87,9 +84,8 @@ export const Select = <T,>({
 						data={data}
 						filter={filter}
 						renderItem={ItemComponent || DefaultItemComponent}
-						withPadding={searchable}
 						isSelected={isSelected}
-						closeOnSelect
+						withPadding={searchable}
 					/>
 				</ComboboxSheet>
 			</Combobox>

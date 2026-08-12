@@ -14,6 +14,7 @@ export const CountrySelect = ({
 	return (
 		<Select
 			label="Country"
+			placeholder="--"
 			data={DATA_COUNTRIES}
 			value={value}
 			onChange={onChange}
