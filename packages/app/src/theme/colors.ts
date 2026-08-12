@@ -33,6 +33,7 @@ export const Colors = {
 	Background: Palette.Dark7,
 	BackgroundLight: Palette.Dark6,
 	BackgroundInput: Palette.Dark6,
+	BackgroundDark: Palette.Dark8,
 	Primary: Palette.Grape7,
 	PrimaryLight: Palette.Grape6,
 	PrimaryTint: Palette.Grape7 + "33", // Primary at ~20% opacity

@@ -1,319 +1,79 @@
-import { EventInstance, OpenEvnt, PartialDate, Venue } from "@evnt/types";
-import { Box } from "../../base/Box";
+import { OpenEvnt } from "@evnt/types";
 import { Editor } from "./editor";
-import { TranslationsInput } from "./input/TranslationsInput";
-import { StatusPicker } from "./picker/StatusPicker";
-import { EventInstanceEditor } from "./EventInstanceEditor";
-import { Text } from "../../base/Text";
-import { Line } from "../../base/Divider";
-import { Button } from "../../base/button/Button";
-import { EventFormContext, useEventFormContext } from "./event-form-context";
-import { Fragment, ReactNode, useCallback, useMemo, useRef, useState } from "react";
-import { Sheet, SheetRef } from "../../base/sheet/Sheet";
-import { EventVenueEditor } from "./EventVenueEditor";
-import {
-	IconMapPin,
-	IconPlus,
-	IconQuestionMark,
-	IconSquare,
-	IconSquareCheck,
-	IconWorld,
-} from "@tabler/icons-react-native";
-import { FontSize, IconSize, Radius } from "../../../theme/sizing";
-import { EventDescriptionEditor } from "./EventDescriptionEditor";
+import { EventFormContext } from "./event-form-context";
+import { useState } from "react";
+import { SceneMap, TabBar, TabView, type Route } from "react-native-tab-view";
+import { TabMain } from "./tabs/TabMain";
+import { TabTimePlace } from "./tabs/TabTimePlace";
+import { TabComponents } from "./tabs/TabComponents";
+import { useWindowDimensions } from "react-native";
 import { Colors } from "../../../theme/colors";
-import { ButtonBase } from "../../base/ButtonBase";
-import { EventFormLinks } from "./EventFormLinks";
-import { InputWrapper } from "../../base/input/InputWrapper";
-import { InlineTextButton } from "../../base/button/InlineTextButton";
-import { TranslationsUtil } from "@evnt/translations";
-import { PartialDateUtil } from "@evnt/partial-date";
+import { Box } from "../../base/Box";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Container } from "../../base/Container";
+import { Font } from "../../../theme/sizing";
 
-export const EventForm = ({ editor }: { editor: Editor<OpenEvnt> }) => {
-	const [showLabel, setShowLabel] = useState(false);
-	const hasLabel = !TranslationsUtil.isEmpty(editor.value.label);
-	const name = useMemo(() => editor.field("name"), [editor]);
-	const label = useMemo(() => editor.field("label"), [editor]);
+const renderScene = SceneMap({
+	main: TabMain,
+	timePlace: TabTimePlace,
+	components: TabComponents,
+});
+
+const routes: Route[] = [
+	{ key: "main", title: "Event" },
+	{ key: "timePlace", title: "Time & Place" },
+	{ key: "components", title: "Details" },
+];
+
+export const EventFormPage = ({
+	editor,
+	header,
+	action,
+}: {
+	editor: Editor<OpenEvnt>;
+	header: React.ReactNode;
+	action: React.ReactNode;
+}) => {
+	const insets = useSafeAreaInsets();
+	const layout = useWindowDimensions();
+	const [index, setIndex] = useState(0);
 
 	console.log(JSON.stringify(editor.value, null, 2));
 
 	return (
 		<EventFormContext value={{ editor }}>
-			<Box gap="md">
-				<Box>
-					<Box direction="row" justify="space-between">
-						<InputWrapper label="Event Name" />
-						{!hasLabel && (
-							<InlineTextButton
-								onPress={() => setShowLabel((s) => !s)}
-								children={showLabel ? "[-]" : "[+]"}
+			<Container size="sm" px={0} flex={1}>
+				<TabView
+					navigationState={{ index, routes }}
+					renderScene={renderScene}
+					onIndexChange={setIndex}
+					initialLayout={{ width: layout.width }}
+					style={{ paddingTop: insets.top }}
+					commonOptions={{
+						labelStyle: {
+							color: Colors.Text,
+							fontFamily: Font.Default,
+						},
+					}}
+					renderTabBar={(props) => (
+						<Box px="md" pt="md">
+							{header}
+							<TabBar
+								{...props}
+								style={{ backgroundColor: "transparent" }}
+								indicatorStyle={{ backgroundColor: Colors.Text }}
+								inactiveColor={Colors.TextDimmed}
 							/>
-						)}
-					</Box>
-					<TranslationsInput placeholder="My Event" editor={name} />
-				</Box>
-
-				{(showLabel || hasLabel) && (
-					<TranslationsInput label="Subtitle" placeholder="Distinguishing Feature" editor={label} />
-				)}
-
-				<EventFormInstances />
-				<EventFormVenues />
-
-				<Box direction="row" gap="sm" align="center">
-					<Text c="TextDimmed" fw="bold">
-						Details
-					</Text>
-					<Line />
-				</Box>
-
-				<StatusPicker
-					value={editor.value.status || "planned"}
-					onChange={(status) =>
-						editor.update((d) => {
-							d.status = status;
-						})
-					}
+						</Box>
+					)}
 				/>
 
-				<EventDescriptionEditor editor={editor} />
-
-				<EventFormLinks editor={editor} />
-			</Box>
+				<Box pos="absolute" style={{ bottom: insets.bottom }} w="100%">
+					<Container size="sm" flex={1} pb="md">
+						{action}
+					</Container>
+				</Box>
+			</Container>
 		</EventFormContext>
-	);
-};
-
-export const FormList = <T,>({
-	title,
-	editor,
-	onAdd,
-	emptyText,
-	renderItem,
-	onDelete,
-}: {
-	title: string;
-	editor: Editor<T[] | undefined>;
-	onAdd: () => void;
-	emptyText: ReactNode;
-	renderItem: (props: { onDelete: () => void; editor: Editor<T>; index: number }) => ReactNode;
-	onDelete?: (props: { index: number; value: T }) => void;
-}) => {
-	const children = useMemo(() => {
-		if (!editor.value?.length) return null;
-		return editor.value.map((_, i) => (
-			<Fragment key={i}>
-				{renderItem({
-					editor: editor.at(i),
-					index: i,
-					onDelete: () => {
-						editor.update((d) => void d.splice(i, 1));
-						onDelete?.({ index: i, value: editor.value![i]! });
-					},
-				})}
-			</Fragment>
-		));
-	}, [editor, renderItem, onDelete]);
-
-	return (
-		<Box gap="md">
-			<Box direction="row" gap="sm" align="center">
-				<Text c="TextDimmed" fw="bold">
-					{title}
-				</Text>
-				<Line />
-				<Button
-					size="sm"
-					onPress={onAdd}
-					rightSection={<IconPlus size={IconSize.xs} color={Colors.Text} />}
-				>
-					Add
-				</Button>
-			</Box>
-
-			{!editor.value?.length && (
-				<Box align="center">
-					<Text c="TextDimmed" fz={FontSize.sm}>
-						{emptyText}
-					</Text>
-				</Box>
-			)}
-
-			{children}
-		</Box>
-	);
-};
-
-export const EventFormInstances = () => {
-	const { editor } = useEventFormContext();
-
-	const renderItem = useCallback(
-		({ editor, onDelete }: { editor: Editor<EventInstance>; onDelete: () => void }) => (
-			<EventInstanceEditor editor={editor} onDelete={onDelete} />
-		),
-		[],
-	);
-
-	const instances = useMemo(() => editor.field("instances", []), [editor]);
-
-	const onAdd = useCallback(() => {
-		const last = instances.value?.[instances.value?.length - 1];
-		let start: PartialDate | undefined = undefined;
-		if (last?.start && PartialDateUtil.has(last.start, "day")) {
-			if (PartialDateUtil.has(last.start, "time")) {
-				let datetime = PartialDateUtil.asPlainDateTime(last.start);
-				datetime = datetime.add({ days: 1 });
-				start = PartialDateUtil.format({
-					...PartialDateUtil.parsedFromTemporal(datetime),
-					timezone: PartialDateUtil.parse(last.start).timezone,
-				});
-			} else {
-				let date = PartialDateUtil.asPlainDate(last.start);
-				date = date.add({ days: 1 });
-				start = PartialDateUtil.format({
-					...PartialDateUtil.parsedFromTemporal(date),
-					timezone: PartialDateUtil.parse(last.start).timezone,
-				});
-			}
-		} else if (last?.start) {
-			start = last.start;
-		}
-
-		instances.push({
-			venueIds: [],
-			start,
-		});
-	}, [instances]);
-
-	return (
-		<FormList
-			title="Date & Time"
-			emptyText="No dates set"
-			editor={instances}
-			onAdd={onAdd}
-			renderItem={renderItem}
-		/>
-	);
-};
-
-export const EventFormVenues = () => {
-	const { editor } = useEventFormContext();
-	const sheet = useRef<SheetRef>(null);
-	const [addToAll, setAddToAll] = useState(true);
-
-	const onAdd = useCallback(
-		(type: Venue["$type"]) => {
-			editor.update((d) => {
-				if (!d.venues) d.venues = [];
-				let nextId = 0;
-				while (d.venues.some((v) => v.id === nextId.toString())) nextId++;
-				d.venues.push({
-					$type: type,
-					id: nextId.toString(),
-					name: {},
-				});
-
-				if (addToAll) {
-					if (!d.instances) d.instances = [];
-					for (const instance of d.instances) {
-						instance.venueIds.push(nextId.toString());
-					}
-				}
-			});
-			sheet.current?.dismiss();
-		},
-		[editor, addToAll],
-	);
-
-	const renderItem = useCallback(
-		({ editor, onDelete }: { editor: Editor<Venue>; onDelete: () => void }) => (
-			<EventVenueEditor editor={editor} onDelete={onDelete} />
-		),
-		[],
-	);
-
-	const onDeleteSideEffect = useCallback(
-		({ value }: { index: number; value: Venue }) => {
-			editor.update((d) => {
-				if (!d.instances) return;
-				for (const instance of d.instances) {
-					instance.venueIds = instance.venueIds.filter((id) => id !== value.id);
-				}
-			});
-		},
-		[editor],
-	);
-
-	const venues = useMemo(() => editor.field("venues", []), [editor]);
-
-	return (
-		<Fragment>
-			<FormList
-				title="Locations"
-				emptyText="No locations set"
-				editor={venues}
-				onAdd={() => sheet.current?.present()}
-				renderItem={renderItem}
-				onDelete={onDeleteSideEffect}
-			/>
-
-			<Sheet ref={sheet}>
-				<Box gap="md" w="100%">
-					<Text ta="center">Select location type:</Text>
-					<Box direction="row" w="100%">
-						{(
-							[
-								"directory.evnt.venue.online",
-								"directory.evnt.venue.physical",
-								"directory.evnt.venue.unknown",
-							] as const
-						).map((type) => {
-							let title = type.slice("directory.evnt.venue.".length);
-							title = title[0].toUpperCase() + title.slice(1);
-
-							const Icon =
-								{
-									Physical: IconMapPin,
-									Online: IconWorld,
-									Unknown: IconQuestionMark,
-								}[title] ?? Fragment;
-
-							return (
-								<Box key={type} flex={type === "directory.evnt.venue.physical" ? 2 : 1}>
-									<Box px="xs">
-										<ButtonBase onPress={() => onAdd(type)}>
-											<Box
-												bg={Colors.BackgroundLight}
-												radius={Radius.Default}
-												py="sm"
-												gap="xs"
-												align="center"
-												justify="center"
-											>
-												<Icon size={IconSize.lg} color={Colors.Text} />
-												<Text fz={FontSize.sm}>{title}</Text>
-											</Box>
-										</ButtonBase>
-									</Box>
-								</Box>
-							);
-						})}
-					</Box>
-					<Button
-						onPress={() => setAddToAll((s) => !s)}
-						variant="subtle"
-						leftSection={
-							addToAll ? (
-								<IconSquareCheck size={IconSize.sm} color={Colors.Primary} />
-							) : (
-								<IconSquare size={IconSize.sm} color={Colors.Text} />
-							)
-						}
-					>
-						Add location to all dates
-					</Button>
-				</Box>
-			</Sheet>
-		</Fragment>
 	);
 };

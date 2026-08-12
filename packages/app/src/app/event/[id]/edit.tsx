@@ -3,29 +3,22 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { EventResolver, EventSourceRegistry } from "@vantage/core";
 import { createEditor, Editor } from "@/components/event/editor/editor";
-import { EventForm } from "@/components/event/editor/EventForm";
+import { EventFormPage } from "@/components/event/editor/EventForm";
 import { Box } from "@/components/base/Box";
 import { Text } from "@/components/base/Text";
 import { Button } from "@/components/base/button/Button";
 import { Colors } from "@/theme/colors";
-import { Container } from "@/components/base/Container";
 import { FontSize, IconSize } from "@/theme/sizing";
 import { OpenEvnt } from "@evnt/types";
 import { EmptyState } from "../../../components/base/EmptyState";
 import { IconAlertTriangle } from "@tabler/icons-react-native";
 import { ActionBackButton } from "../../../components/app/ActionBackButton";
-import Animated from "react-native-reanimated";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Divider } from "../../../components/base/Divider";
-import { useKeyboardHeight } from "../../../hooks/useKeyboardHeight";
 import { Card } from "../../../components/base/Card";
 import { useCanEditEvent } from "../../../hooks/useCanEditEvent";
 
 export default function EditEventPage() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const router = useRouter();
-	const insets = useSafeAreaInsets();
-	const keyboardHeight = useKeyboardHeight();
 	const [resolved, setResolved] = useState<Vantage.ResolvedEvent | null>(null);
 	const [form, setForm] = useState<OpenEvnt | null>(null);
 	const editor = createEditor(form, setForm);
@@ -107,59 +100,40 @@ export default function EditEventPage() {
 			/>
 		);
 
-	if (!form) return <EmptyState fill loading message="Loading..." />;
+	if (!form || !editor.value) return <EmptyState fill loading message="Loading..." />;
 
 	return (
-		<Box flex={1}>
-			<Box component={Animated.ScrollView}>
-				<Box component={SafeAreaView} flex={1}>
-					<Container size="sm" flex={1}>
-						<Box py="md" flex={1}>
-							<Box gap="md" flex={1}>
-								<Box direction="row" align="center" gap="sm">
-									<ActionBackButton />
-									<Text fz={FontSize.h1} fw="bold">
-										Edit Event
-									</Text>
-								</Box>
+		<EventFormPage
+			editor={editor as Editor<OpenEvnt>}
+			header={
+				<Box gap="md">
+					<Box direction="row" align="center" gap="sm">
+						<ActionBackButton />
+						<Text fz={FontSize.h1} fw="bold">
+							Edit Event
+						</Text>
+					</Box>
 
-								{!canEdit && (
-									<Card>
-										<Text c={Colors.Yellow}>
-											You cannot edit this event. You must be signed in to the account that created
-											it.
-										</Text>
-									</Card>
-								)}
+					{!canEdit && (
+						<Card>
+							<Text c={Colors.Yellow}>
+								You cannot edit this event. You must be signed in to the account that created it.
+							</Text>
+						</Card>
+					)}
 
-								{save.error && (
-									<Card>
-										<Text c={Colors.Yellow}>Failed to save event: {save.error.toString()}</Text>
-									</Card>
-								)}
-
-								<Divider />
-
-								{editor.value && <EventForm editor={editor as Editor<OpenEvnt>} />}
-							</Box>
-						</Box>
-						<Box h={200} />
-						<Box h={insets.bottom} />
-						<Animated.View
-							style={{
-								height: keyboardHeight,
-							}}
-						/>
-					</Container>
+					{save.error && (
+						<Card>
+							<Text c={Colors.Yellow}>Failed to save event: {save.error.toString()}</Text>
+						</Card>
+					)}
 				</Box>
-			</Box>
-			<Box pos="absolute" style={{ bottom: insets.bottom }} w="100%">
-				<Container size="sm" flex={1} pb="md">
-					<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
-						{save.isPending ? "Saving…" : "Save"}
-					</Button>
-				</Container>
-			</Box>
-		</Box>
+			}
+			action={
+				<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
+					{save.isPending ? "Saving…" : "Save"}
+				</Button>
+			}
+		/>
 	);
 }

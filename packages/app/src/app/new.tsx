@@ -3,26 +3,22 @@ import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { OpenEvnt } from "@evnt/types";
 import { EventsManager } from "@vantage/core";
-import { Container } from "../components/base/Container";
-import { EventForm } from "../components/event/editor/EventForm";
+import { EventFormPage } from "../components/event/editor/EventForm";
 import { createEditor } from "../components/event/editor/editor";
 import { Box } from "../components/base/Box";
 import { Text } from "../components/base/Text";
 import { FontSize, IconSize } from "../theme/sizing";
 import { Select } from "../components/base/input/Select";
-import { Divider } from "../components/base/Divider";
 import { Button } from "../components/base/button/Button";
 import { Colors } from "../theme/colors";
 import { IconBroadcast, IconDatabase } from "@tabler/icons-react-native";
 import { OpenEvntSchema } from "@evnt/schema";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated from "react-native-reanimated";
-import { useKeyboardHeight } from "../hooks/useKeyboardHeight";
 import { ActionBackButton } from "../components/app/ActionBackButton";
 import { AtprotoDid, CanonicalResourceUri } from "@atcute/lexicons/syntax";
 import { useAtAccounts, useAtClient } from "@vantage/atproto";
 import { AtUserAvatar, AtUserHandle } from "../components/user/AtUserCard";
 import { now } from "@atcute/tid";
+import { InputWrapper } from "../components/base/input/InputWrapper";
 
 const validJson = (str: any): boolean => {
 	if (typeof str !== "string") return false;
@@ -37,8 +33,6 @@ const validJson = (str: any): boolean => {
 type SaveTarget = { type: "local" } | { type: "atproto"; did: AtprotoDid } | { type: "folio" };
 
 export default function NewEventPage() {
-	const insets = useSafeAreaInsets();
-	const keyboardHeight = useKeyboardHeight();
 	const router = useRouter();
 	const { data } = useLocalSearchParams();
 	const [form, setForm] = useState<OpenEvnt>({ v: "0.1", name: {} });
@@ -124,46 +118,31 @@ export default function NewEventPage() {
 	});
 
 	return (
-		<Box flex={1}>
-			<Box component={Animated.ScrollView}>
-				<Box component={SafeAreaView} flex={1}>
-					<Container size="sm" flex={1}>
-						<Box py="md" flex={1}>
-							<Box gap="md" flex={1}>
-								<Box direction="row" align="center" gap="sm">
-									<ActionBackButton />
-									<Text fz={FontSize.h1} fw="bold">
-										Create Event
-									</Text>
-								</Box>
+		<EventFormPage
+			editor={editor}
+			header={
+				<Box gap="md">
+					<Box direction="row" align="center" gap="sm">
+						<ActionBackButton />
+						<Text fz={FontSize.h1} fw="bold">
+							Create Event
+						</Text>
+					</Box>
 
-								<Box>
-									<SaveTargetSelect value={saveTarget} onChange={setSaveTarget} />
-								</Box>
-
-								<Divider />
-
-								<EventForm editor={editor} />
-							</Box>
+					<Box direction="row" align="center" gap="sm">
+						<InputWrapper label="Save to" />
+						<Box flex={1}>
+							<SaveTargetSelect value={saveTarget} onChange={setSaveTarget} />
 						</Box>
-						<Box h={200} />
-						<Box h={insets.bottom} />
-						<Animated.View
-							style={{
-								height: keyboardHeight,
-							}}
-						/>
-					</Container>
+					</Box>
 				</Box>
-			</Box>
-			<Box pos="absolute" style={{ bottom: insets.bottom }} w="100%">
-				<Container size="sm" flex={1} pb="md">
-					<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
-						{save.isPending ? "Saving…" : "Save"}
-					</Button>
-				</Container>
-			</Box>
-		</Box>
+			}
+			action={
+				<Button variant="primary" w="100%" loading={save.isPending} onPress={() => save.mutate()}>
+					{save.isPending ? "Saving…" : "Save"}
+				</Button>
+			}
+		/>
 	);
 }
 
@@ -216,7 +195,6 @@ export const SaveTargetSelect = ({
 
 	return (
 		<Select<SaveTarget>
-			label="Save to"
 			value={value}
 			onChange={onChange}
 			data={[{ type: "local" }, { type: "folio" }, ...accountTargets]}

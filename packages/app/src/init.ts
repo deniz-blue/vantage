@@ -1,4 +1,3 @@
-
 console.log("Initializing app...");
 
 import { SplashScreen } from "expo-router";

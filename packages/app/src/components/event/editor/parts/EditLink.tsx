@@ -1,10 +1,10 @@
 import { LinkComponent } from "@evnt/types";
-import { Box } from "../../base/Box";
-import { Editor } from "./editor";
-import { TextInput } from "../../base/input/TextInput";
-import { TranslationsInput } from "./input/TranslationsInput";
+import { Box } from "../../../base/Box";
+import { Editor } from "../editor";
+import { TextInput } from "../../../base/input/TextInput";
+import { TranslationsInput } from "../input/TranslationsInput";
 
-export const LinkEditSheetContent = ({ editor }: { editor: Editor<LinkComponent> }) => {
+export const EditLink = ({ editor }: { editor: Editor<LinkComponent> }) => {
 	return (
 		<Box gap="md">
 			<TextInput
