@@ -461,7 +461,9 @@ private fun EventListView(
                 (row downTo 0).firstOrNull { agenda.rows[it] is AgendaRow.Label }
             }
         }
-        val periodSlotPx = with(LocalDensity.current) { (AgendaLabelHeight + Spacing.xs).roundToPx() }
+        val headingPillHeight = with(LocalDensity.current) { MaterialTheme.typography.headlineSmall.lineHeight.toDp() } + Spacing.xs * 2
+        val stuckPeriodsTop = if (dayLabels) AgendaLabelHeight + Spacing.xs else Spacing.xs + headingPillHeight + Spacing.xs
+        val periodSlotPx = with(LocalDensity.current) { stuckPeriodsTop.roundToPx() }
         val stuckPeriods = remember(grid, agenda, periodSlotPx) {
             derivedStateOf {
                 val under = grid.layoutInfo.visibleItemsInfo.lastOrNull { item -> item.offset.y < periodSlotPx && agenda.rowIndexOf(item.key) != null }
@@ -469,7 +471,7 @@ private fun EventListView(
             }
         }
         val hiddenWhilePinned = { row: Int -> Modifier.graphicsLayer { alpha = if (pinnedLabelRow.value == row) 0f else 1f } }
-        val hiddenWhileStuck = { period: CalendarPeriod -> Modifier.graphicsLayer { alpha = if (dayLabels && period in stuckPeriods.value) 0f else 1f } }
+        val hiddenWhileStuck = { period: CalendarPeriod -> Modifier.graphicsLayer { alpha = if (period in stuckPeriods.value) 0f else 1f } }
         val decoration = { columns: Int ->
             backdropSource
                 .drawBehind {
@@ -527,12 +529,13 @@ private fun EventListView(
             }
             listingStatusItem(paged.listing, paged.retry)
         }
-        if (inDateOrder && dayLabels) {
-            PinnedAgendaLabel(grid, agenda, pinnedLabelRow.value, topPadding, margin, cards.formatting, guideColors)
-            StuckAgendaPeriods(stuckPeriods.value, topPadding, margin, cards.formatting) { period ->
+        if (inDateOrder) {
+            if (dayLabels) PinnedAgendaLabel(grid, agenda, pinnedLabelRow.value, topPadding, margin, cards.formatting, guideColors)
+            else StickyAgendaHeading(grid, agenda, topPadding, margin)
+            StuckAgendaPeriods(stuckPeriods.value, topPadding + stuckPeriodsTop, margin, cards.formatting) { period ->
                 state.openMarkSheet(MarkSheetTarget(MarkKind.Period, period.id))
             }
-        } else if (inDateOrder) StickyAgendaHeading(grid, agenda, topPadding, margin)
+        }
     }
 }
 
@@ -754,10 +757,10 @@ private fun StickyAgendaHeading(grid: LazyGridState, agenda: Agenda, topPadding:
 }
 
 @Composable
-private fun StuckAgendaPeriods(periods: List<CalendarPeriod>, topPadding: Dp, cardsStart: Dp, formatting: EventFormatting, onOpen: (CalendarPeriod) -> Unit) {
+private fun StuckAgendaPeriods(periods: List<CalendarPeriod>, top: Dp, cardsStart: Dp, formatting: EventFormatting, onOpen: (CalendarPeriod) -> Unit) {
     if (periods.isEmpty()) return
     Column(
-        Modifier.padding(start = cardsStart, top = topPadding + AgendaLabelHeight + Spacing.xs, end = Spacing.md),
+        Modifier.padding(start = cardsStart, top = top, end = Spacing.md),
         verticalArrangement = Arrangement.spacedBy(Spacing.xs),
     ) {
         for (period in periods) key(period.id) {
