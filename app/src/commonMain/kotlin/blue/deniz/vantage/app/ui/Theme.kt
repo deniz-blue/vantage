@@ -222,7 +222,7 @@ private val AppTypography = Typography().run {
     copy(
         headlineLarge = headlineLarge.copy(fontSize = 30.sp, lineHeight = 36.sp),
         headlineMedium = headlineMedium.copy(fontSize = 26.sp, lineHeight = 32.sp),
-        headlineSmall = headlineSmall.copy(fontSize = 22.sp, lineHeight = 28.sp),
+        headlineSmall = headlineSmall.copy(fontSize = 20.sp, lineHeight = 26.sp),
         titleLarge = titleLarge.copy(fontSize = 20.sp, lineHeight = 26.sp),
         titleMedium = titleMedium.copy(fontSize = 17.sp, lineHeight = 24.sp),
         titleSmall = titleSmall.copy(fontSize = 13.sp, lineHeight = 18.sp),
@@ -230,6 +230,7 @@ private val AppTypography = Typography().run {
         bodyMedium = bodyMedium.copy(fontSize = 15.sp, lineHeight = 20.sp),
         bodySmall = bodySmall.copy(fontSize = 13.sp, lineHeight = 18.sp),
         labelLarge = labelLarge.copy(fontSize = 13.sp, lineHeight = 18.sp),
+        labelMedium = labelMedium.copy(fontSize = 13.sp, lineHeight = 18.sp),
     )
 }
 
@@ -256,15 +257,6 @@ object ControlHeight {
     val sm = 32.dp
     val md = 40.dp
     val lg = 44.dp
-}
-
-object FontSize {
-    val xs = 11.sp
-    val sm = 13.sp
-    val md = 15.sp
-    val lg = 17.sp
-    val xl = 19.sp
-    val h1 = 22.sp
 }
 
 object Radius {

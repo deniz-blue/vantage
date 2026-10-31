@@ -30,7 +30,6 @@ import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.BottomSheetFrame
 import blue.deniz.vantage.app.ui.Button
 import blue.deniz.vantage.app.ui.EventTitle
-import blue.deniz.vantage.app.ui.FontSize
 import blue.deniz.vantage.app.ui.MenuItem
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.Text
@@ -211,7 +210,7 @@ private fun DataView(text: String) {
     val shown = remember(text) { prettyPrintJsonOrNull(text) ?: text }
     CopyMenuItem("Copy") { shown }
     SelectionContainer(Modifier.padding(horizontal = Spacing.md)) {
-        Text(shown, fontSize = FontSize.xs, fontFamily = FontFamily.Monospace)
+        Text(shown, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.labelSmall)
     }
 }
 

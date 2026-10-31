@@ -83,7 +83,7 @@ private val DATE_COLUMN_WIDTH = 44.dp
 private const val DAY_NUMBER_LENGTH = 2
 private const val TITLE_PATTERN_ALPHA = 0.06f
 private const val TITLE_PATTERN_ANGLE = -45f
-private val TITLE_PATTERN_STYLE = TextStyle(fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.04.em)
+private val TITLE_PATTERN_STYLE = TextStyle(fontSize = 11.sp, lineHeight = 16.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.04.em)
 private val TITLE_PATTERN_ROW_SHIFTS = listOf(40.dp, 110.dp)
 
 @Composable

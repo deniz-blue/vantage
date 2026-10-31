@@ -49,7 +49,6 @@ import blue.deniz.vantage.app.ui.ContentUnderOverlay
 import blue.deniz.vantage.app.ui.EventCardSelection
 import blue.deniz.vantage.app.ui.FloatingControls
 import blue.deniz.vantage.app.ui.FloatingHeader
-import blue.deniz.vantage.app.ui.FontSize
 import blue.deniz.vantage.app.ui.HeldKeys
 import blue.deniz.vantage.app.ui.IconButton
 import blue.deniz.vantage.app.ui.ScreenHeader
@@ -185,7 +184,7 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
                         Text(
                             listOfNotNull(feed.address, listing?.countLabel()).joinToString(" · "),
                             Modifier.animateItem(),
-                            fontSize = FontSize.sm,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2,
                         )

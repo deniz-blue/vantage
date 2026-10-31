@@ -29,7 +29,6 @@ import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.ScreenHeader
 import blue.deniz.vantage.app.ui.Button
 import blue.deniz.vantage.app.ui.Card
-import blue.deniz.vantage.app.ui.FontSize
 import blue.deniz.vantage.app.ui.IconButton
 import blue.deniz.vantage.app.ui.ListSection
 import blue.deniz.vantage.app.ui.TypographyStyle
@@ -190,7 +189,7 @@ private fun JsonImport(state: AppState, scope: CoroutineScope, onCancel: () -> U
         }
     }
 
-    Text("Import Event JSON", fontSize = FontSize.h1, fontWeight = FontWeight.Bold)
+    Text("Import Event JSON", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall)
     Text("Paste an OpenEvnt event as JSON below. It will be validated and saved as a local event.", color = MaterialTheme.colorScheme.onSurfaceVariant)
     TextInput(
         text,

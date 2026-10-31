@@ -80,7 +80,6 @@ import blue.deniz.vantage.app.ui.Button
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.collectAcrossNavigation
 import blue.deniz.vantage.app.ui.EventFormatting
-import blue.deniz.vantage.app.ui.FontSize
 import blue.deniz.vantage.app.ui.IconButton
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.Text
@@ -121,7 +120,7 @@ private val BAR_HEIGHT = 15.dp
 private val BAR_GAP = 2.dp
 private val BAR_INSET = 2.dp
 private val BAR_RADIUS = 4.dp
-private val BAR_TEXT_SIZE = 10.sp
+private val BAR_TEXT_SIZE = 11.sp
 private val PERIOD_BAND_HEIGHT = 15.dp
 private const val MAX_PERIOD_ROWS = 2
 private const val PERIOD_FILL_ALPHA = 0.08f
@@ -268,7 +267,7 @@ fun CalendarView(
         Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.xs)) {
             for (label in WEEKDAY_LABELS) {
                 Box(Modifier.weight(1f).padding(bottom = Spacing.xs), contentAlignment = Alignment.Center) {
-                    Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = FontSize.xs)
+                    Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
                 }
             }
         }
@@ -525,7 +524,7 @@ private fun DayNumber(day: LocalDate, inMonth: Boolean, isToday: Boolean, isSele
                 .then(if (isSelected && !isToday) Modifier.border(1.dp, colors.primary, CircleShape) else Modifier),
             contentAlignment = Alignment.Center,
         ) {
-            Text(day.day.toString(), color = textColor, fontSize = FontSize.xs)
+            Text(day.day.toString(), color = textColor, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
