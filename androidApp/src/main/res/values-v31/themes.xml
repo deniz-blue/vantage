@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Vantage" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/vantage_background</item>
+        <item name="android:windowSplashScreenBackground">@color/vantage_background</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/vantage_background</item>
+    </style>
+</resources>

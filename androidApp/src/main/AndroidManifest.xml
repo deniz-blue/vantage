@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <permission
+        android:name="${applicationId}.permission.READ_EVENTS"
+        android:label="read your Vantage events"
+        android:protectionLevel="dangerous" />
+    <permission
+        android:name="${applicationId}.permission.WRITE_EVENTS"
+        android:label="add, change and remove your Vantage events"
+        android:protectionLevel="dangerous" />
+
+    <application
+        android:name=".VantageApplication"
+        android:label="Vantage"
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.Vantage">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="eventsl.ink" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="vantage.tsx.lt" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vantage" />
+                <data android:scheme="evnt" />
+                <data android:scheme="web+evnt" />
+            </intent-filter>
+        </activity>
+        <provider
+            android:name="blue.deniz.vantage.app.EventsProvider"
+            android:authorities="${applicationId}.v1.events"
+            android:exported="true" />
+    </application>
+</manifest>
