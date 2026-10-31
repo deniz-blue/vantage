@@ -114,7 +114,7 @@ private fun isRegionZone(id: String) = id == "UTC" || id.substringBefore('/', ""
 
 @Composable
 fun BottomSheetScope.TimeZonePickerBody(title: String, selectedId: String?, now: Instant, onBack: (() -> Unit)? = null, onPick: (String) -> Unit) {
-    val zones = remember { TimeZone.availableZoneIds.filter(::isRegionZone).sorted() }
+    val zones = remember(selectedId) { (TimeZone.availableZoneIds.filter(::isRegionZone) + listOfNotNull(selectedId?.takeIf { it in TimeZone.availableZoneIds })).distinct().sorted() }
     PickerBody(
         title,
         onBack,
