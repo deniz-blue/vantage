@@ -36,6 +36,7 @@ import blue.deniz.vantage.app.HomeTile
 import blue.deniz.vantage.app.WeatherPlace
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.newHomeTileId
+import blue.deniz.vantage.app.runsInBrowser
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.Button
@@ -70,6 +71,7 @@ private fun HomeTile.icon(): ImageVector = when (this) {
     is HomeTile.Weather -> AppIcons.Sunny
     is HomeTile.Periods -> AppIcons.DateRange
     is HomeTile.Feed -> AppIcons.Rss
+    is HomeTile.AndroidApp -> AppIcons.Smartphone
 }
 
 private fun HomeTile.summary(): String? = when (this) {
@@ -77,6 +79,7 @@ private fun HomeTile.summary(): String? = when (this) {
     is HomeTile.Weather -> if (place == null) "From Time Zone" else null
     is HomeTile.Periods -> null
     is HomeTile.Feed -> "Next ${eventCountLabel(count)}"
+    is HomeTile.AndroidApp -> null
 }
 
 private fun List<HomeTile>.replacing(tile: HomeTile) =
@@ -129,7 +132,7 @@ fun HomeSettingsScreen(state: AppState) {
                             onRemove = { removeTile(tile) },
                             onEdit = when (tile) {
                                 is HomeTile.Weather -> ({ weatherPlaceFor = tile.id })
-                                is HomeTile.Periods -> null
+                                is HomeTile.Periods, is HomeTile.AndroidApp -> null
                                 else -> ({ settingsFor = tile.id })
                             },
                         )
@@ -163,6 +166,12 @@ fun HomeSettingsScreen(state: AppState) {
                 choosingTile = false
                 newFeedTile = true
             }, leadingIcon = AppIcons.Rss)
+            if (runsInBrowser && tiles.none { it is HomeTile.AndroidApp }) {
+                MenuItem("Vantage for Android", onClick = {
+                    choosingTile = false
+                    state.saveHomeTile(HomeTile.AndroidApp(newHomeTileId()))
+                }, leadingIcon = AppIcons.Smartphone)
+            }
         }
     }
 
@@ -253,7 +262,7 @@ private fun ColumnScope.TileSettings(tile: HomeTile, title: String, tags: List<T
             when (tile) {
                 is HomeTile.UpcomingEvents -> tile.count
                 is HomeTile.Feed -> tile.count
-                is HomeTile.Weather, is HomeTile.Periods -> DEFAULT_TILE_EVENT_COUNT
+                is HomeTile.Weather, is HomeTile.Periods, is HomeTile.AndroidApp -> DEFAULT_TILE_EVENT_COUNT
             },
         )
     }
@@ -263,7 +272,7 @@ private fun ColumnScope.TileSettings(tile: HomeTile, title: String, tags: List<T
             when (tile) {
                 is HomeTile.UpcomingEvents -> tile.layout
                 is HomeTile.Feed -> tile.layout
-                is HomeTile.Weather, is HomeTile.Periods -> EventCardStyle.Rows
+                is HomeTile.Weather, is HomeTile.Periods, is HomeTile.AndroidApp -> EventCardStyle.Rows
             },
         )
     }
@@ -274,7 +283,7 @@ private fun ColumnScope.TileSettings(tile: HomeTile, title: String, tags: List<T
     fun editedTile(): HomeTile? = when (tile) {
         is HomeTile.UpcomingEvents -> tile.copy(count = count, tagIds = tagIds.toSet(), layout = layout)
         is HomeTile.Feed -> EventFeed.fromAddress(address)?.let { tile.copy(feed = it, count = count, layout = layout) }
-        is HomeTile.Weather, is HomeTile.Periods -> tile
+        is HomeTile.Weather, is HomeTile.Periods, is HomeTile.AndroidApp -> tile
     }
     fun save() {
         val edited = editedTile()

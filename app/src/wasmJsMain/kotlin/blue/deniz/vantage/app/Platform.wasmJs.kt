@@ -117,4 +117,6 @@ actual fun rememberCalendarPermissionRequest(writes: Boolean, onResult: (granted
 @Composable
 actual fun rememberNotificationPermissionRequest(onResult: (granted: Boolean) -> Unit): () -> Unit = { onResult(false) }
 
+actual val runsInBrowser = true
+
 actual val mondayFirstCalendarLocale: CalendarLocale get() = androidx.compose.ui.text.intl.Locale("en-GB")

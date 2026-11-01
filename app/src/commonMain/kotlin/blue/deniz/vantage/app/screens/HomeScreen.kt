@@ -1,5 +1,6 @@
 package blue.deniz.vantage.app.screens
 
+import androidx.compose.ui.platform.LocalUriHandler
 import blue.deniz.vantage.app.ui.growsIntoEventPage
 import blue.deniz.vantage.app.ui.LoadingSpinner
 import androidx.compose.foundation.background
@@ -64,6 +65,7 @@ import blue.deniz.vantage.app.ui.ScreenHeader
 import blue.deniz.vantage.app.ui.SectionTitle
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.core.AppSchemes
 import blue.deniz.vantage.core.TimeFilter
 import blue.deniz.vantage.core.coordinates
 import blue.deniz.vantage.core.EventFeed
@@ -90,6 +92,7 @@ import blue.deniz.vantage.core.Place
 
 private val WEATHER_ICON_SIZE = 40.dp
 private const val WEATHER_DAYS_SHOWN = 3
+private const val ANDROID_EARLY_ACCESS_URL = "https://${AppSchemes.WEB_HOST}/android"
 
 internal fun HomeTile.title(tagNames: Map<String, String>): String = when (this) {
     is HomeTile.UpcomingEvents -> tagIds.mapNotNull(tagNames::get).sorted().let { names ->
@@ -97,6 +100,7 @@ internal fun HomeTile.title(tagNames: Map<String, String>): String = when (this)
     }
     is HomeTile.Weather -> weatherTitle(place)
     is HomeTile.Periods -> "Periods"
+    is HomeTile.AndroidApp -> "Vantage for Android"
     is HomeTile.Feed -> "From ${feedName(feed)}"
 }
 
@@ -138,6 +142,7 @@ fun HomeScreen(state: AppState) {
                                 is HomeTile.UpcomingEvents -> UpcomingEventsTile(state, tile, tile.title(tagNames), spaceBesideColumn)
                                 is HomeTile.Weather -> WeatherTile(state, tile, onChoosePlace = { weatherPlaceFor = tile.id })
                                 is HomeTile.Periods -> PeriodsTile(state, tile.title(tagNames))
+                                is HomeTile.AndroidApp -> AndroidAppTile(tile.title(tagNames))
                                 is HomeTile.Feed -> FeedTile(state, tile, tile.title(tagNames), spaceBesideColumn)
                             }
                         }
@@ -179,6 +184,18 @@ private fun PeriodsTile(state: AppState, title: String) {
             }
         }
     }
+}
+
+@Composable
+private fun AndroidAppTile(title: String) {
+    val uriHandler = LocalUriHandler.current
+    TileHeader(title)
+    ListRow(
+        "Get Early Access",
+        icon = AppIcons.Smartphone,
+        supporting = "Install Vantage from Google Play",
+        onClick = { uriHandler.openUri(ANDROID_EARLY_ACCESS_URL) },
+    )
 }
 
 @Composable

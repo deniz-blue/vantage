@@ -36,6 +36,8 @@ sealed interface HomeTile {
         val count: Int = DEFAULT_TILE_EVENT_COUNT,
         val layout: EventCardStyle = EventCardStyle.Rows,
     ) : HomeTile
+
+    data class AndroidApp(override val id: String) : HomeTile
 }
 
 data class WeatherPlace(val name: String, val latitude: Double, val longitude: Double)
@@ -43,7 +45,8 @@ data class WeatherPlace(val name: String, val latitude: Double, val longitude: D
 @OptIn(ExperimentalUuidApi::class)
 fun newHomeTileId() = Uuid.random().toString()
 
-val DEFAULT_HOME_TILES: List<HomeTile> = listOf(
+val DEFAULT_HOME_TILES: List<HomeTile> = listOfNotNull(
+    HomeTile.AndroidApp("android-app").takeIf { runsInBrowser },
     HomeTile.Weather("weather"),
     HomeTile.Periods("periods"),
     HomeTile.UpcomingEvents("upcoming", layout = EventCardStyle.Posters),
@@ -69,6 +72,7 @@ fun homeTilesToJson(tiles: List<HomeTile>): String = buildJsonArray {
                     }
                 }
                 is HomeTile.Periods -> put("type", "periods")
+                is HomeTile.AndroidApp -> put("type", "androidApp")
                 is HomeTile.Feed -> {
                     put("type", "feed")
                     put("count", tile.count)
@@ -107,6 +111,7 @@ private fun homeTileOfJson(tile: JsonObject): HomeTile? {
             HomeTile.Weather(id, if (name != null && latitude != null && longitude != null) WeatherPlace(name, latitude, longitude) else null)
         }
         "periods" -> HomeTile.Periods(id)
+        "androidApp" -> HomeTile.AndroidApp(id)
         "feed" -> {
             val openEvntIndex = text("openEvntIndex")
             val atRepository = text("atRepository")

@@ -44,4 +44,6 @@ expect fun rememberCalendarPermissionRequest(writes: Boolean = false, onResult: 
 @Composable
 expect fun rememberNotificationPermissionRequest(onResult: (granted: Boolean) -> Unit): () -> Unit
 
+expect val runsInBrowser: Boolean
+
 expect val mondayFirstCalendarLocale: CalendarLocale
