@@ -1,2 +1,2 @@
-Improved event editor
-Fixed fonts and other QoL changes
+Vantage is rebuilt from the ground up as a native Android app.
+Export and import your data from Settings.
