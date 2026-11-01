@@ -60,7 +60,7 @@ kotlin {
 
 play {
     providers.gradleProperty("playCredentials").orNull?.let { path -> serviceAccountCredentials.set(File(path)) }
-    track.set("internal")
+    track.set("alpha")
     defaultToAppBundles.set(true)
 }
 
