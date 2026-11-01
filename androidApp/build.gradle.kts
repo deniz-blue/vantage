@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.play.publisher)
 }
 
 android {
@@ -55,6 +56,12 @@ android {
 
 kotlin {
     jvmToolchain(21)
+}
+
+play {
+    providers.gradleProperty("playCredentials").orNull?.let { path -> serviceAccountCredentials.set(File(path)) }
+    track.set("internal")
+    defaultToAppBundles.set(true)
 }
 
 dependencies {
