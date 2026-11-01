@@ -17,7 +17,7 @@
 
     <application
         android:name=".VantageApplication"
-        android:label="Vantage"
+        android:label="${appLabel}"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/Theme.Vantage">
         <activity

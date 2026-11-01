@@ -16,6 +16,7 @@ android {
         targetSdk = 36
         versionCode = 9
         versionName = "0.2.0"
+        manifestPlaceholders["appLabel"] = "Vantage"
         providers.gradleProperty("androidAbis").orNull?.let { abis -> ndk { abiFilters += abis.split(",") } }
     }
 
@@ -41,6 +42,12 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
             signingConfig = signing
+        }
+        create("dev") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appLabel"] = "Vantage Dev"
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
