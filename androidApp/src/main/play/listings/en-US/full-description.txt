@@ -1,0 +1,1 @@
+Vantage is an open-source calendar application that uses the Open Evnt data format which allows for more detailed event information. Vantage allows you to import events from any source.

@@ -1,0 +1,2 @@
+Improved event editor
+Fixed fonts and other QoL changes
