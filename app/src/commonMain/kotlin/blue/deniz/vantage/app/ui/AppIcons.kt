@@ -66,6 +66,8 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.Smartphone
 import androidx.compose.material.icons.outlined.Thermostat
 import androidx.compose.material.icons.outlined.Thunderstorm
@@ -134,6 +136,8 @@ object AppIcons {
     val Pencil = Icons.Outlined.Edit
     val WorldDownload = Icons.Outlined.CloudDownload
     val WorldUpload = Icons.Outlined.CloudUpload
+    val FileDownload = Icons.Outlined.FileDownload
+    val FileUpload = Icons.Outlined.FileUpload
     val Smartphone = Icons.Outlined.Smartphone
     val UserEdit = Icons.Outlined.ManageAccounts
     val Language = Icons.Outlined.Translate

@@ -17,6 +17,10 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import java.io.IOException
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -73,6 +77,46 @@ actual fun rememberCopyText(): (String) -> Unit {
     }
 }
 
+@Composable
+actual fun rememberSaveTextFile(onSaved: (saved: Boolean) -> Unit): (fileName: String, text: String) -> Unit {
+    val context = LocalContext.current
+    val currentOnSaved by rememberUpdatedState(onSaved)
+    val pendingText = remember { mutableStateOf<String?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        val text = pendingText.value
+        pendingText.value = null
+        if (uri == null || text == null) return@rememberLauncherForActivityResult
+        val saved = try {
+            context.contentResolver.openOutputStream(uri)?.use { it.write(text.encodeToByteArray()) } != null
+        } catch (_: IOException) {
+            false
+        }
+        currentOnSaved(saved)
+    }
+    return remember(launcher) {
+        { fileName, text ->
+            pendingText.value = text
+            launcher.launch(fileName)
+        }
+    }
+}
+
+@Composable
+actual fun rememberOpenTextFile(onOpened: (text: String) -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val currentOnOpened by rememberUpdatedState(onOpened)
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val text = try {
+            context.contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
+        } catch (_: IOException) {
+            null
+        }
+        currentOnOpened(text.orEmpty())
+    }
+    return remember(launcher) { { launcher.launch(arrayOf("*/*")) } }
+}
+
 actual fun mapsAppLink(place: MapPlace): String = MapLinks.geo(place)
 
 actual fun imageBitmapFromArgb(pixels: IntArray, width: Int, height: Int): ImageBitmap =
@@ -91,6 +135,8 @@ actual fun countryName(code: String, displayLanguage: String): String = try {
 
 private class SharedPreferencesStorage(private val preferences: SharedPreferences) : KeyValueStorage {
     override fun read(key: String): String? = preferences.getString(key, null)
+
+    override fun keys(): Set<String> = preferences.all.keys
 
     override fun write(key: String, value: String?) {
         preferences.edit().apply { if (value == null) remove(key) else putString(key, value) }.apply()

@@ -138,6 +138,7 @@ import blue.deniz.vantage.core.EventPreviews
 import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
+import blue.deniz.vantage.storage.Backup
 import blue.deniz.vantage.storage.EventStore
 import io.ktor.http.parseUrl
 import kotlin.time.Clock
@@ -186,6 +187,14 @@ class AppState(
         private set
 
     val snackbars = SnackbarHostState()
+
+    suspend fun exportBackup(): Backup = store.exportBackup().copy(settings = settings.portableValues())
+
+    suspend fun importBackup(backup: Backup) {
+        store.importBackup(backup)
+        settings.replacePortableValues(backup.settings)
+        calendars.syncAll()
+    }
     private val appScope = MainScope()
     var phoneCalendarCopyFailure by mutableStateOf<String?>(null)
         private set

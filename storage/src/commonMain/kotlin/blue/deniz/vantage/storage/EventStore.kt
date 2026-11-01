@@ -23,6 +23,7 @@ import directory.evnt.translate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
@@ -384,6 +385,61 @@ class EventStore(
     suspend fun tagEvents(eventIds: Collection<String>, tagId: String) = eventIds.forEach { tags.tagEvent(EventTagEntity(it, tagId)) }
 
     suspend fun untagEvents(eventIds: Collection<String>, tagId: String) = eventIds.forEach { tags.untagEvent(EventTagEntity(it, tagId)) }
+
+    suspend fun exportBackup(): Backup {
+        val tagIdsByEvent = tags.observeTagsOfAllEvents().first().groupBy({ it.eventId }, { it.tag.id })
+        val parentIdsByTag = tags.observeParents().first().groupBy({ it.childId }, { it.parentId })
+        return Backup(
+            exportedAt = clock.now(),
+            events = events.allEvents().filter { it.event.source.isKeptInBackup() }.map { stored ->
+                BackupEvent(
+                    id = stored.event.id,
+                    source = stored.event.source,
+                    format = stored.event.format,
+                    addedAt = stored.event.addedAt,
+                    document = stored.cache?.raw?.let(::documentOf),
+                    tags = tagIdsByEvent[stored.event.id].orEmpty(),
+                )
+            },
+            tags = tags.observeAll().first().map { BackupTag(it.id, it.name, it.color, it.updatedAt, parentIdsByTag[it.id].orEmpty()) },
+            markers = observeMarkers().first(),
+            periods = observePeriods().first(),
+            hiddenCalendarEvents = hiddenCalendarEvents.all().map { BackupHiddenCalendarEvent(it.source, it.title, it.startsAt) },
+        )
+    }
+
+    suspend fun importBackup(backup: Backup) {
+        backup.tags.forEach { tags.upsert(TagEntity(it.id, it.name, it.color, it.updatedAt)) }
+        val tagIds = tags.observeAll().first().mapTo(HashSet()) { it.id }
+        backup.tags.forEach { tag -> tag.parents.filter { it in tagIds }.forEach { tags.addParent(TagParentEntity(it, tag.id)) } }
+        for (event in backup.events.filter { it.source.isKeptInBackup() }) {
+            val resolved = resolver.parse(
+                ResolvedEvent(
+                    id = event.id,
+                    source = event.source,
+                    format = event.format,
+                    raw = event.raw,
+                    updatedAt = clock.now().takeIf { event.source !is EventSource.Remote },
+                ),
+            )
+            if (events.findEvent(event.id) == null) {
+                events.insertEventWithCache(
+                    EventEntity(event.id, event.source, resolved.format, event.addedAt),
+                    cacheOf(event.id, resolved),
+                    timeRangesOf(event.id, resolved),
+                )
+            } else {
+                events.updateSource(event.id, event.source)
+                save(resolved)
+            }
+            val kept = event.tags.filter { it in tagIds }
+            tags.tagLinksOf(event.id).filter { it.tagId !in kept }.forEach { tags.untagEvent(it) }
+            kept.forEach { tags.tagEvent(EventTagEntity(event.id, it)) }
+        }
+        backup.markers.forEach { saveMarker(it) }
+        backup.periods.forEach { savePeriod(it) }
+        backup.hiddenCalendarEvents.forEach { hiddenCalendarEvents.upsert(HiddenCalendarEventEntity(it.source, it.title, it.startsAt)) }
+    }
 }
 
 private fun MarkerEntity.toMarker() = CalendarMarker(id, label, at)

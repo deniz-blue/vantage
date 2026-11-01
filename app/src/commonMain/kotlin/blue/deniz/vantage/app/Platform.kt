@@ -21,6 +21,12 @@ expect fun rememberSendEditReply(): (EventsLink.EditReply) -> Unit
 @Composable
 expect fun rememberCopyText(): (String) -> Unit
 
+@Composable
+expect fun rememberSaveTextFile(onSaved: (saved: Boolean) -> Unit): (fileName: String, text: String) -> Unit
+
+@Composable
+expect fun rememberOpenTextFile(onOpened: (text: String) -> Unit): () -> Unit
+
 expect fun languageAutonym(code: String): String?
 
 expect fun countryName(code: String, displayLanguage: String): String

@@ -47,6 +47,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import kotlinx.serialization.SerializationException
+import kotlinx.coroutines.launch
+import blue.deniz.vantage.storage.counts
+import blue.deniz.vantage.storage.BackupCounts
+import blue.deniz.vantage.storage.Backup
+import blue.deniz.vantage.app.rememberSaveTextFile
+import blue.deniz.vantage.app.rememberOpenTextFile
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -158,6 +166,9 @@ fun SettingsScreen(state: AppState) {
             }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
+            BackupRows(state)
+        }
+        ListSection(Modifier.padding(top = Spacing.md)) {
             SubpageRow("About", AppIcons.Info) { state.navigator.open(Route.About) }
             SubpageRow("Developer Tools", AppIcons.Code) { state.navigator.open(Route.DeveloperTools) }
         }
@@ -184,6 +195,56 @@ fun SettingsScreen(state: AppState) {
             settings.changeTimeZone(TimeZone.of(picked))
         }
     }
+}
+
+private fun backupCountsLabel(counts: BackupCounts) = listOf(
+    eventCountLabel(counts.events),
+    tagCountLabel(counts.tags),
+    if (counts.markers == 1) "1 Marker" else "${counts.markers} Markers",
+    if (counts.periods == 1) "1 Period" else "${counts.periods} Periods",
+).joinToString(" · ")
+
+@Composable
+private fun BackupRows(state: AppState) {
+    val scope = rememberCoroutineScope()
+    var exported by remember { mutableStateOf<BackupCounts?>(null) }
+    var exportStatus by remember { mutableStateOf<String?>(null) }
+    var importStatus by remember { mutableStateOf<String?>(null) }
+    val saveFile = rememberSaveTextFile { saved ->
+        exportStatus = if (saved) exported?.let { "Saved ${backupCountsLabel(it)}" } else "Couldn't write the file"
+    }
+    val openFile = rememberOpenTextFile { text ->
+        scope.launch {
+            importStatus = "Importing…"
+            importStatus = try {
+                val backup = Backup.fromJson(text)
+                state.importBackup(backup)
+                "Imported ${backupCountsLabel(backup.counts)}"
+            } catch (_: SerializationException) {
+                "Not a Vantage backup"
+            } catch (_: IllegalArgumentException) {
+                "Not a Vantage backup"
+            }
+        }
+    }
+    ListRow(
+        "Export Data",
+        icon = AppIcons.FileUpload,
+        supporting = exportStatus ?: "Events, tags, markers, periods and settings in one file",
+        onClick = {
+            scope.launch {
+                val backup = state.exportBackup()
+                exported = backup.counts
+                saveFile("vantage-${state.today}.json", backup.toJson())
+            }
+        },
+    )
+    ListRow(
+        "Import Data",
+        icon = AppIcons.FileDownload,
+        supporting = importStatus ?: "Adds what's in a backup; items it shares with this one are replaced",
+        onClick = openFile,
+    )
 }
 
 @Composable
