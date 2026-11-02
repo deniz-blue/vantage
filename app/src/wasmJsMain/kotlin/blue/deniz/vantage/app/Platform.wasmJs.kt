@@ -119,4 +119,6 @@ actual fun rememberNotificationPermissionRequest(onResult: (granted: Boolean) ->
 
 actual val runsInBrowser = true
 
+actual val runsInAndroidBrowser = "Android" in kotlinx.browser.window.navigator.userAgent
+
 actual val mondayFirstCalendarLocale: CalendarLocale get() = androidx.compose.ui.text.intl.Locale("en-GB")

@@ -215,4 +215,6 @@ actual fun rememberNotificationPermissionRequest(onResult: (granted: Boolean) ->
 
 actual val runsInBrowser = false
 
+actual val runsInAndroidBrowser = false
+
 actual val mondayFirstCalendarLocale: CalendarLocale get() = java.util.Locale.UK

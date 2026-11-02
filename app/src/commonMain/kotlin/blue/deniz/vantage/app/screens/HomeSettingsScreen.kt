@@ -36,7 +36,7 @@ import blue.deniz.vantage.app.HomeTile
 import blue.deniz.vantage.app.WeatherPlace
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.newHomeTileId
-import blue.deniz.vantage.app.runsInBrowser
+import blue.deniz.vantage.app.offersAndroidAppTile
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.Button
@@ -166,7 +166,7 @@ fun HomeSettingsScreen(state: AppState) {
                 choosingTile = false
                 newFeedTile = true
             }, leadingIcon = AppIcons.Rss)
-            if (runsInBrowser && tiles.none { it is HomeTile.AndroidApp }) {
+            if (offersAndroidAppTile && tiles.none { it is HomeTile.AndroidApp }) {
                 MenuItem("Vantage for Android", onClick = {
                     choosingTile = false
                     state.saveHomeTile(HomeTile.AndroidApp(newHomeTileId()))

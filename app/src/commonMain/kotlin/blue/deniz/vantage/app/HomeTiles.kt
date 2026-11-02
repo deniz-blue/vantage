@@ -46,11 +46,13 @@ data class WeatherPlace(val name: String, val latitude: Double, val longitude: D
 fun newHomeTileId() = Uuid.random().toString()
 
 val DEFAULT_HOME_TILES: List<HomeTile> = listOfNotNull(
-    HomeTile.AndroidApp("android-app").takeIf { runsInBrowser },
+    HomeTile.AndroidApp("android-app").takeIf { offersAndroidAppTile },
     HomeTile.Weather("weather"),
     HomeTile.Periods("periods"),
     HomeTile.UpcomingEvents("upcoming", layout = EventCardStyle.Posters),
 )
+
+val offersAndroidAppTile: Boolean get() = runsInBrowser && !runsInAndroidBrowser
 
 fun homeTilesToJson(tiles: List<HomeTile>): String = buildJsonArray {
     for (tile in tiles) {

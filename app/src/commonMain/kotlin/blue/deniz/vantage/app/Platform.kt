@@ -49,4 +49,6 @@ expect fun rememberNotificationPermissionRequest(onResult: (granted: Boolean) ->
 
 expect val runsInBrowser: Boolean
 
+expect val runsInAndroidBrowser: Boolean
+
 expect val mondayFirstCalendarLocale: CalendarLocale

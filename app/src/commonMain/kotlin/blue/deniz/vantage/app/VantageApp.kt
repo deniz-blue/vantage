@@ -572,43 +572,46 @@ fun VantageApp(state: AppState) {
             KeyboardShortcutHost(onShortcut = state::handleShortcut) {
                 BottomSheetHost(aboveSheets = { SnackbarsOutsideTabBar(state, onTab = navigator.current is Route.Tab) }) {
                     Surface(Modifier.fillMaxSize()) {
-                        SharedTransitionLayout(Modifier.fillMaxSize()) {
-                            AnimatedContent(
-                                targetState = StackEntry(navigator.screens.lastIndex, navigator.screens.last()),
-                                transitionSpec = { screenTransition() },
-                                contentKey = { it.screenStateKey },
-                            ) { entry ->
-                                val screenTransition = remember(this) { ScreenTransition(this@SharedTransitionLayout, this) }
-                                val opacity = transition.animateFloat(
-                                    transitionSpec = { if (targetState == EnterExitState.Visible) ScreenFadeIn else ScreenFadeOut },
-                                    label = "screen opacity",
-                                ) { if (it == EnterExitState.Visible) 1f else 0f }
-                                screenStates.SaveableStateProvider(entry.screenStateKey) {
-                                    CompositionLocalProvider(
-                                        LocalScreenValues provides screenValues.valuesFor(entry.screenStateKey),
-                                        LocalStackDepth provides entry.depth,
-                                        LocalScreenOpacity provides remember(opacity) { { opacity.value } },
-                                        LocalScreenTransition provides screenTransition,
-                                    ) {
-                                        Box(Modifier.blockingPointerInputWhile { transition.targetState != EnterExitState.Visible }, propagateMinConstraints = true) {
-                                            when (val route = entry.route) {
-                                                is Route.Tab -> TabShell(state, route, showsSnackbars = route == navigator.current)
-                                                is Route.EventDetails -> if (route.openedFromCard) {
-                                                    EventPageGrowingFromCard(route.id) { EventDetailsScreen(state, route.id) }
-                                                } else {
-                                                    EventDetailsScreen(state, route.id)
+                        Column(Modifier.fillMaxSize()) {
+                            if (runsInAndroidBrowser) AndroidAppBanner()
+                            SharedTransitionLayout(Modifier.fillMaxWidth().weight(1f)) {
+                                AnimatedContent(
+                                    targetState = StackEntry(navigator.screens.lastIndex, navigator.screens.last()),
+                                    transitionSpec = { screenTransition() },
+                                    contentKey = { it.screenStateKey },
+                                ) { entry ->
+                                    val screenTransition = remember(this) { ScreenTransition(this@SharedTransitionLayout, this) }
+                                    val opacity = transition.animateFloat(
+                                        transitionSpec = { if (targetState == EnterExitState.Visible) ScreenFadeIn else ScreenFadeOut },
+                                        label = "screen opacity",
+                                    ) { if (it == EnterExitState.Visible) 1f else 0f }
+                                    screenStates.SaveableStateProvider(entry.screenStateKey) {
+                                        CompositionLocalProvider(
+                                            LocalScreenValues provides screenValues.valuesFor(entry.screenStateKey),
+                                            LocalStackDepth provides entry.depth,
+                                            LocalScreenOpacity provides remember(opacity) { { opacity.value } },
+                                            LocalScreenTransition provides screenTransition,
+                                        ) {
+                                            Box(Modifier.blockingPointerInputWhile { transition.targetState != EnterExitState.Visible }, propagateMinConstraints = true) {
+                                                when (val route = entry.route) {
+                                                    is Route.Tab -> TabShell(state, route, showsSnackbars = route == navigator.current)
+                                                    is Route.EventDetails -> if (route.openedFromCard) {
+                                                        EventPageGrowingFromCard(route.id) { EventDetailsScreen(state, route.id) }
+                                                    } else {
+                                                        EventDetailsScreen(state, route.id)
+                                                    }
+                                                    is Route.EventFromLink -> EventFromLinkScreen(state, route.intent)
+                                                    Route.ChooseFeed -> ChooseFeedScreen(state)
+                                                    is Route.Feed -> FeedScreen(state, route.feed)
+                                                    is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)
+                                                    is Route.EditEvent -> EditEventScreen(state, route.id, route.draft)
+                                                    is Route.EditFromLink -> EditFromLinkScreen(state, route.request)
+                                                    Route.HomeSettings -> HomeSettingsScreen(state)
+                                                    Route.TagSettings -> TagSettingsScreen(state)
+                                                    is Route.CalendarSettings -> CalendarSettingsScreen(state, route.offeredLink)
+                                                    Route.About -> AboutScreen(state)
+                                                    Route.DeveloperTools -> DeveloperToolsScreen(state)
                                                 }
-                                                is Route.EventFromLink -> EventFromLinkScreen(state, route.intent)
-                                                Route.ChooseFeed -> ChooseFeedScreen(state)
-                                                is Route.Feed -> FeedScreen(state, route.feed)
-                                                is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)
-                                                is Route.EditEvent -> EditEventScreen(state, route.id, route.draft)
-                                                is Route.EditFromLink -> EditFromLinkScreen(state, route.request)
-                                                Route.HomeSettings -> HomeSettingsScreen(state)
-                                                Route.TagSettings -> TagSettingsScreen(state)
-                                                is Route.CalendarSettings -> CalendarSettingsScreen(state, route.offeredLink)
-                                                Route.About -> AboutScreen(state)
-                                                Route.DeveloperTools -> DeveloperToolsScreen(state)
                                             }
                                         }
                                     }

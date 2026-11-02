@@ -43,6 +43,7 @@ import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.EventCardStyle
 import blue.deniz.vantage.app.HomeTile
+import blue.deniz.vantage.app.offersAndroidAppTile
 import blue.deniz.vantage.app.EventsView
 import blue.deniz.vantage.app.Route
 import blue.deniz.vantage.app.ui.ListPlaceholder
@@ -92,7 +93,7 @@ import blue.deniz.vantage.core.Place
 
 private val WEATHER_ICON_SIZE = 40.dp
 private const val WEATHER_DAYS_SHOWN = 3
-private const val ANDROID_EARLY_ACCESS_URL = "https://${AppSchemes.WEB_HOST}/android"
+internal const val ANDROID_EARLY_ACCESS_URL = "https://${AppSchemes.WEB_HOST}/android"
 
 internal fun HomeTile.title(tagNames: Map<String, String>): String = when (this) {
     is HomeTile.UpcomingEvents -> tagIds.mapNotNull(tagNames::get).sorted().let { names ->
@@ -113,7 +114,7 @@ private fun feedName(feed: EventFeed) = when (feed) {
 
 @Composable
 fun HomeScreen(state: AppState) {
-    val tiles = state.settings.homeTiles
+    val tiles = state.settings.homeTiles.filter { offersAndroidAppTile || it !is HomeTile.AndroidApp }
     var weatherPlaceFor by rememberSaveable { mutableStateOf<String?>(null) }
 
     val tags = collectAcrossSession("tags", null) { state.store.observeTags() }.orEmpty()
