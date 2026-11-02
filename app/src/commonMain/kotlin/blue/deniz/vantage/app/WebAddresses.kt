@@ -12,6 +12,9 @@ private const val CALENDAR_SETTINGS_PAGE = "calendars"
 private const val OFFERED_CALENDAR_LINK_PARAMETER = "subscribe"
 
 private val SETTINGS_PAGES = mapOf(
+    "appearance" to Route.AppearanceSettings,
+    "notifications" to Route.NotificationSettings,
+    "backup" to Route.BackupSettings,
     "home" to Route.HomeSettings,
     "tags" to Route.TagSettings,
     "about" to Route.About,
@@ -30,6 +33,8 @@ val Route.webAddress: String?
         }
         is Route.EventFromLink -> withQuery("/event", "url" to intent.url, "at" to intent.at, "data" to intent.data)
         is Route.CreateEvent -> withQuery("/new", "text" to sharedText, "day" to day?.toString())
+        Route.Setup -> "/setup"
+        Route.AppearanceSettings, Route.NotificationSettings, Route.BackupSettings,
         Route.HomeSettings, Route.TagSettings, Route.About, Route.DeveloperTools -> "/settings/" + SETTINGS_PAGES.entries.first { it.value == this }.key
         is Route.CalendarSettings -> withQuery("/settings/$CALENDAR_SETTINGS_PAGE", OFFERED_CALENDAR_LINK_PARAMETER to offeredLink)
         is Route.Feed -> when (val feed = feed) {
@@ -53,6 +58,7 @@ fun routeAtWebAddress(url: Url): Route? {
         1 -> when (segments[0]) {
             "events", "list", "calendar" -> Route.MyEvents
             "settings" -> Route.Settings
+            "setup" -> Route.Setup
             "new" -> Route.CreateEvent(url.parameters["text"], url.parameters["day"]?.let(::localDateOrNull))
             "feed" -> feedAtWebAddress(url)?.let(Route::Feed)
             else -> null

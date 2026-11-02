@@ -125,6 +125,10 @@ import blue.deniz.vantage.app.screens.HomeScreen
 import blue.deniz.vantage.app.screens.AboutScreen
 import blue.deniz.vantage.app.screens.CalendarSettingsScreen
 import blue.deniz.vantage.app.screens.HomeSettingsScreen
+import blue.deniz.vantage.app.screens.AppearanceSettingsScreen
+import blue.deniz.vantage.app.screens.NotificationSettingsScreen
+import blue.deniz.vantage.app.screens.BackupSettingsScreen
+import blue.deniz.vantage.app.screens.SetupScreen
 import blue.deniz.vantage.app.screens.SettingsScreen
 import blue.deniz.vantage.app.screens.TagSettingsScreen
 import blue.deniz.vantage.app.ui.AppIcons
@@ -583,6 +587,9 @@ fun VantageApp(state: AppState) {
         keptScreenKeys = stackedScreenKeys
     }
     SystemBackHandler(enabled = navigator.canGoBack) { navigator.goBack() }
+    LaunchedEffect(Unit) {
+        if (!state.settings.setupFinished && navigator.current is Route.Tab) navigator.open(Route.Setup)
+    }
     val tabBackdrop = rememberBackdrop()
     CompositionLocalProvider(LocalSessionValues provides sessionValues) {
         VantageTheme(state.settings.themeAccent, state.settings.fontSizes) {
@@ -623,6 +630,10 @@ fun VantageApp(state: AppState) {
                                                     is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)
                                                     is Route.EditEvent -> EditEventScreen(state, route.id, route.draft)
                                                     is Route.EditFromLink -> EditFromLinkScreen(state, route.request)
+                                                    Route.AppearanceSettings -> AppearanceSettingsScreen(state)
+                                                    Route.NotificationSettings -> NotificationSettingsScreen(state)
+                                                    Route.BackupSettings -> BackupSettingsScreen(state)
+                                                    Route.Setup -> SetupScreen(state)
                                                     Route.HomeSettings -> HomeSettingsScreen(state)
                                                     Route.TagSettings -> TagSettingsScreen(state)
                                                     is Route.CalendarSettings -> CalendarSettingsScreen(state, route.offeredLink)

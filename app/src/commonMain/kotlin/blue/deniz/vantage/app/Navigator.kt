@@ -19,6 +19,10 @@ sealed interface Route {
     data class CreateEvent(val sharedText: String? = null, val day: LocalDate? = null, val draft: OpenEvnt? = null) : Form
     data class EditEvent(val id: String, val draft: OpenEvnt? = null) : Form
     data class EditFromLink(val request: EventsLink.EditRequest) : Form
+    data object AppearanceSettings : Route
+    data object NotificationSettings : Route
+    data object BackupSettings : Route
+    data object Setup : Route
     data object HomeSettings : Route
     data object TagSettings : Route
     data class CalendarSettings(val offeredLink: String? = null) : Route

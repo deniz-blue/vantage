@@ -90,7 +90,7 @@ import kotlinx.datetime.TimeZone
 import blue.deniz.vantage.app.ui.ContentMaxWidth
 import kotlinx.coroutines.flow.flow
 
-private enum class SettingsSheet { Language, TimeZone, MyLocation, Accent }
+internal enum class SettingsSheet { Language, TimeZone, MyLocation }
 
 private data class AppLink(val label: String, val url: String)
 
@@ -103,87 +103,131 @@ private val APP_LINKS = listOf(
 @Composable
 fun SettingsScreen(state: AppState) {
     val settings = state.settings
-    val now = state.now
     val tagCount = collectAcrossSession("tags", null) { state.store.observeTags() }
-    var openSheet by rememberSaveable { mutableStateOf<SettingsSheet?>(null) }
+    val zone = settings.timeZone
 
     SettingsPage("Settings") {
         ListSection {
-            val language = settings.contentLanguage
             ListRow(
-                "Content Language",
-                icon = AppIcons.Language,
-                supporting = contentLanguage(language).autonymWithEnglishName,
-                onClick = { openSheet = SettingsSheet.Language },
-            )
-            if (language != DEFAULT_CONTENT_LANGUAGE) {
-                ListRow("Use English", icon = AppIcons.ArrowUp, onClick = { settings.changeContentLanguage(DEFAULT_CONTENT_LANGUAGE) })
-            }
-
-            val zone = settings.timeZone
-            val detected = settings.detectedTimeZone
-            ListRow(
-                "Time Zone",
-                icon = AppIcons.World,
-                supporting = "${zone.id.replace('_', ' ')} · ${timeZoneOffsetLabel(zone, now)}",
-                onClick = { openSheet = SettingsSheet.TimeZone },
-            )
-            if (settings.chosenTimeZone != null) {
-                ListRow(
-                    "Use Detected: ${detected.id} (${timeZoneOffsetLabel(detected, now)})",
-                    icon = AppIcons.ArrowUp,
-                    onClick = { settings.changeTimeZone(detected) },
-                )
-            }
-
-            ListRow(
-                "My Location",
-                icon = AppIcons.MapPin,
-                supporting = settings.myLocation?.name ?: "From Time Zone",
-                onClick = { openSheet = SettingsSheet.MyLocation },
-            )
-
-            ListRow(
-                "Accent",
+                "Appearance",
                 leading = { ColorDot(MaterialTheme.colorScheme.primary) },
-                supporting = settings.themeAccent.name,
-                onClick = { openSheet = SettingsSheet.Accent },
+                supporting = "${contentLanguage(settings.contentLanguage).autonym} · ${zone.id.substringAfterLast('/').replace('_', ' ')} · ${settings.themeAccent.name}",
+                onClick = { state.navigator.open(Route.AppearanceSettings) },
+                trailing = { Icon(AppIcons.ChevronRight) },
             )
-
-            if (state.backgroundChecks != null) ChangeNotificationsRow(state)
+            if (state.backgroundChecks != null) {
+                SubpageRow("Notifications", AppIcons.Bell, supporting = if (settings.notifiesAboutChanges) "On" else "Off") {
+                    state.navigator.open(Route.NotificationSettings)
+                }
+            }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
-            SubpageRow("Home", AppIcons.Home, supporting = tileCountLabel(settings.homeTiles.size)) { state.navigator.open(Route.HomeSettings) }
-            SubpageRow("Tags", AppIcons.Tag, supporting = tagCount?.size?.let(::tagCountLabel)) { state.navigator.open(Route.TagSettings) }
+            SubpageRow("Home Screen", AppIcons.Home, supporting = tileCountLabel(settings.homeTiles.size)) { state.navigator.open(Route.HomeSettings) }
+            SubpageRow("Edit Tags", AppIcons.Tag, supporting = tagCount?.size?.let(::tagCountLabel)) { state.navigator.open(Route.TagSettings) }
+        }
+        ListSection(Modifier.padding(top = Spacing.md)) {
             SubpageRow("System Calendars", AppIcons.Calendar, supporting = calendarCountLabel(settings.subscribedCalendars.size)) {
                 state.navigator.open(Route.CalendarSettings())
             }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
-            BackupRows(state)
+            SubpageRow("Backup", AppIcons.Database, supporting = "Export and import") { state.navigator.open(Route.BackupSettings) }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
+            ListRow("Run Setup Again", icon = AppIcons.Refresh, onClick = { state.navigator.open(Route.Setup) })
             SubpageRow("About", AppIcons.Info) { state.navigator.open(Route.About) }
             SubpageRow("Developer Tools", AppIcons.Code) { state.navigator.open(Route.DeveloperTools) }
         }
     }
+}
 
-    BottomSheetFrame(visible = openSheet == SettingsSheet.Language, onDismiss = { openSheet = null }) {
+@Composable
+internal fun LanguageAndRegionRows(state: AppState, openSheet: (SettingsSheet) -> Unit) {
+    val settings = state.settings
+    val now = state.now
+    val language = settings.contentLanguage
+    ListRow(
+        "Content Language",
+        icon = AppIcons.Language,
+        supporting = contentLanguage(language).autonymWithEnglishName,
+        onClick = { openSheet(SettingsSheet.Language) },
+    )
+    if (language != DEFAULT_CONTENT_LANGUAGE) {
+        ListRow("Use English", icon = AppIcons.ArrowUp, onClick = { settings.changeContentLanguage(DEFAULT_CONTENT_LANGUAGE) })
+    }
+
+    val zone = settings.timeZone
+    val detected = settings.detectedTimeZone
+    ListRow(
+        "Time Zone",
+        icon = AppIcons.World,
+        supporting = "${zone.id.replace('_', ' ')} · ${timeZoneOffsetLabel(zone, now)}",
+        onClick = { openSheet(SettingsSheet.TimeZone) },
+    )
+    if (settings.chosenTimeZone != null) {
+        ListRow(
+            "Use Detected: ${detected.id} (${timeZoneOffsetLabel(detected, now)})",
+            icon = AppIcons.ArrowUp,
+            onClick = { settings.changeTimeZone(detected) },
+        )
+    }
+
+    ListRow(
+        "My Location",
+        icon = AppIcons.MapPin,
+        supporting = settings.myLocation?.name ?: "From Time Zone",
+        onClick = { openSheet(SettingsSheet.MyLocation) },
+    )
+}
+
+@Composable
+internal fun LanguageAndRegionSheets(state: AppState, openSheet: SettingsSheet?, onDismiss: () -> Unit) {
+    val settings = state.settings
+    BottomSheetFrame(visible = openSheet == SettingsSheet.Language, onDismiss = onDismiss) {
         LanguagePickerBody("Content Language", settings.contentLanguage) { picked ->
-            openSheet = null
+            onDismiss()
             settings.changeContentLanguage(picked)
         }
     }
-    BottomSheet(visible = openSheet == SettingsSheet.Accent, onDismiss = { openSheet = null }) {
-        AccentPicker(settings.themeAccent, onPick = settings::changeThemeAccent)
-    }
-    BottomSheetFrame(visible = openSheet == SettingsSheet.TimeZone, onDismiss = { openSheet = null }) {
-        TimeZonePickerBody("Time Zone", settings.timeZone.id, now) { picked ->
-            openSheet = null
+    BottomSheetFrame(visible = openSheet == SettingsSheet.TimeZone, onDismiss = onDismiss) {
+        TimeZonePickerBody("Time Zone", settings.timeZone.id, state.now) { picked ->
+            onDismiss()
             settings.changeTimeZone(TimeZone.of(picked))
         }
     }
-    MyLocationSheet(state, openSheet == SettingsSheet.MyLocation, onDismiss = { openSheet = null })
+    MyLocationSheet(state, openSheet == SettingsSheet.MyLocation, onDismiss = onDismiss)
+}
+
+@Composable
+fun AppearanceSettingsScreen(state: AppState) {
+    var openSheet by rememberSaveable { mutableStateOf<SettingsSheet?>(null) }
+    SettingsPage("Appearance", onBack = { state.navigator.goBack() }) {
+        ListSection {
+            LanguageAndRegionRows(state) { openSheet = it }
+        }
+        ListSection(Modifier.padding(top = Spacing.md), title = "Accent") {
+            AccentRows(state.settings.themeAccent, onPick = state.settings::changeThemeAccent)
+        }
+    }
+    LanguageAndRegionSheets(state, openSheet, onDismiss = { openSheet = null })
+}
+
+@Composable
+fun NotificationSettingsScreen(state: AppState) {
+    SettingsPage("Notifications", onBack = { state.navigator.goBack() }) {
+        ListSection {
+            ChangeNotificationsRow(state)
+        }
+    }
+}
+
+@Composable
+fun BackupSettingsScreen(state: AppState) {
+    SettingsPage("Backup", onBack = { state.navigator.goBack() }) {
+        ListSection {
+            BackupRows(state)
+        }
+    }
 }
 
 private fun backupCountsLabel(counts: BackupCounts) = listOf(
@@ -237,7 +281,7 @@ private fun BackupRows(state: AppState) {
 }
 
 @Composable
-private fun ChangeNotificationsRow(state: AppState) {
+internal fun ChangeNotificationsRow(state: AppState) {
     val on = state.settings.notifiesAboutChanges
     var refused by remember { mutableStateOf(false) }
     val requestPermission = rememberNotificationPermissionRequest { granted ->
@@ -255,7 +299,7 @@ private fun ChangeNotificationsRow(state: AppState) {
 }
 
 @Composable
-private fun PhoneCalendarCopyRow(state: AppState, onPermitted: () -> Unit) {
+internal fun PhoneCalendarCopyRow(state: AppState, onPermitted: () -> Unit) {
     val on = state.settings.copiesEventsToPhoneCalendar
     var refused by remember { mutableStateOf(false) }
     val requestPermission = rememberCalendarPermissionRequest(writes = true) { granted ->
@@ -320,7 +364,7 @@ fun CalendarSettingsScreen(state: AppState, offeredLink: String?) {
     var choosingHiddenEvents by rememberSaveable { mutableStateOf(false) }
     val hidden = collectAcrossSession("hidden calendar events", state.store) { state.store.observeHiddenCalendarEvents() }.orEmpty()
 
-    SettingsPage("System Calendars", onBack = { state.navigator.goBack() }) {
+    SettingsPage("Calendars", onBack = { state.navigator.goBack() }) {
         if (device != null || state.phoneCalendarCopy != null) {
             ListSection(title = "On This Phone") {
                 if (device != null) {
@@ -435,7 +479,7 @@ private fun HiddenEventList(state: AppState, hidden: List<HiddenCalendarEvent>, 
 }
 
 @Composable
-private fun PhoneCalendarChecklist(calendars: List<DeviceCalendar>, subscribed: List<SubscribedCalendar>, sync: CalendarSync) {
+internal fun PhoneCalendarChecklist(calendars: List<DeviceCalendar>, subscribed: List<SubscribedCalendar>, sync: CalendarSync) {
     Column {
         for ((account, accountCalendars) in calendars.groupBy { it.account }) {
             SectionTitle(account ?: "This Phone", Modifier.padding(start = Spacing.md, end = Spacing.md, top = Spacing.sm, bottom = Spacing.xs))
@@ -456,20 +500,17 @@ private fun PhoneCalendarChecklist(calendars: List<DeviceCalendar>, subscribed: 
 }
 
 @Composable
-private fun AccentPicker(picked: ThemeAccent, onPick: (ThemeAccent) -> Unit) {
+internal fun AccentRows(picked: ThemeAccent, onPick: (ThemeAccent) -> Unit) {
     val dark = isSystemInDarkTheme()
     val wallpaperAvailable = isWallpaperAccentAvailable()
-    SheetTitle("Accent", Modifier.padding(horizontal = Spacing.md))
-    Column {
-        for (accent in ThemeAccent.entries) {
-            if (accent == ThemeAccent.Wallpaper && !wallpaperAvailable) continue
-            PickerRow(accent.name, supporting = null, selected = accent == picked, onClick = { onPick(accent) }, leading = { ColorDot(accentColor(accent, dark)) })
-        }
+    for (accent in ThemeAccent.entries) {
+        if (accent == ThemeAccent.Wallpaper && !wallpaperAvailable) continue
+        PickerRow(accent.name, supporting = null, selected = accent == picked, onClick = { onPick(accent) }, leading = { ColorDot(accentColor(accent, dark)) })
     }
 }
 
 @Composable
-private fun ColorDot(color: Color) {
+internal fun ColorDot(color: Color) {
     Box(Modifier.size(Spacing.md).clip(CircleShape).background(color))
 }
 

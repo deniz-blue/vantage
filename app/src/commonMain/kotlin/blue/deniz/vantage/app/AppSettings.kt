@@ -25,6 +25,7 @@ private const val COPIES_EVENTS_TO_PHONE_CALENDAR_KEY = "copiesEventsToPhoneCale
 private const val THEME_ACCENT_KEY = "themeAccent"
 private const val MAP_START_KEY = "mapStart"
 private const val MY_LOCATION_KEY = "myLocation"
+private const val SETUP_FINISHED_KEY = "setupFinished"
 private const val EVENTS_VIEW_KEY_PREFIX = "eventsView."
 private const val FONT_SIZE_KEY_PREFIX = "fontSize."
 private val subscribedCalendarsJson = ListSerializer(SubscribedCalendar.serializer())
@@ -80,6 +81,8 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         private set
     var myLocation by mutableStateOf<NamedPlace?>(null)
         private set
+    var setupFinished by mutableStateOf(false)
+        private set
     var fontSizes by mutableStateOf(emptyMap<TypographyStyle, Int>())
         private set
     private val eventsViews = mutableStateMapOf<String, EventsView>()
@@ -99,6 +102,7 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         themeAccent = ThemeAccent.entries.find { it.storedName == storage.read(THEME_ACCENT_KEY) } ?: ThemeAccent.Purple
         mapStart = storage.read(MAP_START_KEY)?.let(MapCamera::fromStoredText)
         myLocation = storage.read(MY_LOCATION_KEY)?.let(::namedPlaceOfJson)
+        setupFinished = storage.read(SETUP_FINISHED_KEY) == "true"
         fontSizes = TypographyStyle.entries.mapNotNull { style -> storage.read(FONT_SIZE_KEY_PREFIX + style.name)?.toIntOrNull()?.let { style to it } }.toMap()
         eventsViews.clear()
     }
@@ -157,6 +161,11 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
     fun changeSubscribedCalendars(calendars: List<SubscribedCalendar>) {
         subscribedCalendars = calendars
         storage.write(SUBSCRIBED_CALENDARS_KEY, Json.encodeToString(subscribedCalendarsJson, calendars).takeIf { calendars.isNotEmpty() })
+    }
+
+    fun finishSetup() {
+        setupFinished = true
+        storage.write(SETUP_FINISHED_KEY, "true")
     }
 
     fun changeTestEventsShown(shown: Boolean) {
