@@ -18,6 +18,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -163,6 +164,7 @@ private val DAY_LINE_WIDTH = 2.dp
 private val DAY_LINE_DASH = 4.dp
 private val DAY_DOT_RADIUS = 4.dp
 private val TODAY_DOT_RADIUS = 5.dp
+private val TODAY_LINE_FADE = 40.dp
 private const val DAY_DOT_ALPHA = 0.6f
 private val MARKER_LINE_GAP_RADIUS = 9.dp
 private val CHECK_SIZE = 20.dp
@@ -578,13 +580,18 @@ private fun DrawScope.drawDayLine(agenda: Agenda, spans: Map<Int, ClosedFloating
         val span = spans.getValue(row)
         val top = if (position == 0 && span.start > 0) span.start - ceil(span.start / (2 * dash)) * 2 * dash else span.start
         val bottom = shown.getOrNull(position + 1)?.let { spans.getValue(it).start } ?: size.height
-        val color = if (time == AgendaTime.Today) colors.today else colors.line
-        drawLine(color, Offset(x, top), Offset(x, bottom), width, pathEffect = if (time == AgendaTime.Future || time == AgendaTime.Undated) dashes else null)
+        drawLine(colors.line, Offset(x, top), Offset(x, bottom), width, pathEffect = if (time == AgendaTime.Future || time == AgendaTime.Undated) dashes else null)
     }
+    val fade = TODAY_LINE_FADE.toPx()
     for (row in shown) {
         if (agenda.rows[row] !is AgendaRow.Label || row == pinnedLabelRow) continue
         val span = spans.getValue(row)
-        drawDayDot(agenda.rowTimes[row], Offset(x, (span.start + AgendaLabelGap.toPx() + span.endInclusive) / 2), colors)
+        val center = Offset(x, (span.start + AgendaLabelGap.toPx() + span.endInclusive) / 2)
+        if (agenda.rowTimes[row] == AgendaTime.Today) {
+            val fadeTop = Offset(x, center.y - fade)
+            drawLine(Brush.verticalGradient(listOf(colors.today.copy(alpha = 0f), colors.today), startY = fadeTop.y, endY = center.y), fadeTop, center, width)
+        }
+        drawDayDot(agenda.rowTimes[row], center, colors)
     }
 }
 
