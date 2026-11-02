@@ -111,7 +111,7 @@ fun AgendaEventCard(
         listOfNotNull(
             occurrence?.takeIf { it.start is PartialDate.Time }?.let(formatting::occurrenceTimeText),
             occurrence?.takeUnless { showsDate }?.let(formatting::untilText),
-            event.data?.venueLine(preferredLanguages, formatting.homeCountry),
+            event.data?.venueLine(preferredLanguages),
         ).joinToString(" · ")
     }
     val status = remember(event.data, occurrence) { event.data?.statusOn(occurrence) }

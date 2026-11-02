@@ -7,7 +7,6 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.AcUnit
-import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AddLink
@@ -110,7 +109,6 @@ object AppIcons {
     val MapPin = Icons.Outlined.Place
     val Clock = Icons.Outlined.Schedule
     val World = Icons.Outlined.Public
-    val Flag = Icons.Outlined.Flag
     val ExternalLink = Icons.AutoMirrored.Outlined.OpenInNew
     val Trash = Icons.Outlined.Delete
     val Share = Icons.Outlined.Share

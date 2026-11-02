@@ -98,7 +98,6 @@ import blue.deniz.vantage.app.ui.Text
 import blue.deniz.vantage.app.ui.SheetTitle
 import blue.deniz.vantage.app.ui.TextInput
 import blue.deniz.vantage.app.ui.linkText
-import blue.deniz.vantage.core.Countries
 import blue.deniz.vantage.core.isEditableHere
 import blue.deniz.vantage.core.Markdown
 import blue.deniz.vantage.core.backgroundSplashMedia
@@ -859,7 +858,7 @@ private fun LinkForm(link: Component.Link?, language: String, onSave: (Component
 
 @Composable
 private fun CountryField(code: String?, language: String, onPick: () -> Unit, onClear: () -> Unit) {
-    val shown = remember(code, language) { code?.let { "${Countries.flagOf(it)}  ${countryName(it, language)}" } }
+    val shown = remember(code, language) { code?.let { countryName(it, language) } }
     PickerBox("Country", shown ?: "Add Country", onClick = onPick, placeholder = shown == null, onClear = onClear.takeIf { code != null })
 }
 

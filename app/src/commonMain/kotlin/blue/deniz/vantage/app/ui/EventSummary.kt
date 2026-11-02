@@ -52,7 +52,7 @@ fun OpenEvnt.summaryLines(
     preferredLanguages: List<String>,
     dateGroupLimit: Int = CARD_DATE_GROUP_LIMIT,
 ): List<SummaryLine> = buildList {
-    venueLine(preferredLanguages, formatting.homeCountry)?.let { add(SummaryLine(SummaryLineKind.Venue, it)) }
+    venueLine(preferredLanguages)?.let { add(SummaryLine(SummaryLineKind.Venue, it)) }
     val groups = groupDates(shownOccurrences())
     for (group in groups.take(dateGroupLimit)) {
         for (date in formatting.formatDates(group.dates)) add(SummaryLine(SummaryLineKind.Date, date))
@@ -67,21 +67,16 @@ fun Venue.displayName(preferredLanguages: List<String>): String? =
 
 private val Venue.flag: String get() = countryCode?.let(Countries::flagOf).orEmpty()
 
-private fun Venue.flagUnlessIn(homeCountry: String?): String =
-    if (homeCountry != null && countryCode.equals(homeCountry, ignoreCase = true)) "" else flag
-
-private fun String.endingInFlag(flag: String) = if (flag.isEmpty()) this else "$this $flag"
-
-fun Venue.addressLine(preferredLanguages: List<String>, homeCountry: String?): String? {
-    val place = address?.takeIf { it.isNotBlank() }
+fun Venue.addressLine(preferredLanguages: List<String>): String? =
+    address?.takeIf { it.isNotBlank() }
         ?: countryCode?.takeIf { flag.isNotEmpty() }?.let { countryName(it, preferredLanguages.firstOrNull() ?: "en") }
-    return place?.endingInFlag(flagUnlessIn(homeCountry))
-}
 
-fun OpenEvnt.venueLine(preferredLanguages: List<String>, homeCountry: String?): String? {
+fun Venue.addressLineWithFlag(preferredLanguages: List<String>): String? =
+    addressLine(preferredLanguages)?.let { if (flag.isEmpty()) it else "$it $flag" }
+
+fun OpenEvnt.venueLine(preferredLanguages: List<String>): String? {
     val venue = venue ?: return null
-    val name = venue.name.takeIf { it.hasText() }?.translate(preferredLanguages)
-    return name?.endingInFlag(venue.flagUnlessIn(homeCountry)) ?: venue.addressLine(preferredLanguages, homeCountry) ?: "Unnamed Place"
+    return venue.name.takeIf { it.hasText() }?.translate(preferredLanguages) ?: venue.addressLine(preferredLanguages) ?: "Unnamed Place"
 }
 
 data class LinkText(val headline: String, val supporting: String?)
@@ -101,7 +96,7 @@ fun OpenEvnt.cardLines(formatting: EventFormatting, preferredLanguages: List<Str
         val times = group.times.map(formatting::formatTimeSlot).filter { it.isNotEmpty() }
         if (times.isNotEmpty()) add(SummaryLine(SummaryLineKind.Time, times.joinToString(" · ")))
     }
-    venueLine(preferredLanguages, formatting.homeCountry)?.let { add(SummaryLine(SummaryLineKind.Venue, it)) }
+    venueLine(preferredLanguages)?.let { add(SummaryLine(SummaryLineKind.Venue, it)) }
 }
 
 fun OpenEvnt.markdownSummary(formatting: EventFormatting, preferredLanguages: List<String>): String {

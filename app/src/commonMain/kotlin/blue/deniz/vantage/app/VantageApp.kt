@@ -184,7 +184,7 @@ class AppState(
     val today by derivedStateOf { now.toLocalDateTime(timeZone).date }
     var listsSplitAt by mutableStateOf(now)
         private set
-    val formatting by derivedStateOf { EventFormatting(timeZone, today, settings.homeCountry) }
+    val formatting by derivedStateOf { EventFormatting(timeZone, today) }
     val preferredLanguages by derivedStateOf { listOf(settings.contentLanguage, DEFAULT_CONTENT_LANGUAGE).distinct() }
     var actionsSheetEventId by mutableStateOf<String?>(null)
         private set

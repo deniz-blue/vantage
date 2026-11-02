@@ -166,7 +166,7 @@ fun BottomSheetScope.CountryPickerBody(
         isSelected = { it.code == selectedCode },
     ) { country ->
         PickerRow(
-            "${country.flag}  ${country.name}",
+            country.name,
             supporting = country.englishName.takeIf { it != country.name },
             selected = country.code == selectedCode,
             onClick = { onPick(country.code) },

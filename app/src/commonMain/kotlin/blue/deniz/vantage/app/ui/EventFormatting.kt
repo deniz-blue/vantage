@@ -28,7 +28,7 @@ data class DateBlockText(val above: String?, val main: String, val below: String
 
 data class DayLabelText(val date: String, val weekday: String)
 
-class EventFormatting(val timeZone: TimeZone, private val today: LocalDate, val homeCountry: String?) {
+class EventFormatting(val timeZone: TimeZone, private val today: LocalDate) {
     private val dayInThisYear = LocalDate.Format {
         dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
         chars(", ")

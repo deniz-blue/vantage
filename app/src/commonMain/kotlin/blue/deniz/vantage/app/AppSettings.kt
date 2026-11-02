@@ -24,7 +24,6 @@ private const val NOTIFIES_ABOUT_CHANGES_KEY = "notifiesAboutChanges"
 private const val COPIES_EVENTS_TO_PHONE_CALENDAR_KEY = "copiesEventsToPhoneCalendar"
 private const val THEME_ACCENT_KEY = "themeAccent"
 private const val MAP_START_KEY = "mapStart"
-private const val HOME_COUNTRY_KEY = "homeCountry"
 private const val EVENTS_VIEW_KEY_PREFIX = "eventsView."
 private const val FONT_SIZE_KEY_PREFIX = "fontSize."
 private val subscribedCalendarsJson = ListSerializer(SubscribedCalendar.serializer())
@@ -51,7 +50,6 @@ private val PORTABLE_KEYS = setOf(
     SUBSCRIBED_CALENDARS_KEY,
     THEME_ACCENT_KEY,
     MAP_START_KEY,
-    HOME_COUNTRY_KEY,
 )
 
 private fun isPortableKey(key: String) =
@@ -78,8 +76,6 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         private set
     var mapStart by mutableStateOf<MapCamera?>(null)
         private set
-    var homeCountry by mutableStateOf<String?>(null)
-        private set
     var fontSizes by mutableStateOf(emptyMap<TypographyStyle, Int>())
         private set
     private val eventsViews = mutableStateMapOf<String, EventsView>()
@@ -98,7 +94,6 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         copiesEventsToPhoneCalendar = storage.read(COPIES_EVENTS_TO_PHONE_CALENDAR_KEY) == "true"
         themeAccent = ThemeAccent.entries.find { it.storedName == storage.read(THEME_ACCENT_KEY) } ?: ThemeAccent.Purple
         mapStart = storage.read(MAP_START_KEY)?.let(MapCamera::fromStoredText)
-        homeCountry = storage.read(HOME_COUNTRY_KEY)
         fontSizes = TypographyStyle.entries.mapNotNull { style -> storage.read(FONT_SIZE_KEY_PREFIX + style.name)?.toIntOrNull()?.let { style to it } }.toMap()
         eventsViews.clear()
     }
@@ -127,11 +122,6 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
     fun changeMapStart(camera: MapCamera?) {
         mapStart = camera
         storage.write(MAP_START_KEY, camera?.storedText)
-    }
-
-    fun changeHomeCountry(code: String?) {
-        homeCountry = code
-        storage.write(HOME_COUNTRY_KEY, code)
     }
 
     fun changeThemeAccent(accent: ThemeAccent) {

@@ -87,6 +87,7 @@ import blue.deniz.vantage.app.ui.FailureRow
 import blue.deniz.vantage.app.ui.describe
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.addressLine
+import blue.deniz.vantage.app.ui.addressLineWithFlag
 import blue.deniz.vantage.app.ui.icon
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.Button
@@ -479,7 +480,7 @@ private fun EventPageBody(
         val whenAndWhere = @Composable {
             ListSection(Modifier.padding(top = Spacing.sm)) {
                 OccurrenceRows(state, event.id, data?.translatedName(preferredLanguages) ?: UNTITLED_EVENT, data, occurrences, marks)
-                data?.venue?.let { VenueCard(it, preferredLanguages, formatting.homeCountry) }
+                data?.venue?.let { VenueCard(it, preferredLanguages) }
             }
         }
         if (wide) {
@@ -679,17 +680,17 @@ private fun discordTimestamp(start: PartialDate.Time, end: PartialDate.Time?): S
 }
 
 @Composable
-private fun VenueCard(venue: Venue, preferredLanguages: List<String>, homeCountry: String?) {
+private fun VenueCard(venue: Venue, preferredLanguages: List<String>) {
     val name = venue.name.takeIf { it.hasText() }?.translate(preferredLanguages)
     var showingDetails by rememberSaveable { mutableStateOf(false) }
-    val addressLine = venue.addressLine(preferredLanguages, homeCountry)
+    val addressLine = venue.addressLine(preferredLanguages)
     ListRow(
         name ?: addressLine ?: "Unnamed Place",
         leading = { DetailTile { Icon(AppIcons.MapPin, tint = MaterialTheme.colorScheme.onSurfaceVariant) } },
         supporting = addressLine.takeIf { name != null },
         onClick = { showingDetails = true },
     )
-    BottomSheet(visible = showingDetails, onDismiss = { showingDetails = false }) { VenueDetails(venue, name, addressLine) }
+    BottomSheet(visible = showingDetails, onDismiss = { showingDetails = false }) { VenueDetails(venue, name, venue.addressLineWithFlag(preferredLanguages)) }
 }
 
 @Composable

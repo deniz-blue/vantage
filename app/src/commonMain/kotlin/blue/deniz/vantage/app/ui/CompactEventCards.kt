@@ -92,7 +92,7 @@ fun EventPosterCard(
 ) {
     val occurrence = remember(event.data, now) { event.shownOccurrence(now) }
     val splash = remember(event.data) { event.data?.backgroundSplashMedia() }
-    val venue = remember(event.data, preferredLanguages, formatting) { event.data?.venueLine(preferredLanguages, formatting.homeCountry) }
+    val venue = remember(event.data, preferredLanguages, formatting) { event.data?.venueLine(preferredLanguages) }
     Card(modifier.width(POSTER_WIDTH), onClick = onClick, onLongClick = onLongClick, border = selection.border(), contentPadding = PaddingValues()) {
         Column {
             Box(Modifier.fillMaxWidth().aspectRatio(POSTER_MEDIA_ASPECT_RATIO).background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
@@ -126,7 +126,7 @@ fun EventTicketCard(
     fallbackTitle: String? = null,
 ) {
     val occurrence = remember(event.data, now) { event.shownOccurrence(now) }
-    val venue = remember(event.data, preferredLanguages, formatting) { event.data?.venueLine(preferredLanguages, formatting.homeCountry) }
+    val venue = remember(event.data, preferredLanguages, formatting) { event.data?.venueLine(preferredLanguages) }
     Card(modifier.width(TICKET_WIDTH), onClick = onClick, onLongClick = onLongClick, border = selection.border(), contentPadding = PaddingValues()) {
         Row(Modifier.height(IntrinsicSize.Min)) {
             DateBlock(

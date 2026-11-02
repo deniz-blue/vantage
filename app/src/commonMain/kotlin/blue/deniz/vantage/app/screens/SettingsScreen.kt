@@ -68,9 +68,7 @@ import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.CalendarSync
 import blue.deniz.vantage.app.DEFAULT_CONTENT_LANGUAGE
 import blue.deniz.vantage.app.Route
-import blue.deniz.vantage.app.countryName
 import blue.deniz.vantage.app.contentLanguage
-import blue.deniz.vantage.core.Countries
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ThemeAccent
 import blue.deniz.vantage.app.ui.BottomSheet
@@ -92,7 +90,7 @@ import kotlinx.datetime.TimeZone
 import blue.deniz.vantage.app.ui.ContentMaxWidth
 import kotlinx.coroutines.flow.flow
 
-private enum class SettingsSheet { Language, TimeZone, HomeCountry, Accent }
+private enum class SettingsSheet { Language, TimeZone, Accent }
 
 private data class AppLink(val label: String, val url: String)
 
@@ -138,17 +136,6 @@ fun SettingsScreen(state: AppState) {
                 )
             }
 
-            val homeCountry = settings.homeCountry
-            ListRow(
-                "Home Country",
-                icon = AppIcons.Flag,
-                supporting = homeCountry?.let { "${Countries.flagOf(it)}  ${countryName(it, language)}" } ?: "Not Set",
-                onClick = { openSheet = SettingsSheet.HomeCountry },
-            )
-            if (homeCountry != null) {
-                ListRow("Show Every Flag", icon = AppIcons.X, onClick = { settings.changeHomeCountry(null) })
-            }
-
             ListRow(
                 "Accent",
                 leading = { ColorDot(MaterialTheme.colorScheme.primary) },
@@ -178,12 +165,6 @@ fun SettingsScreen(state: AppState) {
         LanguagePickerBody("Content Language", settings.contentLanguage) { picked ->
             openSheet = null
             settings.changeContentLanguage(picked)
-        }
-    }
-    BottomSheetFrame(visible = openSheet == SettingsSheet.HomeCountry, onDismiss = { openSheet = null }) {
-        CountryPickerBody("Home Country", settings.homeCountry, settings.contentLanguage) { picked ->
-            openSheet = null
-            settings.changeHomeCountry(picked)
         }
     }
     BottomSheet(visible = openSheet == SettingsSheet.Accent, onDismiss = { openSheet = null }) {
