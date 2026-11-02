@@ -64,6 +64,7 @@ import blue.deniz.vantage.app.SystemBackHandler
 import blue.deniz.vantage.app.actionsSheetEventKey
 import blue.deniz.vantage.app.latestAcrossSession
 import blue.deniz.vantage.app.rememberSendEditReply
+import blue.deniz.vantage.core.Countries
 import blue.deniz.vantage.core.EventsLink
 import blue.deniz.vantage.core.isCancelled
 import blue.deniz.vantage.core.ResolvedEvent
@@ -858,7 +859,7 @@ private fun LinkForm(link: Component.Link?, language: String, onSave: (Component
 
 @Composable
 private fun CountryField(code: String?, language: String, onPick: () -> Unit, onClear: () -> Unit) {
-    val shown = remember(code, language) { code?.let { countryName(it, language) } }
+    val shown = remember(code, language) { code?.let { "${Countries.flagOf(it)}  ${countryName(it, language)}" } }
     PickerBox("Country", shown ?: "Add Country", onClick = onPick, placeholder = shown == null, onClear = onClear.takeIf { code != null })
 }
 

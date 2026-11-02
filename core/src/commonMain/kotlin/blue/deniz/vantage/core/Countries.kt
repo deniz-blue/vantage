@@ -3,6 +3,8 @@ package blue.deniz.vantage.core
 private const val REGIONAL_INDICATOR_A = 0x1F1E6
 
 data class Country(val code: String, val name: String, val englishName: String) {
+    val flag get() = Countries.flagOf(code)
+
     fun matches(query: String) =
         code.equals(query, ignoreCase = true) || name.contains(query, ignoreCase = true) || englishName.contains(query, ignoreCase = true)
 }
