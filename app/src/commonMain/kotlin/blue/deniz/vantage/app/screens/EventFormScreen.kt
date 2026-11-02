@@ -46,12 +46,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -85,6 +88,7 @@ import blue.deniz.vantage.app.ui.Card
 import blue.deniz.vantage.app.ui.EventFormatting
 import blue.deniz.vantage.app.ui.Icon
 import blue.deniz.vantage.app.ui.IconButton
+import blue.deniz.vantage.app.ui.MarkdownToolbar
 import blue.deniz.vantage.app.ui.MarkdownView
 import blue.deniz.vantage.app.ui.rememberMarkdownHighlighting
 import blue.deniz.vantage.app.ui.HeaderButton
@@ -113,7 +117,9 @@ import directory.evnt.Translations
 import directory.evnt.ValidationIssue
 import directory.evnt.Venue
 import directory.evnt.hasText
+import directory.evnt.textToEdit
 import directory.evnt.translate
+import directory.evnt.withEditedText
 import directory.evnt.withoutBlankTexts
 import io.ktor.http.parseUrl
 import kotlin.uuid.ExperimentalUuidApi
@@ -142,17 +148,15 @@ private val OpenEvnt.Status?.icon get() = when (this) {
     OpenEvnt.Status.Cancelled -> AppIcons.CalendarOff
 }
 
-internal fun Translations?.withText(language: String, text: String): Translations = orEmpty() + (language to text)
-
 internal fun Translations?.nullIfBlank() = this?.withoutBlankTexts()?.takeIf { it.isNotEmpty() }
 
 private fun OpenEvnt.description() = components.orEmpty().filterIsInstance<Component.MarkdownText>().firstOrNull()
 
-internal fun OpenEvnt.withDescription(language: String, text: String): OpenEvnt {
+internal fun OpenEvnt.withDescription(preferredLanguages: List<String>, text: String): OpenEvnt {
     val current = components.orEmpty()
     val index = current.indexOfFirst { it is Component.MarkdownText }
     val existing = current.getOrNull(index) as Component.MarkdownText?
-    val description = Component.MarkdownText(existing?.content.withText(language, text), existing?.flavor ?: "gfm")
+    val description = Component.MarkdownText(existing?.content.withEditedText(preferredLanguages, text), existing?.flavor ?: "gfm")
     return copy(components = if (index < 0) current + description else current.toMutableList().apply { set(index, description) })
 }
 
@@ -234,7 +238,7 @@ fun CreateEventScreen(state: AppState, sharedText: String?, day: LocalDate?, dra
     val blank = remember {
         val blank = newBlankEvent(day, state.timeZone.id)
         val text = sharedText?.trim()?.takeUnless { sharedLink != null && it.replace(sharedLink, "").isBlank() }
-        if (text.isNullOrEmpty()) blank else blank.filledFromText(text, state.today, state.timeZone.id, state.preferredLanguages.first())
+        if (text.isNullOrEmpty()) blank else blank.filledFromText(text, state.today, state.timeZone.id, state.preferredLanguages)
     }
     var destination by rememberSaveable { mutableStateOf(NewEventDestination.Device) }
     EventForm(
@@ -367,7 +371,7 @@ private fun EventForm(
     save: suspend (OpenEvnt) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val language = state.preferredLanguages.first()
+    val preferredLanguages = state.preferredLanguages
     val formatting = state.formatting
     var event by rememberSaveable(initial, stateSaver = OpenEvntSaver) { mutableStateOf(initial) }
     var issues by remember { mutableStateOf(emptyList<String>()) }
@@ -382,7 +386,15 @@ private fun EventForm(
     var searchingPlace by rememberSaveable { mutableStateOf(false) }
     var editingPlace by rememberSaveable { mutableStateOf(false) }
     var dismissedLinks by rememberSaveable { mutableStateOf(emptyList<String>()) }
-    val nameText = event.name[language].orEmpty()
+    val nameText = event.name.textToEdit(preferredLanguages)
+    val descriptionText = event.description()?.content.textToEdit(preferredLanguages)
+    var descriptionEdit by remember { mutableStateOf(TextFieldValue(descriptionText)) }
+    val description = descriptionEdit.takeIf { it.text == descriptionText } ?: TextFieldValue(descriptionText, TextRange(descriptionText.length))
+    var editingDescription by remember { mutableStateOf(false) }
+    fun changeDescription(value: TextFieldValue) {
+        descriptionEdit = value
+        event = event.withDescription(preferredLanguages, value.text)
+    }
     val linkInName = findEventLink(nameText)
     val offeredLink = (linkInName ?: sharedLink).takeIf { offersImport && it !in dismissedLinks }
 
@@ -428,7 +440,7 @@ private fun EventForm(
     }
 
     Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().imePadding()) {
             ScreenHeader(title, onClose = ::close) {
                 HeaderButton("Save", onClick = ::submit, busy = saving)
             }
@@ -440,14 +452,13 @@ private fun EventForm(
                 }
             }
             Column(
-                Modifier.weight(1f).fillMaxWidth().imePadding().verticalScroll(rememberScrollState()),
+                Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Column(Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()) {
                     NameField(
                         event,
-                        language,
-                        state.preferredLanguages,
+                        preferredLanguages,
                         nameFocus,
                         isError = showsNameProblem && event.hasNoName(),
                         onChange = { event = it },
@@ -462,7 +473,7 @@ private fun EventForm(
                             link,
                             onAddAsLink = {
                                 dismissedLinks += link
-                                val name = if (link == linkInName) event.name.withText(language, nameText.replace(link, "").trim()) else event.name
+                                val name = if (link == linkInName) event.name.withEditedText(preferredLanguages, nameText.replace(link, "").trim()) else event.name
                                 event = event.copy(name = name, components = event.components.orEmpty() + Component.Link(url = link))
                             },
                             onDismiss = { dismissedLinks += link },
@@ -492,8 +503,9 @@ private fun EventForm(
                     }
                     ListSection(Modifier.padding(top = Spacing.md), title = "Details") {
                         DescriptionField(
-                            event.description()?.content?.get(language).orEmpty(),
-                            onChange = { event = event.withDescription(language, it) },
+                            description,
+                            onChange = ::changeDescription,
+                            onEditingChange = { editingDescription = it },
                             onLinkClick = state::openLinkActionsSheet,
                         )
                         CoverImageRow(
@@ -518,6 +530,9 @@ private fun EventForm(
                     Spacer(Modifier.navigationBarsPadding().height(Spacing.xl))
                 }
             }
+            AnimatedVisibility(editingDescription, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+                MarkdownToolbar(description, ::changeDescription)
+            }
         }
 
         val editedOccurrence = editingDate?.let { index -> event.occurrences.orEmpty().getOrNull(index)?.let { IndexedValue(index, it) } }
@@ -541,7 +556,7 @@ private fun EventForm(
         BottomSheet(item = editingLink, onDismiss = { editingLink = null }) { index ->
             val link = event.components?.getOrNull(index) as? Component.Link
             key(index) {
-                LinkForm(link, language) { saved ->
+                LinkForm(link, preferredLanguages) { saved ->
                     editingLink = null
                     event = if (link == null) event.copy(components = event.components.orEmpty() + saved) else event.withComponent(index, saved)
                 }
@@ -549,7 +564,7 @@ private fun EventForm(
         }
 
         BottomSheet(visible = editingCover, onDismiss = { editingCover = false }) {
-            CoverImageForm(event.backgroundSplashMedia(), language, state.preferredLanguages) { saved ->
+            CoverImageForm(event.backgroundSplashMedia(), preferredLanguages) { saved ->
                 editingCover = false
                 event = event.withBackgroundSplashMedia(saved)
             }
@@ -558,7 +573,7 @@ private fun EventForm(
         BottomSheetFrame(item = event.venue.takeIf { editingPlace }, onDismiss = { editingPlace = false }) { venue ->
             PlaceForm(
                 venue,
-                language,
+                preferredLanguages,
                 onChange = { event = event.copy(venue = it) },
                 onSearch = {
                     editingPlace = false
@@ -579,7 +594,7 @@ private fun EventForm(
             },
             onNewPlace = { name ->
                 searchingPlace = false
-                event = event.copy(venue = Venue(name = mapOf(language to name)))
+                event = event.copy(venue = Venue(name = null.withEditedText(preferredLanguages, name)))
                 editingPlace = true
             },
         )
@@ -646,15 +661,14 @@ private fun StatusRow(status: OpenEvnt.Status?, onSelect: (OpenEvnt.Status?) -> 
 @Composable
 private fun NameField(
     event: OpenEvnt,
-    language: String,
     preferredLanguages: List<String>,
     focus: FocusRequester,
     isError: Boolean,
     onChange: (OpenEvnt) -> Unit,
 ) {
     TextInput(
-        value = event.name[language].orEmpty(),
-        onValueChange = { onChange(event.copy(name = event.name.withText(language, it))) },
+        value = event.name.textToEdit(preferredLanguages),
+        onValueChange = { onChange(event.copy(name = event.name.withEditedText(preferredLanguages, it))) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.md, vertical = ListRowGap / 2)
@@ -767,7 +781,13 @@ private fun LinkRows(
 private val DRAGGED_LINK_ELEVATION = 8.dp
 
 @Composable
-private fun DescriptionField(text: String, onChange: (String) -> Unit, onLinkClick: (url: String) -> Unit) {
+private fun DescriptionField(
+    value: TextFieldValue,
+    onChange: (TextFieldValue) -> Unit,
+    onEditingChange: (Boolean) -> Unit,
+    onLinkClick: (url: String) -> Unit,
+) {
+    val text = value.text
     var previewing by rememberSaveable { mutableStateOf(false) }
     val showingPreview = previewing && text.isNotBlank()
     val style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface)
@@ -789,10 +809,14 @@ private fun DescriptionField(text: String, onChange: (String) -> Unit, onLinkCli
                     val blocks = remember(text) { Markdown.parse(text) }
                     MarkdownView(blocks, onLinkClick, color = MaterialTheme.colorScheme.onSurface)
                 } else {
+                    DisposableEffect(Unit) { onDispose { onEditingChange(false) } }
                     BasicTextField(
-                        value = text,
+                        value = value,
                         onValueChange = onChange,
-                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Description" },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { onEditingChange(it.isFocused) }
+                            .semantics { contentDescription = "Description" },
                         textStyle = style,
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         visualTransformation = rememberMarkdownHighlighting(),
@@ -825,13 +849,13 @@ internal fun normalizedLinkUrl(text: String): String? {
 }
 
 @Composable
-private fun LinkForm(link: Component.Link?, language: String, onSave: (Component.Link) -> Unit) {
+private fun LinkForm(link: Component.Link?, preferredLanguages: List<String>, onSave: (Component.Link) -> Unit) {
     var address by rememberSaveable { mutableStateOf(link?.url.orEmpty()) }
-    var name by rememberSaveable { mutableStateOf(link?.name?.get(language).orEmpty()) }
+    var name by rememberSaveable { mutableStateOf(link?.name.textToEdit(preferredLanguages)) }
     val url = normalizedLinkUrl(address)
     val focus = remember { FocusRequester() }
     fun submit() {
-        normalizedLinkUrl(address)?.let { onSave(Component.Link(url = it, name = link?.name.withText(language, name).nullIfBlank(), disabled = link?.disabled)) }
+        normalizedLinkUrl(address)?.let { onSave(Component.Link(url = it, name = link?.name.withEditedText(preferredLanguages, name).nullIfBlank(), disabled = link?.disabled)) }
     }
     Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
         SheetTitle(if (link == null) "Add Link" else "Edit Link")
@@ -864,25 +888,25 @@ private fun CountryField(code: String?, language: String, onPick: () -> Unit, on
 }
 
 @Composable
-private fun BottomSheetScope.PlaceForm(venue: Venue, language: String, onChange: (Venue) -> Unit, onSearch: () -> Unit, onDone: () -> Unit) {
+private fun BottomSheetScope.PlaceForm(venue: Venue, preferredLanguages: List<String>, onChange: (Venue) -> Unit, onSearch: () -> Unit, onDone: () -> Unit) {
     var pickingCountry by rememberSaveable { mutableStateOf(false) }
     if (pickingCountry) {
-        CountryPickerBody("Country", venue.countryCode, language, onBack = { pickingCountry = false }) { picked ->
+        CountryPickerBody("Country", venue.countryCode, preferredLanguages.first(), onBack = { pickingCountry = false }) { picked ->
             pickingCountry = false
             onChange(venue.copy(countryCode = picked))
         }
         return
     }
-    ScrollingBody { PlaceFields(venue, language, onChange, onSearch, onDone, onPickCountry = { pickingCountry = true }) }
+    ScrollingBody { PlaceFields(venue, preferredLanguages, onChange, onSearch, onDone, onPickCountry = { pickingCountry = true }) }
 }
 
 @Composable
-private fun PlaceFields(venue: Venue, language: String, onChange: (Venue) -> Unit, onSearch: () -> Unit, onDone: () -> Unit, onPickCountry: () -> Unit) {
+private fun PlaceFields(venue: Venue, preferredLanguages: List<String>, onChange: (Venue) -> Unit, onSearch: () -> Unit, onDone: () -> Unit, onPickCountry: () -> Unit) {
     Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
         SheetTitle("Place")
         TextInput(
-            value = venue.name?.get(language).orEmpty(),
-            onValueChange = { onChange(venue.copy(name = venue.name.withText(language, it))) },
+            value = venue.name.textToEdit(preferredLanguages),
+            onValueChange = { onChange(venue.copy(name = venue.name.withEditedText(preferredLanguages, it))) },
             modifier = Modifier.fillMaxWidth(),
             label = "Name",
         )
@@ -894,7 +918,7 @@ private fun PlaceFields(venue: Venue, language: String, onChange: (Venue) -> Uni
             singleLine = false,
             minLines = 2,
         )
-        CountryField(venue.countryCode, language, onPick = onPickCountry, onClear = { onChange(venue.copy(countryCode = null)) })
+        CountryField(venue.countryCode, preferredLanguages.first(), onPick = onPickCountry, onClear = { onChange(venue.copy(countryCode = null)) })
         Row(verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onSearch) { Text("Search Places") }
             Spacer(Modifier.weight(1f))

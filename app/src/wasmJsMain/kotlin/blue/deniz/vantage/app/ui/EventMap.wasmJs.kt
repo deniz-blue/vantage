@@ -54,9 +54,27 @@ private fun addMapLibreBaseCss(): Unit = js("""{
         + '.maplibregl-canvas{position:absolute;left:0;top:0}'
         + '.maplibregl-canvas-container.maplibregl-interactive{cursor:grab}'
         + '.maplibregl-canvas-container.maplibregl-interactive:active{cursor:grabbing}'
-        + '.vantage-map-attribution{position:absolute;right:0;bottom:0;padding:1px 6px;font:11px sans-serif;color:#ccc;background:rgba(0,0,0,.6);z-index:1}'
-        + '.vantage-map-attribution a{color:inherit}';
+        + '.vantage-map-attribution{position:absolute;right:8px;bottom:8px;z-index:1;display:flex;align-items:center;max-width:calc(100% - 16px);box-sizing:border-box;border-radius:14px;font:11px sans-serif;color:#ddd;background:rgba(30,28,36,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.14)}'
+        + '.vantage-map-attribution a{color:inherit}'
+        + '.vantage-map-attribution-text{display:none;padding:0 2px 0 10px}'
+        + '.vantage-map-attribution.open .vantage-map-attribution-text{display:inline}'
+        + '.vantage-map-attribution button{all:unset;flex:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font:italic bold 14px serif;cursor:pointer}';
     document.head.appendChild(style);
+}""")
+
+private fun addAttributionButton(container: HTMLDivElement, html: String): Unit = js("""{
+    const attribution = document.createElement('div');
+    attribution.className = 'vantage-map-attribution';
+    const text = document.createElement('span');
+    text.className = 'vantage-map-attribution-text';
+    text.innerHTML = html;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'i';
+    button.title = 'Map Credits';
+    button.addEventListener('click', () => attribution.classList.toggle('open'));
+    attribution.append(text, button);
+    container.appendChild(attribution);
 }""")
 
 private fun addPinLayer(map: MapLibreMap, sourceId: String, layerId: String, color: String): Unit = js("""{
@@ -153,10 +171,7 @@ actual fun EventMap(
         val created = document.createElement("div") as HTMLDivElement
         created.style.width = "100%"
         created.style.height = "100%"
-        val attribution = document.createElement("div") as HTMLDivElement
-        attribution.className = "vantage-map-attribution"
-        attribution.innerHTML = MAP_ATTRIBUTION_HTML
-        created.appendChild(attribution)
+        addAttributionButton(created, MAP_ATTRIBUTION_HTML)
         created
     }
 

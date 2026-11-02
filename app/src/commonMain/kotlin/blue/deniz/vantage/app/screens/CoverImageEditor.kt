@@ -44,6 +44,8 @@ import blue.deniz.vantage.app.ui.SheetTitle
 import blue.deniz.vantage.app.ui.TextInput
 import blue.deniz.vantage.core.withImageAddress
 import directory.evnt.Media
+import directory.evnt.textToEdit
+import directory.evnt.withEditedText
 import io.ktor.http.parseUrl
 import kotlinx.coroutines.delay
 
@@ -81,13 +83,13 @@ internal fun CoverImageRow(media: Media?, preferredLanguages: List<String>, onEd
 }
 
 @Composable
-internal fun CoverImageForm(media: Media?, language: String, preferredLanguages: List<String>, onSave: (Media) -> Unit) {
+internal fun CoverImageForm(media: Media?, preferredLanguages: List<String>, onSave: (Media) -> Unit) {
     var address by rememberSaveable { mutableStateOf(media?.sources?.firstOrNull()?.url.orEmpty()) }
-    var alt by rememberSaveable { mutableStateOf(media?.alt?.get(language).orEmpty()) }
+    var alt by rememberSaveable { mutableStateOf(media?.alt.textToEdit(preferredLanguages)) }
     val url = normalizedLinkUrl(address)
     var previewUrl by remember { mutableStateOf(url) }
     val focus = remember { FocusRequester() }
-    fun edited(imageUrl: String) = media.withImageAddress(imageUrl).copy(alt = media?.alt.withText(language, alt).nullIfBlank())
+    fun edited(imageUrl: String) = media.withImageAddress(imageUrl).copy(alt = media?.alt.withEditedText(preferredLanguages, alt).nullIfBlank())
     fun submit() {
         normalizedLinkUrl(address)?.let { onSave(edited(it)) }
     }

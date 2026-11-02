@@ -31,6 +31,8 @@ import blue.deniz.vantage.core.EventTextGuess
 import blue.deniz.vantage.core.guessEventFromText
 import directory.evnt.Component
 import directory.evnt.OpenEvnt
+import directory.evnt.hasText
+import directory.evnt.withEditedText
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -48,7 +50,7 @@ fun NewEntrySheet(state: AppState) {
         if (inferringFromText) {
             SystemBackHandler(enabled = state.newEntrySheetOpen) { inferringFromText = false }
             InferFromTextForm { text ->
-                val draft = newBlankEvent(day, state.timeZone.id).filledFromText(text, state.today, state.timeZone.id, state.preferredLanguages.first())
+                val draft = newBlankEvent(day, state.timeZone.id).filledFromText(text, state.today, state.timeZone.id, state.preferredLanguages)
                 state.closeNewEntrySheet()
                 state.navigator.open(Route.CreateEvent(draft = draft))
             }
@@ -67,15 +69,15 @@ fun NewEntrySheet(state: AppState) {
     }
 }
 
-fun OpenEvnt.filledFromText(text: String, today: LocalDate, timeZoneId: String, language: String): OpenEvnt =
-    filledFrom(guessEventFromText(text, today, timeZoneId, language), language)
+fun OpenEvnt.filledFromText(text: String, today: LocalDate, timeZoneId: String, preferredLanguages: List<String>): OpenEvnt =
+    filledFrom(guessEventFromText(text, today, timeZoneId, preferredLanguages.first()), preferredLanguages)
 
-private fun OpenEvnt.filledFrom(guess: EventTextGuess, language: String): OpenEvnt {
-    val named = guess.name?.takeIf { name[language].isNullOrBlank() }?.let { copy(name = name.withText(language, it)) } ?: this
+private fun OpenEvnt.filledFrom(guess: EventTextGuess, preferredLanguages: List<String>): OpenEvnt {
+    val named = guess.name?.takeUnless { name.hasText() }?.let { copy(name = name.withEditedText(preferredLanguages, it)) } ?: this
     val dated = if (guess.occurrences.isEmpty()) named else named.copy(occurrences = guess.occurrences)
     val placed = guess.venue?.let { dated.copy(venue = it) } ?: dated
     val linked = if (guess.links.isEmpty()) placed else placed.copy(components = placed.components.orEmpty() + guess.links.map { Component.Link(url = it) })
-    return guess.description?.let { linked.withDescription(language, it) } ?: linked
+    return guess.description?.let { linked.withDescription(preferredLanguages, it) } ?: linked
 }
 
 @Composable

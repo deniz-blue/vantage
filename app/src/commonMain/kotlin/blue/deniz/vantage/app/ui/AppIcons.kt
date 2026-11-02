@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.AcUnit
@@ -29,6 +30,11 @@ import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.FormatBold
+import androidx.compose.material.icons.outlined.FormatItalic
+import androidx.compose.material.icons.outlined.FormatQuote
+import androidx.compose.material.icons.outlined.FormatStrikethrough
+import androidx.compose.material.icons.outlined.Title
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -141,6 +147,12 @@ object AppIcons {
     val Language = Icons.Outlined.Translate
     val ArrowUp = Icons.Outlined.ArrowUpward
     val Code = Icons.Outlined.Code
+    val Bold = Icons.Outlined.FormatBold
+    val Italic = Icons.Outlined.FormatItalic
+    val Strikethrough = Icons.Outlined.FormatStrikethrough
+    val Heading = Icons.Outlined.Title
+    val Quote = Icons.Outlined.FormatQuote
+    val BulletList = Icons.AutoMirrored.Outlined.FormatListBulleted
     val Rss = Icons.Outlined.RssFeed
     val ChevronDown = Icons.Outlined.ExpandMore
     val ChevronUp = Icons.Outlined.ExpandLess
