@@ -6,13 +6,13 @@
 	preserveAspectRatio="none"
 	fill="none"
 	stroke="currentColor"
-	stroke-width="2"
+	stroke-width="1.5"
 	stroke-linecap="round"
 	stroke-linejoin="round"
 >
 	<mask id="mask">
-		<circle r="13" cx="12" cy="12" fill="white" />
-		<circle r="9" cx="12" cy="12" fill="black" />
+		<circle r="11.25" cx="12" cy="12" fill="white" stroke="none" />
+		<circle r="9.75" cx="12" cy="12" fill="black" stroke="none" />
 	</mask>
 	<foreignObject
 		x="0"
@@ -30,16 +30,10 @@
             "
 		/>
 	</foreignObject>
-	<g
-		transform="scale(0.75)"
-		transform-origin="50% 50%"
-		stroke="#c9c9c9"
-	>
-		<path d="M11.5 21h-5.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4.5" />
-		<path d="M16 3v4" />
-		<path d="M8 3v4" />
-		<path d="M4 11h16" />
-		<path d="M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-		<path d="M20.2 20.2l1.8 1.8" />
+	<g stroke="#e8e8ea">
+		<rect x="6" y="7" width="12" height="11" rx="2.4" />
+		<path d="M6 10.8h12" />
+		<path d="M9.2 5.5v3" />
+		<path d="M14.8 5.5v3" />
 	</g>
 </svg>
