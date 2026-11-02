@@ -36,6 +36,7 @@ object BrowserBackDispatcher {
     private val handlers = mutableListOf<Handler>()
     private var backEntryPushed = isOnBackEntry()
     private var droppingBackEntry = false
+    private var goingBack = false
     private var baseAddress: String? = null
     private var topAddress: String? = null
 
@@ -53,9 +54,12 @@ object BrowserBackDispatcher {
         updateBackEntry()
     }
 
-    fun backFromEscape(): Boolean {
-        val top = handlers.lastOrNull { it.enabled } ?: return false
-        if (!top.handlesEscape || !backEntryPushed || droppingBackEntry) return false
+    fun backFromEscape(): Boolean = handlers.lastOrNull { it.enabled }?.handlesEscape == true && back()
+
+    fun back(): Boolean {
+        if (goingBack) return true
+        if (handlers.none { it.enabled } || !backEntryPushed || droppingBackEntry) return false
+        goingBack = true
         window.history.back()
         return true
     }
@@ -82,6 +86,7 @@ object BrowserBackDispatcher {
     private fun onPopState() {
         val dropped = droppingBackEntry
         droppingBackEntry = false
+        goingBack = false
         backEntryPushed = isOnBackEntry()
         if (!backEntryPushed) {
             baseAddress?.let(::replaceBaseEntryAddress)
@@ -92,6 +97,9 @@ object BrowserBackDispatcher {
 }
 
 actual fun handleEscapeKey(): Boolean = BrowserBackDispatcher.backFromEscape()
+
+@Composable
+actual fun rememberSystemBack(): () -> Boolean = BrowserBackDispatcher::back
 
 @Composable
 actual fun SystemBackHandler(enabled: Boolean, handlesEscape: Boolean, onBack: () -> Unit) {

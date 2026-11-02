@@ -13,6 +13,9 @@ expect fun SystemBackHandler(enabled: Boolean, handlesEscape: Boolean = false, o
 expect fun handleEscapeKey(): Boolean
 
 @Composable
+expect fun rememberSystemBack(): () -> Boolean
+
+@Composable
 expect fun rememberShareText(): (String) -> Unit
 
 @Composable
