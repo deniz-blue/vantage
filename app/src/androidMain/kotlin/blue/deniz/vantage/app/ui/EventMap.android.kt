@@ -76,14 +76,12 @@ actual fun EventMap(
     events: EventCollection,
     query: EventQuery,
     start: MapCamera?,
-    onCameraSettled: (MapCamera) -> Unit,
     onOpenEvent: (ResolvedEvent) -> Unit,
     modifier: Modifier,
     contentPadding: PaddingValues,
 ) {
     var pins by rememberAcrossNavigation("map pins") { mutableStateOf(emptyList<MapPin>()) }
     val currentOnOpenEvent by rememberUpdatedState(onOpenEvent)
-    val currentOnCameraSettled by rememberUpdatedState(onCameraSettled)
     val features = remember(pins) { featuresOf(pins) }
     val pinColor = MaterialTheme.colorScheme.primary
 
@@ -114,12 +112,6 @@ actual fun EventMap(
             .distinctUntilChanged()
             .flatMapLatest { area -> events.list(query.copy(area = area), MAP_EVENT_LIMIT) }
             .collect { listing -> pins = pinsOf(listing.events) }
-    }
-
-    LaunchedEffect(mapState) {
-        snapshotFlow { mapState.cameraPosition.takeIf { !mapState.isCameraMoving } }
-            .filterNotNull()
-            .collect { currentOnCameraSettled(MapCamera(it.center.latitude, it.center.longitude, it.zoom)) }
     }
 
     var fittedToPins by remember(mapState) { mutableStateOf(start != null) }

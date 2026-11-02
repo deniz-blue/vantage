@@ -94,12 +94,6 @@ private fun fitMapTo(map: MapLibreMap, west: Double, south: Double, east: Double
 private fun jumpMapTo(map: MapLibreMap, latitude: Double, longitude: Double, zoom: Double): Unit =
     js("map.jumpTo({ center: [longitude, latitude], zoom: zoom })")
 
-private fun centerLatitude(map: MapLibreMap): Double = js("map.getCenter().lat")
-private fun centerLongitude(map: MapLibreMap): Double = js("map.getCenter().lng")
-private fun zoomOf(map: MapLibreMap): Double = js("map.getZoom()")
-
-private fun cameraOf(map: MapLibreMap) = MapCamera(centerLatitude(map), centerLongitude(map), zoomOf(map))
-
 private fun visibleSouth(map: MapLibreMap): Double = js("map.getBounds().getSouth()")
 private fun visibleWest(map: MapLibreMap): Double = js("Math.max(-180, map.getBounds().getWest())")
 private fun visibleNorth(map: MapLibreMap): Double = js("map.getBounds().getNorth()")
@@ -133,7 +127,6 @@ actual fun EventMap(
     events: EventCollection,
     query: EventQuery,
     start: MapCamera?,
-    onCameraSettled: (MapCamera) -> Unit,
     onOpenEvent: (ResolvedEvent) -> Unit,
     modifier: Modifier,
     contentPadding: PaddingValues,
@@ -142,7 +135,6 @@ actual fun EventMap(
     var pins by rememberAcrossNavigation("map pins") { mutableStateOf(emptyList<MapPin>()) }
     val currentPins by rememberUpdatedState(pins)
     val currentOnOpenEvent by rememberUpdatedState(onOpenEvent)
-    val currentOnCameraSettled by rememberUpdatedState(onCameraSettled)
     val pinColor = cssColor(MaterialTheme.colorScheme.primary.toArgb())
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
     var styleLoaded by remember { mutableStateOf(false) }
@@ -182,11 +174,9 @@ actual fun EventMap(
             addPinLayer(created, PIN_SOURCE_ID, PIN_LAYER_ID, pinColor)
             styleLoaded = true
             visibleArea.value = visibleAreaOf(created)
-            currentOnCameraSettled(cameraOf(created))
         }
         created.on("moveend") {
             visibleArea.value = visibleAreaOf(created)
-            currentOnCameraSettled(cameraOf(created))
         }
         created.on("click", PIN_LAYER_ID) { event ->
             val markerId = clickedMarkerId(event)

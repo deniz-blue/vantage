@@ -9,28 +9,14 @@ import blue.deniz.vantage.core.EventCollection
 import blue.deniz.vantage.core.EventQuery
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.core.coordinates
-import kotlin.math.abs
 
 const val MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/dark"
 
 private const val SMALLEST_FITTED_SPAN_DEGREES = 0.02
 const val MAP_EVENT_LIMIT = 500
-private const val SAME_CAMERA_DEGREES = 0.0001
-private const val SAME_CAMERA_ZOOM = 0.01
+const val MY_LOCATION_ZOOM = 11.0
 
-data class MapCamera(val latitude: Double, val longitude: Double, val zoom: Double) {
-    val storedText get() = "$latitude,$longitude,$zoom"
-
-    fun isAt(other: MapCamera) =
-        abs(latitude - other.latitude) < SAME_CAMERA_DEGREES && abs(longitude - other.longitude) < SAME_CAMERA_DEGREES && abs(zoom - other.zoom) < SAME_CAMERA_ZOOM
-
-    companion object {
-        fun fromStoredText(text: String): MapCamera? {
-            val (latitude, longitude, zoom) = text.split(',').map { it.toDoubleOrNull() ?: return null }.takeIf { it.size == 3 } ?: return null
-            return MapCamera(latitude, longitude, zoom)
-        }
-    }
-}
+data class MapCamera(val latitude: Double, val longitude: Double, val zoom: Double)
 
 class MapPin(val markerId: String, val latitude: Double, val longitude: Double, val event: ResolvedEvent)
 
@@ -61,7 +47,6 @@ expect fun EventMap(
     events: EventCollection,
     query: EventQuery,
     start: MapCamera?,
-    onCameraSettled: (MapCamera) -> Unit,
     onOpenEvent: (ResolvedEvent) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),

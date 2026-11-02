@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import blue.deniz.vantage.app.ui.MapCamera
 import blue.deniz.vantage.app.ui.TypographyStyle
 import blue.deniz.vantage.core.SubscribedCalendar
 import kotlinx.datetime.IllegalTimeZoneException
@@ -23,7 +22,6 @@ private const val TEST_EVENTS_SHOWN_KEY = "testEventsShown"
 private const val NOTIFIES_ABOUT_CHANGES_KEY = "notifiesAboutChanges"
 private const val COPIES_EVENTS_TO_PHONE_CALENDAR_KEY = "copiesEventsToPhoneCalendar"
 private const val THEME_ACCENT_KEY = "themeAccent"
-private const val MAP_START_KEY = "mapStart"
 private const val MY_LOCATION_KEY = "myLocation"
 private const val SETUP_FINISHED_KEY = "setupFinished"
 private const val EVENTS_VIEW_KEY_PREFIX = "eventsView."
@@ -51,7 +49,6 @@ private val PORTABLE_KEYS = setOf(
     HOME_TILES_KEY,
     SUBSCRIBED_CALENDARS_KEY,
     THEME_ACCENT_KEY,
-    MAP_START_KEY,
     MY_LOCATION_KEY,
 )
 
@@ -77,8 +74,6 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         private set
     var themeAccent by mutableStateOf(ThemeAccent.Purple)
         private set
-    var mapStart by mutableStateOf<MapCamera?>(null)
-        private set
     var myLocation by mutableStateOf<NamedPlace?>(null)
         private set
     var setupFinished by mutableStateOf(false)
@@ -100,7 +95,6 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         notifiesAboutChanges = storage.read(NOTIFIES_ABOUT_CHANGES_KEY) == "true"
         copiesEventsToPhoneCalendar = storage.read(COPIES_EVENTS_TO_PHONE_CALENDAR_KEY) == "true"
         themeAccent = ThemeAccent.entries.find { it.storedName == storage.read(THEME_ACCENT_KEY) } ?: ThemeAccent.Purple
-        mapStart = storage.read(MAP_START_KEY)?.let(MapCamera::fromStoredText)
         myLocation = storage.read(MY_LOCATION_KEY)?.let(::namedPlaceOfJson)
         setupFinished = storage.read(SETUP_FINISHED_KEY) == "true"
         fontSizes = TypographyStyle.entries.mapNotNull { style -> storage.read(FONT_SIZE_KEY_PREFIX + style.name)?.toIntOrNull()?.let { style to it } }.toMap()
@@ -126,11 +120,6 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
     fun changeFontSize(style: TypographyStyle, size: Int?) {
         fontSizes = if (size == null) fontSizes - style else fontSizes + (style to size)
         storage.write(FONT_SIZE_KEY_PREFIX + style.name, size?.toString())
-    }
-
-    fun changeMapStart(camera: MapCamera?) {
-        mapStart = camera
-        storage.write(MAP_START_KEY, camera?.storedText)
     }
 
     fun changeMyLocation(place: NamedPlace?) {

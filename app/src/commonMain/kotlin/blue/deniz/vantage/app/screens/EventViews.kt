@@ -4,7 +4,6 @@ import blue.deniz.vantage.app.ui.growsIntoEventPage
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.fadeIn
 import blue.deniz.vantage.app.ui.SELECTED_TINT_ALPHA
 import blue.deniz.vantage.app.ui.backdropSource
 import blue.deniz.vantage.app.ui.LocalBackdrop
@@ -57,7 +56,6 @@ import blue.deniz.vantage.app.ui.FloatingAgendaPeriodChip
 import blue.deniz.vantage.core.CalendarPeriod
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.key
-import androidx.compose.animation.AnimatedVisibility
 import blue.deniz.vantage.core.CalendarMarks
 
 import blue.deniz.vantage.app.Route
@@ -68,11 +66,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -119,10 +113,9 @@ import blue.deniz.vantage.app.ui.EventCardSelection
 import blue.deniz.vantage.app.ui.EventFormatting
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.EventMap
-import blue.deniz.vantage.app.ui.FloatingShadowElevation
 import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.IconSize
 import blue.deniz.vantage.app.ui.MapCamera
+import blue.deniz.vantage.app.ui.MY_LOCATION_ZOOM
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.floatingBorder
 import blue.deniz.vantage.app.ui.ControlHeight
@@ -132,7 +125,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import blue.deniz.vantage.app.ui.floatingContainer
 import blue.deniz.vantage.app.ui.EventPosterCard
 import blue.deniz.vantage.app.ui.EventTicketCard
 import blue.deniz.vantage.app.ui.FailureRow
@@ -173,7 +165,6 @@ private val CHECK_STROKE = 2.dp
 private val AUTOSCROLL_ZONE = 64.dp
 private val AUTOSCROLL_STEP = 16.dp
 private const val LOAD_MORE_DISTANCE = 10
-private val MAP_START_ROW_HEIGHT = 48.dp
 
 @Stable
 interface EventCardActions {
@@ -296,42 +287,16 @@ fun EventsViewContent(
         EventsView.Map -> {
             val query = remember(time, state.listsSplitAt) { time.toQuery(state.listsSplitAt) }
             val currentActions by rememberUpdatedState(actions)
-            var camera by remember { mutableStateOf<MapCamera?>(null) }
-            Box(Modifier.fillMaxSize()) {
-                EventMap(
-                    events,
-                    query,
-                    start = state.settings.mapStart,
-                    onCameraSettled = { camera = it },
-                    onOpenEvent = { currentActions.open(it) },
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = topPadding, bottom = bottomPadding + maxOf(MAP_START_ROW_HEIGHT, bottomEndClearance)),
-                )
-                AnimatedVisibility(
-                    camera != null,
-                    Modifier.align(Alignment.BottomStart).padding(start = Spacing.md, bottom = bottomPadding + Spacing.sm),
-                    enter = fadeIn(),
-                ) {
-                    camera?.let { MapStartChip(state, it) }
-                }
-            }
+            EventMap(
+                events,
+                query,
+                start = state.settings.myLocation?.let { MapCamera(it.latitude, it.longitude, MY_LOCATION_ZOOM) },
+                onOpenEvent = { currentActions.open(it) },
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(top = topPadding, bottom = bottomPadding + bottomEndClearance),
+            )
         }
     }
-}
-
-@Composable
-private fun MapStartChip(state: AppState, camera: MapCamera, modifier: Modifier = Modifier) {
-    val startsHere = state.settings.mapStart?.isAt(camera) == true
-    FilterChip(
-        selected = startsHere,
-        onClick = { state.settings.changeMapStart(camera.takeUnless { startsHere }) },
-        label = { Text(if (startsHere) "Map Starts Here" else "Start Map Here", maxLines = 1) },
-        modifier = modifier,
-        leadingIcon = { Icon(if (startsHere) AppIcons.Check else AppIcons.MapPin, size = IconSize.xs) },
-        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.floatingContainer),
-        elevation = FilterChipDefaults.filterChipElevation(elevation = FloatingShadowElevation),
-        border = floatingBorder(),
-    )
 }
 
 @Composable
@@ -433,7 +398,8 @@ private fun EventListView(
     val margin = Spacing.md + DAY_LINE_GUTTER
     val markerIcon = rememberVectorPainter(AppIcons.Label)
     val guideColors = AgendaGuideColors(
-        marker = MaterialTheme.colorScheme.onSurfaceVariant,
+        marker = MaterialTheme.colorScheme.onSurface,
+        pastMarker = MaterialTheme.colorScheme.onSurfaceVariant,
         line = MaterialTheme.colorScheme.outlineVariant,
         dot = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = DAY_DOT_ALPHA),
         today = MaterialTheme.colorScheme.primary,
@@ -480,7 +446,7 @@ private fun EventListView(
                     val layout = grid.layoutInfo
                     when {
                         actions.isSelecting && columns == 1 -> drawSelectionChecks(layout, eventsByKey, actions, margin, checkColors)
-                        inDateOrder -> drawAgendaGuides(layout, agenda, markerIcon, guideColors, pinnedLabelRow.value)
+                        inDateOrder -> drawAgendaGuides(layout, agenda, cards.now, markerIcon, guideColors, pinnedLabelRow.value)
                     }
                 }
                 .selectsByDragging(grid, topPadding, eventAt, { currentShown }, { currentActions }) { haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
@@ -541,9 +507,9 @@ private fun EventListView(
     }
 }
 
-private class AgendaGuideColors(val marker: Color, val line: Color, val dot: Color, val today: Color, val background: Color)
+private class AgendaGuideColors(val marker: Color, val pastMarker: Color, val line: Color, val dot: Color, val today: Color, val background: Color)
 
-private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agenda, markerIcon: Painter, colors: AgendaGuideColors, pinnedLabelRow: Int?) {
+private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agenda, now: Instant, markerIcon: Painter, colors: AgendaGuideColors, pinnedLabelRow: Int?) {
     val spans = HashMap<Int, ClosedFloatingPointRange<Float>>()
     for (item in layout.visibleItemsInfo) {
         val row = agenda.rowIndexOf(item.key) ?: continue
@@ -553,14 +519,16 @@ private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agend
     }
     if (spans.isEmpty()) return
     drawDayLine(agenda, spans, colors, pinnedLabelRow)
-    drawMarkerIcons(agenda, spans, markerIcon, colors)
+    drawMarkerIcons(agenda, spans, now, markerIcon, colors)
 }
 
-private fun DrawScope.drawMarkerIcons(agenda: Agenda, spans: Map<Int, ClosedFloatingPointRange<Float>>, icon: Painter, colors: AgendaGuideColors) {
+private fun DrawScope.drawMarkerIcons(agenda: Agenda, spans: Map<Int, ClosedFloatingPointRange<Float>>, now: Instant, icon: Painter, colors: AgendaGuideColors) {
     val size = AgendaIconSize.toPx()
-    val tint = ColorFilter.tint(colors.marker)
+    val upcomingTint = ColorFilter.tint(colors.marker)
+    val pastTint = ColorFilter.tint(colors.pastMarker)
     for ((row, span) in spans) {
-        if (agenda.rows[row] !is AgendaRow.Marker) continue
+        val marker = (agenda.rows[row] as? AgendaRow.Marker)?.marker ?: continue
+        val tint = if (marker.endsAt <= now) pastTint else upcomingTint
         val center = Offset(DAY_LINE_X.toPx(), (span.start + span.endInclusive) / 2)
         drawCircle(colors.background, MARKER_LINE_GAP_RADIUS.toPx(), center)
         translate(center.x - size / 2, center.y - size / 2) {
@@ -580,13 +548,19 @@ private fun DrawScope.drawDayLine(agenda: Agenda, spans: Map<Int, ClosedFloating
         val span = spans.getValue(row)
         val top = if (position == 0 && span.start > 0) span.start - ceil(span.start / (2 * dash)) * 2 * dash else span.start
         val bottom = shown.getOrNull(position + 1)?.let { spans.getValue(it).start } ?: size.height
-        drawLine(colors.line, Offset(x, top), Offset(x, bottom), width, pathEffect = if (time == AgendaTime.Future || time == AgendaTime.Undated) dashes else null)
+        val dashedFrom = when {
+            time == AgendaTime.Past -> bottom
+            time == AgendaTime.Today && agenda.rows[row] is AgendaRow.Label -> dayDotY(span).coerceIn(top, bottom)
+            else -> top
+        }
+        if (dashedFrom > top) drawLine(colors.line, Offset(x, top), Offset(x, dashedFrom), width)
+        if (bottom > dashedFrom) drawLine(colors.line, Offset(x, dashedFrom), Offset(x, bottom), width, pathEffect = dashes)
     }
     val fade = TODAY_LINE_FADE.toPx()
     for (row in shown) {
         if (agenda.rows[row] !is AgendaRow.Label || row == pinnedLabelRow) continue
         val span = spans.getValue(row)
-        val center = Offset(x, (span.start + AgendaLabelGap.toPx() + span.endInclusive) / 2)
+        val center = Offset(x, dayDotY(span))
         if (agenda.rowTimes[row] == AgendaTime.Today) {
             val fadeTop = Offset(x, center.y - fade)
             drawLine(Brush.verticalGradient(listOf(colors.today.copy(alpha = 0f), colors.today), startY = fadeTop.y, endY = center.y), fadeTop, center, width)
@@ -595,10 +569,12 @@ private fun DrawScope.drawDayLine(agenda: Agenda, spans: Map<Int, ClosedFloating
     }
 }
 
+private fun DrawScope.dayDotY(labelSpan: ClosedFloatingPointRange<Float>) = (labelSpan.start + AgendaLabelGap.toPx() + labelSpan.endInclusive) / 2
+
 private fun DrawScope.drawDayDot(time: AgendaTime, center: Offset, colors: AgendaGuideColors, solid: Boolean = false) {
     when (time) {
         AgendaTime.Today -> drawCircle(colors.today, TODAY_DOT_RADIUS.toPx(), center)
-        AgendaTime.Past -> drawCircle(colors.dot, DAY_DOT_RADIUS.toPx(), center)
+        AgendaTime.Past -> drawCircle(colors.line, DAY_DOT_RADIUS.toPx(), center)
         AgendaTime.Future, AgendaTime.Undated -> if (solid) {
             drawCircle(colors.dot, DAY_DOT_RADIUS.toPx(), center)
         } else {
