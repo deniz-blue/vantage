@@ -27,23 +27,39 @@ sealed interface Route {
     data object DeveloperTools : Route
 }
 
+data class OpenedScreen(val route: Route, val openingId: Long)
+
 @Stable
 class Navigator(start: Route.Tab = Route.Home) {
-    private val backStack = mutableStateListOf<Route>(start)
+    private var openings = 0L
+    private val backStack = mutableStateListOf(opening(start))
     private val clearActions = mutableMapOf<Int, () -> Unit>()
 
-    val entries: List<Route> get() = backStack
-    val current: Route get() = backStack.last()
-    val currentTab: Route.Tab get() = backStack.filterIsInstance<Route.Tab>().last()
+    val screens: List<OpenedScreen> get() = backStack
+    val entries: List<Route> get() = backStack.map { it.route }
+    val current: Route get() = backStack.last().route
+    val currentTab: Route.Tab get() = backStack.map { it.route }.filterIsInstance<Route.Tab>().last()
     val canGoBack: Boolean get() = backStack.size > 1
 
+    private fun opening(route: Route) = OpenedScreen(route, ++openings)
+
     fun open(route: Route) {
-        backStack += route
+        backStack += opening(route)
     }
 
     fun replace(route: Route) {
         clearActions -= backStack.lastIndex
-        backStack[backStack.lastIndex] = route
+        backStack[backStack.lastIndex] = opening(route)
+    }
+
+    fun openDraft(form: Route.Form) {
+        if (current.isSameFormAs(form)) replace(form) else open(form)
+    }
+
+    private fun Route.isSameFormAs(form: Route.Form) = when (form) {
+        is Route.CreateEvent -> this is Route.CreateEvent
+        is Route.EditEvent -> this is Route.EditEvent && id == form.id
+        is Route.EditFromLink -> this is Route.EditFromLink && request == form.request
     }
 
     fun goBack(): Boolean {
@@ -62,6 +78,6 @@ class Navigator(start: Route.Tab = Route.Home) {
         clearActions.clear()
         actions.forEach { it() }
         backStack.clear()
-        backStack += tab
+        backStack += opening(tab)
     }
 }

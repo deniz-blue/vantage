@@ -85,6 +85,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -515,8 +517,18 @@ private val tabs = listOf(
     TabItem(Route.Settings, "Settings", AppIcons.Settings, AppIcons.SettingsSelected),
 )
 
-private data class StackEntry(val depth: Int, val route: Route) {
-    val screenStateKey get() = if (route is Route.Tab) "tabs" else "$depth/$route"
+private data class StackEntry(val depth: Int, val screen: OpenedScreen) {
+    val route get() = screen.route
+    val screenStateKey get() = if (route is Route.Tab) "tabs" else "screen/${screen.openingId}"
+}
+
+private fun Modifier.blockingPointerInputWhile(blocked: () -> Boolean) = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            if (blocked()) event.changes.forEach { it.consume() }
+        }
+    }
 }
 
 private val ScreenFadeIn = tween<Float>(210, delayMillis = 90)
@@ -542,8 +554,8 @@ fun VantageApp(state: AppState) {
     val screenStates = rememberSaveableStateHolder()
     val screenValues = remember { ScreenValueStore() }
     val sessionValues = remember { mutableMapOf<String, MutableState<*>>() }
-    val stackedScreenKeys = navigator.entries.withIndex()
-        .map { (depth, route) -> StackEntry(depth, route).screenStateKey }
+    val stackedScreenKeys = navigator.screens.withIndex()
+        .map { (depth, screen) -> StackEntry(depth, screen).screenStateKey }
         .filterNot { it == "tabs" }
         .toSet()
     var keptScreenKeys by remember { mutableStateOf(emptySet<String>()) }
@@ -562,7 +574,7 @@ fun VantageApp(state: AppState) {
                     Surface(Modifier.fillMaxSize()) {
                         SharedTransitionLayout(Modifier.fillMaxSize()) {
                             AnimatedContent(
-                                targetState = StackEntry(navigator.entries.lastIndex, navigator.current),
+                                targetState = StackEntry(navigator.screens.lastIndex, navigator.screens.last()),
                                 transitionSpec = { screenTransition() },
                                 contentKey = { it.screenStateKey },
                             ) { entry ->
@@ -578,24 +590,26 @@ fun VantageApp(state: AppState) {
                                         LocalScreenOpacity provides remember(opacity) { { opacity.value } },
                                         LocalScreenTransition provides screenTransition,
                                     ) {
-                                        when (val route = entry.route) {
-                                            is Route.Tab -> TabShell(state, route, showsSnackbars = route == navigator.current)
-                                            is Route.EventDetails -> if (route.openedFromCard) {
-                                                EventPageGrowingFromCard(route.id) { EventDetailsScreen(state, route.id) }
-                                            } else {
-                                                EventDetailsScreen(state, route.id)
+                                        Box(Modifier.blockingPointerInputWhile { transition.targetState != EnterExitState.Visible }, propagateMinConstraints = true) {
+                                            when (val route = entry.route) {
+                                                is Route.Tab -> TabShell(state, route, showsSnackbars = route == navigator.current)
+                                                is Route.EventDetails -> if (route.openedFromCard) {
+                                                    EventPageGrowingFromCard(route.id) { EventDetailsScreen(state, route.id) }
+                                                } else {
+                                                    EventDetailsScreen(state, route.id)
+                                                }
+                                                is Route.EventFromLink -> EventFromLinkScreen(state, route.intent)
+                                                Route.ChooseFeed -> ChooseFeedScreen(state)
+                                                is Route.Feed -> FeedScreen(state, route.feed)
+                                                is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)
+                                                is Route.EditEvent -> EditEventScreen(state, route.id, route.draft)
+                                                is Route.EditFromLink -> EditFromLinkScreen(state, route.request)
+                                                Route.HomeSettings -> HomeSettingsScreen(state)
+                                                Route.TagSettings -> TagSettingsScreen(state)
+                                                Route.CalendarSettings -> CalendarSettingsScreen(state)
+                                                Route.About -> AboutScreen(state)
+                                                Route.DeveloperTools -> DeveloperToolsScreen(state)
                                             }
-                                            is Route.EventFromLink -> EventFromLinkScreen(state, route.intent)
-                                            Route.ChooseFeed -> ChooseFeedScreen(state)
-                                            is Route.Feed -> FeedScreen(state, route.feed)
-                                            is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)
-                                            is Route.EditEvent -> EditEventScreen(state, route.id, route.draft)
-                                            is Route.EditFromLink -> EditFromLinkScreen(state, route.request)
-                                            Route.HomeSettings -> HomeSettingsScreen(state)
-                                            Route.TagSettings -> TagSettingsScreen(state)
-                                            Route.CalendarSettings -> CalendarSettingsScreen(state)
-                                            Route.About -> AboutScreen(state)
-                                            Route.DeveloperTools -> DeveloperToolsScreen(state)
                                         }
                                     }
                                 }

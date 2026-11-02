@@ -242,7 +242,7 @@ fun CreateEventScreen(state: AppState, sharedText: String?, day: LocalDate?, dra
         "New Event",
         initial = draft ?: blank,
         unchanged = blank,
-        onDiscard = { discarded -> state.offerUndo("Draft Discarded") { state.navigator.open(Route.CreateEvent(draft = discarded)) } },
+        onDiscard = { discarded -> state.offerUndo("Draft Discarded") { state.navigator.openDraft(Route.CreateEvent(draft = discarded)) } },
         offersImport = true,
         sharedLink = sharedLink,
         destinationRow = { DestinationRow(destination, onSelect = { destination = it }) },
@@ -345,7 +345,7 @@ fun EditEventScreen(state: AppState, id: String, draft: OpenEvnt?) {
         "Edit Event",
         initial = draft ?: event,
         unchanged = event,
-        onDiscard = { discarded -> state.offerUndo("Changes Discarded") { state.navigator.open(Route.EditEvent(id, discarded)) } },
+        onDiscard = { discarded -> state.offerUndo("Changes Discarded") { state.navigator.openDraft(Route.EditEvent(id, discarded)) } },
     ) { edited ->
         state.store.saveEdited(id, edited)
         state.navigator.goBack()
