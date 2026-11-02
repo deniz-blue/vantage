@@ -163,6 +163,12 @@ import blue.deniz.vantage.app.ui.HeldKeys
 
 private val PHONE_CALENDAR_COPY_DELAY = 2.seconds
 
+sealed interface AddedEvent {
+    data class Added(val id: String) : AddedEvent
+    data class AlreadyStored(val id: String) : AddedEvent
+    data class Failed(val problem: String) : AddedEvent
+}
+
 @Stable
 class AppState(
     val store: EventStore,
@@ -358,15 +364,11 @@ class AppState(
             val addedIds = mutableListOf<String>()
             for ((index, event) in events.withIndex()) {
                 onProgress(index + 1)
-                val read = if (event.data != null) event else previews.resolve(event)
-                if (read.data == null) {
-                    problems[event.source] = read.error?.message ?: "No event at this link"
-                    continue
+                when (val added = addEvent(event)) {
+                    is AddedEvent.Added -> addedIds += added.id
+                    is AddedEvent.AlreadyStored -> {}
+                    is AddedEvent.Failed -> problems[event.source] = added.problem
                 }
-                if (store.findStoredCopyId(read) != null) continue
-                runCatching { store.add(read) }
-                    .onSuccess { addedIds += it }
-                    .onFailure { problems[event.source] = it.message ?: "Couldn't add this event" }
             }
             onFinished(problems)
             val failedPart = if (problems.isEmpty()) "" else ", ${problems.size} Failed"
@@ -384,6 +386,14 @@ class AppState(
                 withDismissAction = true,
             )
         }
+    }
+
+    suspend fun addEvent(event: ResolvedEvent): AddedEvent {
+        val read = if (event.data != null) event else previews.resolve(event)
+        if (read.data == null) return AddedEvent.Failed(read.error?.message ?: "No event at this link")
+        store.findStoredCopyId(read)?.let { return AddedEvent.AlreadyStored(it) }
+        return runCatching { AddedEvent.Added(store.add(read)) }
+            .getOrElse { AddedEvent.Failed(it.message ?: "Couldn't add this event") }
     }
 
     fun deleteTag(id: String) {

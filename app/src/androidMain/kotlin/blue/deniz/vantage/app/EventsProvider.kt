@@ -31,6 +31,7 @@ object EventsContract {
     const val ROW_ID = "_id"
     const val ID = "id"
     const val JSON = "json"
+    const val URL = "url"
     const val AFTER = "after"
     const val BEFORE = "before"
     const val SEARCH = "search"
@@ -60,8 +61,10 @@ class EventsProvider : ContentProvider() {
     private val packageName get() = requireNotNull(context).packageName
     private val eventsUri get() = EventsContract.eventsUriOf(packageName)
 
+    private val appState get() = (requireNotNull(context).applicationContext as AppStateOwner).appState
+
     private val store: EventStore by lazy {
-        val store = (requireNotNull(context).applicationContext as AppStateOwner).appState.store
+        val store = appState.store
         scope.launch { store.observeList().drop(1).collect { notifyEventsChanged() } }
         store
     }
@@ -93,6 +96,10 @@ class EventsProvider : ContentProvider() {
     override fun insert(uri: Uri, values: ContentValues?): Uri {
         requireCallerHolds(EventsContract.writePermissionOf(packageName))
         require(targetOf(uri) == EventsTarget.All) { "Insert into ${eventsUri}" }
+        values?.getAsString(EventsContract.URL)?.let { link ->
+            require(kindOf(uri) == StoredKind.Events) { "Only events can be added from a ${EventsContract.URL}" }
+            return insertLinked(link)
+        }
         val json = jsonFrom(values)
         when (kindOf(uri)) {
             StoredKind.Markers -> return runBlocking { OpenEvnt.json.decodeFromString(CalendarMarker.serializer(), json).also { store.saveMarker(it) } }.let { uri.buildUpon().appendPath(it.id).build() }
@@ -130,6 +137,17 @@ class EventsProvider : ContentProvider() {
         } != null
         if (removed) notifyEventsChanged()
         return if (removed) 1 else 0
+    }
+
+    private fun insertLinked(link: String): Uri {
+        val event = ResolvedEvent.fromLink(link) ?: throw IllegalArgumentException("Not an event link: $link")
+        val id = when (val added = runBlocking { appState.addEvent(event) }) {
+            is AddedEvent.Added -> added.id
+            is AddedEvent.AlreadyStored -> added.id
+            is AddedEvent.Failed -> throw IllegalArgumentException(added.problem)
+        }
+        notifyEventsChanged()
+        return EventsContract.eventUriOf(packageName, id)
     }
 
     private fun notifyEventsChanged() {
@@ -183,7 +201,7 @@ private fun listQueryOf(uri: Uri) = EventListQuery(
 )
 
 private fun jsonFrom(values: ContentValues?): String =
-    values?.getAsString(EventsContract.JSON) ?: throw IllegalArgumentException("Needs a ${EventsContract.JSON} value")
+    values?.getAsString(EventsContract.JSON) ?: throw IllegalArgumentException("Needs a ${EventsContract.JSON} or ${EventsContract.URL} value")
 
 private fun eventFrom(values: ContentValues?): OpenEvnt = OpenEvnt.parse(jsonFrom(values))
 
