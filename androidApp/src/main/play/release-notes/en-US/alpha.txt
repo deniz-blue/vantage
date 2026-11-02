@@ -1,2 +1,7 @@
-Vantage is rebuilt from the ground up as a native Android app.
-Export and import your data from Settings.
+New icon.
+A short setup when you first open Vantage.
+Home shows the weather and what's next at a glance.
+My Events has a day line, and markers stay listed until their day is over.
+Formatting buttons for event descriptions, and names and descriptions in other languages edit correctly.
+The map opens on your My Location.
+Event links on vantage.tsx.lt open in the app.
