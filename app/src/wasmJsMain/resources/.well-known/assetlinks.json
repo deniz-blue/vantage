@@ -1,0 +1,33 @@
+[
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "lt.tsx.vantage",
+			"sha256_cert_fingerprints": [
+				"A6:6E:96:92:08:9D:3C:F6:77:6A:E6:30:6E:6E:87:5D:DB:7B:CE:FB:21:26:E4:4C:96:DA:3F:05:1D:18:33:DF",
+				"FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+			]
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "lt.tsx.vantage.dev",
+			"sha256_cert_fingerprints": [
+				"FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+			]
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "blue.deniz.vantage",
+			"sha256_cert_fingerprints": [
+				"FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+			]
+		}
+	}
+]
