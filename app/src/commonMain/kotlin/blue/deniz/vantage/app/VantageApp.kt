@@ -1,5 +1,10 @@
 package blue.deniz.vantage.app
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.asPaddingValues
+import blue.deniz.vantage.app.ui.Backdrop
 import blue.deniz.vantage.app.ui.removal
 
 import androidx.compose.animation.AnimatedContent
@@ -567,6 +572,8 @@ fun VantageApp(state: AppState) {
         keptScreenKeys = stackedScreenKeys
     }
     SystemBackHandler(enabled = navigator.canGoBack) { navigator.goBack() }
+    val tabBackdrop = rememberBackdrop()
+    val stackedTab = navigator.screens.filterIsInstance<Route.Tab>().lastOrNull() ?: Route.Home
     CompositionLocalProvider(LocalSessionValues provides sessionValues) {
         VantageTheme(state.settings.themeAccent, state.settings.fontSizes) {
             KeyboardShortcutHost(onShortcut = state::handleShortcut) {
@@ -574,7 +581,8 @@ fun VantageApp(state: AppState) {
                     Surface(Modifier.fillMaxSize()) {
                         Column(Modifier.fillMaxSize()) {
                             if (runsInAndroidBrowser) AndroidAppBanner()
-                            SharedTransitionLayout(Modifier.fillMaxWidth().weight(1f)) {
+                            Box(Modifier.fillMaxWidth().weight(1f)) {
+                            SharedTransitionLayout(Modifier.fillMaxSize()) {
                                 AnimatedContent(
                                     targetState = StackEntry(navigator.screens.lastIndex, navigator.screens.last()),
                                     transitionSpec = { screenTransition() },
@@ -594,7 +602,7 @@ fun VantageApp(state: AppState) {
                                         ) {
                                             Box(Modifier.blockingPointerInputWhile { transition.targetState != EnterExitState.Visible }, propagateMinConstraints = true) {
                                                 when (val route = entry.route) {
-                                                    is Route.Tab -> TabShell(state, route, showsSnackbars = route == navigator.current)
+                                                    is Route.Tab -> TabShell(state, route, tabBackdrop, showsSnackbars = route == navigator.current)
                                                     is Route.EventDetails -> if (route.openedFromCard) {
                                                         EventPageGrowingFromCard(route.id) { EventDetailsScreen(state, route.id) }
                                                     } else {
@@ -616,6 +624,14 @@ fun VantageApp(state: AppState) {
                                         }
                                     }
                                 }
+                            }
+                            SlidingTabBar(
+                                visible = navigator.current is Route.Tab,
+                                selected = stackedTab,
+                                backdrop = tabBackdrop,
+                                onSelect = navigator::switchTab,
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                            )
                             }
                         }
                         EventActionsSheet(state)
@@ -642,6 +658,18 @@ private fun KeyboardShortcutHost(onShortcut: (KeyEvent) -> Boolean, content: @Co
             .focusRequester(focus)
             .focusTarget(),
     ) { content() }
+}
+
+@Composable
+private fun SlidingTabBar(visible: Boolean, selected: Route.Tab, backdrop: Backdrop, onSelect: (Route.Tab) -> Unit, modifier: Modifier = Modifier) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = slideInVertically(tween(300)) { it },
+        exit = slideOutVertically(tween(300)) { it },
+    ) {
+        CompositionLocalProvider(LocalBackdrop provides backdrop) { TabBar(selected, onSelect) }
+    }
 }
 
 @Composable
@@ -682,18 +710,22 @@ private fun SnackbarsOutsideTabBar(state: AppState, onTab: Boolean) {
 }
 
 @Composable
-private fun TabShell(state: AppState, tab: Route.Tab, showsSnackbars: Boolean) {
+private fun TabShell(state: AppState, tab: Route.Tab, backdrop: Backdrop, showsSnackbars: Boolean) {
     val anySheetOpen by rememberAnyBottomSheetOpen()
     var showingListFilters by rememberSaveable { mutableStateOf(false) }
     val tabStates = rememberSaveableStateHolder()
     SystemBackHandler(enabled = tab != Route.Home) { state.navigator.switchTab(Route.Home) }
-    CompositionLocalProvider(LocalBackdrop provides rememberBackdrop()) {
+    val tabBarHeight = TAB_BAR_HEIGHT + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    CompositionLocalProvider(LocalBackdrop provides backdrop) {
         Scaffold(
-            snackbarHost = { if (showsSnackbars && !anySheetOpen) SnackbarHost(state.snackbars, Modifier.padding(bottom = if (tab == Route.MyEvents) EventsViewControlsClearance else 0.dp)) },
-            bottomBar = { TabBar(tab, onSelect = state.navigator::switchTab) },
+            snackbarHost = {
+                if (showsSnackbars && !anySheetOpen) {
+                    SnackbarHost(state.snackbars, Modifier.padding(bottom = tabBarHeight + if (tab == Route.MyEvents) EventsViewControlsClearance else 0.dp))
+                }
+            },
             contentWindowInsets = WindowInsets(0),
-        ) { padding ->
-            CompositionLocalProvider(LocalTabBarHeight provides padding.calculateBottomPadding()) {
+        ) {
+            CompositionLocalProvider(LocalTabBarHeight provides tabBarHeight) {
                 AnimatedContent(
                     targetState = tab,
                     transitionSpec = {
