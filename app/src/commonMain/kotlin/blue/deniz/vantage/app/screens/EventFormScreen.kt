@@ -56,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import blue.deniz.vantage.app.AppState
+import blue.deniz.vantage.app.LocalStackDepth
 import blue.deniz.vantage.app.OpenEvntSaver
 import blue.deniz.vantage.app.countryName
 import blue.deniz.vantage.app.Route
@@ -396,10 +397,10 @@ private fun EventForm(
     }
     SystemBackHandler(enabled = true, onBack = ::close)
     val currentDiscardIfChanged by rememberUpdatedState(::discardIfChanged)
-    DisposableEffect(state.navigator) {
-        val action = { currentDiscardIfChanged() }
-        state.navigator.addClearAction(action)
-        onDispose { state.navigator.removeClearAction(action) }
+    val depth = LocalStackDepth.current
+    DisposableEffect(state.navigator, depth) {
+        state.navigator.setClearAction(depth) { currentDiscardIfChanged() }
+        onDispose {}
     }
 
     fun submit() {

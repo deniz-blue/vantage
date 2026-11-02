@@ -20,6 +20,8 @@ class ScreenValueStore {
 
 val LocalScreenValues = staticCompositionLocalOf<MutableMap<String, Any?>> { mutableMapOf() }
 
+val LocalStackDepth = staticCompositionLocalOf { 0 }
+
 @Suppress("UNCHECKED_CAST")
 @Composable
 fun <T> rememberAcrossNavigation(key: String, create: () -> T): T {

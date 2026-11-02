@@ -574,6 +574,7 @@ fun VantageApp(state: AppState) {
                                 screenStates.SaveableStateProvider(entry.screenStateKey) {
                                     CompositionLocalProvider(
                                         LocalScreenValues provides screenValues.valuesFor(entry.screenStateKey),
+                                        LocalStackDepth provides entry.depth,
                                         LocalScreenOpacity provides remember(opacity) { { opacity.value } },
                                         LocalScreenTransition provides screenTransition,
                                     ) {

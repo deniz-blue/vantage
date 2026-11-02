@@ -30,7 +30,7 @@ sealed interface Route {
 @Stable
 class Navigator(start: Route.Tab = Route.Home) {
     private val backStack = mutableStateListOf<Route>(start)
-    private val clearActions = mutableListOf<() -> Unit>()
+    private val clearActions = mutableMapOf<Int, () -> Unit>()
 
     val entries: List<Route> get() = backStack
     val current: Route get() = backStack.last()
@@ -42,25 +42,25 @@ class Navigator(start: Route.Tab = Route.Home) {
     }
 
     fun replace(route: Route) {
+        clearActions -= backStack.lastIndex
         backStack[backStack.lastIndex] = route
     }
 
     fun goBack(): Boolean {
         if (!canGoBack) return false
+        clearActions -= backStack.lastIndex
         backStack.removeAt(backStack.lastIndex)
         return true
     }
 
-    fun addClearAction(action: () -> Unit) {
-        clearActions += action
-    }
-
-    fun removeClearAction(action: () -> Unit) {
-        clearActions -= action
+    fun setClearAction(depth: Int, action: () -> Unit) {
+        clearActions[depth] = action
     }
 
     fun switchTab(tab: Route.Tab) {
-        clearActions.toList().forEach { it() }
+        val actions = clearActions.values.toList()
+        clearActions.clear()
+        actions.forEach { it() }
         backStack.clear()
         backStack += tab
     }
