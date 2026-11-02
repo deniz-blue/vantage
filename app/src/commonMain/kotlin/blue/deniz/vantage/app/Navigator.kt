@@ -25,7 +25,7 @@ sealed interface Route {
     data object Setup : Route
     data object HomeSettings : Route
     data object TagSettings : Route
-    data class CalendarSettings(val offeredLink: String? = null) : Route
+    data object CalendarSettings : Route
     data object About : Route
     data object DeveloperTools : Route
 }

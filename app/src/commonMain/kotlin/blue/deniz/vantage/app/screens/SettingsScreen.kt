@@ -127,7 +127,7 @@ fun SettingsScreen(state: AppState) {
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
             SubpageRow("System Calendars", AppIcons.Calendar, supporting = calendarCountLabel(settings.subscribedCalendars.size)) {
-                state.navigator.open(Route.CalendarSettings())
+                state.navigator.open(Route.CalendarSettings)
             }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
@@ -333,15 +333,15 @@ private fun calendarCountLabel(count: Int) = when (count) {
 }
 
 @Composable
-fun CalendarSettingsScreen(state: AppState, offeredLink: String?) {
+fun CalendarSettingsScreen(state: AppState) {
     val sync = state.calendars
     val subscribed = state.settings.subscribedCalendars
     val device = sync.deviceCalendars
     var permitted by remember { mutableStateOf(device?.hasPermission() == true) }
     val requestPermission = rememberCalendarPermissionRequest { granted -> permitted = granted }
     val deviceCalendars = collectAcrossSession("phone calendars", permitted) { flow { emit(if (permitted) device?.list() else null) } }
-    var linkAddress by rememberSaveable { mutableStateOf(offeredLink.orEmpty()) }
-    var showsLinkProblem by rememberSaveable { mutableStateOf(offeredLink != null) }
+    var linkAddress by rememberSaveable { mutableStateOf("") }
+    var showsLinkProblem by rememberSaveable { mutableStateOf(false) }
     fun newLinkFrom(address: String) = SubscribedCalendar.linkFromAddress(address)?.takeIf { it !in subscribed }
     val link = newLinkFrom(linkAddress)
     val linkProblem = when {

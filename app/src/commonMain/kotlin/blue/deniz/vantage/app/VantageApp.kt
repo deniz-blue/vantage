@@ -636,7 +636,7 @@ fun VantageApp(state: AppState) {
                                                     Route.Setup -> SetupScreen(state)
                                                     Route.HomeSettings -> HomeSettingsScreen(state)
                                                     Route.TagSettings -> TagSettingsScreen(state)
-                                                    is Route.CalendarSettings -> CalendarSettingsScreen(state, route.offeredLink)
+                                                    Route.CalendarSettings -> CalendarSettingsScreen(state)
                                                     Route.About -> AboutScreen(state)
                                                     Route.DeveloperTools -> DeveloperToolsScreen(state)
                                                 }

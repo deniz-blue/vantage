@@ -8,15 +8,13 @@ import io.ktor.http.encodeURLPathPart
 import io.ktor.http.formUrlEncode
 import kotlinx.datetime.LocalDate
 
-private const val CALENDAR_SETTINGS_PAGE = "calendars"
-private const val OFFERED_CALENDAR_LINK_PARAMETER = "subscribe"
-
 private val SETTINGS_PAGES = mapOf(
     "appearance" to Route.AppearanceSettings,
     "notifications" to Route.NotificationSettings,
     "backup" to Route.BackupSettings,
     "home" to Route.HomeSettings,
     "tags" to Route.TagSettings,
+    "calendars" to Route.CalendarSettings,
     "about" to Route.About,
     "developer-tools" to Route.DeveloperTools,
 )
@@ -35,8 +33,7 @@ val Route.webAddress: String?
         is Route.CreateEvent -> withQuery("/new", "text" to sharedText, "day" to day?.toString())
         Route.Setup -> "/setup"
         Route.AppearanceSettings, Route.NotificationSettings, Route.BackupSettings,
-        Route.HomeSettings, Route.TagSettings, Route.About, Route.DeveloperTools -> "/settings/" + SETTINGS_PAGES.entries.first { it.value == this }.key
-        is Route.CalendarSettings -> withQuery("/settings/$CALENDAR_SETTINGS_PAGE", OFFERED_CALENDAR_LINK_PARAMETER to offeredLink)
+        Route.HomeSettings, Route.TagSettings, Route.CalendarSettings, Route.About, Route.DeveloperTools -> "/settings/" + SETTINGS_PAGES.entries.first { it.value == this }.key
         is Route.Feed -> when (val feed = feed) {
             is EventFeed.OpenEvntIndex -> withQuery("/feed", "type" to "index", "url" to feed.url)
             is EventFeed.AtRepository -> withQuery("/feed", "type" to "at", "repo" to feed.repo, "collection" to feed.collection)
@@ -65,10 +62,7 @@ fun routeAtWebAddress(url: Url): Route? {
         }
         2 -> when (segments[0]) {
             "event" -> Route.EventDetails(segments[1])
-            "settings" -> when (segments[1]) {
-                CALENDAR_SETTINGS_PAGE -> Route.CalendarSettings(url.parameters[OFFERED_CALENDAR_LINK_PARAMETER])
-                else -> SETTINGS_PAGES[segments[1]]
-            }
+            "settings" -> SETTINGS_PAGES[segments[1]]
             else -> null
         }
         3 -> Route.EditEvent(segments[1]).takeIf { segments[0] == "event" && segments[2] == "edit" }
