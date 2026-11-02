@@ -8,6 +8,16 @@ import kotlin.time.Instant
 
 class CalendarMarksTest {
     @Test
+    fun aMarkerOnADayStaysListedUntilTheDayIsOver() {
+        val doors = CalendarMarker("d", "Doors Open", PartialDate.parse("2026-11-02[Europe/Vilnius]"))
+        val lunch = CalendarMarker("l", "Lunch", PartialDate.parse("2026-11-02T12:00[Europe/Vilnius]"))
+        val marks = CalendarMarks(listOf(doors, lunch), emptyList())
+        assertEquals(listOf(doors), marks.markersBetween(Instant.parse("2026-11-02T12:15:00Z"), null))
+        assertEquals(listOf(doors, lunch), marks.markersBetween(Instant.parse("2026-11-02T10:00:00Z"), null))
+        assertEquals(emptyList(), marks.markersBetween(Instant.parse("2026-11-02T22:00:00Z"), null))
+    }
+
+    @Test
     fun aPeriodOfDaysRunsToTheEndOfItsLastDay() {
         val week = CalendarPeriod("as", "AS week", PartialDate.parse("2026-12-14[Europe/Vilnius]"), PartialDate.parse("2026-12-20[Europe/Vilnius]"))
         assertEquals(Instant.parse("2026-12-13T22:00:00Z"), week.startsAt)

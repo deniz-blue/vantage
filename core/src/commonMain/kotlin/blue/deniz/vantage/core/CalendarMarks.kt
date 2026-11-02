@@ -11,6 +11,7 @@ data class CalendarMarker(val id: String, val label: String, val at: PartialDate
     }
 
     val instant: Instant get() = at.startInstant
+    val endsAt: Instant get() = at.endInstant
 }
 
 @Serializable
@@ -31,7 +32,7 @@ fun PartialDate.isDayOrTime() = this is PartialDate.Day || this is PartialDate.T
 
 data class CalendarMarks(val markers: List<CalendarMarker>, val periods: List<CalendarPeriod>) {
     fun markersBetween(from: Instant?, until: Instant?): List<CalendarMarker> =
-        markers.filter { (from == null || it.instant >= from) && (until == null || it.instant < until) }
+        markers.filter { (from == null || it.instant >= from || it.endsAt > from) && (until == null || it.instant < until) }
 
     fun periodsAt(instant: Instant): List<CalendarPeriod> = periods.filter { instant in it }
 
