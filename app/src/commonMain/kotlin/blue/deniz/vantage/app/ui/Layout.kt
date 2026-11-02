@@ -185,6 +185,15 @@ fun FloatingIconButton(icon: ImageVector, label: String, onClick: () -> Unit, mo
 
 @Composable
 fun FloatingHeader(title: String, onBack: () -> Unit, actions: @Composable RowScope.() -> Unit = {}) {
+    FloatingHeaderRow {
+        IconButton(AppIcons.ArrowLeft, "Back", onBack)
+        Text(title, Modifier.weight(1f).padding(start = Spacing.xs, end = Spacing.sm), maxLines = 1, style = MaterialTheme.typography.titleLarge)
+        actions()
+    }
+}
+
+@Composable
+fun FloatingHeaderRow(content: @Composable RowScope.() -> Unit) {
     Row(
         Modifier.layout { measurable, constraints ->
             val inset = IconButtonInset.roundToPx()
@@ -192,11 +201,8 @@ fun FloatingHeader(title: String, onBack: () -> Unit, actions: @Composable RowSc
             layout(placeable.width - 2 * inset, placeable.height) { placeable.placeRelative(-inset, 0) }
         },
         verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(AppIcons.ArrowLeft, "Back", onBack)
-        Text(title, Modifier.weight(1f).padding(start = Spacing.xs, end = Spacing.sm), maxLines = 1, style = MaterialTheme.typography.titleLarge)
-        actions()
-    }
+        content = content,
+    )
 }
 
 @Composable

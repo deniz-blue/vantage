@@ -274,7 +274,7 @@ fun EventsViewContent(
     topPadding: Dp,
     bottomPadding: Dp,
     emptyText: String = "No events found",
-    listHeader: (LazyGridScope.(EventListing?) -> Unit)? = null,
+    listFooter: (LazyGridScope.(EventListing?) -> Unit)? = null,
     filtersButton: (@Composable () -> Unit)? = null,
     onNewOnDay: ((LocalDate) -> Unit)? = null,
     showsMarkersAndPeriods: Boolean = false,
@@ -286,7 +286,7 @@ fun EventsViewContent(
     when (view) {
         EventsView.List -> {
             val query = remember(search, time, order, state.listsSplitAt) { time.toQuery(state.listsSplitAt, search, order) }
-            EventListView(state, screen, events, query, marks, actions, cards, topPadding, bottomPadding + bottomEndClearance, emptyText, listHeader)
+            EventListView(state, screen, events, query, marks, actions, cards, topPadding, bottomPadding + bottomEndClearance, emptyText, listFooter)
         }
         EventsView.Calendar -> Box(Modifier.padding(bottom = bottomPadding)) {
             CalendarView(state, screen, events, marks, actions, cards, topPadding, filtersButton, onNewOnDay, calendarViewPicker)
@@ -416,7 +416,7 @@ private fun EventListView(
     topPadding: Dp,
     bottomPadding: Dp,
     emptyText: String,
-    header: (LazyGridScope.(EventListing?) -> Unit)?,
+    footer: (LazyGridScope.(EventListing?) -> Unit)?,
 ) {
     val paged = rememberPagedListing("$screen list", events, query)
     val shown = paged.events
@@ -489,7 +489,6 @@ private fun EventListView(
                 }
         }
         EventCardGrid(grid, topPadding = topPadding, bottomPadding = bottomPadding, startGutter = DAY_LINE_GUTTER, decoration = decoration) { cardMinHeight ->
-            header?.invoke(this, paged.listing)
             if (paged.isEmpty && markers.isEmpty() && periods.isEmpty()) {
                 item(key = "no events", span = { GridItemSpan(maxLineSpan) }) { ListPlaceholder(emptyText, Modifier.animateItem()) }
             }
@@ -528,6 +527,7 @@ private fun EventListView(
                 }
             }
             listingStatusItem(paged.listing, paged.retry)
+            footer?.invoke(this, paged.listing)
         }
         if (inDateOrder) {
             if (dayLabels) PinnedAgendaLabel(grid, agenda, pinnedLabelRow.value, topPadding, margin, cards.formatting, guideColors)
@@ -576,9 +576,8 @@ private fun DrawScope.drawDayLine(agenda: Agenda, spans: Map<Int, ClosedFloating
     for ((position, row) in shown.withIndex()) {
         val time = agenda.rowTimes[row]
         val span = spans.getValue(row)
-        val top = if (position == 0 && row > 0 && span.start > 0) span.start - ceil(span.start / (2 * dash)) * 2 * dash else span.start
-        val bottom = shown.getOrNull(position + 1)?.let { spans.getValue(it).start }
-            ?: if (row == agenda.rows.lastIndex) span.endInclusive else size.height
+        val top = if (position == 0 && span.start > 0) span.start - ceil(span.start / (2 * dash)) * 2 * dash else span.start
+        val bottom = shown.getOrNull(position + 1)?.let { spans.getValue(it).start } ?: size.height
         val color = if (time == AgendaTime.Today) colors.today else colors.line
         drawLine(color, Offset(x, top), Offset(x, bottom), width, pathEffect = if (time == AgendaTime.Future || time == AgendaTime.Undated) dashes else null)
     }

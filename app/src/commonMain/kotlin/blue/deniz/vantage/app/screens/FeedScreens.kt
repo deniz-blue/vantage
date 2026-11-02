@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,10 +35,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.EventsView
 import blue.deniz.vantage.app.HomeTile
 import blue.deniz.vantage.app.Route
+import blue.deniz.vantage.app.SystemBackHandler
 import blue.deniz.vantage.app.newHomeTileId
 import blue.deniz.vantage.app.rememberAcrossNavigation
 import blue.deniz.vantage.app.rememberShareText
@@ -49,8 +52,10 @@ import blue.deniz.vantage.app.ui.ContentUnderOverlay
 import blue.deniz.vantage.app.ui.EventCardSelection
 import blue.deniz.vantage.app.ui.FloatingControls
 import blue.deniz.vantage.app.ui.FloatingHeader
+import blue.deniz.vantage.app.ui.FloatingHeaderRow
 import blue.deniz.vantage.app.ui.HeldKeys
 import blue.deniz.vantage.app.ui.IconButton
+import blue.deniz.vantage.app.ui.MenuItem
 import blue.deniz.vantage.app.ui.ScreenHeader
 import blue.deniz.vantage.app.ui.SearchField
 import blue.deniz.vantage.app.ui.SegmentedControl
@@ -66,6 +71,7 @@ import blue.deniz.vantage.core.EventOrder
 import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.EventsLink
 import blue.deniz.vantage.core.ResolvedEvent
+import blue.deniz.vantage.core.SubscribedCalendar
 import blue.deniz.vantage.core.TimeFilter
 import blue.deniz.vantage.core.address
 import io.ktor.http.parseUrl
@@ -118,9 +124,15 @@ fun ChooseFeedScreen(state: AppState) {
 
 @Stable
 private class FeedFilters {
+    var searching by mutableStateOf(false)
     var search by mutableStateOf("")
-    var time by mutableStateOf(TimeFilter.All)
+    var time by mutableStateOf(TimeFilter.Future)
     var order by mutableStateOf(EventOrder.Start)
+
+    fun closeSearch() {
+        searching = false
+        search = ""
+    }
 }
 
 private fun feedScreenKey(feed: EventFeed) = "feed ${feed.address}"
@@ -131,6 +143,10 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
     val view = state.settings.eventsViewOf(screen, EventsView.List)
     val filters = rememberAcrossNavigation("filters $feed") { FeedFilters() }
     var choosingFilters by remember { mutableStateOf(false) }
+    var showingMenu by remember { mutableStateOf(false) }
+    val title = feedTitle(state, feed)
+    val searches = view.searches && filters.searching
+    SystemBackHandler(enabled = searches, handlesEscape = true) { filters.closeSearch() }
     var search by remember { mutableStateOf(filters.search) }
     LaunchedEffect(filters.search) {
         if (filters.search.isNotBlank()) delay(INDEX_SEARCH_DELAY_MILLIS)
@@ -147,19 +163,29 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
                     FloatingControls(backdrop = false) { RemoteEventSelectionBar(state, selection) }
                 } else {
                     FloatingControls {
-                        FloatingHeader(feedTitle(state, feed), onBack = { state.navigator.goBack() }) {
-                            HomeTileToggle(state, feed)
-                            if (!view.searches) IconButton(AppIcons.Filter, "Filters", { choosingFilters = true })
+                        val filtersButton = @Composable {
+                            if (view.filtersByTime || view.sorts) IconButton(AppIcons.Filter, "Filters", { choosingFilters = true })
                         }
-                        if (view.searches) {
-                            SearchField(
-                                value = filters.search,
-                                onValueChange = { filters.search = it },
-                                placeholder = "Search Events",
-                                modifier = Modifier.fillMaxWidth(),
-                                trailing = { IconButton(AppIcons.Filter, "Filters", { choosingFilters = true }) },
-                                floating = false,
-                            )
+                        if (searches) {
+                            FloatingHeaderRow {
+                                IconButton(AppIcons.ArrowLeft, "Close Search", filters::closeSearch)
+                                SearchField(
+                                    value = filters.search,
+                                    onValueChange = { filters.search = it },
+                                    placeholder = "Search $title",
+                                    modifier = Modifier.weight(1f),
+                                    trailing = if (filters.search.isEmpty()) null else ({ IconButton(AppIcons.X, "Clear", { filters.search = "" }) }),
+                                    floating = false,
+                                    focusesWhenShown = true,
+                                )
+                                filtersButton()
+                            }
+                        } else {
+                            FloatingHeader(title, onBack = { state.navigator.goBack() }) {
+                                if (view.searches) IconButton(AppIcons.Search, "Search", { filters.searching = true })
+                                filtersButton()
+                                IconButton(AppIcons.DotsVertical, "More", { showingMenu = true })
+                            }
                         }
                     }
                 }
@@ -179,15 +205,17 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
                 bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + Spacing.md,
                 bottomEndClearance = EventsViewControlsClearance,
                 calendarViewPicker = { EventsViewControls(view, changeView, onNew = null) },
-                listHeader = { listing ->
-                    item(key = "summary", span = { GridItemSpan(maxLineSpan) }) {
-                        Text(
-                            listOfNotNull(feed.address, listing?.countLabel()).joinToString(" · "),
-                            Modifier.animateItem(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                        )
+                listFooter = { listing ->
+                    listing?.countLabel()?.let { count ->
+                        item(key = "count", span = { GridItemSpan(maxLineSpan) }) {
+                            Text(
+                                count,
+                                Modifier.animateItem().fillMaxWidth().padding(vertical = Spacing.md),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 },
             )
@@ -202,6 +230,7 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
         }
     }
     FeedFiltersSheet(state, feed, filters, visible = choosingFilters, onDismiss = { choosingFilters = false })
+    FeedMenuSheet(state, feed, title, visible = showingMenu, onDismiss = { showingMenu = false })
 }
 
 @Composable
@@ -252,29 +281,52 @@ private fun FeedFiltersSheet(state: AppState, feed: EventFeed, filters: FeedFilt
 }
 
 @Composable
-private fun HomeTileToggle(state: AppState, feed: EventFeed) {
+private fun FeedMenuSheet(state: AppState, feed: EventFeed, title: String, visible: Boolean, onDismiss: () -> Unit) {
     val tiles = state.settings.homeTiles
     val onHome = tiles.any { it is HomeTile.Feed && it.feed == feed }
+    val calendarLink = (feed as? EventFeed.OpenEvntIndex)?.let { SubscribedCalendar.Link(it.url) }
+    val subscribed = calendarLink != null && calendarLink in state.settings.subscribedCalendars
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
     var failure by remember { mutableStateOf<String?>(null) }
-    fun addToHome() = state.settings.changeHomeTiles(tiles + HomeTile.Feed(newHomeTileId(), feed))
-    if (onHome) {
-        TextButton(onClick = { state.settings.changeHomeTiles(tiles.filterNot { it is HomeTile.Feed && it.feed == feed }) }) {
-            Text("Remove from Home")
+    fun addToHome() = state.settings.changeHomeTiles(state.settings.homeTiles + HomeTile.Feed(newHomeTileId(), feed))
+    BottomSheet(visible, onDismiss) {
+        Column(Modifier.padding(horizontal = Spacing.md).padding(bottom = Spacing.sm)) {
+            Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+            SelectionContainer {
+                Text(feed.address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
-    } else {
-        TextButton(
-            onClick = {
+        if (onHome) {
+            MenuItem("Remove from Home", leadingIcon = AppIcons.Home, onClick = {
+                state.settings.changeHomeTiles(tiles.filterNot { it is HomeTile.Feed && it.feed == feed })
+                onDismiss()
+                state.offerUndo("Removed from Home") { state.settings.changeHomeTiles(tiles) }
+            })
+        } else {
+            MenuItem("Add to Home", leadingIcon = AppIcons.Home, busy = checking, enabled = !checking, onClick = {
                 checking = true
                 scope.launch {
                     val read = loadCatching { state.feeds.readEvents(feed) }
                     checking = false
+                    onDismiss()
                     if (read is LoadState.Failed) failure = read.message else addToHome()
                 }
-            },
-            enabled = !checking,
-        ) { Text("Add to Home") }
+            })
+        }
+        if (calendarLink != null) {
+            if (subscribed) {
+                MenuItem("Unsubscribe", leadingIcon = AppIcons.Rss, onClick = {
+                    onDismiss()
+                    state.calendars.unsubscribe(calendarLink) { removed -> state.offerUndo("Unsubscribed") { state.calendars.restore(removed) } }
+                })
+            } else {
+                MenuItem("Subscribe", leadingIcon = AppIcons.Rss, onClick = {
+                    onDismiss()
+                    state.calendars.subscribe(calendarLink)
+                })
+            }
+        }
     }
     BottomSheet(item = failure, onDismiss = { failure = null }) { message ->
         Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
