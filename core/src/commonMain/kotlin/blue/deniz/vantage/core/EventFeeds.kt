@@ -32,10 +32,10 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 
 private const val AT_RECORDS_PER_PAGE = 50
-private const val INDEX_ITEMS_TO_RESOLVE = 200
+internal const val INDEX_ITEMS_TO_RESOLVE = 200
 private const val AT_PAGES_TO_READ = 20
-private const val INDEX_PAGES_TO_READ = 20
-private const val INDEX_EVENTS_RESOLVED_AT_ONCE = 8
+internal const val INDEX_PAGES_TO_READ = 20
+internal const val INDEX_EVENTS_RESOLVED_AT_ONCE = 8
 private const val OPEN_EVNT_INDEX_VERSION = 1
 private val FEED_FRESH_FOR = 10.minutes
 
@@ -79,6 +79,7 @@ class EventFeedReader(
     private val resolver: EventResolver,
     private val clock: Clock = Clock.System,
     private val previews: EventPreviews = EventPreviews(resolver, clock),
+    private val snapshots: FeedSnapshots? = null,
 ) {
     private val identity = AtIdentityResolver(client)
     private val actors = ResultCache<String, AtActor>(FEED_FRESH_FOR, clock)
@@ -87,21 +88,7 @@ class EventFeedReader(
     private val feedEvents = ResultCache<EventFeed, List<ResolvedEvent>>(FEED_FRESH_FOR, clock)
 
     suspend fun readIndexPage(url: String): OpenEvntIndexPage = indexPages.freshOrLoad(url) {
-        val index = parseJsonObject(client.getOk(url).bodyAsText(), "The index")
-        val version = (index["version"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
-        if (version != OPEN_EVNT_INDEX_VERSION) {
-            failure(EventError.Kind.UnknownFormat, "The index is version ${index["version"] ?: "none"}, and only version $OPEN_EVNT_INDEX_VERSION is known")
-        }
-        val items = (index["items"] as? JsonArray).orEmpty().filterIsInstance<JsonObject>().mapNotNull { item ->
-            val href = item["href"].stringOrNull()?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-            OpenEvntIndexItem(resolveAgainstDomain(url, href), item["name"].translationsOrNull())
-        }.distinctBy { it.url }
-        OpenEvntIndexPage(
-            items,
-            next = index["next"].stringOrNull()?.takeIf { it.isNotBlank() }?.let { resolveAgainstDomain(url, it) },
-            total = (index["total"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull,
-            supports = (index["supports"] as? JsonArray).orEmpty().mapNotNull { it.stringOrNull() }.toSet(),
-        )
+        parseOpenEvntIndexPage(url, client.getOk(url).bodyAsText())
     }
 
     @OptIn(ExperimentalAtomicApi::class)
@@ -140,13 +127,13 @@ class EventFeedReader(
 
     fun lastResolvedActor(handleOrDid: String): AtActor? = actors.last(handleOrDid)
 
-    fun lastReadEvents(feed: EventFeed): List<ResolvedEvent>? = feedEvents.last(feed)
+    fun lastReadEvents(feed: EventFeed): List<ResolvedEvent>? = feedEvents.last(feed) ?: snapshots?.load(feed)
 
     suspend fun readEvents(feed: EventFeed): List<ResolvedEvent> = feedEvents.freshOrLoad(feed) {
         when (feed) {
             is EventFeed.OpenEvntIndex -> readIndexEntries(feed.url, EventQuery(from = clock.now())).entries.mapNotNull { it.event }
             is EventFeed.AtRepository -> listAtEvents(resolveActor(feed.repo), feed.collection).events
-        }
+        }.also { events -> snapshots?.save(feed, events) }
     }
 
     fun eventsOf(feed: EventFeed, preferredLanguages: List<String>): EventCollection = FeedEvents(this, feed, preferredLanguages)
@@ -281,10 +268,28 @@ class EventFeedReader(
         }
         return AtEventPage(events, page["cursor"].stringOrNull()?.takeIf { it.isNotEmpty() })
     }
-
-    private fun resolveAgainstDomain(indexUrl: String, link: String): String =
-        if (isHttpUrl(link)) link else (parseUrl(indexUrl)?.protocolWithAuthority ?: "") + "/" + link.removePrefix("/")
 }
+
+internal fun parseOpenEvntIndexPage(url: String, text: String): OpenEvntIndexPage {
+    val index = parseJsonObject(text, "The index")
+    val version = (index["version"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
+    if (version != OPEN_EVNT_INDEX_VERSION) {
+        failure(EventError.Kind.UnknownFormat, "The index is version ${index["version"] ?: "none"}, and only version $OPEN_EVNT_INDEX_VERSION is known")
+    }
+    val items = (index["items"] as? JsonArray).orEmpty().filterIsInstance<JsonObject>().mapNotNull { item ->
+        val href = item["href"].stringOrNull()?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+        OpenEvntIndexItem(resolveAgainstDomain(url, href), item["name"].translationsOrNull())
+    }.distinctBy { it.url }
+    return OpenEvntIndexPage(
+        items,
+        next = index["next"].stringOrNull()?.takeIf { it.isNotBlank() }?.let { resolveAgainstDomain(url, it) },
+        total = (index["total"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull,
+        supports = (index["supports"] as? JsonArray).orEmpty().mapNotNull { it.stringOrNull() }.toSet(),
+    )
+}
+
+private fun resolveAgainstDomain(indexUrl: String, link: String): String =
+    if (isHttpUrl(link)) link else (parseUrl(indexUrl)?.protocolWithAuthority ?: "") + "/" + link.removePrefix("/")
 
 private fun OpenEvntIndexItem.link(): ResolvedEvent = ResolvedEvent.fromLink(url) ?: ResolvedEvent(source = EventSource.Http(url))
 

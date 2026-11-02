@@ -162,7 +162,7 @@ fun SettingsScreen(state: AppState) {
             SubpageRow("Home", AppIcons.Home, supporting = tileCountLabel(settings.homeTiles.size)) { state.navigator.open(Route.HomeSettings) }
             SubpageRow("Tags", AppIcons.Tag, supporting = tagCount?.size?.let(::tagCountLabel)) { state.navigator.open(Route.TagSettings) }
             SubpageRow("System Calendars", AppIcons.Calendar, supporting = calendarCountLabel(settings.subscribedCalendars.size)) {
-                state.navigator.open(Route.CalendarSettings)
+                state.navigator.open(Route.CalendarSettings())
             }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
@@ -300,15 +300,15 @@ private fun calendarCountLabel(count: Int) = when (count) {
 }
 
 @Composable
-fun CalendarSettingsScreen(state: AppState) {
+fun CalendarSettingsScreen(state: AppState, offeredLink: String?) {
     val sync = state.calendars
     val subscribed = state.settings.subscribedCalendars
     val device = sync.deviceCalendars
     var permitted by remember { mutableStateOf(device?.hasPermission() == true) }
     val requestPermission = rememberCalendarPermissionRequest { granted -> permitted = granted }
     val deviceCalendars = collectAcrossSession("phone calendars", permitted) { flow { emit(if (permitted) device?.list() else null) } }
-    var linkAddress by rememberSaveable { mutableStateOf("") }
-    var showsLinkProblem by rememberSaveable { mutableStateOf(false) }
+    var linkAddress by rememberSaveable { mutableStateOf(offeredLink.orEmpty()) }
+    var showsLinkProblem by rememberSaveable { mutableStateOf(offeredLink != null) }
     fun newLinkFrom(address: String) = SubscribedCalendar.linkFromAddress(address)?.takeIf { it !in subscribed }
     val link = newLinkFrom(linkAddress)
     val linkProblem = when {
@@ -361,7 +361,7 @@ fun CalendarSettingsScreen(state: AppState) {
             }
         }
 
-        val links = subscribed.filterIsInstance<SubscribedCalendar.ICalendarLink>()
+        val links = subscribed.filterIsInstance<SubscribedCalendar.Link>()
         if (links.isEmpty()) {
             SectionTitle("Calendar Links", Modifier.padding(start = Spacing.md, end = Spacing.md, top = Spacing.lg, bottom = Spacing.xs))
         } else ListSection(Modifier.padding(top = Spacing.md), title = "Calendar Links") {
@@ -389,7 +389,7 @@ fun CalendarSettingsScreen(state: AppState) {
                 onValueChange = { linkAddress = it },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = "https://….ics or webcal://…",
-                supportingText = "Google Calendar's \"Secret address in iCal format\" works here",
+                supportingText = "An iCalendar link, like Google Calendar's \"Secret address in iCal format\", or an Open Evnt index",
                 problem = linkProblem,
                 showsProblem = showsLinkProblem,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),

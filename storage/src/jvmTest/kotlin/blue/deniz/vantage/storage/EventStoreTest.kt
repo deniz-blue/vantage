@@ -434,7 +434,7 @@ class EventStoreTest {
 
     @Test
     fun syncsACalendarKeepingIdsAndDroppingWhatIsGone() = runTest {
-        val calendar = SubscribedCalendar.ICalendarLink("https://example.com/uni.ics")
+        val calendar = SubscribedCalendar.Link("https://example.com/uni.ics")
         fun entry(uid: String, name: String) = CalendarEntry(uid, OpenEvnt.parse(openEvnt(name, "2026-11-02[Europe/Vilnius]")))
         local("Mine", "2026-11-01[Europe/Vilnius]")
 
@@ -454,7 +454,7 @@ class EventStoreTest {
 
     @Test
     fun aForgottenCalendarComesBackWithItsTagsAndHiddenEvents() = runTest {
-        val calendar = SubscribedCalendar.ICalendarLink("https://example.com/uni.ics")
+        val calendar = SubscribedCalendar.Link("https://example.com/uni.ics")
         fun entry(uid: String, name: String) = CalendarEntry(uid, OpenEvnt.parse(openEvnt(name, "2026-11-02[Europe/Vilnius]")))
         store.syncCalendar(calendar, listOf(entry("a", "Physics"), entry("b", "Math")))
         val physicsId = assertNotNull(store.findStoredCopyId(ResolvedEvent(source = EventSource.Calendar(calendar, "a"))))

@@ -18,6 +18,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import java.io.File
 import java.io.IOException
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.mutableStateOf
@@ -31,10 +32,11 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import blue.deniz.vantage.core.EventFeedReader
 import blue.deniz.vantage.core.EventFetcher
 import blue.deniz.vantage.core.EventPreviews
+import blue.deniz.vantage.core.StoredFeedSnapshots
 import blue.deniz.vantage.core.EventsLink
 import blue.deniz.vantage.core.EventResolver
 import blue.deniz.vantage.core.FolioClient
-import blue.deniz.vantage.core.ICalendarLinkReader
+import blue.deniz.vantage.core.CalendarLinkReader
 import blue.deniz.vantage.core.MapLinks
 import blue.deniz.vantage.core.MapPlace
 import blue.deniz.vantage.core.PlaceSearch
@@ -43,6 +45,7 @@ import blue.deniz.vantage.storage.EventStore
 import blue.deniz.vantage.storage.VantageDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import okhttp3.Cache
 import java.util.IllformedLocaleException
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -159,6 +162,7 @@ private class SharedPreferencesStorage(private val preferences: SharedPreference
     }
 }
 
+private const val HTTP_CACHE_BYTES = 20L * 1024 * 1024
 
 fun createAppState(context: Context, backgroundChecks: BackgroundEventChecks? = null): AppState {
     val database = Room.databaseBuilder<VantageDatabase>(context, context.getDatabasePath("vantage.db").absolutePath)
@@ -166,17 +170,19 @@ fun createAppState(context: Context, backgroundChecks: BackgroundEventChecks? = 
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()
     val settingsStorage = SharedPreferencesStorage(context.getSharedPreferences("vantage-settings", Context.MODE_PRIVATE))
-    val client = HttpClient(OkHttp)
+    val client = HttpClient(OkHttp) {
+        engine { config { cache(Cache(File(context.cacheDir, "http"), HTTP_CACHE_BYTES)) } }
+    }
     val resolver = EventResolver(EventFetcher(client))
     val previews = EventPreviews(resolver)
     return AppState(
         EventStore(database, resolver, FolioClient(client)),
-        EventFeedReader(client, resolver, previews = previews),
+        EventFeedReader(client, resolver, previews = previews, snapshots = StoredFeedSnapshots(settingsStorage::read, settingsStorage::write, resolver)),
         previews,
         PlaceSearch(client),
         WeatherForecasts(client),
         settingsStorage,
-        ICalendarLinkReader(client),
+        CalendarLinkReader(client),
         AndroidDeviceCalendars(context),
         AndroidPhoneCalendarCopy(context),
         backgroundChecks,

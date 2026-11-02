@@ -22,7 +22,7 @@ sealed interface Route {
     data class EditFromLink(val request: EventsLink.EditRequest) : Form
     data object HomeSettings : Route
     data object TagSettings : Route
-    data object CalendarSettings : Route
+    data class CalendarSettings(val offeredLink: String? = null) : Route
     data object About : Route
     data object DeveloperTools : Route
 }

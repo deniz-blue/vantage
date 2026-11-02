@@ -849,7 +849,7 @@ private fun sourceLabelOf(source: EventSource) = when (source) {
     is EventSource.WebDav -> "WebDAV"
     is EventSource.Calendar -> when (source.calendar) {
         is SubscribedCalendar.OnDevice -> "Calendar on This Phone"
-        is SubscribedCalendar.ICalendarLink -> "Calendar Link"
+        is SubscribedCalendar.Link -> "Calendar Link"
     }
 }
 

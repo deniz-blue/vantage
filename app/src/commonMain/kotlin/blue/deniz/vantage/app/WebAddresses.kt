@@ -8,10 +8,12 @@ import io.ktor.http.encodeURLPathPart
 import io.ktor.http.formUrlEncode
 import kotlinx.datetime.LocalDate
 
+private const val CALENDAR_SETTINGS_PAGE = "calendars"
+private const val OFFERED_CALENDAR_LINK_PARAMETER = "subscribe"
+
 private val SETTINGS_PAGES = mapOf(
     "home" to Route.HomeSettings,
     "tags" to Route.TagSettings,
-    "calendars" to Route.CalendarSettings,
     "about" to Route.About,
     "developer-tools" to Route.DeveloperTools,
 )
@@ -27,17 +29,20 @@ val Route.webAddress: String?
             withQuery("/edit", "url" to event.url, "at" to event.at, "data" to event.data, "return" to returnUrl, "state" to state)
         }
         is Route.EventFromLink -> withQuery("/event", "url" to intent.url, "at" to intent.at, "data" to intent.data)
-        is Route.CreateEvent -> if (sharedText == null && day == null) "/new" else withQuery("/new", "text" to sharedText, "day" to day?.toString())
+        is Route.CreateEvent -> withQuery("/new", "text" to sharedText, "day" to day?.toString())
         Route.ChooseFeed -> "/feed"
-        Route.HomeSettings, Route.TagSettings, Route.CalendarSettings, Route.About, Route.DeveloperTools -> "/settings/" + SETTINGS_PAGES.entries.first { it.value == this }.key
+        Route.HomeSettings, Route.TagSettings, Route.About, Route.DeveloperTools -> "/settings/" + SETTINGS_PAGES.entries.first { it.value == this }.key
+        is Route.CalendarSettings -> withQuery("/settings/$CALENDAR_SETTINGS_PAGE", OFFERED_CALENDAR_LINK_PARAMETER to offeredLink)
         is Route.Feed -> when (val feed = feed) {
             is EventFeed.OpenEvntIndex -> withQuery("/feed", "type" to "index", "url" to feed.url)
             is EventFeed.AtRepository -> withQuery("/feed", "type" to "at", "repo" to feed.repo, "collection" to feed.collection)
         }
     }
 
-private fun withQuery(path: String, vararg parameters: Pair<String, String?>) =
-    path + "?" + parameters.filter { it.second != null }.formUrlEncode()
+private fun withQuery(path: String, vararg parameters: Pair<String, String?>): String {
+    val given = parameters.filter { it.second != null }
+    return if (given.isEmpty()) path else path + "?" + given.formUrlEncode()
+}
 
 fun routeAtWebAddress(url: Url): Route? {
     EventsLink.parseEditRequest(url)?.let { return Route.EditFromLink(it) }
@@ -55,7 +60,10 @@ fun routeAtWebAddress(url: Url): Route? {
         }
         2 -> when (segments[0]) {
             "event" -> Route.EventDetails(segments[1])
-            "settings" -> SETTINGS_PAGES[segments[1]]
+            "settings" -> when (segments[1]) {
+                CALENDAR_SETTINGS_PAGE -> Route.CalendarSettings(url.parameters[OFFERED_CALENDAR_LINK_PARAMETER])
+                else -> SETTINGS_PAGES[segments[1]]
+            }
             else -> null
         }
         3 -> Route.EditEvent(segments[1]).takeIf { segments[0] == "event" && segments[2] == "edit" }

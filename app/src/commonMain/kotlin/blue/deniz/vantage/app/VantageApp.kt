@@ -135,7 +135,7 @@ import blue.deniz.vantage.core.AppSchemes
 import blue.deniz.vantage.core.DeviceCalendars
 import blue.deniz.vantage.core.EventFeedReader
 import blue.deniz.vantage.core.ResolvedEvent
-import blue.deniz.vantage.core.ICalendarLinkReader
+import blue.deniz.vantage.core.CalendarLinkReader
 import blue.deniz.vantage.core.EventPreviews
 import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.PlaceSearch
@@ -162,7 +162,7 @@ class AppState(
     val places: PlaceSearch,
     val weather: WeatherForecasts,
     settingsStorage: KeyValueStorage,
-    calendarLinks: ICalendarLinkReader,
+    calendarLinks: CalendarLinkReader,
     deviceCalendars: DeviceCalendars?,
     val phoneCalendarCopy: PhoneCalendarCopy? = null,
     val backgroundChecks: BackgroundEventChecks? = null,
@@ -606,7 +606,7 @@ fun VantageApp(state: AppState) {
                                                 is Route.EditFromLink -> EditFromLinkScreen(state, route.request)
                                                 Route.HomeSettings -> HomeSettingsScreen(state)
                                                 Route.TagSettings -> TagSettingsScreen(state)
-                                                Route.CalendarSettings -> CalendarSettingsScreen(state)
+                                                is Route.CalendarSettings -> CalendarSettingsScreen(state, route.offeredLink)
                                                 Route.About -> AboutScreen(state)
                                                 Route.DeveloperTools -> DeveloperToolsScreen(state)
                                             }

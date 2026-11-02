@@ -53,7 +53,7 @@ class BackupTest {
 
     @Test
     fun aBackupCarriesEventsTagsMarksAndHiddenEventsToAnotherInstall() = runTest {
-        val calendar = SubscribedCalendar.ICalendarLink("https://example.com/uni.ics")
+        val calendar = SubscribedCalendar.Link("https://example.com/uni.ics")
         val picnic = exporting.addFrom(EventSource.Local(), "Picnic", "2026-07-10[Europe/Vilnius]")
         exporting.addFrom(EventSource.Http("https://example.com/talk.json"), "Talk", "2026-11-12T18:00[Europe/Vilnius]")
         exporting.addFrom(EventSource.Local(isTestEvent = true), "Test Event", "2026-11-13[Europe/Vilnius]")

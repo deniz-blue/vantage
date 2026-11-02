@@ -9,7 +9,7 @@ import blue.deniz.vantage.app.screens.LoadState
 import blue.deniz.vantage.app.screens.loadCatching
 import blue.deniz.vantage.core.DeviceCalendars
 import blue.deniz.vantage.core.EventSource
-import blue.deniz.vantage.core.ICalendarLinkReader
+import blue.deniz.vantage.core.CalendarLinkReader
 import blue.deniz.vantage.core.SubscribedCalendar
 import blue.deniz.vantage.storage.EventStore
 import blue.deniz.vantage.storage.ForgottenCalendar
@@ -36,7 +36,7 @@ class RemovedSubscription(val position: Int, val forgotten: ForgottenCalendar)
 @Stable
 class CalendarSync(
     private val store: EventStore,
-    private val links: ICalendarLinkReader,
+    private val links: CalendarLinkReader,
     val deviceCalendars: DeviceCalendars?,
     private val settings: AppSettings,
     private val clock: Clock,
@@ -46,7 +46,7 @@ class CalendarSync(
     var lastSyncedAt by mutableStateOf<Instant?>(null)
         private set
     val failures = mutableStateMapOf<SubscribedCalendar, String>()
-    val linkNames = mutableStateMapOf<SubscribedCalendar.ICalendarLink, String>()
+    val linkNames = mutableStateMapOf<SubscribedCalendar.Link, String>()
     private val deviceCalendarColors = mutableStateMapOf<SubscribedCalendar.OnDevice, Int>()
 
     private val scope = MainScope()
@@ -106,7 +106,7 @@ class CalendarSync(
         val options = ConvertOptions(language = settings.contentLanguage, timeZoneId = zone.id)
         val loaded = loadCatching {
             when (calendar) {
-                is SubscribedCalendar.ICalendarLink -> withContext(Dispatchers.Default) { links.read(calendar, within, options) }
+                is SubscribedCalendar.Link -> withContext(Dispatchers.Default) { links.read(calendar, within, options) }
                     .also { contents -> contents.name?.let { linkNames[calendar] = it } }
                     .entries
                 is SubscribedCalendar.OnDevice -> {

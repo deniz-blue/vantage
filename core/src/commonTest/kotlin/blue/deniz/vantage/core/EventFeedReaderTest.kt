@@ -48,6 +48,22 @@ class EventFeedReaderTest {
     }
 
     @Test
+    fun aFeedReadBeforeIsShownFromItsSnapshotUntilItIsReadAgain() = runTest {
+        val feed = EventFeed.OpenEvntIndex("https://example.com/index.json")
+        val server = FakeServer(mapOf(
+            feed.url to { respond("""{"version":1,"items":[{"href":"/picnic.evnt.json"}]}""") },
+            "https://example.com/picnic.evnt.json" to {
+                respond("""{"v":"0.2","id":"urn:uuid:7","name":{"en":"Picnic"},"occurrences":[{"start":"2099-07-10[Europe/Vilnius]"}]}""")
+            },
+        ))
+        val stored = mutableMapOf<String, String>()
+        val snapshots = StoredFeedSnapshots(stored::get, stored::set, server.resolver())
+        EventFeedReader(server.client, server.resolver(), snapshots = snapshots).readEvents(feed)
+        val restarted = EventFeedReader(server.client, server.resolver(), snapshots = snapshots)
+        assertEquals(listOf(mapOf("en" to "Picnic")), restarted.lastReadEvents(feed)?.map { it.data?.name })
+    }
+
+    @Test
     fun aFeedIsReadAgainOnlyOnceItIsStale() = runTest {
         val feedUrl = "https://example.com/index.json"
         val server = FakeServer(mapOf(

@@ -9,9 +9,10 @@ import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import blue.deniz.vantage.core.EventFeedReader
 import blue.deniz.vantage.core.EventFetcher
 import blue.deniz.vantage.core.EventPreviews
+import blue.deniz.vantage.core.StoredFeedSnapshots
 import blue.deniz.vantage.core.EventResolver
 import blue.deniz.vantage.core.FolioClient
-import blue.deniz.vantage.core.ICalendarLinkReader
+import blue.deniz.vantage.core.CalendarLinkReader
 import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
 import blue.deniz.vantage.storage.EventStore
@@ -49,12 +50,12 @@ fun main() {
     val previews = EventPreviews(resolver)
     val state = AppState(
         EventStore(database, resolver, FolioClient(client)),
-        EventFeedReader(client, resolver, previews = previews),
+        EventFeedReader(client, resolver, previews = previews, snapshots = StoredFeedSnapshots(BrowserLocalStorage::read, BrowserLocalStorage::write, resolver)),
         previews,
         PlaceSearch(client),
         WeatherForecasts(client),
         BrowserLocalStorage,
-        ICalendarLinkReader(client),
+        CalendarLinkReader(client),
         deviceCalendars = null,
     )
     state.openLink(window.location.href)
