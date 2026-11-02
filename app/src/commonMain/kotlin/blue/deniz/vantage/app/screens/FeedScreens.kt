@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,8 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -47,7 +44,8 @@ import blue.deniz.vantage.app.rememberShareText
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.Button
-import blue.deniz.vantage.app.ui.ContentMaxWidth
+import blue.deniz.vantage.app.ui.SheetTitle
+import blue.deniz.vantage.app.ui.focusesWhenShown
 import blue.deniz.vantage.app.ui.ContentUnderOverlay
 import blue.deniz.vantage.app.ui.EventCardSelection
 import blue.deniz.vantage.app.ui.FloatingControls
@@ -56,7 +54,6 @@ import blue.deniz.vantage.app.ui.FloatingHeaderRow
 import blue.deniz.vantage.app.ui.HeldKeys
 import blue.deniz.vantage.app.ui.IconButton
 import blue.deniz.vantage.app.ui.MenuItem
-import blue.deniz.vantage.app.ui.ScreenHeader
 import blue.deniz.vantage.app.ui.SearchField
 import blue.deniz.vantage.app.ui.SegmentedControl
 import blue.deniz.vantage.app.ui.Spacing
@@ -84,31 +81,30 @@ private const val INDEX_SEARCH_DELAY_MILLIS = 400L
 internal const val FEED_ADDRESS_PROBLEM = "Feed addresses start with https:// or are a handle like alice.bsky.social"
 
 @Composable
-fun ChooseFeedScreen(state: AppState) {
+fun ChooseFeedSheet(state: AppState) {
     var address by rememberSaveable { mutableStateOf("") }
     var showsAddressProblem by rememberSaveable { mutableStateOf(false) }
     val feed = EventFeed.fromAddress(address)
     val addressProblem = FEED_ADDRESS_PROBLEM.takeIf { address.isNotBlank() && feed == null }
-    val focus = remember { FocusRequester() }
     fun open() {
         val opened = EventFeed.fromAddress(address)
         if (opened == null) {
             showsAddressProblem = true
             return
         }
+        state.closeChooseFeedSheet()
+        address = ""
+        showsAddressProblem = false
         state.navigator.open(Route.Feed(opened))
     }
 
-    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        ScreenHeader("Browse a Feed", onBack = { state.navigator.goBack() })
-        Column(
-            Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth().padding(Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.sm),
-        ) {
+    BottomSheet(visible = state.chooseFeedSheetOpen, onDismiss = state::closeChooseFeedSheet) {
+        SheetTitle("Browse a Feed", Modifier.padding(horizontal = Spacing.md))
+        Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             TextInput(
                 value = address,
                 onValueChange = { address = it },
-                modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                modifier = Modifier.fillMaxWidth().focusesWhenShown(),
                 label = "Feed Address",
                 placeholder = "https://… or alice.bsky.social",
                 problem = addressProblem,
@@ -119,7 +115,6 @@ fun ChooseFeedScreen(state: AppState) {
             feed?.let { Button("View Feed", onClick = ::open, primary = true, modifier = Modifier.fillMaxWidth()) }
         }
     }
-    LaunchedEffect(Unit) { focus.requestFocus() }
 }
 
 @Stable

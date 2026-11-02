@@ -15,7 +15,6 @@ sealed interface Route {
     data object Settings : Tab
     data class EventDetails(val id: String, val openedFromCard: Boolean = false) : Route
     data class EventFromLink(val intent: EventsLink.Intent) : Route
-    data object ChooseFeed : Route
     data class Feed(val feed: EventFeed) : Route
     data class CreateEvent(val sharedText: String? = null, val day: LocalDate? = null, val draft: OpenEvnt? = null) : Form
     data class EditEvent(val id: String, val draft: OpenEvnt? = null) : Form

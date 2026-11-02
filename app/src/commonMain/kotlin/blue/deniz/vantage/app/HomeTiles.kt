@@ -1,7 +1,10 @@
 package blue.deniz.vantage.app
 
+import blue.deniz.vantage.app.ui.displayName
 import blue.deniz.vantage.core.EventFeed
+import blue.deniz.vantage.core.coordinates
 import directory.evnt.OpenEvnt
+import directory.evnt.Venue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -26,9 +29,9 @@ sealed interface HomeTile {
         val layout: EventCardStyle = EventCardStyle.Rows,
     ) : HomeTile
 
-    data class Weather(override val id: String, val place: WeatherPlace? = null) : HomeTile
+    data class Weather(override val id: String, val place: NamedPlace? = null) : HomeTile
 
-    data class Periods(override val id: String) : HomeTile
+    data class AtAGlance(override val id: String) : HomeTile
 
     data class Feed(
         override val id: String,
@@ -40,15 +43,31 @@ sealed interface HomeTile {
     data class AndroidApp(override val id: String) : HomeTile
 }
 
-data class WeatherPlace(val name: String, val latitude: Double, val longitude: Double)
+data class NamedPlace(val name: String, val latitude: Double, val longitude: Double)
+
+fun Venue.namedPlace(preferredLanguages: List<String>): NamedPlace? =
+    coordinates?.let { NamedPlace(displayName(preferredLanguages) ?: address ?: "Unnamed Place", it.latitude, it.longitude) }
+
+fun namedPlaceToJson(place: NamedPlace): String = buildJsonObject {
+    put("name", place.name)
+    put("latitude", place.latitude)
+    put("longitude", place.longitude)
+}.toString()
+
+fun namedPlaceOfJson(text: String): NamedPlace? {
+    val place = runCatching { Json.parseToJsonElement(text) as? JsonObject }.getOrNull() ?: return null
+    val name = (place["name"] as? JsonPrimitive)?.takeIf { it.isString }?.content ?: return null
+    val latitude = (place["latitude"] as? JsonPrimitive)?.doubleOrNull ?: return null
+    val longitude = (place["longitude"] as? JsonPrimitive)?.doubleOrNull ?: return null
+    return NamedPlace(name, latitude, longitude)
+}
 
 @OptIn(ExperimentalUuidApi::class)
 fun newHomeTileId() = Uuid.random().toString()
 
 val DEFAULT_HOME_TILES: List<HomeTile> = listOfNotNull(
     HomeTile.AndroidApp("android-app").takeIf { offersAndroidAppTile },
-    HomeTile.Weather("weather"),
-    HomeTile.Periods("periods"),
+    HomeTile.AtAGlance("at-a-glance"),
     HomeTile.UpcomingEvents("upcoming", layout = EventCardStyle.Posters),
 )
 
@@ -73,7 +92,7 @@ fun homeTilesToJson(tiles: List<HomeTile>): String = buildJsonArray {
                         put("longitude", place.longitude)
                     }
                 }
-                is HomeTile.Periods -> put("type", "periods")
+                is HomeTile.AtAGlance -> put("type", "atAGlance")
                 is HomeTile.AndroidApp -> put("type", "androidApp")
                 is HomeTile.Feed -> {
                     put("type", "feed")
@@ -110,9 +129,9 @@ private fun homeTileOfJson(tile: JsonObject): HomeTile? {
             val name = text("place")
             val latitude = number("latitude")
             val longitude = number("longitude")
-            HomeTile.Weather(id, if (name != null && latitude != null && longitude != null) WeatherPlace(name, latitude, longitude) else null)
+            HomeTile.Weather(id, if (name != null && latitude != null && longitude != null) NamedPlace(name, latitude, longitude) else null)
         }
-        "periods" -> HomeTile.Periods(id)
+        "atAGlance", "periods" -> HomeTile.AtAGlance(id)
         "androidApp" -> HomeTile.AndroidApp(id)
         "feed" -> {
             val openEvntIndex = text("openEvntIndex")

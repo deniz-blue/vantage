@@ -90,7 +90,7 @@ import kotlinx.datetime.TimeZone
 import blue.deniz.vantage.app.ui.ContentMaxWidth
 import kotlinx.coroutines.flow.flow
 
-private enum class SettingsSheet { Language, TimeZone, Accent }
+private enum class SettingsSheet { Language, TimeZone, MyLocation, Accent }
 
 private data class AppLink(val label: String, val url: String)
 
@@ -137,6 +137,13 @@ fun SettingsScreen(state: AppState) {
             }
 
             ListRow(
+                "My Location",
+                icon = AppIcons.MapPin,
+                supporting = settings.myLocation?.name ?: "From Time Zone",
+                onClick = { openSheet = SettingsSheet.MyLocation },
+            )
+
+            ListRow(
                 "Accent",
                 leading = { ColorDot(MaterialTheme.colorScheme.primary) },
                 supporting = settings.themeAccent.name,
@@ -176,6 +183,7 @@ fun SettingsScreen(state: AppState) {
             settings.changeTimeZone(TimeZone.of(picked))
         }
     }
+    MyLocationSheet(state, openSheet == SettingsSheet.MyLocation, onDismiss = { openSheet = null })
 }
 
 private fun backupCountsLabel(counts: BackupCounts) = listOf(

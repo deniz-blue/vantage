@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -479,7 +478,7 @@ private fun EventListView(
                     val layout = grid.layoutInfo
                     when {
                         actions.isSelecting && columns == 1 -> drawSelectionChecks(layout, eventsByKey, actions, margin, checkColors)
-                        inDateOrder -> drawAgendaGuides(layout, agenda, markerIcon, guideColors, pinnedLabelRow.value, listTop = topPadding.toPx())
+                        inDateOrder -> drawAgendaGuides(layout, agenda, markerIcon, guideColors, pinnedLabelRow.value)
                     }
                 }
                 .selectsByDragging(grid, topPadding, eventAt, { currentShown }, { currentActions }) { haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
@@ -542,7 +541,7 @@ private fun EventListView(
 
 private class AgendaGuideColors(val marker: Color, val line: Color, val dot: Color, val today: Color, val background: Color)
 
-private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agenda, markerIcon: Painter, colors: AgendaGuideColors, pinnedLabelRow: Int?, listTop: Float) {
+private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agenda, markerIcon: Painter, colors: AgendaGuideColors, pinnedLabelRow: Int?) {
     val spans = HashMap<Int, ClosedFloatingPointRange<Float>>()
     for (item in layout.visibleItemsInfo) {
         val row = agenda.rowIndexOf(item.key) ?: continue
@@ -551,7 +550,7 @@ private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agend
         spans[row] = spans[row]?.let { minOf(it.start, span.start)..maxOf(it.endInclusive, span.endInclusive) } ?: span
     }
     if (spans.isEmpty()) return
-    clipRect(top = listTop) { drawDayLine(agenda, spans, colors, pinnedLabelRow) }
+    drawDayLine(agenda, spans, colors, pinnedLabelRow)
     drawMarkerIcons(agenda, spans, markerIcon, colors)
 }
 
@@ -589,11 +588,13 @@ private fun DrawScope.drawDayLine(agenda: Agenda, spans: Map<Int, ClosedFloating
     }
 }
 
-private fun DrawScope.drawDayDot(time: AgendaTime, center: Offset, colors: AgendaGuideColors) {
+private fun DrawScope.drawDayDot(time: AgendaTime, center: Offset, colors: AgendaGuideColors, solid: Boolean = false) {
     when (time) {
         AgendaTime.Today -> drawCircle(colors.today, TODAY_DOT_RADIUS.toPx(), center)
         AgendaTime.Past -> drawCircle(colors.dot, DAY_DOT_RADIUS.toPx(), center)
-        AgendaTime.Future, AgendaTime.Undated -> {
+        AgendaTime.Future, AgendaTime.Undated -> if (solid) {
+            drawCircle(colors.dot, DAY_DOT_RADIUS.toPx(), center)
+        } else {
             val width = DAY_LINE_WIDTH.toPx()
             drawCircle(colors.background, DAY_DOT_RADIUS.toPx(), center)
             drawCircle(colors.dot, DAY_DOT_RADIUS.toPx() - width / 2, center, style = Stroke(width))
@@ -793,7 +794,7 @@ private fun PinnedAgendaLabel(
                 Row(Modifier.heightIn(min = AgendaLabelHeight).padding(end = dotToText), verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         Modifier.size(width = cardsStart + Spacing.xs - pillStart, height = AgendaLabelHeight).drawBehind {
-                            drawDayDot(time, Offset((DAY_LINE_X - pillStart).toPx(), size.height / 2), colors)
+                            drawDayDot(time, Offset((DAY_LINE_X - pillStart).toPx(), size.height / 2), colors, solid = true)
                         },
                     )
                     when (label) {

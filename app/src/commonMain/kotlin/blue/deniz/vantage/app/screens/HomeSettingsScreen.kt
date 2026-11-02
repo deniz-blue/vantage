@@ -33,7 +33,7 @@ import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.DEFAULT_TILE_EVENT_COUNT
 import blue.deniz.vantage.app.EventCardStyle
 import blue.deniz.vantage.app.HomeTile
-import blue.deniz.vantage.app.WeatherPlace
+import blue.deniz.vantage.app.namedPlace
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.newHomeTileId
 import blue.deniz.vantage.app.offersAndroidAppTile
@@ -52,10 +52,8 @@ import blue.deniz.vantage.app.ui.Text
 import blue.deniz.vantage.app.ui.SheetTitle
 import blue.deniz.vantage.app.ui.TextInput
 import blue.deniz.vantage.app.ui.TitledSection
-import blue.deniz.vantage.app.ui.displayName
 import blue.deniz.vantage.core.EventFeed
 import blue.deniz.vantage.core.address
-import blue.deniz.vantage.core.coordinates
 import blue.deniz.vantage.storage.TagEntity
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableItem
@@ -69,15 +67,15 @@ private val EVENT_CARD_STYLE_OPTIONS = EventCardStyle.entries.map { it to it.lab
 private fun HomeTile.icon(): ImageVector = when (this) {
     is HomeTile.UpcomingEvents -> AppIcons.Calendar
     is HomeTile.Weather -> AppIcons.Sunny
-    is HomeTile.Periods -> AppIcons.DateRange
+    is HomeTile.AtAGlance -> AppIcons.DateRange
     is HomeTile.Feed -> AppIcons.Rss
     is HomeTile.AndroidApp -> AppIcons.Smartphone
 }
 
 private fun HomeTile.summary(): String? = when (this) {
     is HomeTile.UpcomingEvents -> "Next ${eventCountLabel(count)}"
-    is HomeTile.Weather -> if (place == null) "From Time Zone" else null
-    is HomeTile.Periods -> null
+    is HomeTile.Weather -> if (place == null) "Uses My Location" else null
+    is HomeTile.AtAGlance -> null
     is HomeTile.Feed -> "Next ${eventCountLabel(count)}"
     is HomeTile.AndroidApp -> null
 }
@@ -132,7 +130,7 @@ fun HomeSettingsScreen(state: AppState) {
                             onRemove = { removeTile(tile) },
                             onEdit = when (tile) {
                                 is HomeTile.Weather -> ({ weatherPlaceFor = tile.id })
-                                is HomeTile.Periods, is HomeTile.AndroidApp -> null
+                                is HomeTile.AtAGlance, is HomeTile.AndroidApp -> null
                                 else -> ({ settingsFor = tile.id })
                             },
                         )
@@ -156,10 +154,10 @@ fun HomeSettingsScreen(state: AppState) {
                 choosingTile = false
                 state.saveHomeTile(HomeTile.Weather(newHomeTileId()))
             }, leadingIcon = AppIcons.Sunny)
-            if (tiles.none { it is HomeTile.Periods }) {
-                MenuItem("Periods", onClick = {
+            if (tiles.none { it is HomeTile.AtAGlance }) {
+                MenuItem("At a Glance", onClick = {
                     choosingTile = false
-                    state.saveHomeTile(HomeTile.Periods(newHomeTileId()))
+                    state.saveHomeTile(HomeTile.AtAGlance(newHomeTileId()))
                 }, leadingIcon = AppIcons.DateRange)
             }
             MenuItem("Feed", onClick = {
@@ -196,6 +194,27 @@ fun HomeSettingsScreen(state: AppState) {
 }
 
 @Composable
+internal fun MyLocationSheet(state: AppState, visible: Boolean, onDismiss: () -> Unit) {
+    val settings = state.settings
+    PlaceSearchSheet(
+        visible = visible,
+        title = "My Location",
+        state = state,
+        onDismiss = onDismiss,
+        onPick = { venue ->
+            onDismiss()
+            venue.namedPlace(state.preferredLanguages)?.let(settings::changeMyLocation)
+        },
+        onlyMapped = true,
+        unsetLabel = "Use Time Zone".takeIf { settings.myLocation != null },
+        onUnset = {
+            onDismiss()
+            settings.changeMyLocation(null)
+        },
+    )
+}
+
+@Composable
 internal fun WeatherPlaceSheet(state: AppState, tileId: String?, onDismiss: () -> Unit) {
     val tile = state.settings.homeTiles.firstOrNull { it.id == tileId } as? HomeTile.Weather
     PlaceSearchSheet(
@@ -205,14 +224,11 @@ internal fun WeatherPlaceSheet(state: AppState, tileId: String?, onDismiss: () -
         onDismiss = onDismiss,
         onPick = { venue ->
             onDismiss()
-            val coordinates = venue.coordinates
-            if (tile != null && coordinates != null) {
-                val name = venue.displayName(state.preferredLanguages) ?: venue.address ?: "Unnamed Place"
-                state.saveHomeTile(tile.copy(place = WeatherPlace(name, coordinates.latitude, coordinates.longitude)))
-            }
+            val place = venue.namedPlace(state.preferredLanguages)
+            if (tile != null && place != null) state.saveHomeTile(tile.copy(place = place))
         },
         onlyMapped = true,
-        unsetLabel = "Use Time Zone".takeIf { tile?.place != null },
+        unsetLabel = "Use My Location".takeIf { tile?.place != null },
         onUnset = {
             onDismiss()
             if (tile != null) state.saveHomeTile(tile.copy(place = null))
@@ -262,7 +278,7 @@ private fun ColumnScope.TileSettings(tile: HomeTile, title: String, tags: List<T
             when (tile) {
                 is HomeTile.UpcomingEvents -> tile.count
                 is HomeTile.Feed -> tile.count
-                is HomeTile.Weather, is HomeTile.Periods, is HomeTile.AndroidApp -> DEFAULT_TILE_EVENT_COUNT
+                is HomeTile.Weather, is HomeTile.AtAGlance, is HomeTile.AndroidApp -> DEFAULT_TILE_EVENT_COUNT
             },
         )
     }
@@ -272,7 +288,7 @@ private fun ColumnScope.TileSettings(tile: HomeTile, title: String, tags: List<T
             when (tile) {
                 is HomeTile.UpcomingEvents -> tile.layout
                 is HomeTile.Feed -> tile.layout
-                is HomeTile.Weather, is HomeTile.Periods, is HomeTile.AndroidApp -> EventCardStyle.Rows
+                is HomeTile.Weather, is HomeTile.AtAGlance, is HomeTile.AndroidApp -> EventCardStyle.Rows
             },
         )
     }
@@ -283,7 +299,7 @@ private fun ColumnScope.TileSettings(tile: HomeTile, title: String, tags: List<T
     fun editedTile(): HomeTile? = when (tile) {
         is HomeTile.UpcomingEvents -> tile.copy(count = count, tagIds = tagIds.toSet(), layout = layout)
         is HomeTile.Feed -> EventFeed.fromAddress(address)?.let { tile.copy(feed = it, count = count, layout = layout) }
-        is HomeTile.Weather, is HomeTile.Periods, is HomeTile.AndroidApp -> tile
+        is HomeTile.Weather, is HomeTile.AtAGlance, is HomeTile.AndroidApp -> tile
     }
     fun save() {
         val edited = editedTile()

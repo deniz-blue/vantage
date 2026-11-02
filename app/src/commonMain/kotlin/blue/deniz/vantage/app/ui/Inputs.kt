@@ -199,6 +199,21 @@ private fun KeyboardActions.run(imeAction: ImeAction) {
 private const val SHOWN_FOCUS_ATTEMPTS = 60
 
 @Composable
+fun Modifier.focusesWhenShown(): Modifier {
+    val focus = remember { FocusRequester() }
+    var focused by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        // A composeunstyled drawer turns canFocus off for its content until it has settled open.
+        repeat(SHOWN_FOCUS_ATTEMPTS) {
+            withFrameNanos {}
+            if (focused) return@LaunchedEffect
+            focus.requestFocus()
+        }
+    }
+    return focusRequester(focus).onFocusChanged { focused = it.hasFocus }
+}
+
+@Composable
 fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
@@ -211,17 +226,7 @@ fun SearchField(
     focusesWhenShown: Boolean = false,
 ) {
     val colors = MaterialTheme.colorScheme
-    val focus = remember { FocusRequester() }
-    var focused by remember { mutableStateOf(false) }
-    if (focusesWhenShown) LaunchedEffect(Unit) {
-        // A composeunstyled drawer turns canFocus off for its content until it has settled open.
-        repeat(SHOWN_FOCUS_ATTEMPTS) {
-            withFrameNanos {}
-            if (focused) return@LaunchedEffect
-            focus.requestFocus()
-        }
-    }
-    val focusable = if (focusesWhenShown) modifier.focusRequester(focus).onFocusChanged { focused = it.hasFocus } else modifier
+    val focusable = if (focusesWhenShown) modifier.focusesWhenShown() else modifier
     TextInput(
         value,
         onValueChange,

@@ -24,6 +24,7 @@ private const val NOTIFIES_ABOUT_CHANGES_KEY = "notifiesAboutChanges"
 private const val COPIES_EVENTS_TO_PHONE_CALENDAR_KEY = "copiesEventsToPhoneCalendar"
 private const val THEME_ACCENT_KEY = "themeAccent"
 private const val MAP_START_KEY = "mapStart"
+private const val MY_LOCATION_KEY = "myLocation"
 private const val EVENTS_VIEW_KEY_PREFIX = "eventsView."
 private const val FONT_SIZE_KEY_PREFIX = "fontSize."
 private val subscribedCalendarsJson = ListSerializer(SubscribedCalendar.serializer())
@@ -50,6 +51,7 @@ private val PORTABLE_KEYS = setOf(
     SUBSCRIBED_CALENDARS_KEY,
     THEME_ACCENT_KEY,
     MAP_START_KEY,
+    MY_LOCATION_KEY,
 )
 
 private fun isPortableKey(key: String) =
@@ -76,6 +78,8 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         private set
     var mapStart by mutableStateOf<MapCamera?>(null)
         private set
+    var myLocation by mutableStateOf<NamedPlace?>(null)
+        private set
     var fontSizes by mutableStateOf(emptyMap<TypographyStyle, Int>())
         private set
     private val eventsViews = mutableStateMapOf<String, EventsView>()
@@ -94,6 +98,7 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
         copiesEventsToPhoneCalendar = storage.read(COPIES_EVENTS_TO_PHONE_CALENDAR_KEY) == "true"
         themeAccent = ThemeAccent.entries.find { it.storedName == storage.read(THEME_ACCENT_KEY) } ?: ThemeAccent.Purple
         mapStart = storage.read(MAP_START_KEY)?.let(MapCamera::fromStoredText)
+        myLocation = storage.read(MY_LOCATION_KEY)?.let(::namedPlaceOfJson)
         fontSizes = TypographyStyle.entries.mapNotNull { style -> storage.read(FONT_SIZE_KEY_PREFIX + style.name)?.toIntOrNull()?.let { style to it } }.toMap()
         eventsViews.clear()
     }
@@ -122,6 +127,11 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
     fun changeMapStart(camera: MapCamera?) {
         mapStart = camera
         storage.write(MAP_START_KEY, camera?.storedText)
+    }
+
+    fun changeMyLocation(place: NamedPlace?) {
+        myLocation = place
+        storage.write(MY_LOCATION_KEY, place?.let(::namedPlaceToJson))
     }
 
     fun changeThemeAccent(accent: ThemeAccent) {

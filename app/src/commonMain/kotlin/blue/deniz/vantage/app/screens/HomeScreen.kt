@@ -88,8 +88,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import blue.deniz.vantage.app.WeatherPlace
+import blue.deniz.vantage.app.NamedPlace
 import blue.deniz.vantage.core.Place
+import blue.deniz.vantage.app.ui.Card
+import blue.deniz.vantage.app.ui.UNTITLED_EVENT
+import blue.deniz.vantage.app.ui.translatedName
+import blue.deniz.vantage.core.nextOccurrenceAt
+import blue.deniz.vantage.core.timeRange
+import directory.evnt.PartialDate
+import kotlin.time.Instant
 
 private val WEATHER_ICON_SIZE = 40.dp
 private const val WEATHER_DAYS_SHOWN = 3
@@ -100,12 +107,12 @@ internal fun HomeTile.title(tagNames: Map<String, String>): String = when (this)
         if (names.isEmpty()) "Upcoming Events" else "Upcoming in ${names.joinToString()}"
     }
     is HomeTile.Weather -> weatherTitle(place)
-    is HomeTile.Periods -> "Periods"
+    is HomeTile.AtAGlance -> "At a Glance"
     is HomeTile.AndroidApp -> "Vantage for Android"
     is HomeTile.Feed -> "From ${feedName(feed)}"
 }
 
-private fun weatherTitle(place: WeatherPlace?) = place?.let { "Weather in ${it.name}" } ?: "Weather"
+private fun weatherTitle(place: NamedPlace?) = place?.let { "Weather in ${it.name}" } ?: "Weather"
 
 private fun feedName(feed: EventFeed) = when (feed) {
     is EventFeed.OpenEvntIndex -> parseUrl(feed.url)?.host?.removePrefix("www.") ?: feed.url
@@ -116,6 +123,7 @@ private fun feedName(feed: EventFeed) = when (feed) {
 fun HomeScreen(state: AppState) {
     val tiles = state.settings.homeTiles.filter { offersAndroidAppTile || it !is HomeTile.AndroidApp }
     var weatherPlaceFor by rememberSaveable { mutableStateOf<String?>(null) }
+    var choosingMyLocation by rememberSaveable { mutableStateOf(false) }
 
     val tags = collectAcrossSession("tags", null) { state.store.observeTags() }.orEmpty()
     val tagNames = tags.associate { it.id to it.name }
@@ -124,7 +132,7 @@ fun HomeScreen(state: AppState) {
         ContentUnderOverlay(
             overlay = {
                 ScreenHeader("Home", actions = {
-                    IconButton(AppIcons.Rss, "Browse a Feed", onClick = { state.navigator.open(Route.ChooseFeed) })
+                    IconButton(AppIcons.Rss, "Browse a Feed", onClick = { state.openChooseFeedSheet() })
                     IconButton(AppIcons.Plus, "New", onClick = { state.openNewEntrySheet() })
                 })
             },
@@ -142,7 +150,7 @@ fun HomeScreen(state: AppState) {
                             when (tile) {
                                 is HomeTile.UpcomingEvents -> UpcomingEventsTile(state, tile, tile.title(tagNames), spaceBesideColumn)
                                 is HomeTile.Weather -> WeatherTile(state, tile, onChoosePlace = { weatherPlaceFor = tile.id })
-                                is HomeTile.Periods -> PeriodsTile(state, tile.title(tagNames))
+                                is HomeTile.AtAGlance -> AtAGlanceTile(state, tile.title(tagNames), onChooseMyLocation = { choosingMyLocation = true })
                                 is HomeTile.AndroidApp -> AndroidAppTile(tile.title(tagNames))
                                 is HomeTile.Feed -> FeedTile(state, tile, tile.title(tagNames), spaceBesideColumn)
                             }
@@ -164,25 +172,75 @@ fun HomeScreen(state: AppState) {
     }
 
     WeatherPlaceSheet(state, weatherPlaceFor, onDismiss = { weatherPlaceFor = null })
+    MyLocationSheet(state, choosingMyLocation, onDismiss = { choosingMyLocation = false })
 }
 
 @Composable
-private fun PeriodsTile(state: AppState, title: String) {
+private fun AtAGlanceTile(state: AppState, title: String, onChooseMyLocation: () -> Unit) {
     val marks = rememberLoadedCalendarMarks(state)
     val formatting = state.formatting
     val now = state.now
     val today = state.today
-    TileHeader(title, "Add" to { state.openMarkSheet(MarkSheetTarget(MarkKind.Period, id = null, day = today)) })
-    val current = remember(marks, formatting, now) { marks?.let { formatting.periodSpans(it.periodsAt(now)) } } ?: return
-    if (current.isEmpty()) {
-        TileMessage("No periods today")
-        return
+    val periods = remember(marks, formatting, now) { marks?.let { formatting.periodSpans(it.periodsAt(now)) } }.orEmpty()
+    val query = remember(state.listsSplitAt) {
+        EventListQuery(from = state.listsSplitAt, order = EventListQuery.Order.Start, limit = GLANCE_EVENTS_READ)
     }
-    Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        for (span in current) {
-            PeriodDayRow(span.item.label, span.dayNumberOf(today), span.dayCount) {
-                state.openMarkSheet(MarkSheetTarget(MarkKind.Period, span.item.id))
+    val events = collectAcrossSession("at a glance", query) { state.store.observeList(query) }.orEmpty()
+    val (ongoing, upcoming) = remember(events, now) { ongoingAndUpcoming(events, now) }
+    TileHeader(title)
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+        if (periods.isNotEmpty()) {
+            Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                for (span in periods) {
+                    PeriodDayRow(span.item.label, span.dayNumberOf(today), span.dayCount) {
+                        state.openMarkSheet(MarkSheetTarget(MarkKind.Period, span.item.id))
+                    }
+                }
             }
+        }
+        WeatherAt(state, rememberWeatherPlace(state, chosen = null), "Set My Location", onChooseMyLocation)
+        if (ongoing.isNotEmpty() || upcoming.isNotEmpty()) {
+            Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                for (event in ongoing) {
+                    AgendaEventCard(
+                        event,
+                        formatting,
+                        state.preferredLanguages,
+                        now,
+                        Modifier.growsIntoEventPage(event.id),
+                        onClick = event.id?.let { id -> { state.openEvent(id, fromCard = true) } },
+                        onLongClick = { state.openActionsSheet(event) },
+                        accentColor = state.calendars.colorOf(event.source)?.let(::Color),
+                    )
+                }
+                for (event in upcoming) GlanceEventRow(state, event, now)
+            }
+        }
+    }
+}
+
+private const val GLANCE_EVENTS_READ = 20
+private const val GLANCE_UPCOMING_SHOWN = 2
+
+private fun ongoingAndUpcoming(events: List<ResolvedEvent>, now: Instant): Pair<List<ResolvedEvent>, List<ResolvedEvent>> {
+    val dated = events.mapNotNull { event -> event.data?.nextOccurrenceAt(now)?.timeRange()?.let { event to it } }
+    val (ongoing, upcoming) = dated.partition { (_, range) -> now in range }
+    return ongoing.map { it.first } to upcoming.sortedBy { it.second.start }.take(GLANCE_UPCOMING_SHOWN).map { it.first }
+}
+
+@Composable
+private fun GlanceEventRow(state: AppState, event: ResolvedEvent, now: Instant) {
+    val formatting = state.formatting
+    val start = remember(event.data, now) { event.data?.nextOccurrenceAt(now)?.start }
+    val startText = start?.let { listOfNotNull(formatting.formatShortDay(it), (it as? PartialDate.Time)?.let(formatting::formatTime)).joinToString(" · ") }
+    Card(
+        Modifier.fillMaxWidth().growsIntoEventPage(event.id),
+        onClick = event.id?.let { id -> { state.openEvent(id, fromCard = true) } },
+        onLongClick = { state.openActionsSheet(event) },
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Text(event.data?.translatedName(state.preferredLanguages) ?: UNTITLED_EVENT, Modifier.weight(1f), maxLines = 1, style = MaterialTheme.typography.bodyLarge)
+            startText?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, style = MaterialTheme.typography.labelLarge) }
         }
     }
 }
@@ -376,32 +434,45 @@ private fun degrees(value: Double) = "${value.roundToInt()}°"
 
 @Composable
 private fun WeatherTile(state: AppState, tile: HomeTile.Weather, onChoosePlace: () -> Unit) {
+    val place = rememberWeatherPlace(state, tile.place)
+    TileHeader(weatherTitle((place as? LoadState.Ready)?.value))
+    WeatherAt(state, place, "Choose a Place", onChoosePlace)
+}
+
+@Composable
+private fun rememberWeatherPlace(state: AppState, chosen: NamedPlace?): LoadState<NamedPlace?> {
     val zoneId = state.settings.timeZone.id
-    val guessed by produceState<LoadState<WeatherPlace?>>(
-        state.places.lastCityOfTimeZone(zoneId)?.toWeatherPlace()?.let { LoadState.Ready(it) } ?: LoadState.Loading,
+    val known = chosen ?: state.settings.myLocation
+    val place by produceState<LoadState<NamedPlace?>>(
+        known?.let { LoadState.Ready(it) }
+            ?: state.places.lastCityOfTimeZone(zoneId)?.toNamedPlace()?.let { LoadState.Ready(it) }
+            ?: LoadState.Loading,
         zoneId,
-        tile.place,
+        known,
     ) {
-        if (tile.place == null) value = loadCatching { state.places.cityOfTimeZone(zoneId)?.toWeatherPlace() }
+        value = if (known != null) LoadState.Ready(known) else loadCatching { state.places.cityOfTimeZone(zoneId)?.toNamedPlace() }
     }
-    val place = tile.place ?: guessed.let { if (it is LoadState.Ready) it.value else null }
-    if (place == null) {
-        TileHeader(weatherTitle(null))
-        if (guessed is LoadState.Loading) LoadingSpinner() else WeatherPlaceholder(onChoosePlace)
+    return place
+}
+
+@Composable
+private fun WeatherAt(state: AppState, place: LoadState<NamedPlace?>, placeholder: String, onChoosePlace: () -> Unit) {
+    val found = (place as? LoadState.Ready)?.value
+    if (found == null) {
+        if (place is LoadState.Loading) LoadingSpinner() else WeatherPlaceholder(placeholder, onChoosePlace)
         return
     }
     var attempt by remember { mutableIntStateOf(0) }
-    val loaded by produceLoadState(place.latitude, place.longitude, attempt, last = { state.weather.lastForecastFor(place.latitude, place.longitude) }) {
-        state.weather.forecastFor(place.latitude, place.longitude)
+    val loaded by produceLoadState(found.latitude, found.longitude, attempt, last = { state.weather.lastForecastFor(found.latitude, found.longitude) }) {
+        state.weather.forecastFor(found.latitude, found.longitude)
     }
-    TileHeader(weatherTitle(place))
     TileLoadState(loaded, onRetry = { attempt++ }) { WeatherSummary(it) }
 }
 
-private fun Place.toWeatherPlace() = coordinates?.let { WeatherPlace(name, it.latitude, it.longitude) }
+private fun Place.toNamedPlace() = coordinates?.let { NamedPlace(name, it.latitude, it.longitude) }
 
 @Composable
-private fun WeatherPlaceholder(onChoosePlace: () -> Unit) {
+private fun WeatherPlaceholder(label: String, onChoosePlace: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -414,7 +485,7 @@ private fun WeatherPlaceholder(onChoosePlace: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         Icon(AppIcons.Thermometer, size = WEATHER_ICON_SIZE, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("Choose a Place", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
     }
 }
 

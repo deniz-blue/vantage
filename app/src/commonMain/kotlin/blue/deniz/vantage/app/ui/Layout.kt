@@ -156,7 +156,7 @@ fun FloatingControls(modifier: Modifier = Modifier, backdrop: Boolean = true, co
         .padding(horizontal = Spacing.sm, vertical = Spacing.sm)
         .fillMaxWidth()
     if (!backdrop) {
-        Column(placement.padding(Spacing.sm), verticalArrangement = Arrangement.spacedBy(Spacing.sm), content = content)
+        Column(placement, verticalArrangement = Arrangement.spacedBy(Spacing.sm), content = content)
         return
     }
     Surface(

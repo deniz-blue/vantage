@@ -107,7 +107,7 @@ import blue.deniz.vantage.app.screens.MyEventsScreen
 import blue.deniz.vantage.app.screens.EventsViewControlsClearance
 import blue.deniz.vantage.core.CalendarMarks
 import blue.deniz.vantage.app.screens.CalendarSelection
-import blue.deniz.vantage.app.screens.ChooseFeedScreen
+import blue.deniz.vantage.app.screens.ChooseFeedSheet
 import blue.deniz.vantage.app.screens.CreateEventScreen
 import blue.deniz.vantage.app.screens.MarkKind
 import blue.deniz.vantage.app.screens.MarkSheet
@@ -432,6 +432,17 @@ class AppState(
 
     var newEntryDay by mutableStateOf<LocalDate?>(null)
         private set
+    var chooseFeedSheetOpen by mutableStateOf(false)
+        private set
+
+    fun openChooseFeedSheet() {
+        chooseFeedSheetOpen = true
+    }
+
+    fun closeChooseFeedSheet() {
+        chooseFeedSheetOpen = false
+    }
+
     var newEntrySheetOpen by mutableStateOf(false)
         private set
 
@@ -608,7 +619,6 @@ fun VantageApp(state: AppState) {
                                                         EventDetailsScreen(state, route.id)
                                                     }
                                                     is Route.EventFromLink -> EventFromLinkScreen(state, route.intent)
-                                                    Route.ChooseFeed -> ChooseFeedScreen(state)
                                                     is Route.Feed -> FeedScreen(state, route.feed)
                                                     is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)
                                                     is Route.EditEvent -> EditEventScreen(state, route.id, route.draft)
@@ -637,6 +647,7 @@ fun VantageApp(state: AppState) {
                         LinkActionsSheet(state)
                         MarkSheet(state)
                         NewEntrySheet(state)
+                        ChooseFeedSheet(state)
                     }
                 }
             }
