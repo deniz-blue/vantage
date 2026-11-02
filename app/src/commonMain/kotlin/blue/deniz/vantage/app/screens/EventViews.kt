@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -478,7 +479,7 @@ private fun EventListView(
                     val layout = grid.layoutInfo
                     when {
                         actions.isSelecting && columns == 1 -> drawSelectionChecks(layout, eventsByKey, actions, margin, checkColors)
-                        inDateOrder -> drawAgendaGuides(layout, agenda, markerIcon, guideColors, pinnedLabelRow.value)
+                        inDateOrder -> drawAgendaGuides(layout, agenda, markerIcon, guideColors, pinnedLabelRow.value, listTop = topPadding.toPx())
                     }
                 }
                 .selectsByDragging(grid, topPadding, eventAt, { currentShown }, { currentActions }) { haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
@@ -541,7 +542,7 @@ private fun EventListView(
 
 private class AgendaGuideColors(val marker: Color, val line: Color, val dot: Color, val today: Color, val background: Color)
 
-private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agenda, markerIcon: Painter, colors: AgendaGuideColors, pinnedLabelRow: Int?) {
+private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agenda, markerIcon: Painter, colors: AgendaGuideColors, pinnedLabelRow: Int?, listTop: Float) {
     val spans = HashMap<Int, ClosedFloatingPointRange<Float>>()
     for (item in layout.visibleItemsInfo) {
         val row = agenda.rowIndexOf(item.key) ?: continue
@@ -550,7 +551,7 @@ private fun DrawScope.drawAgendaGuides(layout: LazyGridLayoutInfo, agenda: Agend
         spans[row] = spans[row]?.let { minOf(it.start, span.start)..maxOf(it.endInclusive, span.endInclusive) } ?: span
     }
     if (spans.isEmpty()) return
-    drawDayLine(agenda, spans, colors, pinnedLabelRow)
+    clipRect(top = listTop) { drawDayLine(agenda, spans, colors, pinnedLabelRow) }
     drawMarkerIcons(agenda, spans, markerIcon, colors)
 }
 

@@ -573,7 +573,6 @@ fun VantageApp(state: AppState) {
     }
     SystemBackHandler(enabled = navigator.canGoBack) { navigator.goBack() }
     val tabBackdrop = rememberBackdrop()
-    val stackedTab = navigator.screens.filterIsInstance<Route.Tab>().lastOrNull() ?: Route.Home
     CompositionLocalProvider(LocalSessionValues provides sessionValues) {
         VantageTheme(state.settings.themeAccent, state.settings.fontSizes) {
             KeyboardShortcutHost(onShortcut = state::handleShortcut) {
@@ -627,7 +626,7 @@ fun VantageApp(state: AppState) {
                             }
                             SlidingTabBar(
                                 visible = navigator.current is Route.Tab,
-                                selected = stackedTab,
+                                selected = navigator.currentTab,
                                 backdrop = tabBackdrop,
                                 onSelect = navigator::switchTab,
                                 modifier = Modifier.align(Alignment.BottomCenter),
