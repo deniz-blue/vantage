@@ -12,7 +12,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.CornerRadius
@@ -396,6 +395,7 @@ private fun EventListView(
     val periods = remember(marks, query, showsMarks) { if (showsMarks) marks.periodsOverlapping(query.from, query.until) else emptyList() }
     val complete = paged.listing?.status == EventListingStatus.Complete
     val margin = Spacing.md + DAY_LINE_GUTTER
+    val marginPx = with(LocalDensity.current) { margin.toPx() }
     val markerIcon = rememberVectorPainter(AppIcons.Label)
     val guideColors = AgendaGuideColors(
         marker = MaterialTheme.colorScheme.onSurface,
@@ -410,6 +410,7 @@ private fun EventListView(
     val currentEventsByKey by rememberUpdatedState(eventsByKey)
     val currentShown by rememberUpdatedState(shown)
     val currentActions by rememberUpdatedState(actions)
+    val currentTopPadding by rememberUpdatedState(topPadding)
     val haptics = LocalHapticFeedback.current
     val eventAt = { position: Offset -> eventAt(grid.layoutInfo, currentEventsByKey, position) }
     val backdropSource = Modifier.backdropSource(LocalBackdrop.current)
@@ -449,11 +450,8 @@ private fun EventListView(
                         inDateOrder -> drawAgendaGuides(layout, agenda, cards.now, markerIcon, guideColors, pinnedLabelRow.value)
                     }
                 }
-                .selectsByDragging(grid, topPadding, eventAt, { currentShown }, { currentActions }) { haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
-                .pointerInput(grid, columns) {
-                    detectTapGestures { position ->
-                        if (columns == 1 && currentActions.isSelecting && position.x < margin.toPx()) eventAt(position)?.let(currentActions::toggleSelected)
-                    }
+                .selectsByDragging(grid, { currentTopPadding }, { if (columns == 1) marginPx else null }, eventAt, { currentShown }, { currentActions }) {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
         }
         EventCardGrid(grid, topPadding = topPadding, bottomPadding = bottomPadding, startGutter = DAY_LINE_GUTTER, decoration = decoration) { cardMinHeight ->
@@ -621,7 +619,8 @@ private fun DrawScope.drawSelectionChecks(layout: LazyGridLayoutInfo, eventsByKe
 
 private fun Modifier.selectsByDragging(
     grid: LazyGridState,
-    topPadding: Dp,
+    topPadding: () -> Dp,
+    checkColumnWidth: () -> Float?,
     eventAt: (Offset) -> ResolvedEvent?,
     shown: () -> List<ResolvedEvent>,
     actions: () -> EventCardActions,
@@ -631,19 +630,33 @@ private fun Modifier.selectsByDragging(
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
             val start = eventAt(down.position) ?: return@awaitEachGesture
-            var released = false
-            var moved = false
-            val held = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
-                while (!released && !moved) {
-                    val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
-                    released = change == null || !change.pressed
-                    moved = change != null && (change.position - down.position).getDistance() > viewConfiguration.touchSlop
-                }
-            } == null
-            if (!held) return@awaitEachGesture
-            onHeld()
+            val checkColumn = checkColumnWidth()
+            val inCheckColumn = checkColumn != null && actions().isSelecting && down.position.x < checkColumn
+            if (inCheckColumn) {
+                down.consume()
+            } else {
+                var released = false
+                var moved = false
+                val held = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                    while (!released && !moved) {
+                        val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
+                        released = change == null || !change.pressed
+                        moved = change != null && (change.position - down.position).getDistance() > viewConfiguration.touchSlop
+                    }
+                } == null
+                if (!held) return@awaitEachGesture
+                onHeld()
+            }
             actions().toggleSelected(start)
-            val draggedIn = mutableSetOf<String>()
+            if (checkColumn != null && !inCheckColumn) {
+                do {
+                    val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
+                    change.consume()
+                } while (change.pressed)
+                return@awaitEachGesture
+            }
+            val selects = actions().selectionOf(start) == EventCardSelection.Selected
+            val changedByDrag = mutableSetOf<String>()
             var current = start.listKey()
             var pointer = down.position
             val extendTo = { event: ResolvedEvent ->
@@ -657,27 +670,27 @@ private fun Modifier.selectsByDragging(
                         val rangeKeys = range.mapTo(mutableSetOf()) { it.listKey() }
                         val acting = actions()
                         for (inRange in range) {
-                            if (acting.selectionOf(inRange) != EventCardSelection.Selected) {
+                            if ((acting.selectionOf(inRange) == EventCardSelection.Selected) != selects) {
                                 acting.toggleSelected(inRange)
-                                draggedIn += inRange.listKey()
+                                changedByDrag += inRange.listKey()
                             }
                         }
                         for (outside in list) {
                             val key = outside.listKey()
-                            if (key in draggedIn && key !in rangeKeys) {
+                            if (key in changedByDrag && key !in rangeKeys) {
                                 acting.toggleSelected(outside)
-                                draggedIn -= key
+                                changedByDrag -= key
                             }
                         }
                     }
                 }
             }
-            val top = topPadding.toPx()
             val zone = AUTOSCROLL_ZONE.toPx()
             val fastest = AUTOSCROLL_STEP.toPx()
             val autoscroll = launch {
                 while (isActive) {
                     withFrameNanos {}
+                    val top = topPadding().toPx()
                     val speed = when {
                         pointer.y < top + zone -> -fastest * ((top + zone - pointer.y) / zone).coerceIn(0f, 1f)
                         pointer.y > size.height - zone -> fastest * ((pointer.y - (size.height - zone)) / zone).coerceIn(0f, 1f)

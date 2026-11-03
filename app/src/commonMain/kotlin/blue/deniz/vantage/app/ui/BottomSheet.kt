@@ -213,13 +213,14 @@ object BottomSheetScope {
         val bottomInset = with(LocalDensity.current) { sheetBottomInsets().getBottom(this).toDp() }
         val listOverscroll = rememberOverscrollEffect() ?: remember { StretchOverscrollEffect() }
         val listScroll = remember(listOverscroll, state) { ClosingDragsMoveSheetOnlyFromListTop(listOverscroll, listIsAtTop = { !state.canScrollBackward }) }
+        val listBackdrop = rememberBackdrop(BottomSheetDefaults.ContainerColor)
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             header()
             ListUnderOverlay(
-                overlay,
+                { CompositionLocalProvider(LocalBackdrop provides listBackdrop, content = overlay) },
                 bottomPadding = bottomInset + Spacing.md,
                 state = state,
-                listModifier = Modifier.pointerInput(listScroll) { with(listScroll) { noteWhereDragsStart() } }.nestedScroll(listScroll),
+                listModifier = Modifier.backdropSource(listBackdrop).pointerInput(listScroll) { with(listScroll) { noteWhereDragsStart() } }.nestedScroll(listScroll),
                 overscrollEffect = listScroll,
                 items = items,
             )
@@ -379,6 +380,7 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
                         CompositionLocalProvider(
                             LocalOverscrollFactory provides (LocalOverscrollFactory.current ?: StretchOverscrollFactory),
                             LocalListSection provides null,
+                            LocalBackdrop provides null,
                         ) {
                             BottomSheetScope.body()
                         }

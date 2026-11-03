@@ -41,7 +41,7 @@ private const val GLASS_TINT_ALPHA = 0.55f
 private const val GLASS_BAR_TINT_ALPHA = 0.8f
 
 @Stable
-class Backdrop {
+class Backdrop(internal val base: Color?) {
     internal var layer by mutableStateOf<GraphicsLayer?>(null)
     internal var origin by mutableStateOf(Offset.Zero)
     internal var drawCount by mutableIntStateOf(0)
@@ -53,7 +53,7 @@ val ColorScheme.glassTint: Color
     get() = floatingContainer.copy(alpha = GLASS_TINT_ALPHA)
 
 @Composable
-fun rememberBackdrop(): Backdrop = remember { Backdrop() }
+fun rememberBackdrop(base: Color? = null): Backdrop = remember(base) { Backdrop(base) }
 
 @Composable
 fun Modifier.backdropSource(backdrop: Backdrop?): Modifier {
@@ -88,7 +88,7 @@ fun Modifier.glassBar(color: Color): Modifier {
 
 @Composable
 private fun Modifier.glassBehind(backdrop: Backdrop, shape: Shape, tint: Color): Modifier {
-    val under = MaterialTheme.colorScheme.background
+    val under = backdrop.base ?: MaterialTheme.colorScheme.background
     val blurred = rememberGraphicsLayer()
     val radius = with(LocalDensity.current) { GLASS_BLUR.toPx() }
     val blur = remember(radius) { BlurEffect(radius, radius, TileMode.Clamp) }

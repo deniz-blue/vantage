@@ -9,6 +9,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import blue.deniz.vantage.app.rememberCopyText
 import blue.deniz.vantage.app.rememberShareText
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheetFrame
+import blue.deniz.vantage.app.ui.ControlHeight
 import blue.deniz.vantage.app.ui.IconButton
 import blue.deniz.vantage.app.ui.Radius
 import blue.deniz.vantage.app.ui.Spacing
@@ -87,7 +89,7 @@ fun SelectionBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         border = floatingBorder(),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.heightIn(min = ControlHeight.lg), verticalAlignment = Alignment.CenterVertically) {
             IconButton(AppIcons.X, "Clear Selection", onClear)
             Text("$selectedCount", maxLines = 1, style = MaterialTheme.typography.titleMedium)
             if (hiddenCount > 0) Text("+$hiddenCount Hidden", Modifier.padding(start = Spacing.xs), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
