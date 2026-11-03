@@ -78,6 +78,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
@@ -93,6 +94,11 @@ import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.EventCardStyle
 import blue.deniz.vantage.app.EventsView
+import blue.deniz.vantage.app.timeShown
+import blue.deniz.vantage.app.ui.shownOccurrence
+import blue.deniz.vantage.app.ui.PullAboveTopHint
+import blue.deniz.vantage.app.ui.pullAboveTop
+import blue.deniz.vantage.app.ui.rememberPullAboveTop
 import blue.deniz.vantage.app.SelectAllShortcut
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.ui.AgendaEventCard
@@ -277,7 +283,7 @@ fun EventsViewContent(
     val marks = rememberCalendarMarks(state, showsMarkersAndPeriods)
     when (view) {
         EventsView.List -> {
-            val query = remember(search, time, order, state.listsSplitAt) { time.toQuery(state.listsSplitAt, search, order) }
+            val query = remember(search, time, order, state.listsSplitAt) { view.timeShown(time).toQuery(state.listsSplitAt, search, order) }
             EventListView(state, screen, events, query, marks, actions, cards, topPadding, bottomPadding + bottomEndClearance, emptyText, listFooter)
         }
         EventsView.Calendar -> Box(Modifier.padding(bottom = bottomPadding)) {
@@ -385,14 +391,33 @@ private fun EventListView(
     footer: (LazyGridScope.(EventListing?) -> Unit)?,
 ) {
     val paged = rememberPagedListing("$screen list", events, query)
-    val shown = paged.events
     val grid = rememberLazyGridState()
+    val pastQuery = remember(query) { query.from?.takeIf { query.order == EventOrder.Start }?.let { EventQuery(query.search, endedBy = it, order = EventOrder.StartDescending) } }
+    var showsPast by remember { mutableStateOf(false) }
+    val past = if (showsPast && pastQuery != null) rememberPagedListing("$screen past", events, pastQuery) else null
+    val pullForPast = rememberPullAboveTop(enabled = pastQuery != null && !showsPast) { showsPast = true }
+    val shown = remember(past?.events, paged.events) {
+        val upcoming = paged.events
+        val upcomingKeys = upcoming.mapTo(HashSet()) { it.listKey() }
+        past?.events.orEmpty().asReversed().filter { it.listKey() !in upcomingKeys } + upcoming
+    }
+    val cardListing = remember(paged.listing, past?.listing, shown) {
+        val pastListing = past?.listing
+        if (pastListing == null) paged.listing else paged.listing?.copy(events = shown, listedNames = pastListing.listedNames + paged.listing.listedNames)
+    }
     SelectAllShortcut(state) { actions.selectAll(shown) }
     LoadMoreNearTheEnd(paged) { grid.layoutInfo.let { it.totalItemsCount - (it.visibleItemsInfo.lastOrNull()?.index ?: 0) } }
+    past?.let { LoadMoreNearTheEnd(it) { grid.firstVisibleItemIndex } }
     val inDateOrder = query.order == EventOrder.Start
     val showsMarks = inDateOrder && query.search.isBlank()
-    val markers = remember(marks, query, showsMarks) { if (showsMarks) marks.markersBetween(query.from, query.until) else emptyList() }
-    val periods = remember(marks, query, showsMarks) { if (showsMarks) marks.periodsOverlapping(query.from, query.until) else emptyList() }
+    val now = cards.now
+    val marksFrom = when {
+        past == null -> query.from
+        past.listing?.status == EventListingStatus.Complete -> null
+        else -> shown.firstOrNull()?.shownOccurrence(now)?.start?.startInstant ?: query.from
+    }
+    val markers = remember(marks, marksFrom, query, showsMarks) { if (showsMarks) marks.markersBetween(marksFrom, query.until) else emptyList() }
+    val periods = remember(marks, marksFrom, query, showsMarks) { if (showsMarks) marks.periodsOverlapping(marksFrom, query.until) else emptyList() }
     val complete = paged.listing?.status == EventListingStatus.Complete
     val margin = Spacing.md + DAY_LINE_GUTTER
     val marginPx = with(LocalDensity.current) { margin.toPx() }
@@ -414,7 +439,7 @@ private fun EventListView(
     val haptics = LocalHapticFeedback.current
     val eventAt = { position: Offset -> eventAt(grid.layoutInfo, currentEventsByKey, position) }
     val backdropSource = Modifier.backdropSource(LocalBackdrop.current)
-    BoxWithConstraints(Modifier.fillMaxSize()) {
+    BoxWithConstraints(Modifier.fillMaxSize().pullAboveTop(pullForPast)) {
         val dayLabels = eventCardColumns(maxWidth, DAY_LINE_GUTTER) == 1
         val agenda = remember(shown, cards, markers, periods, complete, dayLabels) {
             agendaOf(shown, cards, markers, periods, marksAfterEvents = complete, dayLabels = dayLabels)
@@ -443,6 +468,7 @@ private fun EventListView(
         val hiddenWhileStuck = { period: CalendarPeriod -> Modifier.graphicsLayer { alpha = if (period in stuckPeriods.value) 0f else 1f } }
         val decoration = { columns: Int ->
             backdropSource
+                .graphicsLayer { translationY = pullForPast.distance }
                 .drawBehind {
                     val layout = grid.layoutInfo
                     when {
@@ -455,7 +481,10 @@ private fun EventListView(
                 }
         }
         EventCardGrid(grid, topPadding = topPadding, bottomPadding = bottomPadding, startGutter = DAY_LINE_GUTTER, decoration = decoration) { cardMinHeight ->
-            if (paged.isEmpty && markers.isEmpty() && periods.isEmpty()) {
+            if (past?.isEmpty == true) {
+                item(key = "no past events", span = { GridItemSpan(maxLineSpan) }) { ListPlaceholder("No past events", Modifier.animateItem()) }
+            }
+            if (paged.isEmpty && past?.events.isNullOrEmpty() && markers.isEmpty() && periods.isEmpty()) {
                 item(key = "no events", span = { GridItemSpan(maxLineSpan) }) { ListPlaceholder(emptyText, Modifier.animateItem()) }
             }
             if (inDateOrder) {
@@ -469,7 +498,7 @@ private fun EventListView(
                     }
                     is AgendaRow.Event -> item(key = row.key) {
                         StyledEventCard(
-                            row.event, EventCardStyle.Agenda, paged.listing, shown, actions, cards, cardMinHeight, Modifier.animateItem(),
+                            row.event, EventCardStyle.Agenda, cardListing, shown, actions, cards, cardMinHeight, Modifier.animateItem(),
                             showsDate = !dayLabels, longPressSelects = false, selectionMarkInside = cardMinHeight > 0.dp,
                         )
                     }
@@ -487,7 +516,7 @@ private fun EventListView(
             } else {
                 items(shown, key = { it.listKey() }) { event ->
                     StyledEventCard(
-                        event, EventCardStyle.Agenda, paged.listing, shown, actions, cards, cardMinHeight, Modifier.animateItem(),
+                        event, EventCardStyle.Agenda, cardListing, shown, actions, cards, cardMinHeight, Modifier.animateItem(),
                         longPressSelects = false, selectionMarkInside = cardMinHeight > 0.dp,
                     )
                 }
@@ -502,6 +531,7 @@ private fun EventListView(
                 state.openMarkSheet(MarkSheetTarget(MarkKind.Period, period.id))
             }
         }
+        PullAboveTopHint(pullForPast, "Past Events", Modifier.align(Alignment.TopCenter).padding(top = topPadding))
     }
 }
 

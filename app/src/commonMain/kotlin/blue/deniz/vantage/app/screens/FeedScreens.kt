@@ -2,6 +2,10 @@ package blue.deniz.vantage.app.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import kotlin.time.Instant
+import kotlinx.datetime.toLocalDateTime
+import blue.deniz.vantage.core.OpenEvntIndexPage
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -284,14 +288,19 @@ private fun FeedMenuSheet(state: AppState, feed: EventFeed, title: String, visib
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
     var failure by remember { mutableStateOf<String?>(null) }
+    val share = rememberShareText()
+    val shareLink = remember(feed) { EventsLink.shareLinkTo(feed) }
     fun addToHome() = state.settings.changeHomeTiles(state.settings.homeTiles + HomeTile.Feed(newHomeTileId(), feed))
     BottomSheet(visible, onDismiss) {
-        Column(Modifier.padding(horizontal = Spacing.md).padding(bottom = Spacing.sm)) {
-            Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+        Column(Modifier.padding(horizontal = Spacing.md)) {
+            Text(title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, maxLines = 1)
             SelectionContainer {
                 Text(feed.address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            if (visible) FeedFacts(state, feed)
         }
+        Column {
+        shareLink?.let { link -> MenuItem("Share", leadingIcon = AppIcons.Share, onClick = { share(link) }) }
         if (onHome) {
             MenuItem("Remove from Home", leadingIcon = AppIcons.Home, onClick = {
                 state.settings.changeHomeTiles(tiles.filterNot { it is HomeTile.Feed && it.feed == feed })
@@ -311,16 +320,17 @@ private fun FeedMenuSheet(state: AppState, feed: EventFeed, title: String, visib
         }
         if (calendarLink != null) {
             if (subscribed) {
-                MenuItem("Unsubscribe", leadingIcon = AppIcons.Rss, onClick = {
+                MenuItem("Unfollow", leadingIcon = AppIcons.Rss, onClick = {
                     onDismiss()
-                    state.calendars.unsubscribe(calendarLink) { removed -> state.offerUndo("Unsubscribed") { state.calendars.restore(removed) } }
+                    state.calendars.unsubscribe(calendarLink) { removed -> state.offerUndo("Unfollowed") { state.calendars.restore(removed) } }
                 })
             } else {
-                MenuItem("Subscribe", leadingIcon = AppIcons.Rss, onClick = {
+                MenuItem("Follow", leadingIcon = AppIcons.Rss, onClick = {
                     onDismiss()
                     state.calendars.subscribe(calendarLink)
                 })
             }
+        }
         }
     }
     BottomSheet(item = failure, onDismiss = { failure = null }) { message ->
@@ -340,6 +350,19 @@ private fun FeedMenuSheet(state: AppState, feed: EventFeed, title: String, visib
             }
         }
     }
+}
+
+@Composable
+private fun FeedFacts(state: AppState, feed: EventFeed) {
+    val page by produceState<OpenEvntIndexPage?>(null, feed) {
+        if (feed is EventFeed.OpenEvntIndex) value = (loadCatching { state.feeds.readIndexPage(feed.url) } as? LoadState.Ready)?.value
+    }
+    val formatting = state.formatting
+    fun shown(at: Instant) = at.toLocalDateTime(formatting.timeZone).let { "${formatting.formatDay(it.date)} ${formatting.formatClock(it.time)}" }
+    val count = page?.total ?: state.feeds.lastReadEvents(feed)?.size
+    val updated = page?.lastModified?.let { "Updated ${shown(it)}" } ?: state.feeds.lastReadAt(feed)?.let { "Checked ${shown(it)}" }
+    val facts = listOfNotNull(count?.let(::eventCountLabel), updated)
+    if (facts.isNotEmpty()) Text(facts.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 internal sealed interface LoadState<out T> {

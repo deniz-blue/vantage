@@ -78,6 +78,14 @@ object EventsLink {
         return intent.at?.let { linkWith("at", it) } ?: intent.url?.let { linkWith("url", it) }
     }
 
+    fun shareLinkTo(feed: EventFeed): String? = when (feed) {
+        is EventFeed.OpenEvntIndex -> URLBuilder(BASE_URL).apply {
+            path("index")
+            parameters.append("url", feed.url)
+        }.buildString()
+        is EventFeed.AtRepository -> null
+    }
+
     private fun linkWith(name: String, value: String) =
         URLBuilder(BASE_URL).apply {
             path("e")

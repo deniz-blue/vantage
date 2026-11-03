@@ -25,7 +25,8 @@ sealed interface Route {
     data object Setup : Route
     data object HomeSettings : Route
     data object TagSettings : Route
-    data object CalendarSettings : Route
+    data object SystemCalendarSettings : Route
+    data object FollowingSettings : Route
     data object About : Route
     data object DeveloperTools : Route
 }

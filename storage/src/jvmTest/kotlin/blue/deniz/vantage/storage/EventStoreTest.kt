@@ -256,6 +256,16 @@ class EventStoreTest {
     }
 
     @Test
+    fun listsEndedEventsNewestFirst() = runTest {
+        local("Older", "2026-01-05[UTC]")
+        local("Weekly", "2026-10-01[UTC]", "2026-10-29[UTC]")
+        local("Recent", "2026-10-10[UTC]")
+        local("Undated")
+        val ended = EventListQuery(endedBy = Instant.parse("2026-10-21T00:00:00Z"), order = EventListQuery.Order.StartDescending)
+        assertEquals(listOf("Recent", "Older"), names(ended))
+    }
+
+    @Test
     fun tagsAndUntagsEvents() = runTest {
         val picnic = local("Picnic in the park")
         val uni = store.addTag("  Uni ")

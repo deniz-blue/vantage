@@ -14,6 +14,8 @@ class ResultCache<K, V>(private val freshFor: Duration, private val clock: Clock
 
     fun last(key: K): V? = entries.load()[key]?.value
 
+    fun storedAt(key: K): Instant? = entries.load()[key]?.storedAt
+
     fun fresh(key: K): V? = entries.load()[key]?.takeIf { clock.now() - it.storedAt < freshFor }?.value
 
     fun store(key: K, value: V) {

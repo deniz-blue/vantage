@@ -13,16 +13,17 @@ data class GeoArea(val south: Double, val west: Double, val north: Double, val e
 
 enum class TimeFilter { Past, All, Future }
 
-enum class EventOrder { Listed, Start, Name }
+enum class EventOrder { Listed, Start, StartDescending, Name }
 
 data class EventQuery(
     val search: String = "",
     val from: Instant? = null,
     val until: Instant? = null,
+    val endedBy: Instant? = null,
     val area: GeoArea? = null,
     val order: EventOrder = EventOrder.Listed,
 ) {
-    val filtersOrSorts: Boolean get() = search.isNotBlank() || from != null || until != null || area != null || order != EventOrder.Listed
+    val filtersOrSorts: Boolean get() = search.isNotBlank() || from != null || until != null || endedBy != null || area != null || order != EventOrder.Listed
 
     fun indexPageUrl(indexUrl: String, supports: Set<String>): String {
         val parameters = buildMap {
@@ -49,6 +50,7 @@ data class EventQuery(
         return when (order) {
             EventOrder.Listed -> matching
             EventOrder.Start -> matching.sortedWith(compareBy(nullsLast()) { it.data?.nextStartAt(from ?: Instant.DISTANT_PAST) })
+            EventOrder.StartDescending -> matching.sortedWith(compareBy(nullsLast(reverseOrder())) { event -> event.data?.timeRanges()?.maxOfOrNull { it.start } })
             EventOrder.Name -> matching.sortedBy { it.nameIn(preferredLanguages, listedNames[it.source]).lowercase() }
         }
     }
@@ -59,11 +61,12 @@ data class EventQuery(
             val names = event.data?.name?.values.orEmpty() + listedName?.values.orEmpty()
             if (names.none { it.contains(text, ignoreCase = true) }) return false
         }
+        val ranges = if (from != null || until != null || endedBy != null) event.data?.timeRanges().orEmpty() else emptyList()
         if (from != null || until != null) {
-            val ranges = event.data?.timeRanges().orEmpty()
             val undatedCountsAsAhead = until == null && ranges.isEmpty()
             if (!undatedCountsAsAhead && ranges.none { (from == null || it.end > from) && (until == null || it.start < until) }) return false
         }
+        if (endedBy != null && (ranges.isEmpty() || ranges.any { it.end > endedBy })) return false
         if (area != null) {
             val coordinates = event.data?.venue?.coordinates ?: return false
             if (coordinates.latitude !in area.south..area.north || coordinates.longitude !in area.west..area.east) return false
@@ -75,7 +78,7 @@ data class EventQuery(
 fun TimeFilter.toQuery(now: Instant, search: String = "", order: EventOrder = EventOrder.Listed) = EventQuery(
     search = search,
     from = now.takeIf { this == TimeFilter.Future },
-    until = now.takeIf { this == TimeFilter.Past },
+    endedBy = now.takeIf { this == TimeFilter.Past },
     order = order,
 )
 

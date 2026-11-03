@@ -16,6 +16,7 @@ data class EventListQuery(
     val format: EventFormat? = null,
     val from: Instant? = null,
     val until: Instant? = null,
+    val endedBy: Instant? = null,
     val allTagIds: Set<String> = emptySet(),
     val anyTagIds: Set<String> = emptySet(),
     val excludedTagIds: Set<String> = emptySet(),
@@ -24,7 +25,7 @@ data class EventListQuery(
     val limit: Int? = null,
     val offset: Int = 0,
 ) {
-    enum class Order { RecentlyAdded, Name, Start }
+    enum class Order { RecentlyAdded, Name, Start, StartDescending }
 }
 
 private fun escapeLike(text: String) = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
@@ -78,6 +79,11 @@ internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): Roo
         val inWindow = "EXISTS (SELECT 1 FROM event_time_ranges r WHERE r.eventId = e.id AND ${rangeConditions.joinToString(" AND ")})"
         conditions += if (until == null) "($inWindow OR NOT EXISTS (SELECT 1 FROM event_time_ranges r WHERE r.eventId = e.id))" else inWindow
     }
+    endedBy?.let {
+        conditions += "EXISTS (SELECT 1 FROM event_time_ranges r WHERE r.eventId = e.id)" +
+            " AND NOT EXISTS (SELECT 1 FROM event_time_ranges r WHERE r.eventId = e.id AND r.endsAt > ?)"
+        arguments += it.toEpochMilliseconds()
+    }
 
     if (allTagIds.isNotEmpty()) {
         conditions += "(SELECT COUNT(DISTINCT t.tagId) FROM event_tags t WHERE t.eventId = e.id AND t.tagId IN (${placeholders(allTagIds.size)})) = ?"
@@ -111,6 +117,7 @@ internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): Roo
             } ?: ""
             "(SELECT MIN(r.startsAt) FROM event_time_ranges r WHERE r.eventId = e.id$window) NULLS LAST"
         }
+        EventListQuery.Order.StartDescending -> "(SELECT MAX(r.startsAt) FROM event_time_ranges r WHERE r.eventId = e.id) DESC NULLS LAST"
     }
 
     val sql = buildString {

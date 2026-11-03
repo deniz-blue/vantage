@@ -12,12 +12,10 @@ import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.ListRow
 import blue.deniz.vantage.app.ui.UNTITLED_EVENT
 import blue.deniz.vantage.app.ui.ListSection
-import blue.deniz.vantage.core.CalendarMarker
 import blue.deniz.vantage.core.CalendarPeriod
 import blue.deniz.vantage.core.TimeRange
 import blue.deniz.vantage.core.firstOccurrenceDuring
 import blue.deniz.vantage.storage.EventListQuery
-import directory.evnt.PartialDate
 import directory.evnt.translate
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -55,24 +53,6 @@ fun PeriodsSection(state: AppState, periods: List<CalendarPeriod>, day: LocalDat
                 beforeOpening()
                 state.openMarkSheet(MarkSheetTarget(MarkKind.Period, period.id))
             })
-        }
-    }
-}
-
-@Composable
-fun MarkersSection(state: AppState, markers: List<CalendarMarker>, beforeOpening: () -> Unit) {
-    if (markers.isEmpty()) return
-    ListSection(title = "Markers") {
-        for (marker in markers) {
-            ListRow(
-                marker.label,
-                icon = AppIcons.Label,
-                supporting = (marker.at as? PartialDate.Time)?.let(state.formatting::formatTime) ?: "All Day",
-                onClick = {
-                    beforeOpening()
-                    state.openMarkSheet(MarkSheetTarget(MarkKind.Marker, marker.id))
-                },
-            )
         }
     }
 }

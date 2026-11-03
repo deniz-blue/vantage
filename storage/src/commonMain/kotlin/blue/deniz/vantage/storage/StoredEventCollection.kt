@@ -21,10 +21,12 @@ fun EventListQuery.narrowedTo(query: EventQuery, limit: Int?) = copy(
     search = query.search.takeIf { it.isNotBlank() } ?: search,
     from = query.from ?: from,
     until = query.until ?: until,
+    endedBy = query.endedBy ?: endedBy,
     area = query.area ?: area,
     order = when (query.order) {
         EventOrder.Listed -> EventListQuery.Order.RecentlyAdded
         EventOrder.Start -> EventListQuery.Order.Start
+        EventOrder.StartDescending -> EventListQuery.Order.StartDescending
         EventOrder.Name -> EventListQuery.Order.Name
     },
     limit = limit,

@@ -4,7 +4,10 @@ import directory.evnt.OpenEvnt
 import directory.evnt.Translations
 import directory.evnt.withoutBlankTexts
 import io.ktor.client.HttpClient
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
+import io.ktor.http.fromHttpToGmtDate
 import io.ktor.http.URLBuilder
 import io.ktor.http.appendPathSegments
 import io.ktor.http.parseUrl
@@ -29,6 +32,7 @@ import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.minutes
 
 private const val AT_RECORDS_PER_PAGE = 50
@@ -64,7 +68,13 @@ val EventFeed.address: String
 
 data class OpenEvntIndexItem(val url: String, val name: Translations?)
 
-data class OpenEvntIndexPage(val items: List<OpenEvntIndexItem>, val next: String?, val total: Int?, val supports: Set<String> = emptySet())
+data class OpenEvntIndexPage(
+    val items: List<OpenEvntIndexItem>,
+    val next: String?,
+    val total: Int?,
+    val supports: Set<String> = emptySet(),
+    val lastModified: Instant? = null,
+)
 
 data class AtEventPage(val events: List<ResolvedEvent>, val cursor: String?)
 
@@ -88,7 +98,8 @@ class EventFeedReader(
     private val feedEvents = ResultCache<EventFeed, List<ResolvedEvent>>(FEED_FRESH_FOR, clock)
 
     suspend fun readIndexPage(url: String): OpenEvntIndexPage = indexPages.freshOrLoad(url) {
-        parseOpenEvntIndexPage(url, client.getOk(url).bodyAsText())
+        val response = client.getOk(url)
+        parseOpenEvntIndexPage(url, response.bodyAsText()).copy(lastModified = response.lastModifiedAt())
     }
 
     @OptIn(ExperimentalAtomicApi::class)
@@ -128,6 +139,8 @@ class EventFeedReader(
     fun lastResolvedActor(handleOrDid: String): AtActor? = actors.last(handleOrDid)
 
     fun lastReadEvents(feed: EventFeed): List<ResolvedEvent>? = feedEvents.last(feed) ?: snapshots?.load(feed)
+
+    fun lastReadAt(feed: EventFeed): Instant? = feedEvents.storedAt(feed)
 
     suspend fun readEvents(feed: EventFeed): List<ResolvedEvent> = feedEvents.freshOrLoad(feed) {
         when (feed) {
@@ -268,6 +281,10 @@ class EventFeedReader(
         }
         return AtEventPage(events, page["cursor"].stringOrNull()?.takeIf { it.isNotEmpty() })
     }
+}
+
+private fun HttpResponse.lastModifiedAt(): Instant? = headers[HttpHeaders.LastModified]?.let { header ->
+    runCatching { Instant.fromEpochMilliseconds(header.fromHttpToGmtDate().timestamp) }.getOrNull()
 }
 
 internal fun parseOpenEvntIndexPage(url: String, text: String): OpenEvntIndexPage {

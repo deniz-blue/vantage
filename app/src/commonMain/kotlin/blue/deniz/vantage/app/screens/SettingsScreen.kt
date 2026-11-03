@@ -126,8 +126,13 @@ fun SettingsScreen(state: AppState) {
             SubpageRow("Edit Tags", AppIcons.Tag, supporting = tagCount?.size?.let(::tagCountLabel)) { state.navigator.open(Route.TagSettings) }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
-            SubpageRow("System Calendars", AppIcons.Calendar, supporting = calendarCountLabel(settings.subscribedCalendars.size)) {
-                state.navigator.open(Route.CalendarSettings)
+            if (state.calendars.deviceCalendars != null || state.phoneCalendarCopy != null) {
+                SubpageRow("System Calendars", AppIcons.Calendar, supporting = calendarCountLabel(settings.subscribedCalendars.count { it is SubscribedCalendar.OnDevice })) {
+                    state.navigator.open(Route.SystemCalendarSettings)
+                }
+            }
+            SubpageRow("Following", AppIcons.Rss, supporting = calendarCountLabel(settings.subscribedCalendars.count { it is SubscribedCalendar.Link })) {
+                state.navigator.open(Route.FollowingSettings)
             }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
@@ -333,21 +338,62 @@ private fun calendarCountLabel(count: Int) = when (count) {
 }
 
 @Composable
-fun CalendarSettingsScreen(state: AppState) {
+fun SystemCalendarSettingsScreen(state: AppState) {
     val sync = state.calendars
     val subscribed = state.settings.subscribedCalendars
     val device = sync.deviceCalendars
     var permitted by remember { mutableStateOf(device?.hasPermission() == true) }
     val requestPermission = rememberCalendarPermissionRequest { granted -> permitted = granted }
     val deviceCalendars = collectAcrossSession("phone calendars", permitted) { flow { emit(if (permitted) device?.list() else null) } }
+    var choosingPhoneCalendars by rememberSaveable { mutableStateOf(false) }
+
+    SettingsPage("System Calendars", onBack = { state.navigator.goBack() }) {
+        ListSection {
+            if (device != null) {
+                val listed = deviceCalendars
+                when {
+                    !permitted -> ListRow(
+                        "Allow Calendar Access",
+                        icon = AppIcons.Calendar,
+                        onClick = requestPermission,
+                    )
+                    listed == null -> LoadingSpinner()
+                    listed.isEmpty() -> ListRow("No Calendars on This Phone", icon = AppIcons.CalendarOff)
+                    else -> {
+                        val failure = listed.firstNotNullOfOrNull { sync.failures[SubscribedCalendar.OnDevice(it.id)] }
+                        val shownCount = listed.count { SubscribedCalendar.OnDevice(it.id) in subscribed }
+                        ListRow(
+                            "Phone Calendars",
+                            icon = AppIcons.Calendar,
+                            supporting = failure ?: "$shownCount of ${listed.size} shown",
+                            color = if (failure != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                            onClick = { choosingPhoneCalendars = true },
+                        )
+                    }
+                }
+            }
+            if (state.phoneCalendarCopy != null) PhoneCalendarCopyRow(state, onPermitted = { permitted = true })
+        }
+        CalendarSyncSection(state, subscribed.filterIsInstance<SubscribedCalendar.OnDevice>())
+    }
+
+    BottomSheet(visible = choosingPhoneCalendars && !deviceCalendars.isNullOrEmpty(), onDismiss = { choosingPhoneCalendars = false }) {
+        PhoneCalendarChecklist(deviceCalendars.orEmpty(), subscribed, sync)
+    }
+}
+
+@Composable
+fun FollowingSettingsScreen(state: AppState) {
+    val sync = state.calendars
+    val links = state.settings.subscribedCalendars.filterIsInstance<SubscribedCalendar.Link>()
     var linkAddress by rememberSaveable { mutableStateOf("") }
     var showsLinkProblem by rememberSaveable { mutableStateOf(false) }
-    fun newLinkFrom(address: String) = SubscribedCalendar.linkFromAddress(address)?.takeIf { it !in subscribed }
+    fun newLinkFrom(address: String) = SubscribedCalendar.linkFromAddress(address)?.takeIf { it !in links }
     val link = newLinkFrom(linkAddress)
     val linkProblem = when {
         linkAddress.isBlank() -> null
         SubscribedCalendar.linkFromAddress(linkAddress) == null -> "Calendar links start with https:// or webcal://"
-        link == null -> "Already in the list"
+        link == null -> "Already followed"
         else -> null
     }
     fun addLink() {
@@ -360,61 +406,26 @@ fun CalendarSettingsScreen(state: AppState) {
         linkAddress = ""
         showsLinkProblem = false
     }
-    var choosingPhoneCalendars by rememberSaveable { mutableStateOf(false) }
-    var choosingHiddenEvents by rememberSaveable { mutableStateOf(false) }
-    val hidden = collectAcrossSession("hidden calendar events", state.store) { state.store.observeHiddenCalendarEvents() }.orEmpty()
 
-    SettingsPage("Calendars", onBack = { state.navigator.goBack() }) {
-        if (device != null || state.phoneCalendarCopy != null) {
-            ListSection(title = "On This Phone") {
-                if (device != null) {
-                    val listed = deviceCalendars
-                    when {
-                        !permitted -> ListRow(
-                            "Allow Calendar Access",
-                            icon = AppIcons.Calendar,
-                            onClick = requestPermission,
-                        )
-                        listed == null -> LoadingSpinner()
-                        listed.isEmpty() -> ListRow("No Calendars on This Phone", icon = AppIcons.CalendarOff)
-                        else -> {
-                            val failure = listed.firstNotNullOfOrNull { sync.failures[SubscribedCalendar.OnDevice(it.id)] }
-                            val shownCount = listed.count { SubscribedCalendar.OnDevice(it.id) in subscribed }
-                            ListRow(
-                                "Phone Calendars",
-                                icon = AppIcons.Calendar,
-                                supporting = failure ?: "$shownCount of ${listed.size} shown",
-                                color = if (failure != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                                onClick = { choosingPhoneCalendars = true },
-                            )
-                        }
-                    }
-                }
-                if (state.phoneCalendarCopy != null) PhoneCalendarCopyRow(state, onPermitted = { permitted = true })
-            }
-        }
-
-        val links = subscribed.filterIsInstance<SubscribedCalendar.Link>()
-        if (links.isEmpty()) {
-            SectionTitle("Calendar Links", Modifier.padding(start = Spacing.md, end = Spacing.md, top = Spacing.lg, bottom = Spacing.xs))
-        } else ListSection(Modifier.padding(top = Spacing.md), title = "Calendar Links") {
-            for (subscription in links) {
-                val name = sync.linkNames[subscription]
+    SettingsPage("Following", onBack = { state.navigator.goBack() }) {
+        if (links.isNotEmpty()) ListSection {
+            for (followed in links) {
+                val name = sync.linkNames[followed]
                 ListRow(
-                    name ?: subscription.url,
+                    name ?: followed.url,
                     icon = AppIcons.Link,
-                    supporting = sync.failures[subscription] ?: subscription.url.takeIf { name != null },
-                    color = if (subscription in sync.failures) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                    supporting = sync.failures[followed] ?: followed.url.takeIf { name != null },
+                    color = if (followed in sync.failures) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                     trailing = {
-                        IconButton(AppIcons.Trash, "Remove", onClick = {
-                            sync.unsubscribe(subscription) { removed -> state.offerUndo("Calendar Link Removed") { sync.restore(removed) } }
+                        IconButton(AppIcons.Trash, "Unfollow", onClick = {
+                            sync.unsubscribe(followed) { removed -> state.offerUndo("Unfollowed") { sync.restore(removed) } }
                         })
                     },
                 )
             }
         }
         Column(
-            Modifier.padding(horizontal = Spacing.md).padding(top = if (links.isEmpty()) 0.dp else Spacing.sm),
+            Modifier.padding(horizontal = Spacing.md).padding(top = if (links.isEmpty()) 0.dp else Spacing.md),
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
             TextInput(
@@ -428,36 +439,38 @@ fun CalendarSettingsScreen(state: AppState) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { addLink() }),
             )
-            link?.let { Button("Add Calendar", onClick = ::addLink, primary = true, modifier = Modifier.fillMaxWidth()) }
+            link?.let { Button("Follow", onClick = ::addLink, primary = true, modifier = Modifier.fillMaxWidth()) }
         }
+        CalendarSyncSection(state, links)
+    }
+}
 
-        if (subscribed.isNotEmpty()) {
-            ListSection(Modifier.padding(top = Spacing.md)) {
-                MenuItem(
-                    "Sync Now",
-                    onClick = sync::syncAll,
-                    leadingIcon = AppIcons.Refresh,
-                    supportingText = sync.lastSyncedAt?.let { synced -> "Last synced at ${state.formatting.formatClock(synced.toLocalDateTime(state.timeZone).time)}" },
-                    busy = sync.syncing,
-                )
-                AnimatedVisibility(hidden.isNotEmpty(), enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
-                    ListRow(
-                        "Hidden Events",
-                        icon = AppIcons.Hidden,
-                        supporting = eventCountLabel(hidden.size),
-                        onClick = { choosingHiddenEvents = true },
-                    )
-                }
-            }
+@Composable
+private fun CalendarSyncSection(state: AppState, calendars: List<SubscribedCalendar>) {
+    if (calendars.isEmpty()) return
+    val sync = state.calendars
+    var choosingHiddenEvents by rememberSaveable { mutableStateOf(false) }
+    val hidden = collectAcrossSession("hidden calendar events", state.store) { state.store.observeHiddenCalendarEvents() }.orEmpty()
+        .filter { it.source.calendar in calendars }
+    ListSection(Modifier.padding(top = Spacing.md)) {
+        MenuItem(
+            "Sync Now",
+            onClick = sync::syncAll,
+            leadingIcon = AppIcons.Refresh,
+            supportingText = sync.lastSyncedAt?.let { synced -> "Last synced at ${state.formatting.formatClock(synced.toLocalDateTime(state.timeZone).time)}" },
+            busy = sync.syncing,
+        )
+        AnimatedVisibility(hidden.isNotEmpty(), enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+            ListRow(
+                "Hidden Events",
+                icon = AppIcons.Hidden,
+                supporting = eventCountLabel(hidden.size),
+                onClick = { choosingHiddenEvents = true },
+            )
         }
     }
-
     BottomSheet(visible = choosingHiddenEvents && hidden.isNotEmpty(), onDismiss = { choosingHiddenEvents = false }) {
         HiddenEventList(state, hidden, sync)
-    }
-
-    BottomSheet(visible = choosingPhoneCalendars && !deviceCalendars.isNullOrEmpty(), onDismiss = { choosingPhoneCalendars = false }) {
-        PhoneCalendarChecklist(deviceCalendars.orEmpty(), subscribed, sync)
     }
 }
 

@@ -67,6 +67,18 @@ class EventQueryTest {
     }
 
     @Test
+    fun listsEndedEventsNewestFirst() {
+        val events = listOf(
+            eventOnDays("Older", "2026-01-05"),
+            eventOnDays("Weekly", "2026-10-01", "2026-10-29"),
+            eventOnDays("Recent", "2026-10-10"),
+            eventOnDays("Undated"),
+        )
+        val ended = EventQuery(endedBy = NOW, order = EventOrder.StartDescending)
+        assertEquals(listOf("Recent", "Older"), ended.filterAndSort(events, listOf("en")).map { it.englishName() })
+    }
+
+    @Test
     fun filtersAndSortsEventsOnTheDevice() = runTest {
         val server = FakeServer(THREE_EVENTS + (INDEX_URL to { respond("""{"version":1,"items":$THREE_ITEMS}""") }))
         val reader = EventFeedReader(server.client, server.resolver(), clock = SteppedClock(NOW))

@@ -1,10 +1,7 @@
 package blue.deniz.vantage.app.screens
 
 import blue.deniz.vantage.app.ui.color
-import kotlinx.datetime.plus
 import kotlinx.datetime.daysUntil
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.DateTimeUnit
 import blue.deniz.vantage.app.EventsView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -479,7 +476,7 @@ private fun EventPageBody(
         val links = data?.components.orEmpty().filterIsInstance<Component.Link>()
         val whenAndWhere = @Composable {
             ListSection(Modifier.padding(top = Spacing.sm)) {
-                OccurrenceRows(state, event.id, data?.translatedName(preferredLanguages) ?: UNTITLED_EVENT, data, occurrences, marks)
+                OccurrenceRows(state, data?.translatedName(preferredLanguages) ?: UNTITLED_EVENT, data, occurrences, marks)
                 data?.venue?.let { VenueCard(it, preferredLanguages) }
             }
         }
@@ -521,7 +518,7 @@ private fun EventHeadline(status: OpenEvnt.Status?, next: Occurrence?, formattin
 }
 
 @Composable
-private fun OccurrenceRows(state: AppState, eventId: String?, eventTitle: String, eventData: OpenEvnt?, occurrences: List<Occurrence>, marks: CalendarMarks) {
+private fun OccurrenceRows(state: AppState, eventTitle: String, eventData: OpenEvnt?, occurrences: List<Occurrence>, marks: CalendarMarks) {
     var shownIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     for ((index, occurrence) in occurrences.withIndex()) {
         val periods = remember(occurrence, marks) { occurrence.start?.let { marks.periodsOn(it, occurrence.end) }.orEmpty() }
@@ -531,7 +528,7 @@ private fun OccurrenceRows(state: AppState, eventId: String?, eventTitle: String
     BottomSheet(item = shown, onDismiss = { shownIndex = null }) { (index, occurrence) ->
         val position = if (occurrences.size > 1) "${index + 1} of ${occurrences.size}" else null
         val cancelled = eventData?.isCancelledOn(occurrence) ?: occurrence.isCancelled
-        OccurrenceDetails(state, eventId, eventTitle, occurrence, position, cancelled, marks, onClose = { shownIndex = null })
+        OccurrenceDetails(state, eventTitle, occurrence, position, cancelled, marks, onClose = { shownIndex = null })
     }
 }
 
@@ -583,7 +580,6 @@ private fun DateTile(date: LocalDate?) {
 @Composable
 private fun OccurrenceDetails(
     state: AppState,
-    eventId: String?,
     eventTitle: String,
     occurrence: Occurrence,
     position: String?,
@@ -630,12 +626,6 @@ private fun OccurrenceDetails(
         (start as? PartialDate.Time)?.let(formatting::statedTimeText)?.let { ListRow(it, icon = AppIcons.World, supporting = "Local Time There") }
     }
     PeriodsSection(state, remember(start, end, marks) { marks.periodsOn(start, end) }, firstDay, beforeOpening = onClose)
-    if (firstDay != null && lastDay != null) {
-        val zone = state.timeZone
-        val markers = remember(firstDay, lastDay, zone, marks) { marks.markersBetween(firstDay.atStartOfDayIn(zone), lastDay.plus(1, DateTimeUnit.DAY).atStartOfDayIn(zone)) }
-        MarkersSection(state, markers, beforeOpening = onClose)
-        EventsSection(state, if (lastDay > firstDay) "During These Days" else "That Day", firstDay, lastDay, exceptEventId = eventId, beforeOpening = onClose)
-    }
     ActivityRows(occurrence.activities.orEmpty(), preferredLanguages)
     Column {
         if (firstDay != null) {

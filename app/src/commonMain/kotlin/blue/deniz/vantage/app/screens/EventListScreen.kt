@@ -42,6 +42,7 @@ import blue.deniz.vantage.app.ui.TagChip
 import blue.deniz.vantage.app.ui.TagFilterChips
 import blue.deniz.vantage.core.EventSourceType
 import blue.deniz.vantage.core.TimeFilter
+import blue.deniz.vantage.app.timeShown
 import blue.deniz.vantage.storage.EventListQuery
 import blue.deniz.vantage.storage.eventsMatching
 import blue.deniz.vantage.storage.narrowedTo
@@ -77,7 +78,7 @@ class EventListFilters {
             sourceTypes = sourceTypes,
         )
 
-    fun toListQuery(now: Instant) = storeFilter.narrowedTo(time.toQuery(now, search, order), limit = null)
+    fun toListQuery(now: Instant, view: EventsView) = storeFilter.narrowedTo(view.timeShown(time).toQuery(now, search, order), limit = null)
 }
 
 @Composable
@@ -93,10 +94,10 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
     val scope = rememberCoroutineScope()
     val selecting = state.selectedEventIds.isNotEmpty()
     val filterValues = listOf(filters.search, filters.time, filters.order, storeFilter)
-    val matchingIds by remember(filterValues, selecting, state.listsSplitAt) { if (selecting) state.store.observeIds(filters.toListQuery(state.listsSplitAt)) else flowOf(null) }
+    val matchingIds by remember(filterValues, view, selecting, state.listsSplitAt) { if (selecting) state.store.observeIds(filters.toListQuery(state.listsSplitAt, view)) else flowOf(null) }
         .collectAsState(initial = null)
     if (view == EventsView.List) {
-        SelectAllShortcut(state) { scope.launch { state.selectEvents(state.store.observeIds(filters.toListQuery(state.listsSplitAt)).first()) } }
+        SelectAllShortcut(state) { scope.launch { state.selectEvents(state.store.observeIds(filters.toListQuery(state.listsSplitAt, view)).first()) } }
     }
 
     val searchFocus = remember { FocusRequester() }
@@ -120,7 +121,7 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
                     Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
                 } else FloatingControls(backdrop = false) {
                     when {
-                        selecting -> EventSelectionBar(state, matchingIds, filters.toListQuery(state.listsSplitAt).order)
+                        selecting -> EventSelectionBar(state, matchingIds, filters.toListQuery(state.listsSplitAt, view).order)
                         view.searches -> SearchField(
                             value = filters.search,
                             onValueChange = { filters.search = it },

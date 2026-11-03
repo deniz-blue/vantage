@@ -123,7 +123,8 @@ import blue.deniz.vantage.app.screens.EventListFiltersSheet
 import blue.deniz.vantage.app.screens.FeedScreen
 import blue.deniz.vantage.app.screens.HomeScreen
 import blue.deniz.vantage.app.screens.AboutScreen
-import blue.deniz.vantage.app.screens.CalendarSettingsScreen
+import blue.deniz.vantage.app.screens.FollowingSettingsScreen
+import blue.deniz.vantage.app.screens.SystemCalendarSettingsScreen
 import blue.deniz.vantage.app.screens.HomeSettingsScreen
 import blue.deniz.vantage.app.screens.AppearanceSettingsScreen
 import blue.deniz.vantage.app.screens.NotificationSettingsScreen
@@ -646,7 +647,8 @@ fun VantageApp(state: AppState) {
                                                     Route.Setup -> SetupScreen(state)
                                                     Route.HomeSettings -> HomeSettingsScreen(state)
                                                     Route.TagSettings -> TagSettingsScreen(state)
-                                                    Route.CalendarSettings -> CalendarSettingsScreen(state)
+                                                    Route.SystemCalendarSettings -> SystemCalendarSettingsScreen(state)
+                                                    Route.FollowingSettings -> FollowingSettingsScreen(state)
                                                     Route.About -> AboutScreen(state)
                                                     Route.DeveloperTools -> DeveloperToolsScreen(state)
                                                 }
