@@ -442,10 +442,10 @@ private fun EventListView(
     val backdropSource = Modifier.backdropSource(LocalBackdrop.current)
     BoxWithConstraints(Modifier.fillMaxSize().lazyGridScrollStop(scrollStop)) {
         val dayLabels = eventCardColumns(maxWidth, DAY_LINE_GUTTER) == 1
-        val agenda = remember(shown, cards, markers, periods, complete, dayLabels) {
-            agendaOf(shown, cards, markers, periods, marksAfterEvents = complete, dayLabels = dayLabels)
+        val agenda = remember(shown, pastShown.size, cards, markers, periods, complete, dayLabels) {
+            agendaOf(shown, cards, markers, periods, marksAfterEvents = complete, dayLabels = dayLabels, upcomingFrom = pastShown.size)
         }
-        val stopIndex = remember(agenda, pastShown) { pastShown.lastOrNull()?.let { agenda.rowIndexOf(it.listKey()) }?.plus(1) ?: 0 }
+        val stopIndex = agenda.upcomingStartRow
         SideEffect { scrollStop.stopIndex = stopIndex }
         val labelGapPx = with(LocalDensity.current) { AgendaLabelGap.roundToPx() }
         val pinnedLabelRow = remember(grid, agenda, labelGapPx) {

@@ -32,7 +32,12 @@ sealed interface AgendaRow {
 
 enum class AgendaTime { Past, Today, Future, Undated }
 
-class Agenda(val rows: List<AgendaRow>, val rowTimes: List<AgendaTime>, private val periodsRunning: List<List<CalendarPeriod>>) {
+class Agenda(
+    val rows: List<AgendaRow>,
+    val rowTimes: List<AgendaTime>,
+    private val periodsRunning: List<List<CalendarPeriod>>,
+    val upcomingStartRow: Int = 0,
+) {
     private val rowIndexByKey: Map<String, Int> = rows.withIndex().associate { (index, row) -> row.key to index }
     private val headingRowOfRow: List<Int?> = run {
         var heading: Int? = null
@@ -55,7 +60,8 @@ fun agendaOf(
     periods: List<CalendarPeriod> = emptyList(),
     marksAfterEvents: Boolean = false,
     dayLabels: Boolean = true,
-): Agenda = agendaOf(events, cards.formatting, cards.now, markers, periods, marksAfterEvents, dayLabels) { event -> event.shownOccurrence(cards.now)?.start }
+    upcomingFrom: Int = 0,
+): Agenda = agendaOf(events, cards.formatting, cards.now, markers, periods, marksAfterEvents, dayLabels, upcomingFrom) { event -> event.shownOccurrence(cards.now)?.start }
 
 fun agendaOf(
     events: List<ResolvedEvent>,
@@ -65,6 +71,7 @@ fun agendaOf(
     periods: List<CalendarPeriod> = emptyList(),
     marksAfterEvents: Boolean = false,
     dayLabels: Boolean = true,
+    upcomingFrom: Int = 0,
     startOf: (ResolvedEvent) -> PartialDate?,
 ): Agenda {
     val today = now.toLocalDateTime(formatting.timeZone).date
@@ -77,6 +84,7 @@ fun agendaOf(
     val marks = (periods.map { it.start to AgendaRow.PeriodStart(it) } + markers.map { it.at to AgendaRow.Marker(it) })
         .sortedBy { (at, _) -> at.startInstant }
     var placedMarks = 0
+    var upcomingStartRow = -1
 
     fun add(row: AgendaRow, day: LocalDate? = null) {
         rows += row
@@ -130,14 +138,23 @@ fun agendaOf(
         }
     }
 
-    for (event in events) {
+    fun startUpcoming() {
+        upcomingStartRow = rows.size
+        headingKey = null
+        labelledDay = null
+        todayPlaced = false
+    }
+
+    for ((index, event) in events.withIndex()) {
+        if (index == upcomingFrom) startUpcoming()
         val start = startOf(event)
         placeMarksBefore(start?.startInstant)
         place(start, AgendaRow.Event(event))
     }
+    if (upcomingStartRow < 0) startUpcoming()
     if (marksAfterEvents) placeMarksBefore(null)
     if (!todayPlaced) placeToday()
-    return Agenda(rows, timesOf(rowDays, today), periodsRunningOf(rows, rowDays, formatting))
+    return Agenda(rows, timesOf(rowDays, today), periodsRunningOf(rows, rowDays, formatting), upcomingStartRow)
 }
 
 private fun Pair<PartialDate, AgendaRow>.comesBefore(instant: Instant): Boolean {
