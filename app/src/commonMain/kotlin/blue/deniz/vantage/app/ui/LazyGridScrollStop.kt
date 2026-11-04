@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -28,12 +27,13 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
 private val PASS_THRESHOLD = 96.dp
 private const val PULL_RESISTANCE = 0.5f
 private const val RELEASE_AFTER_WHEEL_IDLE_MILLIS = 200L
-private const val POSITIONING_FRAMES = 5
 
 @Stable
 class LazyGridScrollStop internal constructor(
@@ -110,12 +110,13 @@ class LazyGridScrollStop internal constructor(
         }
     }
 
-    internal suspend fun scrollToStop() {
-        repeat(POSITIONING_FRAMES) {
-            grid.scrollToItem(stopIndex)
-            if ((distancePastStop ?: 0f) <= 0f) return
-            withFrameNanos {}
-        }
+    internal val untouched: Boolean get() = scrolls == 0 && !held
+
+    internal suspend fun keepAtStopUntilTouched() {
+        snapshotFlow { if (untouched) stopIndex to distancePastStop else null }
+            .takeWhile { it != null }
+            .filterNotNull()
+            .collect { (index, past) -> if (past != 0f) grid.scrollToItem(index) }
     }
 
     internal fun neededEndFillerHeight(): Int? {
@@ -144,7 +145,7 @@ fun rememberLazyGridScrollStop(grid: LazyGridState, resetKey: Any?, ready: Boole
     val haptics = LocalHapticFeedback.current
     LaunchedEffect(stop, ready, positioned) {
         if (!ready || positioned) return@LaunchedEffect
-        stop.scrollToStop()
+        stop.keepAtStopUntilTouched()
         positioned = true
     }
     LaunchedEffect(stop) {

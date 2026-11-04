@@ -70,7 +70,7 @@ import kotlin.time.Instant
 val AgendaCardHeight = 128.dp
 val AgendaLineHeight = 40.dp
 val AgendaLabelHeight = 28.dp
-val AgendaLabelGap = Spacing.md
+val AgendaLabelGap = Spacing.lg
 private val CURRENT_MONTH_DOT_SIZE = 8.dp
 val AgendaIconSize = 14.dp
 private val AGENDA_CHIP_HEIGHT = 24.dp
