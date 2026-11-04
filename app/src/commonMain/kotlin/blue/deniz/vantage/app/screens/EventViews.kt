@@ -10,6 +10,9 @@ import blue.deniz.vantage.app.ui.LocalBackdrop
 import blue.deniz.vantage.app.ui.floatingSurface
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.SideEffect
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollBy
@@ -96,9 +99,8 @@ import blue.deniz.vantage.app.EventCardStyle
 import blue.deniz.vantage.app.EventsView
 import blue.deniz.vantage.app.timeShown
 import blue.deniz.vantage.app.ui.shownOccurrence
-import blue.deniz.vantage.app.ui.PullAboveTopHint
-import blue.deniz.vantage.app.ui.pullAboveTop
-import blue.deniz.vantage.app.ui.rememberPullAboveTop
+import blue.deniz.vantage.app.ui.lazyGridScrollStop
+import blue.deniz.vantage.app.ui.rememberLazyGridScrollStop
 import blue.deniz.vantage.app.SelectAllShortcut
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.ui.AgendaEventCard
@@ -393,14 +395,13 @@ private fun EventListView(
     val paged = rememberPagedListing("$screen list", events, query)
     val grid = rememberLazyGridState()
     val pastQuery = remember(query) { query.from?.takeIf { query.order == EventOrder.Start }?.let { EventQuery(query.search, endedBy = it, order = EventOrder.StartDescending) } }
-    var showsPast by remember { mutableStateOf(false) }
-    val past = if (showsPast && pastQuery != null) rememberPagedListing("$screen past", events, pastQuery) else null
-    val pullForPast = rememberPullAboveTop(enabled = pastQuery != null && !showsPast) { showsPast = true }
-    val shown = remember(past?.events, paged.events) {
-        val upcoming = paged.events
-        val upcomingKeys = upcoming.mapTo(HashSet()) { it.listKey() }
-        past?.events.orEmpty().asReversed().filter { it.listKey() !in upcomingKeys } + upcoming
+    val past = if (pastQuery != null) rememberPagedListing("$screen past", events, pastQuery) else null
+    val scrollStop = rememberLazyGridScrollStop(grid, resetKey = query, ready = paged.listing != null && (past == null || past.listing != null))
+    val pastShown = remember(past?.events, paged.events, paged.listing == null) {
+        val upcomingKeys = paged.events.mapTo(HashSet()) { it.listKey() }
+        if (paged.listing == null) emptyList() else past?.events.orEmpty().asReversed().filter { it.listKey() !in upcomingKeys }
     }
+    val shown = remember(pastShown, paged.events) { pastShown + paged.events }
     val cardListing = remember(paged.listing, past?.listing, shown) {
         val pastListing = past?.listing
         if (pastListing == null) paged.listing else paged.listing?.copy(events = shown, listedNames = pastListing.listedNames + paged.listing.listedNames)
@@ -412,8 +413,8 @@ private fun EventListView(
     val showsMarks = inDateOrder && query.search.isBlank()
     val now = cards.now
     val marksFrom = when {
-        past == null -> query.from
-        past.listing?.status == EventListingStatus.Complete -> null
+        past?.listing == null -> query.from
+        past.listing.status == EventListingStatus.Complete -> null
         else -> shown.firstOrNull()?.shownOccurrence(now)?.start?.startInstant ?: query.from
     }
     val markers = remember(marks, marksFrom, query, showsMarks) { if (showsMarks) marks.markersBetween(marksFrom, query.until) else emptyList() }
@@ -439,16 +440,18 @@ private fun EventListView(
     val haptics = LocalHapticFeedback.current
     val eventAt = { position: Offset -> eventAt(grid.layoutInfo, currentEventsByKey, position) }
     val backdropSource = Modifier.backdropSource(LocalBackdrop.current)
-    BoxWithConstraints(Modifier.fillMaxSize().pullAboveTop(pullForPast)) {
+    BoxWithConstraints(Modifier.fillMaxSize().lazyGridScrollStop(scrollStop)) {
         val dayLabels = eventCardColumns(maxWidth, DAY_LINE_GUTTER) == 1
         val agenda = remember(shown, cards, markers, periods, complete, dayLabels) {
             agendaOf(shown, cards, markers, periods, marksAfterEvents = complete, dayLabels = dayLabels)
         }
+        val stopIndex = remember(agenda, pastShown) { pastShown.lastOrNull()?.let { agenda.rowIndexOf(it.listKey()) }?.plus(1) ?: 0 }
+        SideEffect { scrollStop.stopIndex = stopIndex }
         val labelGapPx = with(LocalDensity.current) { AgendaLabelGap.roundToPx() }
         val pinnedLabelRow = remember(grid, agenda, labelGapPx) {
             derivedStateOf {
                 val top = grid.layoutInfo.visibleItemsInfo.lastOrNull { item ->
-                    val row = agenda.rowIndexOf(item.key) ?: return@lastOrNull false
+                    val row = agenda.rowIndexOf(item.key)?.takeIf { it >= scrollStop.firstReachableIndex } ?: return@lastOrNull false
                     item.offset.y + (if (agenda.rows[row] is AgendaRow.Label) labelGapPx else 0) < 0
                 }
                 val row = top?.let { agenda.rowIndexOf(it.key) } ?: return@derivedStateOf null
@@ -468,7 +471,6 @@ private fun EventListView(
         val hiddenWhileStuck = { period: CalendarPeriod -> Modifier.graphicsLayer { alpha = if (period in stuckPeriods.value) 0f else 1f } }
         val decoration = { columns: Int ->
             backdropSource
-                .graphicsLayer { translationY = pullForPast.distance }
                 .drawBehind {
                     val layout = grid.layoutInfo
                     when {
@@ -481,12 +483,6 @@ private fun EventListView(
                 }
         }
         EventCardGrid(grid, topPadding = topPadding, bottomPadding = bottomPadding, startGutter = DAY_LINE_GUTTER, decoration = decoration) { cardMinHeight ->
-            if (past?.isEmpty == true) {
-                item(key = "no past events", span = { GridItemSpan(maxLineSpan) }) { ListPlaceholder("No past events", Modifier.animateItem()) }
-            }
-            if (paged.isEmpty && past?.events.isNullOrEmpty() && markers.isEmpty() && periods.isEmpty()) {
-                item(key = "no events", span = { GridItemSpan(maxLineSpan) }) { ListPlaceholder(emptyText, Modifier.animateItem()) }
-            }
             if (inDateOrder) {
                 for ((index, row) in agenda.rows.withIndex()) when (row) {
                     is AgendaRow.Heading -> item(key = row.key, span = { GridItemSpan(maxLineSpan) }) { AgendaHeading(row.title, row.isCurrent, Modifier.animateItem()) }
@@ -521,17 +517,24 @@ private fun EventListView(
                     )
                 }
             }
+            if (paged.isEmpty && (!inDateOrder || agenda.rows.drop(stopIndex).all { it is AgendaRow.Label || it is AgendaRow.Heading })) {
+                item(key = "no events", span = { GridItemSpan(maxLineSpan) }) { ListPlaceholder(emptyText, Modifier.animateItem()) }
+            }
             listingStatusItem(paged.listing, paged.retry)
             footer?.invoke(this, paged.listing)
+            if (past != null) {
+                item(key = "end filler", span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(Modifier.height(with(LocalDensity.current) { scrollStop.endFillerHeight.toDp() }))
+                }
+            }
         }
         if (inDateOrder) {
             if (dayLabels) PinnedAgendaLabel(grid, agenda, pinnedLabelRow.value, topPadding, margin, cards.formatting, guideColors)
-            else StickyAgendaHeading(grid, agenda, topPadding, margin)
+            else StickyAgendaHeading(grid, agenda, topPadding, margin) { scrollStop.firstReachableIndex }
             StuckAgendaPeriods(stuckPeriods.value, topPadding + stuckPeriodsTop, margin, cards.formatting) { period ->
                 state.openMarkSheet(MarkSheetTarget(MarkKind.Period, period.id))
             }
         }
-        PullAboveTopHint(pullForPast, "Past Events", Modifier.align(Alignment.TopCenter).padding(top = topPadding))
     }
 }
 
@@ -748,10 +751,10 @@ private fun Modifier.selectsByDragging(
 }
 
 @Composable
-private fun StickyAgendaHeading(grid: LazyGridState, agenda: Agenda, topPadding: Dp, cardsStart: Dp) {
+private fun StickyAgendaHeading(grid: LazyGridState, agenda: Agenda, topPadding: Dp, cardsStart: Dp, firstReachableRow: () -> Int) {
     val stuckRow by remember(grid, agenda) {
         derivedStateOf {
-            val above = grid.layoutInfo.visibleItemsInfo.lastOrNull { it.offset.y < 0 && agenda.rowIndexOf(it.key) != null }
+            val above = grid.layoutInfo.visibleItemsInfo.lastOrNull { it.offset.y < 0 && (agenda.rowIndexOf(it.key) ?: -1) >= firstReachableRow() }
             above?.let { agenda.rowIndexOf(it.key) }?.let(agenda::headingRowOf)
         }
     }
