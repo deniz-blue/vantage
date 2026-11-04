@@ -47,6 +47,7 @@ import blue.deniz.vantage.storage.EventListQuery
 import blue.deniz.vantage.storage.eventsMatching
 import blue.deniz.vantage.storage.narrowedTo
 import blue.deniz.vantage.app.EventsView
+import blue.deniz.vantage.app.eventsViewsOn
 import blue.deniz.vantage.app.ui.FloatingIconButton
 import blue.deniz.vantage.app.ui.LocalTabBarHeight
 import blue.deniz.vantage.core.EventOrder
@@ -162,11 +163,11 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
                 onNewOnDay = state::openNewEntrySheet,
                 showsMarkersAndPeriods = filters.tagIds.isEmpty() && filters.sourceTypes.isEmpty(),
                 bottomEndClearance = EventsViewControlsClearance,
-                calendarViewPicker = { EventsViewControls(view, changeView, onNew = openNewEntryOnSelectedDay) },
+                calendarViewPicker = { EventsViewControls(eventsViewsOn(MY_EVENTS_SCREEN), view, changeView, onNew = openNewEntryOnSelectedDay) },
             )
         }
         if (view != EventsView.Calendar) {
-            EventsViewControls(view, changeView, onNew = openNewEntry, Modifier.align(Alignment.BottomEnd).padding(end = Spacing.md, bottom = LocalTabBarHeight.current + Spacing.sm))
+            EventsViewControls(eventsViewsOn(MY_EVENTS_SCREEN), view, changeView, onNew = openNewEntry, Modifier.align(Alignment.BottomEnd).padding(end = Spacing.md, bottom = LocalTabBarHeight.current + Spacing.sm))
         }
     }
 }

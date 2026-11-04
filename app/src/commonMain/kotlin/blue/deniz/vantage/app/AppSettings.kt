@@ -110,7 +110,8 @@ class AppSettings(private val storage: KeyValueStorage, val detectedTimeZone: Ti
     }
 
     fun eventsViewOf(screen: String, default: EventsView): EventsView =
-        eventsViews[screen] ?: EventsView.entries.find { it.storedName == storage.read(EVENTS_VIEW_KEY_PREFIX + screen) } ?: default
+        (eventsViews[screen] ?: EventsView.entries.find { it.storedName == storage.read(EVENTS_VIEW_KEY_PREFIX + screen) })
+            ?.takeIf { it in eventsViewsOn(screen) } ?: default
 
     fun changeEventsView(screen: String, view: EventsView) {
         eventsViews[screen] = view

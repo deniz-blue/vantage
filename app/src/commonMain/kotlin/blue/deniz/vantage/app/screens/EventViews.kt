@@ -307,15 +307,15 @@ fun EventsViewContent(
 }
 
 @Composable
-fun EventsViewControls(selected: EventsView, onSelect: (EventsView) -> Unit, onNew: (() -> Unit)?, modifier: Modifier = Modifier) {
+fun EventsViewControls(views: List<EventsView>, selected: EventsView, onSelect: (EventsView) -> Unit, onNew: (() -> Unit)?, modifier: Modifier = Modifier) {
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
-        EventsViewPicker(selected, onSelect)
+        EventsViewPicker(views, selected, onSelect)
         if (onNew != null) FloatingIconButton(AppIcons.Plus, "New", onNew, size = EventsViewControlsHeight)
     }
 }
 
 @Composable
-private fun EventsViewPicker(selected: EventsView, onSelect: (EventsView) -> Unit, modifier: Modifier = Modifier) {
+private fun EventsViewPicker(views: List<EventsView>, selected: EventsView, onSelect: (EventsView) -> Unit, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier.floatingSurface(CircleShape).selectableGroup(),
         shape = CircleShape,
@@ -323,7 +323,7 @@ private fun EventsViewPicker(selected: EventsView, onSelect: (EventsView) -> Uni
         border = floatingBorder(),
     ) {
         Row(Modifier.padding(Spacing.xs)) {
-            for (view in EventsView.entries) EventsViewButton(view, view == selected, onClick = { onSelect(view) })
+            for (view in views) EventsViewButton(view, view == selected, onClick = { onSelect(view) })
         }
     }
 }

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.EventsView
+import blue.deniz.vantage.app.eventsViewsOn
 import blue.deniz.vantage.app.HomeTile
 import blue.deniz.vantage.app.Route
 import blue.deniz.vantage.app.SystemBackHandler
@@ -203,7 +204,7 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
                 topPadding = overlayHeight,
                 bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + Spacing.md,
                 bottomEndClearance = EventsViewControlsClearance,
-                calendarViewPicker = { EventsViewControls(view, changeView, onNew = null) },
+                calendarViewPicker = { EventsViewControls(eventsViewsOn(screen), view, changeView, onNew = null) },
                 listFooter = { listing ->
                     listing?.countLabel()?.let { count ->
                         item(key = "count", span = { GridItemSpan(maxLineSpan) }) {
@@ -221,6 +222,7 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
         }
         if (view != EventsView.Calendar) {
             EventsViewControls(
+                eventsViewsOn(screen),
                 view,
                 changeView,
                 onNew = null,
