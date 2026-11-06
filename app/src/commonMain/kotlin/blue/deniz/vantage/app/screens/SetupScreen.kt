@@ -68,8 +68,10 @@ import blue.deniz.vantage.app.ui.ContentMaxWidth
 import blue.deniz.vantage.app.ui.EventCard
 import blue.deniz.vantage.app.ui.Icon
 import blue.deniz.vantage.app.ui.IconButton
+import blue.deniz.vantage.app.ui.IconSize
 import blue.deniz.vantage.app.ui.ListRow
 import blue.deniz.vantage.app.ui.ListSection
+import blue.deniz.vantage.app.ui.Radius
 import blue.deniz.vantage.app.ui.SectionTitle
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.Text
@@ -258,7 +260,7 @@ private fun SourcesDiagram(modifier: Modifier = Modifier) {
         }
         Icon(AppIcons.ChevronRight, Modifier.padding(horizontal = Spacing.sm), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Column(
-            Modifier.width(176.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(Spacing.sm),
+            Modifier.width(176.dp).clip(RoundedCornerShape(Radius.md)).background(MaterialTheme.colorScheme.surfaceVariant).padding(Spacing.sm),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
             Text("My Events", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -275,7 +277,7 @@ private fun SourcePill(icon: ImageVector, label: String) {
         Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = Spacing.sm, vertical = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, Modifier.padding(end = Spacing.xs), size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+        Icon(icon, Modifier.padding(end = Spacing.xs), size = IconSize.xs, tint = MaterialTheme.colorScheme.primary)
         Text(label, style = MaterialTheme.typography.labelMedium)
     }
 }
@@ -283,7 +285,7 @@ private fun SourcePill(icon: ImageVector, label: String) {
 @Composable
 private fun MiniEventRow(day: String, name: String) {
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surface).padding(horizontal = Spacing.sm, vertical = 6.dp),
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(Radius.xs)).background(MaterialTheme.colorScheme.surface).padding(horizontal = Spacing.sm, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(day, Modifier.width(32.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
@@ -310,8 +312,8 @@ private fun ColumnScope.AppearanceStep(state: AppState) {
     val event = remember(state.today) { previewEvent(state.today) }
     StepTitle("Appearance")
     Column(
-        Modifier.padding(horizontal = Spacing.md).fillMaxWidth().clip(RoundedCornerShape(16.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp)).padding(bottom = Spacing.sm),
+        Modifier.padding(horizontal = Spacing.md).fillMaxWidth().clip(RoundedCornerShape(Radius.lg))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(Radius.lg)).padding(bottom = Spacing.sm),
     ) {
         SectionTitle("Coming Up", Modifier.padding(start = Spacing.md, top = Spacing.sm, bottom = Spacing.xs))
         EventCard(event, state.formatting, state.preferredLanguages, Modifier.padding(horizontal = Spacing.sm).fillMaxWidth())
@@ -425,9 +427,9 @@ private fun CalendarFlowDiagram(label: String, intoVantage: Boolean, modifier: M
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         phone()
         Row(Modifier.padding(horizontal = Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
-            if (!intoVantage) Icon(AppIcons.ChevronLeft, size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+            if (!intoVantage) Icon(AppIcons.ChevronLeft, size = IconSize.xs, tint = MaterialTheme.colorScheme.primary)
             Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
-            if (intoVantage) Icon(AppIcons.ChevronRight, size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+            if (intoVantage) Icon(AppIcons.ChevronRight, size = IconSize.xs, tint = MaterialTheme.colorScheme.primary)
         }
         vantage()
     }
@@ -435,7 +437,7 @@ private fun CalendarFlowDiagram(label: String, intoVantage: Boolean, modifier: M
 
 @Composable
 private fun DiagramEnd(content: @Composable () -> Unit) {
-    Box(Modifier.size(72.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+    Box(Modifier.size(72.dp).clip(RoundedCornerShape(Radius.lg)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
         content()
     }
 }

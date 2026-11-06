@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.screens.ANDROID_EARLY_ACCESS_URL
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.Icon
+import blue.deniz.vantage.app.ui.IconSize
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.Text
 
@@ -29,7 +30,7 @@ fun AndroidAppBanner() {
             .padding(horizontal = Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(AppIcons.Smartphone, Modifier.padding(end = Spacing.sm), size = 16.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(AppIcons.Smartphone, Modifier.padding(end = Spacing.sm), size = IconSize.xs, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Text("Vantage for Android", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 1)
         Text("Get the App", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
         Icon(AppIcons.ChevronRight, Modifier.padding(start = Spacing.xs), size = 14.dp, tint = MaterialTheme.colorScheme.primary)
