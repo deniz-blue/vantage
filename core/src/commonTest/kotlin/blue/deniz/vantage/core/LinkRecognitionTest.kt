@@ -51,7 +51,7 @@ class LinkRecognitionTest {
             ResolvedEvent.fromLink("https://eventsl.ink/event?url=https%3A%2F%2Fexample.com%2Fcal.ics"),
         )
         assertEquals(
-            ResolvedEvent(format = EventFormat.OpenEvnt, raw = """{"v":"0.2"}"""),
+            ResolvedEvent(source = EventSource.Local(), format = EventFormat.OpenEvnt, raw = """{"v":"0.2"}"""),
             ResolvedEvent.fromLink("https://eventsl.ink/?type=event&data=%7B%22v%22%3A%220.2%22%7D"),
         )
         assertNull(ResolvedEvent.fromLink("https://eventsl.ink/e"))
@@ -65,6 +65,11 @@ class LinkRecognitionTest {
             ResolvedEvent.fromEventsLinkIntent(intent),
         )
         assertNull(EventsLink.parseIntent(Url("https://vantage.tsx.lt/settings")))
+        assertEquals(
+            ResolvedEvent(source = EventSource.Local(), format = EventFormat.OpenEvnt, raw = """{"v":"0.2"}"""),
+            ResolvedEvent.fromLink("https://vantage.tsx.lt/event?data=%7B%22v%22%3A%220.2%22%7D"),
+        )
+        assertNull(ResolvedEvent.fromLink("https://vantage.tsx.lt/settings"))
         assertNull(ResolvedEvent.fromEventsLinkIntent(EventsLink.Intent()))
     }
 

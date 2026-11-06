@@ -34,7 +34,8 @@ Paths on `eventsl.ink`, and the same paths on `vantage.tsx.lt`:
 - `url`: anything `recognizeLink` reads (next section).
 - `data`: a whole Open Evnt document as URL-encoded JSON. No hosting needed, so this is
   the way to hand someone a one-off event. The document needs `v`, `id` and `name`; an
-  `urn:uuid:` id is fine.
+  `urn:uuid:` id is fine. Added, it becomes a local event, and a link carrying the same
+  `id` opens that stored copy.
 
 ```
 https://vantage.tsx.lt/event?data=%7B%22v%22%3A%220.2%22%2C%22id%22%3A%22urn%3Auuid%3A…%22%2C%22name%22%3A%7B%22en%22%3A%22…%22%7D%2C%22occurrences%22%3A%5B%7B%22start%22%3A%222026-11-10T16%3A00%5BEurope%2FVilnius%5D%22%7D%5D%7D

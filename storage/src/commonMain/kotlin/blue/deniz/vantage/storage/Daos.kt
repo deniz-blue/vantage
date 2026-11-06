@@ -53,6 +53,9 @@ abstract class EventDao {
     @Query("SELECT id FROM events WHERE source = :source LIMIT 1")
     abstract suspend fun findEventIdBySource(source: EventSource): String?
 
+    @Query("SELECT e.id FROM events e JOIN event_cache c ON c.eventId = e.id WHERE e.source = :source AND json_extract(c.data, '$.id') = :documentId LIMIT 1")
+    abstract suspend fun findEventIdBySourceAndDocumentId(source: EventSource, documentId: String): String?
+
     @Transaction
     @Query("SELECT * FROM events WHERE id = :id")
     abstract fun observeEvent(id: String): Flow<StoredEvent?>

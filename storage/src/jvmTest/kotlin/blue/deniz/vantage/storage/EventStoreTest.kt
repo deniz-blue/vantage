@@ -23,6 +23,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.encodeURLParameter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -98,6 +99,21 @@ class EventStoreTest {
 
         val id = store.add(preview.event)
         assertEquals(id, assertIs<LinkPreview.AlreadyStored>(store.previewLink(" https://example.com/picnic.json ")).id)
+    }
+
+    @Test
+    fun anEventCarriedInALinkIsAddedAsALocalEvent() = runTest {
+        val link = "https://vantage.tsx.lt/event?data=" + openEvnt("Picnic", "2026-07-10[Europe/Vilnius]").encodeURLParameter()
+        val preview = assertIs<LinkPreview.New>(store.previewLink(link))
+        local("Other", "2026-07-11[Europe/Vilnius]")
+        assertNull(store.findStoredCopyId(preview.event))
+
+        val id = store.add(preview.event)
+        val stored = assertNotNull(store.find(id))
+        assertEquals(EventSource.Local(), stored.source)
+        assertEquals(mapOf("en" to "Picnic"), stored.data?.name)
+        assertEquals(setOf("Picnic", "Other"), names(EventListQuery()).toSet())
+        assertEquals(id, assertIs<LinkPreview.AlreadyStored>(store.previewLink(link)).id)
     }
 
     @Test

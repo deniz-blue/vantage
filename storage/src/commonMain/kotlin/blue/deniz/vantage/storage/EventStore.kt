@@ -318,8 +318,11 @@ class EventStore(
 
     suspend fun find(id: String): ResolvedEvent? = events.findEvent(id)?.toResolvedEvent()
 
-    suspend fun findStoredCopyId(event: ResolvedEvent): String? =
-        if (event.source == EventSource.Unknown) null else events.findEventIdBySource(event.source)
+    suspend fun findStoredCopyId(event: ResolvedEvent): String? = when (event.source) {
+        EventSource.Unknown -> null
+        is EventSource.Local -> event.data?.let { events.findEventIdBySourceAndDocumentId(event.source, it.id) }
+        else -> events.findEventIdBySource(event.source)
+    }
 
     private suspend fun storedPreviewOf(event: ResolvedEvent): LinkPreview.AlreadyStored? {
         val id = findStoredCopyId(event) ?: return null

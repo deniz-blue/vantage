@@ -30,7 +30,7 @@ private fun recognizeAtUri(text: String): ResolvedEvent? {
 private fun recognizeHttpUrl(text: String): ResolvedEvent? {
     if (!isHttpUrl(text)) return null
     val url = parseUrl(text) ?: return null
-    if (url.toString().startsWith(EventsLink.BASE_URL)) return recognizeEventsLink(url)
+    if (url.toString().startsWith(EventsLink.BASE_URL) || url.host == AppSchemes.WEB_HOST) return recognizeEventsLink(url)
     return recognizeFolio(url)
         ?: recognizeMediaWiki(text)
         ?: ResolvedEvent(source = EventSource.Http(text), format = formatFromExtension(url))
@@ -60,7 +60,7 @@ private fun recognizeEventsLink(url: Url): ResolvedEvent? = EventsLink.parseInte
 internal fun recognizeEventsLinkIntent(intent: EventsLink.Intent): ResolvedEvent? = when {
     intent.at != null -> recognizeAtUri(intent.at)
     intent.url != null -> recognizeLink(intent.url)
-    intent.data != null -> ResolvedEvent(format = EventFormat.OpenEvnt, raw = intent.data)
+    intent.data != null -> ResolvedEvent(source = EventSource.Local(), format = EventFormat.OpenEvnt, raw = intent.data)
     else -> null
 }
 
