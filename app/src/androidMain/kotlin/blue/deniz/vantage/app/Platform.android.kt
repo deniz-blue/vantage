@@ -218,3 +218,9 @@ actual val runsInBrowser = false
 actual val runsInAndroidBrowser = false
 
 actual val mondayFirstCalendarLocale: CalendarLocale get() = java.util.Locale.UK
+
+@Composable
+actual fun rememberAppLabel(): String {
+    val context = LocalContext.current
+    return remember(context) { context.applicationInfo.loadLabel(context.packageManager).toString() }
+}

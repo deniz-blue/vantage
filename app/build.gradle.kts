@@ -5,6 +5,13 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
 }
 
+val generateBuildInfo = tasks.register<GenerateBuildInfo>("generateBuildInfo") {
+    versionName.set(providers.gradleProperty("vantage.versionName"))
+    versionCode.set(providers.gradleProperty("vantage.versionCode").map { it.toInt() })
+    commit.set(providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.map { it.trim() })
+    outputDir.set(layout.buildDirectory.dir("generated/buildInfo/commonMain/kotlin"))
+}
+
 kotlin {
     jvmToolchain(21)
     android {
@@ -24,6 +31,9 @@ kotlin {
     }
 
     sourceSets {
+        commonMain {
+            kotlin.srcDir(generateBuildInfo.flatMap { it.outputDir })
+        }
         commonMain.dependencies {
             implementation(project(":storage"))
             implementation(libs.compose.runtime)
@@ -56,4 +66,35 @@ kotlin {
 
 compose.resources {
     packageOfResClass = "blue.deniz.vantage.app.resources"
+}
+
+abstract class GenerateBuildInfo : DefaultTask() {
+    @get:Input
+    abstract val versionName: Property<String>
+
+    @get:Input
+    abstract val versionCode: Property<Int>
+
+    @get:Input
+    abstract val commit: Property<String>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val source = outputDir.file("blue/deniz/vantage/app/BuildInfo.kt").get().asFile
+        source.parentFile.mkdirs()
+        source.writeText(
+            """
+            package blue.deniz.vantage.app
+
+            internal object BuildInfo {
+                const val versionName = "${versionName.get()}"
+                const val versionCode = ${versionCode.get()}
+                const val commit = "${commit.get()}"
+            }
+            """.trimIndent() + "\n",
+        )
+    }
 }

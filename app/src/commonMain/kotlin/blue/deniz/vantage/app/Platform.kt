@@ -52,3 +52,6 @@ expect val runsInBrowser: Boolean
 expect val runsInAndroidBrowser: Boolean
 
 expect val mondayFirstCalendarLocale: CalendarLocale
+
+@Composable
+expect fun rememberAppLabel(): String

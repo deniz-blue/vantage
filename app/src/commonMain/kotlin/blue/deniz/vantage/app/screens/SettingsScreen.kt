@@ -26,6 +26,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.rememberCalendarPermissionRequest
 import blue.deniz.vantage.app.rememberNotificationPermissionRequest
+import blue.deniz.vantage.app.rememberAppLabel
+import blue.deniz.vantage.app.BuildInfo
 import blue.deniz.vantage.app.ui.CheckBoxIcon
 import blue.deniz.vantage.app.ui.Button
 import blue.deniz.vantage.app.ui.IconButton
@@ -535,6 +537,7 @@ private fun CalendarColorDot(color: Int?) {
 @Composable
 fun AboutScreen(state: AppState) {
     val uriHandler = LocalUriHandler.current
+    val appLabel = rememberAppLabel()
     SettingsPage("About", onBack = { state.navigator.goBack() }) {
         ListSection {
             for (link in APP_LINKS) {
@@ -547,13 +550,13 @@ fun AboutScreen(state: AppState) {
             }
         }
         Text(
-            "Flags from Twemoji, CC BY 4.0\nLexend by The Lexend Project Authors, SIL OFL 1.1",
+            "Map data © OpenStreetMap contributors, tiles from OpenFreeMap and OpenMapTiles\nFlags from Twemoji, CC BY 4.0\nLexend by The Lexend Project Authors, SIL OFL 1.1",
             Modifier.padding(start = Spacing.md, end = Spacing.md, top = Spacing.md),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall,
         )
         Text(
-            "Vantage (Kotlin preview)",
+            "$appLabel ${BuildInfo.versionName} (${BuildInfo.versionCode}) · ${BuildInfo.commit}",
             Modifier.padding(start = Spacing.md, end = Spacing.md, top = Spacing.md),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall,

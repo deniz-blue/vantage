@@ -14,8 +14,8 @@ android {
         applicationId = "lt.tsx.vantage"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "0.2.1"
+        versionCode = providers.gradleProperty("vantage.versionCode").get().toInt()
+        versionName = providers.gradleProperty("vantage.versionName").get()
         manifestPlaceholders["appLabel"] = "Vantage"
         providers.gradleProperty("androidAbis").orNull?.let { abis -> ndk { abiFilters += abis.split(",") } }
     }
