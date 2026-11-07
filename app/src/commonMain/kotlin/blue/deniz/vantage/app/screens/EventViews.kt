@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.core.Animatable
 import blue.deniz.vantage.app.ui.SELECTED_TINT_ALPHA
 import blue.deniz.vantage.app.ui.backdropSource
+import blue.deniz.vantage.app.ui.tagColorOrNull
 import blue.deniz.vantage.app.ui.LocalBackdrop
 import blue.deniz.vantage.app.ui.floatingSurface
 import androidx.compose.foundation.border
@@ -234,13 +235,13 @@ class EventCardData(
     val preferredLanguages: List<String>,
     private val tagsByEvent: Map<String, List<TagEntity>>,
     private val changeLabels: Map<String, String>,
-    private val accentColorOf: (EventSource) -> Color?,
+    private val calendarColorOf: (EventSource) -> Color?,
 ) {
     fun tagsOf(event: ResolvedEvent) = event.id?.let(tagsByEvent::get).orEmpty()
 
     fun changeLabelOf(event: ResolvedEvent) = event.id?.let(changeLabels::get)
 
-    fun accentColorOf(event: ResolvedEvent) = accentColorOf(event.source)
+    fun accentColorOf(event: ResolvedEvent) = calendarColorOf(event.source) ?: tagsOf(event).firstOrNull()?.color?.let(::tagColorOrNull)
 
     fun fallbackTitleOf(event: ResolvedEvent, listing: EventListing?): String? =
         listing?.listedNames?.get(event.source)?.translate(preferredLanguages)?.takeIf { it.isNotBlank() }

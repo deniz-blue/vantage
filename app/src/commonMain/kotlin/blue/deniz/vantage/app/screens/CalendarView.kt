@@ -250,7 +250,6 @@ fun CalendarView(
 ) {
     val today = state.today
     val selection = state.calendarSelection
-    val formatting = cards.formatting
     val pager = rememberMonthPager(selection)
     val shownMonth = monthOfCalendarPage(pager.currentPage)
 
@@ -285,7 +284,7 @@ fun CalendarView(
                 month = monthOfCalendarPage(page),
                 today = today,
                 selectedDay = selection.day,
-                formatting = formatting,
+                cards = cards,
                 onOpenDay = selection::openDay,
                 modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.xs),
             )
@@ -366,10 +365,11 @@ private fun MonthPage(
     month: LocalDate,
     today: LocalDate,
     selectedDay: LocalDate,
-    formatting: EventFormatting,
+    cards: EventCardData,
     onOpenDay: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val formatting = cards.formatting
     val weeks = remember(month) { CalendarGrid.weeksOf(month) }
     val query = remember(weeks, state.timeZone) { daysQuery(weeks.first().first(), weeks.last().last(), state.timeZone) }
     val listing = collectAcrossSession(monthListingKey(screen, month), listOf(events, query)) { events.list(query, MAX_EVENTS_PER_MONTH) }
@@ -388,7 +388,7 @@ private fun MonthPage(
                 spans = spans,
                 periodSpans = periodSpans,
                 eventsOpacity = { eventsOpacity },
-                formatting = formatting,
+                cards = cards,
                 onOpenDay = onOpenDay,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
             )
@@ -406,7 +406,7 @@ private fun WeekRow(
     spans: List<DaySpan<CalendarBarItem>>,
     periodSpans: List<DaySpan<CalendarPeriod>>,
     eventsOpacity: () -> Float,
-    formatting: EventFormatting,
+    cards: EventCardData,
     onOpenDay: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -436,7 +436,7 @@ private fun WeekRow(
         }
         Row(Modifier.fillMaxSize()) {
             for ((column, day) in week.withIndex()) {
-                val label = formatting.formatDay(day)
+                val label = cards.formatting.formatDay(day)
                 val hidden = layout.hiddenCounts[column]
                 DayNumber(
                     day = day,
@@ -463,7 +463,7 @@ private fun WeekRow(
                 when (val item = bar.item) {
                     is CalendarBarItem.Event -> EventBar(
                         title = item.event.data?.translatedName(state.preferredLanguages).orEmpty(),
-                        color = state.calendars.colorOf(item.event.source)?.let(::Color) ?: MaterialTheme.colorScheme.primary,
+                        color = cards.accentColorOf(item.event) ?: MaterialTheme.colorScheme.primary,
                         continuesBefore = bar.continuesBefore,
                         continuesAfter = bar.continuesAfter,
                         cancelled = item.cancelled,
