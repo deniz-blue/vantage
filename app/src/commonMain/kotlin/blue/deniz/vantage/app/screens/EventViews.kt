@@ -442,8 +442,8 @@ private fun EventListView(
     val backdropSource = Modifier.backdropSource(LocalBackdrop.current)
     BoxWithConstraints(Modifier.fillMaxSize().lazyGridScrollStop(scrollStop)) {
         val dayLabels = eventCardColumns(maxWidth, DAY_LINE_GUTTER) == 1
-        val agenda = remember(shown, pastShown.size, cards, markers, periods, complete, dayLabels) {
-            agendaOf(shown, cards, markers, periods, marksAfterEvents = complete, dayLabels = dayLabels, upcomingFrom = pastShown.size)
+        val agenda = remember(shown, pastShown.size, past != null, cards, markers, periods, complete, dayLabels) {
+            agendaOf(shown, cards, markers, periods, marksAfterEvents = complete, dayLabels = dayLabels, upcomingFrom = pastShown.size.takeIf { past != null })
         }
         val stopIndex = agenda.upcomingStartRow
         SideEffect { scrollStop.stopIndex = stopIndex }
@@ -461,9 +461,12 @@ private fun EventListView(
         val headingPillHeight = with(LocalDensity.current) { MaterialTheme.typography.headlineSmall.lineHeight.toDp() } + Spacing.xs * 2
         val stuckPeriodsTop = if (dayLabels) AgendaLabelHeight + Spacing.xs else Spacing.xs + headingPillHeight + Spacing.xs
         val periodSlotPx = with(LocalDensity.current) { stuckPeriodsTop.roundToPx() }
-        val stuckPeriods = remember(grid, agenda, periodSlotPx) {
+        val stuckPeriods = remember(grid, agenda, periodSlotPx, pinnedLabelRow) {
             derivedStateOf {
-                val under = grid.layoutInfo.visibleItemsInfo.lastOrNull { item -> item.offset.y < periodSlotPx && agenda.rowIndexOf(item.key) != null }
+                if (dayLabels && pinnedLabelRow.value == null) return@derivedStateOf emptyList()
+                val under = grid.layoutInfo.visibleItemsInfo.lastOrNull { item ->
+                    item.offset.y < periodSlotPx && agenda.rowIndexOf(item.key)?.takeIf { it >= scrollStop.firstReachableIndex } != null
+                }
                 under?.let { agenda.rowIndexOf(it.key) }?.let(agenda::periodsRunningAt).orEmpty()
             }
         }

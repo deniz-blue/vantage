@@ -60,7 +60,7 @@ fun agendaOf(
     periods: List<CalendarPeriod> = emptyList(),
     marksAfterEvents: Boolean = false,
     dayLabels: Boolean = true,
-    upcomingFrom: Int = 0,
+    upcomingFrom: Int? = null,
 ): Agenda = agendaOf(events, cards.formatting, cards.now, markers, periods, marksAfterEvents, dayLabels, upcomingFrom) { event -> event.shownOccurrence(cards.now)?.start }
 
 fun agendaOf(
@@ -71,7 +71,7 @@ fun agendaOf(
     periods: List<CalendarPeriod> = emptyList(),
     marksAfterEvents: Boolean = false,
     dayLabels: Boolean = true,
-    upcomingFrom: Int = 0,
+    upcomingFrom: Int? = null,
     startOf: (ResolvedEvent) -> PartialDate?,
 ): Agenda {
     val today = now.toLocalDateTime(formatting.timeZone).date
@@ -81,8 +81,10 @@ fun agendaOf(
     var labelledDay: LocalDate? = null
     val usedKeys = mutableMapOf<String, Int>()
     var todayPlaced = false
-    val marks = (periods.map { it.start to AgendaRow.PeriodStart(it) } + markers.map { it.at to AgendaRow.Marker(it) })
-        .sortedBy { (at, _) -> at.startInstant }
+    val hasPastPart = upcomingFrom != null
+    val (endedPeriods, openPeriods) = periods.partition { hasPastPart && it.endsAt <= now }
+    val (endedMarkers, openMarkers) = markers.partition { hasPastPart && it.endsAt <= now }
+    var marks = marksOf(endedPeriods, endedMarkers)
     var placedMarks = 0
     var upcomingStartRow = -1
 
@@ -139,6 +141,9 @@ fun agendaOf(
     }
 
     fun startUpcoming() {
+        placeMarksBefore(null)
+        marks = marksOf(openPeriods, openMarkers)
+        placedMarks = 0
         upcomingStartRow = rows.size
         headingKey = null
         labelledDay = null
@@ -146,7 +151,7 @@ fun agendaOf(
     }
 
     for ((index, event) in events.withIndex()) {
-        if (index == upcomingFrom) startUpcoming()
+        if (index == (upcomingFrom ?: 0)) startUpcoming()
         val start = startOf(event)
         placeMarksBefore(start?.startInstant)
         place(start, AgendaRow.Event(event))
@@ -156,6 +161,10 @@ fun agendaOf(
     if (!todayPlaced) placeToday()
     return Agenda(rows, timesOf(rowDays, today), periodsRunningOf(rows, rowDays, formatting), upcomingStartRow)
 }
+
+private fun marksOf(periods: List<CalendarPeriod>, markers: List<CalendarMarker>): List<Pair<PartialDate, AgendaRow>> =
+    (periods.map { it.start to AgendaRow.PeriodStart(it) } + markers.map { it.at to AgendaRow.Marker(it) })
+        .sortedBy { (at, _) -> at.startInstant }
 
 private fun Pair<PartialDate, AgendaRow>.comesBefore(instant: Instant): Boolean {
     val (at, row) = this
