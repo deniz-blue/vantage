@@ -33,6 +33,13 @@ class LinkRecognitionTest {
     }
 
     @Test
+    fun readsTheSameFolioEventFromItsDocumentAddress() {
+        val bare = ResolvedEvent.fromLink("https://folio.denizblue.workers.dev/events/e1")
+        assertEquals(bare, ResolvedEvent.fromLink("https://folio.denizblue.workers.dev/events/e1.evnt.json"))
+        assertEquals(bare, ResolvedEvent.fromLink("https://folio.denizblue.workers.dev/events/e1.json"))
+    }
+
+    @Test
     fun recognizesAMediaWikiPage() {
         assertEquals(
             ResolvedEvent(source = EventSource.MediaWiki("https://wiki.example/", "Events/Meetup 2026"), format = EventFormat.OpenEvnt),
@@ -95,7 +102,7 @@ class LinkRecognitionTest {
 class EventSourceTest {
     @Test
     fun buildsTheAddressEachSourceIsReadFrom() {
-        assertEquals("https://folio.denizblue.workers.dev/events/e1", EventSource.Folio("e1").location)
+        assertEquals("https://folio.denizblue.workers.dev/events/e1.evnt.json", EventSource.Folio("e1").location)
         assertEquals("https://wiki.example/rest.php/v1/page/Events%2FMeetup%202026", EventSource.MediaWiki("https://wiki.example/", "Events/Meetup 2026").location)
         assertEquals("https://dav.example/files/events/a.ics", EventSource.WebDav("https://dav.example/files/", "events/a.ics").location)
         assertEquals("https://dav.example/a.ics", EventSource.WebDav("https://dav.example/files/", "/a.ics").location)
@@ -104,7 +111,7 @@ class EventSourceTest {
     @Test
     fun aFolioEditLinkOpensTheSameEventAgain() {
         val source = EventSource.Folio("e1", editToken = "t0k")
-        assertEquals("https://folio.denizblue.workers.dev/events/e1?token=t0k", source.editLink)
+        assertEquals("https://folio.denizblue.workers.dev/events/e1.evnt.json?token=t0k", source.editLink)
         assertEquals(source, ResolvedEvent.fromLink(source.editLink!!)?.source)
         assertNull(EventSource.Folio("e1").editLink)
     }
@@ -115,7 +122,7 @@ class EventSourceTest {
             "https://eventsl.ink/e?at=at%3A%2F%2Fdid%3Aplc%3Aabc%2Fdirectory.evnt.event%2F1",
             EventsLink.shareLinkTo(EventSource.At(AtUri("did:plc:abc", "directory.evnt.event", "1"))),
         )
-        assertEquals("https://eventsl.ink/e?url=https%3A%2F%2Ffolio.denizblue.workers.dev%2Fevents%2Fe1", EventsLink.shareLinkTo(EventSource.Folio("e1", editToken = "secret")))
+        assertEquals("https://eventsl.ink/e?url=https%3A%2F%2Ffolio.denizblue.workers.dev%2Fevents%2Fe1.evnt.json", EventsLink.shareLinkTo(EventSource.Folio("e1", editToken = "secret")))
         assertNull(EventsLink.shareLinkTo(EventSource.Local()))
     }
 

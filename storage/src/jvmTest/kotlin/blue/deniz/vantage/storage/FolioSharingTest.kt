@@ -34,7 +34,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 private const val FOLIO = "https://folio.test"
-private const val SHARED_URL = "$FOLIO/events/f1"
+private const val SHARED_URL = "$FOLIO/events/f1.evnt.json"
 private const val EDIT_TOKEN = "k1"
 
 private class FakeFolio {

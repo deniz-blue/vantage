@@ -37,7 +37,7 @@ sealed interface EventSource {
     @Serializable
     @SerialName("folio")
     data class Folio(val id: String, val baseUrl: String = DEFAULT_BASE_URL, val editToken: String? = null) : Remote {
-        override val location get() = URLBuilder(baseUrl).apply { path("events", id) }.buildString()
+        override val location get() = URLBuilder(baseUrl).apply { path("events", "$id.evnt.json") }.buildString()
 
         val editLink get() = editToken?.let { token -> URLBuilder(location).apply { parameters.append("token", token) }.buildString() }
 
