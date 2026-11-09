@@ -18,10 +18,16 @@ fun Translations?.translate(preferredLanguages: List<String> = listOf("en")): St
 fun Translations?.languageToEdit(preferredLanguages: List<String>): String =
     shownLanguage(preferredLanguages) ?: this?.keys?.firstOrNull() ?: preferredLanguages.firstOrNull() ?: "und"
 
-fun Translations?.textToEdit(preferredLanguages: List<String>): String = this?.get(languageToEdit(preferredLanguages)).orEmpty()
+fun Translations?.textToEdit(preferredLanguages: List<String>): String = textIn(languageToEdit(preferredLanguages))
 
 fun Translations?.withEditedText(preferredLanguages: List<String>, text: String): Translations =
-    orEmpty() + (languageToEdit(preferredLanguages) to text)
+    withTextIn(languageToEdit(preferredLanguages), text)
+
+fun Translations?.textIn(language: String): String = this?.get(language).orEmpty()
+
+fun Translations?.withTextIn(language: String, text: String): Translations = orEmpty() + (language to text)
+
+fun Translations?.writtenLanguages(): List<String> = this?.filterValues { it.isNotEmpty() }?.keys?.toList().orEmpty()
 
 fun Translations?.hasText() = this != null && values.any { it.isNotEmpty() }
 

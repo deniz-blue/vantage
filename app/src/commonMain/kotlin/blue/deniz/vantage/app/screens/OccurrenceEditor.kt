@@ -110,8 +110,9 @@ fun BottomSheetScope.OccurrenceEditor(
     defaultTimeZoneId: String,
     now: Instant,
     onChange: (Occurrence) -> Unit,
-    onDelete: () -> Unit,
+    onDelete: (() -> Unit)?,
     onDone: () -> Unit,
+    doneLabel: String = "Done",
 ) {
     val timeZoneId = occurrence.start?.timeZoneId ?: defaultTimeZoneId
     val start = occurrence.start ?: PartialDate.Day(now.toLocalDateTime(TimeZone.of(timeZoneId)).date, timeZoneId)
@@ -125,7 +126,7 @@ fun BottomSheetScope.OccurrenceEditor(
     }
     ScrollingBody {
         Column(Modifier.fillMaxWidth().padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            OccurrenceForm(occurrence, start, timeZoneId, formatting, onChange, onDelete, onDone, onPickTimeZone = { pickingTimeZone = true })
+            OccurrenceForm(occurrence, start, timeZoneId, formatting, onChange, onDelete, onDone, doneLabel, onPickTimeZone = { pickingTimeZone = true })
         }
     }
 }
@@ -137,8 +138,9 @@ private fun ColumnScope.OccurrenceForm(
     timeZoneId: String,
     formatting: EventFormatting,
     onChange: (Occurrence) -> Unit,
-    onDelete: () -> Unit,
+    onDelete: (() -> Unit)?,
     onDone: () -> Unit,
+    doneLabel: String,
     onPickTimeZone: () -> Unit,
 ) {
     val end = occurrence.end
@@ -220,9 +222,9 @@ private fun ColumnScope.OccurrenceForm(
     }
     PickerBox("Time Zone", timeZoneId, onClick = onPickTimeZone)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        TextButton(onClick = onDelete) { Text("Remove Date", color = MaterialTheme.colorScheme.error) }
+        if (onDelete != null) TextButton(onClick = onDelete) { Text("Remove Date", color = MaterialTheme.colorScheme.error) }
         Spacer(Modifier.weight(1f))
-        Button("Done", onClick = onDone, primary = true)
+        Button(doneLabel, onClick = onDone, primary = true)
     }
 }
 

@@ -129,7 +129,7 @@ internal fun CoverImageForm(media: Media?, preferredLanguages: List<String>, onS
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { submit() }),
         )
-        if (url != null) Button(if (media == null) "Add" else "Save", onClick = ::submit, Modifier.align(Alignment.End), primary = true)
+        Button(if (media == null) "Add" else "Save", onClick = ::submit, Modifier.align(Alignment.End), primary = true, enabled = url != null)
     }
     LaunchedEffect(Unit) { if (media == null) focus.requestFocus() }
 }

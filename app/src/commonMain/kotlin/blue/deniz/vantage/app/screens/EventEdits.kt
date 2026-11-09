@@ -1,5 +1,7 @@
 package blue.deniz.vantage.app.screens
 
+import directory.evnt.languageToEdit
+import directory.evnt.withTextIn
 import directory.evnt.Component
 import directory.evnt.Occurrence
 import directory.evnt.OpenEvnt
@@ -16,10 +18,15 @@ import kotlinx.datetime.LocalDate
 internal fun Translations?.nullIfBlank() = this?.withoutBlankTexts()?.takeIf { it.isNotEmpty() }
 
 internal fun OpenEvnt.withDescription(preferredLanguages: List<String>, text: String): OpenEvnt {
+    val existing = components.orEmpty().firstOrNull { it is Component.MarkdownText } as Component.MarkdownText?
+    return withDescriptionIn(existing?.content.languageToEdit(preferredLanguages), text)
+}
+
+internal fun OpenEvnt.withDescriptionIn(language: String, text: String): OpenEvnt {
     val current = components.orEmpty()
     val index = current.indexOfFirst { it is Component.MarkdownText }
     val existing = current.getOrNull(index) as Component.MarkdownText?
-    val description = Component.MarkdownText(existing?.content.withEditedText(preferredLanguages, text), existing?.flavor ?: "gfm")
+    val description = Component.MarkdownText(existing?.content.withTextIn(language, text), existing?.flavor ?: "gfm")
     return copy(components = if (index < 0) current + description else current.toMutableList().apply { set(index, description) })
 }
 

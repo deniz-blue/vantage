@@ -73,7 +73,7 @@ internal fun LinkForm(link: Component.Link?, preferredLanguages: List<String>, o
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { submit() }),
         )
-        if (url != null) Button(if (link == null) "Add" else "Save", onClick = ::submit, Modifier.align(Alignment.End), primary = true)
+        Button(if (link == null) "Add" else "Save", onClick = ::submit, Modifier.align(Alignment.End), primary = true, enabled = url != null)
     }
     LaunchedEffect(Unit) { if (link == null) focus.requestFocus() }
 }

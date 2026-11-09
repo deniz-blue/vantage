@@ -1,5 +1,11 @@
 package blue.deniz.vantage.app.screens
 
+import blue.deniz.vantage.app.ui.LanguageBar
+import blue.deniz.vantage.app.ui.LanguageChips
+import directory.evnt.languageToEdit
+import directory.evnt.textIn
+import directory.evnt.withTextIn
+import directory.evnt.writtenLanguages
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -38,6 +44,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.LocalStackDepth
+import blue.deniz.vantage.app.OccurrenceSaver
 import blue.deniz.vantage.app.OpenEvntSaver
 import blue.deniz.vantage.app.SystemBackHandler
 import blue.deniz.vantage.app.ui.FailureRow
@@ -77,10 +84,7 @@ private fun PartialDate.nextDay(): PartialDate = when (this) {
     else -> this
 }
 
-private fun OpenEvnt.withNextOccurrence(today: PartialDate): OpenEvnt {
-    val start = occurrences?.lastOrNull()?.start?.nextDay() ?: today
-    return copy(occurrences = occurrences.orEmpty() + Occurrence(start = start))
-}
+private fun OpenEvnt.nextOccurrence(today: PartialDate) = Occurrence(start = occurrences?.lastOrNull()?.start?.nextDay() ?: today)
 
 private fun OpenEvnt.hasNoName() = name.values.all { it.isBlank() }
 
@@ -109,19 +113,26 @@ internal fun EventForm(
     var saveError by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
     var editingDate by rememberSaveable { mutableStateOf<Int?>(null) }
+    var newDate by rememberSaveable(stateSaver = OccurrenceSaver) { mutableStateOf<Occurrence?>(null) }
     var editingLink by rememberSaveable { mutableStateOf<Int?>(null) }
     var editingCover by rememberSaveable { mutableStateOf(false) }
     var searchingPlace by rememberSaveable { mutableStateOf(false) }
     var editingPlace by rememberSaveable { mutableStateOf(false) }
     var dismissedLinks by rememberSaveable { mutableStateOf(emptyList<String>()) }
-    val nameText = event.name.textToEdit(preferredLanguages)
-    val descriptionText = event.description()?.content.textToEdit(preferredLanguages)
+    var chosenLanguage by rememberSaveable { mutableStateOf<String?>(null) }
+    var nameFocused by remember { mutableStateOf(false) }
+    var addingLanguage by rememberSaveable { mutableStateOf(false) }
+    val nameLanguage = chosenLanguage ?: event.name.languageToEdit(preferredLanguages)
+    val descriptionLanguage = chosenLanguage ?: event.description()?.content.languageToEdit(preferredLanguages)
+    val eventLanguages = (event.name.writtenLanguages() + event.description()?.content.writtenLanguages() + listOfNotNull(chosenLanguage)).distinct()
+    val nameText = event.name.textIn(nameLanguage)
+    val descriptionText = event.description()?.content.textIn(descriptionLanguage)
     var descriptionEdit by remember { mutableStateOf(TextFieldValue(descriptionText)) }
     val description = descriptionEdit.takeIf { it.text == descriptionText } ?: TextFieldValue(descriptionText, TextRange(descriptionText.length))
     var editingDescription by remember { mutableStateOf(false) }
     fun changeDescription(value: TextFieldValue) {
         descriptionEdit = value
-        event = event.withDescription(preferredLanguages, value.text)
+        event = event.withDescriptionIn(descriptionLanguage, value.text)
     }
     val linkInName = findEventLink(nameText)
     val offeredLink = (linkInName ?: sharedLink).takeIf { offersImport && it !in dismissedLinks }
@@ -186,9 +197,11 @@ internal fun EventForm(
                 Column(Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()) {
                     NameField(
                         event,
+                        nameLanguage,
                         preferredLanguages,
                         nameFocus,
                         isError = showsNameProblem && event.hasNoName(),
+                        onFocusChange = { nameFocused = it },
                         onChange = { event = it },
                     )
                     AnimatedContent(
@@ -201,7 +214,7 @@ internal fun EventForm(
                             link,
                             onAddAsLink = {
                                 dismissedLinks += link
-                                val name = if (link == linkInName) event.name.withEditedText(preferredLanguages, nameText.replace(link, "").trim()) else event.name
+                                val name = if (link == linkInName) event.name.withTextIn(nameLanguage, nameText.replace(link, "").trim()) else event.name
                                 event = event.copy(name = name, components = event.components.orEmpty() + Component.Link(url = link))
                             },
                             onDismiss = { dismissedLinks += link },
@@ -218,10 +231,7 @@ internal fun EventForm(
                             deviceTimeZoneId = state.timeZone.id,
                             onEdit = { editingDate = it },
                             onRemove = { event = event.withOccurrence(it, null) },
-                            onAdd = {
-                                editingDate = event.occurrences.orEmpty().size
-                                event = event.withNextOccurrence(PartialDate.Day(state.today, state.timeZone.id))
-                            },
+                            onAdd = { newDate = event.nextOccurrence(PartialDate.Day(state.today, state.timeZone.id)) },
                         )
                     }
                     ListSection(Modifier.padding(top = Spacing.sm)) {
@@ -264,8 +274,20 @@ internal fun EventForm(
                     Spacer(Modifier.navigationBarsPadding().height(Spacing.xl))
                 }
             }
+            AnimatedVisibility(nameFocused && !editingDescription, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+                LanguageBar(eventLanguages, nameLanguage, onEdit = { chosenLanguage = it }, onAdd = { addingLanguage = true })
+            }
             AnimatedVisibility(editingDescription, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
-                MarkdownToolbar(description, ::changeDescription)
+                MarkdownToolbar(description, ::changeDescription) {
+                    LanguageChips(eventLanguages, descriptionLanguage, onEdit = { chosenLanguage = it }, onAdd = { addingLanguage = true })
+                }
+            }
+        }
+
+        BottomSheetFrame(visible = addingLanguage, onDismiss = { addingLanguage = false }) {
+            LanguagePickerBody("Add Language", selectedCode = "") {
+                chosenLanguage = it
+                addingLanguage = false
             }
         }
 
@@ -285,6 +307,22 @@ internal fun EventForm(
                     onDone = { editingDate = null },
                 )
             }
+        }
+
+        BottomSheetFrame(item = newDate, onDismiss = { newDate = null }) { occurrence ->
+            OccurrenceEditor(
+                occurrence = occurrence,
+                formatting = formatting,
+                defaultTimeZoneId = state.timeZone.id,
+                now = state.now,
+                onChange = { newDate = it },
+                onDelete = null,
+                onDone = {
+                    newDate = null
+                    event = event.copy(occurrences = event.occurrences.orEmpty() + occurrence)
+                },
+                doneLabel = "Add",
+            )
         }
 
         BottomSheet(item = editingLink, onDismiss = { editingLink = null }) { index ->

@@ -1,5 +1,7 @@
 package blue.deniz.vantage.app.ui
 
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,7 +80,7 @@ private fun TextFieldValue.withLinePrefixToggled(prefix: String): TextFieldValue
 }
 
 @Composable
-fun MarkdownToolbar(value: TextFieldValue, onChange: (TextFieldValue) -> Unit, modifier: Modifier = Modifier) {
+fun MarkdownToolbar(value: TextFieldValue, onChange: (TextFieldValue) -> Unit, modifier: Modifier = Modifier, leading: @Composable RowScope.() -> Unit = {}) {
     Row(
         modifier
             .fillMaxWidth()
@@ -87,7 +89,9 @@ fun MarkdownToolbar(value: TextFieldValue, onChange: (TextFieldValue) -> Unit, m
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = Spacing.xs)
             .focusProperties { canFocus = false },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        leading()
         MarkdownFormat.entries.forEach { format ->
             IconButton(format.icon, format.label, onClick = { onChange(value.withMarkdown(format)) })
         }

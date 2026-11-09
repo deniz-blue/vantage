@@ -1,5 +1,7 @@
 package blue.deniz.vantage.app.screens
 
+import directory.evnt.textIn
+import directory.evnt.withTextIn
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -27,11 +29,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
@@ -89,53 +94,56 @@ private val NewEventDestination.icon get() = if (this == NewEventDestination.Dev
 
 @Composable
 internal fun DestinationRow(destination: NewEventDestination, onSelect: (NewEventDestination) -> Unit) {
-    var open by rememberSaveable { mutableStateOf(false) }
-    ListRow("Save To", icon = destination.icon, supporting = destination.label, onClick = { open = true })
-    BottomSheet(visible = open, onDismiss = { open = false }) {
-        SheetTitle("Save To", Modifier.padding(horizontal = Spacing.md))
-        Column {
-            for (option in NewEventDestination.entries) {
-                ListRow(
-                    option.label,
-                    icon = option.icon,
-                    onClick = {
-                        open = false
-                        onSelect(option)
-                    },
-                    trailing = { if (option == destination) Icon(AppIcons.Check, tint = MaterialTheme.colorScheme.primary) },
-                )
-            }
-        }
-    }
+    ChoiceRow("Save To", NewEventDestination.entries, destination, label = { it.label }, icon = { it.icon }, onSelect = onSelect)
 }
 
 @Composable
 internal fun StatusRow(status: OpenEvnt.Status?, onSelect: (OpenEvnt.Status?) -> Unit) {
+    ChoiceRow(
+        "Status",
+        STATUS_OPTIONS.map { it.first },
+        status,
+        label = { option -> STATUS_OPTIONS.first { it.first == option }.second },
+        icon = { it.icon },
+        onSelect = onSelect,
+        selectedColor = if (status == OpenEvnt.Status.Cancelled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+private fun <T> ChoiceRow(
+    title: String,
+    options: List<T>,
+    selected: T,
+    label: (T) -> String,
+    icon: (T) -> ImageVector,
+    onSelect: (T) -> Unit,
+    selectedColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) {
     var open by rememberSaveable { mutableStateOf(false) }
     ListRow(
-        "Status",
-        icon = status.icon,
+        title,
+        icon = icon(selected),
         onClick = { open = true },
         trailing = {
-            Text(
-                STATUS_OPTIONS.first { it.first == status }.second,
-                color = if (status == OpenEvnt.Status.Cancelled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                Text(label(selected), color = selectedColor, style = MaterialTheme.typography.bodyLarge)
+                Icon(AppIcons.ChevronRight)
+            }
         },
     )
     BottomSheet(visible = open, onDismiss = { open = false }) {
-        SheetTitle("Status", Modifier.padding(horizontal = Spacing.md))
+        SheetTitle(title, Modifier.padding(horizontal = Spacing.md))
         Column {
-            for ((option, label) in STATUS_OPTIONS) {
+            for (option in options) {
                 ListRow(
-                    label,
-                    icon = option.icon,
+                    label(option),
+                    icon = icon(option),
                     onClick = {
                         open = false
                         onSelect(option)
                     },
-                    trailing = { if (option == status) Icon(AppIcons.Check, tint = MaterialTheme.colorScheme.primary) },
+                    trailing = { if (option == selected) Icon(AppIcons.Check, tint = MaterialTheme.colorScheme.primary) },
                 )
             }
         }
@@ -145,18 +153,21 @@ internal fun StatusRow(status: OpenEvnt.Status?, onSelect: (OpenEvnt.Status?) ->
 @Composable
 internal fun NameField(
     event: OpenEvnt,
+    language: String,
     preferredLanguages: List<String>,
     focus: FocusRequester,
     isError: Boolean,
+    onFocusChange: (Boolean) -> Unit,
     onChange: (OpenEvnt) -> Unit,
 ) {
     TextInput(
-        value = event.name.textToEdit(preferredLanguages),
-        onValueChange = { onChange(event.copy(name = event.name.withEditedText(preferredLanguages, it))) },
+        value = event.name.textIn(language),
+        onValueChange = { onChange(event.copy(name = event.name.withTextIn(language, it))) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.md, vertical = ListRowGap / 2)
             .focusRequester(focus)
+            .onFocusChanged { onFocusChange(it.isFocused) }
             .semantics { contentDescription = "Event Name" },
         placeholder = if (isError) "Give it a name" else event.name.translate(preferredLanguages).ifEmpty { "Event Name" },
         isError = isError,
