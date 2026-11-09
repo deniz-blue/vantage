@@ -1,6 +1,17 @@
 package blue.deniz.vantage.app.ui
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.vector.PathParser
+import directory.evnt.Component
+import kotlin.math.abs
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -54,6 +65,8 @@ import org.maplibre.spatialk.geojson.Point
 import org.maplibre.spatialk.geojson.Position
 
 private const val MARKER_ID_PROPERTY = "markerId"
+private val SPOT_DOT_SIZE = 6.dp
+private const val SPOT_DOT_ALPHA = 0.6f
 private const val PIN_LAYER_ID = "event-pins"
 private val PIN_RADIUS = 7.dp
 private val PIN_OUTLINE = 2.dp
@@ -134,6 +147,48 @@ actual fun EventMap(
             )
             DisappearingCompassButton(Modifier.align(Alignment.TopEnd))
             ExpandingAttributionButton(Modifier.align(Alignment.BottomEnd))
+        }
+    }
+}
+
+@Composable
+private fun SpotPin(modifier: Modifier = Modifier) {
+    val fill = MaterialTheme.colorScheme.primary
+    val dot = MaterialTheme.colorScheme.surface
+    val pin = remember { PathParser().parsePathString(SpotPinShape.PATH).toPath() }
+    Canvas(modifier.size(SpotPinShape.WIDTH.dp, SpotPinShape.HEIGHT.dp)) {
+        scale(density, pivot = Offset.Zero) {
+            drawPath(pin, fill)
+            drawPath(pin, Color.White, style = Stroke(SpotPinShape.OUTLINE))
+            drawCircle(dot, radius = SpotPinShape.DOT_RADIUS, center = Offset(SpotPinShape.DOT_CENTRE, SpotPinShape.DOT_CENTRE))
+        }
+    }
+}
+
+@Composable
+actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coordinates) -> Unit, modifier: Modifier) {
+    val currentOnMoved by rememberUpdatedState(onMoved)
+    val mapState = rememberMapState(
+        baseStyle = BaseStyle.Uri(MAP_STYLE_URL),
+        initialCameraPosition = CameraPosition(Position(center.longitude, center.latitude), zoom = SPOT_PICKER_ZOOM),
+    )
+    LaunchedEffect(mapState) {
+        snapshotFlow { mapState.cameraPosition.center.takeIf { !mapState.isCameraMoving } }
+            .filterNotNull()
+            .distinctUntilChanged()
+            .collect { currentOnMoved(Component.Coordinates(it.latitude, it.longitude)) }
+    }
+    LaunchedEffect(mapState, center) {
+        val shown = mapState.cameraPosition.center
+        if (abs(shown.latitude - center.latitude) > SAME_SPOT_DEGREES || abs(shown.longitude - center.longitude) > SAME_SPOT_DEGREES) {
+            mapState.setCameraPosition(mapState.cameraPosition.copy(center = Position(center.longitude, center.latitude)))
+        }
+    }
+    MaplibreMap(modifier, state = mapState) {
+        Box(Modifier.fillMaxSize()) {
+            Box(Modifier.align(Alignment.Center).size(SPOT_DOT_SIZE).background(Color.Black.copy(alpha = SPOT_DOT_ALPHA), CircleShape))
+            SpotPin(Modifier.align(Alignment.Center).offset(y = (SpotPinShape.HEIGHT / 2 - SpotPinShape.TIP_Y).dp))
+            ExpandingAttributionButton(Modifier.align(Alignment.BottomEnd).padding(MapOverlay.Spacing))
         }
     }
 }

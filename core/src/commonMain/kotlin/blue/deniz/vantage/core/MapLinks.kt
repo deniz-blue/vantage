@@ -19,7 +19,18 @@ sealed interface MapPlace {
     }
 }
 
+private val COORDINATES_IN_MAP_LINKS = listOf(
+    Regex("""@(-?\d+\.\d+),(-?\d+\.\d+)"""),
+    Regex("""[?&]mlat=(-?\d+\.\d+)&mlon=(-?\d+\.\d+)"""),
+    Regex("""#map=\d+(?:\.\d+)?/(-?\d+\.\d+)/(-?\d+\.\d+)"""),
+    Regex("""[?&](?:q|query|ll)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)"""),
+)
+
 object MapLinks {
+    fun coordinatesIn(link: String): Component.Coordinates? = COORDINATES_IN_MAP_LINKS.firstNotNullOfOrNull { pattern ->
+        pattern.find(link.trim())?.let { Component.Coordinates(it.groupValues[1].toDouble(), it.groupValues[2].toDouble()) }
+    }
+
     fun geo(place: MapPlace): String = when (place) {
         is MapPlace.Point -> "geo:${place.position}?q=${place.position}" + place.label?.let { "(${it.encodeURLParameter()})" }.orEmpty()
         is MapPlace.Search -> "geo:0,0?q=${place.text.encodeURLParameter()}"

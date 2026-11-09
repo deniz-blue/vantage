@@ -9,12 +9,25 @@ import blue.deniz.vantage.core.EventCollection
 import blue.deniz.vantage.core.EventQuery
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.core.coordinates
+import directory.evnt.Component
 
 const val MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/dark"
 
 private const val SMALLEST_FITTED_SPAN_DEGREES = 0.02
 const val MAP_EVENT_LIMIT = 500
 const val MY_LOCATION_ZOOM = 11.0
+const val SPOT_PICKER_ZOOM = 16.5
+const val SAME_SPOT_DEGREES = 1e-6
+
+object SpotPinShape {
+    const val WIDTH = 34
+    const val HEIGHT = 44
+    const val TIP_Y = 43
+    const val PATH = "M17 43c-1-6-15-15-15-26a15 15 0 0 1 30 0c0 11-14 20-15 26z"
+    const val DOT_CENTRE = 17f
+    const val DOT_RADIUS = 5.5f
+    const val OUTLINE = 2f
+}
 
 data class MapCamera(val latitude: Double, val longitude: Double, val zoom: Double)
 
@@ -41,6 +54,9 @@ fun areaAround(pins: List<MapPin>): GeoArea? {
         east = centerLongitude + halfWidth,
     )
 }
+
+@Composable
+expect fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coordinates) -> Unit, modifier: Modifier = Modifier)
 
 @Composable
 expect fun EventMap(

@@ -36,4 +36,15 @@ class MapLinksTest {
         assertEquals("https://www.google.com/maps/search/?api=1&query=54.6872%2C25.2797", MapLinks.googleMaps(point))
         assertEquals("https://www.google.com/maps/dir/?api=1&destination=Hall%20B", MapLinks.directions(MapPlace.Search("Hall B")))
     }
+
+    @Test
+    fun readsCoordinatesFromPastedMapLinks() {
+        val luna = Component.Coordinates(54.694615, 25.28593)
+        assertEquals(luna, MapLinks.coordinatesIn("https://www.google.com/maps/place/Luna16/@54.694615,25.28593,17z"))
+        assertEquals(luna, MapLinks.coordinatesIn("https://www.openstreetmap.org/?mlat=54.694615&mlon=25.28593#map=17/54.6946/25.2859"))
+        assertEquals(luna, MapLinks.coordinatesIn("https://www.openstreetmap.org/#map=18/54.694615/25.28593"))
+        assertEquals(luna, MapLinks.coordinatesIn("https://www.google.com/maps/search/?api=1&query=54.694615%2C25.28593"))
+        assertEquals(luna, MapLinks.coordinatesIn("https://maps.apple.com/?ll=54.694615,25.28593"))
+        assertNull(MapLinks.coordinatesIn("Luna16, Vilnius"))
+    }
 }

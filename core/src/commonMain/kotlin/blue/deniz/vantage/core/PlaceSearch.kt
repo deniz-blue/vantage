@@ -5,6 +5,7 @@ import directory.evnt.Venue
 import io.ktor.client.HttpClient
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.URLBuilder
+import io.ktor.http.path
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -16,6 +17,11 @@ import kotlin.time.Duration.Companion.days
 
 const val PHOTON_ENDPOINT = "https://photon.komoot.io/api/"
 private const val PLACE_RESULT_LIMIT = 6
+private const val ADDRESS_CANDIDATE_LIMIT = 5
+private const val NEARBY_RESULT_LIMIT = 15
+private const val NEARBY_RADIUS_KILOMETRES = 0.3
+private val NEARBY_OSM_KEYS = listOf("amenity", "leisure", "tourism", "shop")
+private val ADDRESS_FEATURE_TYPES = setOf("house", "street")
 private val TIME_ZONE_PLACE_FRESH_FOR = 1.days
 private val TIME_ZONE_AREAS_NAMED_BY_CITY = setOf("Africa", "America", "Antarctica", "Arctic", "Asia", "Atlantic", "Australia", "Europe", "Indian", "Pacific")
 
@@ -65,31 +71,73 @@ class PlaceSearch(private val client: HttpClient, private val endpoint: String =
                 parameters.append("lon", near.longitude.toString())
             }
         }.buildString()
-        val results = parseJsonObject(client.getOk(url).bodyAsText(), "The place search")
-        return (results["features"] as? JsonArray).orEmpty().filterIsInstance<JsonObject>().mapNotNull(::placeOfPhotonFeature)
+        return featuresAt(url).mapNotNull { it.toNamedPlace() }.distinctBy { Triple(it.name, it.address, it.countryCode) }
+    }
+
+    suspend fun addressAt(at: Component.Coordinates): Place? {
+        val feature = reverse(at, listOf("limit" to ADDRESS_CANDIDATE_LIMIT.toString())).firstOrNull { it.text("type") in ADDRESS_FEATURE_TYPES }
+            ?: return null
+        val name = feature.street ?: feature.text("name") ?: return null
+        return feature.toPlace(name, feature.locality, at)
+    }
+
+    suspend fun placesNear(at: Component.Coordinates): List<Place> {
+        val parameters = listOf("limit" to NEARBY_RESULT_LIMIT.toString(), "radius" to NEARBY_RADIUS_KILOMETRES.toString()) +
+            NEARBY_OSM_KEYS.map { "osm_tag" to it }
+        return reverse(at, parameters).filter { it.text("name") != null }.mapNotNull { it.toNamedPlace() }
             .distinctBy { Triple(it.name, it.address, it.countryCode) }
+    }
+
+    private suspend fun reverse(at: Component.Coordinates, extra: List<Pair<String, String>>): List<PhotonFeature> {
+        val url = URLBuilder(endpoint).apply {
+            path("reverse")
+            parameters.append("lat", at.latitude.toString())
+            parameters.append("lon", at.longitude.toString())
+            for ((name, value) in extra) parameters.append(name, value)
+        }.buildString()
+        return featuresAt(url)
+    }
+
+    private suspend fun featuresAt(url: String): List<PhotonFeature> {
+        val results = parseJsonObject(client.getOk(url).bodyAsText(), "The place search")
+        return (results["features"] as? JsonArray).orEmpty().filterIsInstance<JsonObject>().mapNotNull(::photonFeatureOf)
     }
 }
 
 private fun JsonElement?.primitiveTextOrNull() = (this as? JsonPrimitive)?.takeUnless { it is JsonNull }?.content
 
-private fun placeOfPhotonFeature(feature: JsonObject): Place? {
-    val properties = feature["properties"] as? JsonObject ?: return null
+private class PhotonFeature(private val properties: JsonObject, private val geometry: JsonObject?) {
     fun text(key: String) = properties[key].stringOrNull()?.takeIf { it.isNotBlank() }
-    val street = listOfNotNull(text("street"), text("housenumber")).joinToString(" ").ifEmpty { null }
-    val locality = text("city") ?: text("town") ?: text("village") ?: text("county")
-    val name = text("name") ?: street ?: locality ?: return null
-    val address = listOfNotNull(street, locality).filter { it != name }.joinToString(", ").ifEmpty { null }
-    val elementType = OSM_ELEMENT_TYPES[text("osm_type")]
-    val elementId = properties["osm_id"].primitiveTextOrNull()
-    val position = (feature["geometry"] as? JsonObject)?.get("coordinates") as? JsonArray
-    val longitude = (position?.getOrNull(0) as? JsonPrimitive)?.doubleOrNull
-    val latitude = (position?.getOrNull(1) as? JsonPrimitive)?.doubleOrNull
-    return Place(
-        name = name,
-        address = address,
-        countryCode = text("countrycode")?.uppercase(),
-        placeId = if (elementType != null && elementId != null) Component.PlaceId("osm", "$elementType/$elementId") else null,
-        coordinates = if (latitude != null && longitude != null) Component.Coordinates(latitude, longitude) else null,
-    )
+
+    val street get() = listOfNotNull(text("street"), text("housenumber")).joinToString(" ").ifEmpty { null }
+
+    val locality get() = text("city") ?: text("town") ?: text("village") ?: text("county")
+
+    private val position: Component.Coordinates?
+        get() {
+            val position = geometry?.get("coordinates") as? JsonArray
+            val longitude = (position?.getOrNull(0) as? JsonPrimitive)?.doubleOrNull ?: return null
+            val latitude = (position.getOrNull(1) as? JsonPrimitive)?.doubleOrNull ?: return null
+            return Component.Coordinates(latitude, longitude)
+        }
+
+    private val placeId: Component.PlaceId?
+        get() {
+            val elementType = OSM_ELEMENT_TYPES[text("osm_type")] ?: return null
+            val elementId = properties["osm_id"].primitiveTextOrNull() ?: return null
+            return Component.PlaceId("osm", "$elementType/$elementId")
+        }
+
+    fun toPlace(name: String, address: String?, coordinates: Component.Coordinates? = position) =
+        Place(name = name, address = address, countryCode = text("countrycode")?.uppercase(), placeId = placeId, coordinates = coordinates)
+
+    fun toNamedPlace(): Place? {
+        val street = street
+        val locality = locality
+        val name = text("name") ?: street ?: locality ?: return null
+        return toPlace(name, listOfNotNull(street, locality).filter { it != name }.joinToString(", ").ifEmpty { null })
+    }
 }
+
+private fun photonFeatureOf(feature: JsonObject): PhotonFeature? =
+    (feature["properties"] as? JsonObject)?.let { PhotonFeature(it, feature["geometry"] as? JsonObject) }

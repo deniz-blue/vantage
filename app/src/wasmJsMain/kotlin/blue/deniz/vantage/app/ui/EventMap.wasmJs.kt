@@ -33,6 +33,8 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import org.w3c.dom.HTMLDivElement
+import directory.evnt.Component
+import kotlin.math.abs
 
 private const val PIN_SOURCE_ID = "event-pins"
 private const val PIN_LAYER_ID = "event-pins"
@@ -120,6 +122,57 @@ private fun geoJsonOf(pins: List<MapPin>): String = buildJsonObject {
 }.toString()
 
 private fun cssColor(argb: Int) = "#" + (argb and 0xFFFFFF).toString(16).padStart(6, '0')
+
+private fun spotPinSvg(fill: String, dot: String) =
+    """<svg viewBox="0 0 ${SpotPinShape.WIDTH} ${SpotPinShape.HEIGHT}" width="${SpotPinShape.WIDTH}" height="${SpotPinShape.HEIGHT}">""" +
+        """<path d="${SpotPinShape.PATH}" fill="$fill" stroke="#ffffff" stroke-width="${SpotPinShape.OUTLINE}"/>""" +
+        """<circle cx="${SpotPinShape.DOT_CENTRE}" cy="${SpotPinShape.DOT_CENTRE}" r="${SpotPinShape.DOT_RADIUS}" fill="$dot"/></svg>"""
+
+private fun addSpotPin(container: HTMLDivElement, svg: String, tipY: Int): Unit = js("""{
+    const dot = document.createElement('div');
+    dot.style.cssText = 'position:absolute;left:50%;top:50%;z-index:1;width:6px;height:6px;border-radius:3px;background:rgba(0,0,0,.6);transform:translate(-50%,-50%);pointer-events:none';
+    const pin = document.createElement('div');
+    pin.style.cssText = 'position:absolute;left:50%;top:50%;z-index:1;line-height:0;transform:translate(-50%,-' + tipY + 'px);pointer-events:none';
+    pin.innerHTML = svg;
+    container.append(dot, pin);
+}""")
+
+private fun centreLatitude(map: MapLibreMap): Double = js("map.getCenter().lat")
+private fun centreLongitude(map: MapLibreMap): Double = js("map.getCenter().lng")
+private fun centreMapOn(map: MapLibreMap, latitude: Double, longitude: Double): Unit = js("map.jumpTo({ center: [longitude, latitude] })")
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coordinates) -> Unit, modifier: Modifier) {
+    val currentOnMoved by rememberUpdatedState(onMoved)
+    val pinSvg = spotPinSvg(cssColor(MaterialTheme.colorScheme.primary.toArgb()), cssColor(MaterialTheme.colorScheme.surface.toArgb()))
+    var map by remember { mutableStateOf<MapLibreMap?>(null) }
+    val container = remember {
+        addMapLibreBaseCss()
+        setWorkerUrl(bundledMapLibreWorkerUrl())
+        val created = document.createElement("div") as HTMLDivElement
+        created.style.width = "100%"
+        created.style.height = "100%"
+        created.style.borderRadius = "${Radius.md.value}px"
+        addSpotPin(created, pinSvg, SpotPinShape.TIP_Y)
+        addAttributionButton(created, MAP_ATTRIBUTION_HTML)
+        created
+    }
+    DisposableEffect(container) {
+        val created = MapLibreMap(mapOptions(container, MAP_STYLE_URL))
+        jumpMapTo(created, center.latitude, center.longitude, SPOT_PICKER_ZOOM)
+        created.on("moveend") { currentOnMoved(Component.Coordinates(centreLatitude(created), centreLongitude(created))) }
+        map = created
+        onDispose { created.remove() }
+    }
+    LaunchedEffect(map, center) {
+        val shown = map ?: return@LaunchedEffect
+        if (abs(centreLatitude(shown) - center.latitude) > SAME_SPOT_DEGREES || abs(centreLongitude(shown) - center.longitude) > SAME_SPOT_DEGREES) {
+            centreMapOn(shown, center.latitude, center.longitude)
+        }
+    }
+    WebElementView(factory = { container }, modifier = modifier)
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
 @Composable

@@ -85,4 +85,45 @@ class PlaceSearchTest {
         assertEquals(1, server.requested.size)
         assertEquals(null, places.cityOfTimeZone("UTC"))
     }
+
+    @Test
+    fun namesASpotByTheAddressThereAndKeepsItsExactPoint() = runTest {
+        val server = FakeServer(mapOf(
+            "https://photon.example/reverse?lat=54.6946&lon=25.2859&limit=5" to {
+                respond(
+                    """{"type":"FeatureCollection","features":[
+                        {"type":"Feature","geometry":{"type":"Point","coordinates":[25.2858,54.6947]},
+                         "properties":{"type":"other","osm_type":"N","osm_id":3,"name":"09312","city":"Vilnius","countrycode":"LT"}},
+                        {"type":"Feature","geometry":{"type":"Point","coordinates":[25.2858,54.6947]},
+                         "properties":{"type":"house","osm_type":"W","osm_id":41,"name":"Luna16","street":"Šeimyniškių g.","housenumber":"16","city":"Vilnius","countrycode":"LT"}}
+                    ]}""",
+                )
+            },
+        ))
+        val spot = Component.Coordinates(54.6946, 25.2859)
+        assertEquals(
+            Place("Šeimyniškių g. 16", "Vilnius", "LT", Component.PlaceId("osm", "way/41"), spot),
+            PlaceSearch(server.client, "https://photon.example/api/").addressAt(spot),
+        )
+    }
+
+    @Test
+    fun listsNamedPlacesNearASpot() = runTest {
+        val server = FakeServer(mapOf(
+            "https://photon.example/reverse?lat=54.6946&lon=25.2859&limit=15&radius=0.3&osm_tag=amenity&osm_tag=leisure&osm_tag=tourism&osm_tag=shop" to {
+                respond(
+                    """{"type":"FeatureCollection","features":[
+                        {"type":"Feature","geometry":{"type":"Point","coordinates":[25.2858,54.6947]},
+                         "properties":{"type":"house","osm_type":"W","osm_id":41,"name":"Luna16","street":"Šeimyniškių g.","housenumber":"16","city":"Vilnius","countrycode":"LT"}},
+                        {"type":"Feature","geometry":{"type":"Point","coordinates":[25.2861,54.6950]},
+                         "properties":{"type":"house","osm_type":"N","osm_id":9,"street":"Rinktinės g.","housenumber":"18","city":"Vilnius","countrycode":"LT"}}
+                    ]}""",
+                )
+            },
+        ))
+        assertEquals(
+            listOf(Place("Luna16", "Šeimyniškių g. 16, Vilnius", "LT", Component.PlaceId("osm", "way/41"), Component.Coordinates(54.6947, 25.2858))),
+            PlaceSearch(server.client, "https://photon.example/api/").placesNear(Component.Coordinates(54.6946, 25.2859)),
+        )
+    }
 }
