@@ -56,7 +56,12 @@ fun areaAround(pins: List<MapPin>): GeoArea? {
 }
 
 @Composable
-expect fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coordinates) -> Unit, modifier: Modifier = Modifier)
+expect fun SpotPickerMap(
+    center: Component.Coordinates,
+    onMoved: (Component.Coordinates) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+)
 
 @Composable
 expect fun EventMap(

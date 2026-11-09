@@ -143,7 +143,12 @@ private fun centreMapOn(map: MapLibreMap, latitude: Double, longitude: Double): 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coordinates) -> Unit, modifier: Modifier) {
+actual fun SpotPickerMap(
+    center: Component.Coordinates,
+    onMoved: (Component.Coordinates) -> Unit,
+    modifier: Modifier,
+    contentPadding: PaddingValues,
+) {
     val currentOnMoved by rememberUpdatedState(onMoved)
     val pinSvg = spotPinSvg(cssColor(MaterialTheme.colorScheme.primary.toArgb()), cssColor(MaterialTheme.colorScheme.surface.toArgb()))
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
@@ -153,7 +158,6 @@ actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coor
         val created = document.createElement("div") as HTMLDivElement
         created.style.width = "100%"
         created.style.height = "100%"
-        created.style.borderRadius = "${Radius.md.value}px"
         addSpotPin(created, pinSvg, SpotPinShape.TIP_Y)
         addAttributionButton(created, MAP_ATTRIBUTION_HTML)
         created
@@ -171,7 +175,7 @@ actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coor
             centreMapOn(shown, center.latitude, center.longitude)
         }
     }
-    WebElementView(factory = { container }, modifier = modifier)
+    WebElementView(factory = { container }, modifier = modifier.padding(contentPadding))
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)

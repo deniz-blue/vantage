@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.ui.FailureRow
@@ -28,10 +27,8 @@ import blue.deniz.vantage.app.ui.Text
 import blue.deniz.vantage.core.coordinates
 import blue.deniz.vantage.core.CountryTimeZones
 import blue.deniz.vantage.core.MapLinks
-import blue.deniz.vantage.app.ui.CardShape
 import blue.deniz.vantage.app.ui.Icon
 import blue.deniz.vantage.app.ui.SpotPickerMap
-import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.dp
 import directory.evnt.Component
 import blue.deniz.vantage.app.ui.displayName
@@ -40,12 +37,41 @@ import blue.deniz.vantage.core.ResolvedEvent
 import directory.evnt.Venue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import blue.deniz.vantage.app.SystemBackHandler
+import blue.deniz.vantage.app.ui.FloatingIconButton
+import blue.deniz.vantage.app.ui.PageAboveSheets
+import blue.deniz.vantage.app.ui.PullUpPanel
+import blue.deniz.vantage.app.ui.SAME_SPOT_DEGREES
+import blue.deniz.vantage.app.ui.rememberPullUpPanelState
+import kotlin.math.abs
 
 private const val MAP_SEARCH_MIN_LENGTH = 3
 private const val MAP_SEARCH_DELAY_MILLIS = 400L
 private const val USED_PLACES_SHOWN = 5
 private const val COORDINATE_DECIMALS = 100_000
-private val SPOT_MAP_HEIGHT = 260.dp
+private val SPOT_PANEL_LOWERED_HEIGHT = 196.dp
+private const val SPOT_PANEL_RAISED_SCREEN_FRACTION = 0.62f
+
+private fun Component.Coordinates.isSameSpotAs(other: Component.Coordinates) =
+    abs(latitude - other.latitude) <= SAME_SPOT_DEGREES && abs(longitude - other.longitude) <= SAME_SPOT_DEGREES
 
 private fun Component.Coordinates.shortText() =
     "${(latitude * COORDINATE_DECIMALS).toLong().toDouble() / COORDINATE_DECIMALS}, ${(longitude * COORDINATE_DECIMALS).toLong().toDouble() / COORDINATE_DECIMALS}"
@@ -116,8 +142,18 @@ private fun BottomSheetScope.PlaceSearchBody(
         }
     }
     if (choosingOnMap) {
-        SpotPickerBody(state, mapCentre, onMoved = { movedMapCentre = it }, onBack = { choosingOnMap = false }, onPick = { onPick(it.toVenue(language)) })
-        return
+        PageAboveSheets {
+            SpotPickerPage(
+                state,
+                mapCentre,
+                onMoved = { movedMapCentre = it },
+                onBack = { choosingOnMap = false },
+                onPick = {
+                    choosingOnMap = false
+                    onPick(it.toVenue(language))
+                },
+            )
+        }
     }
     var mapResults by remember { mutableStateOf(emptyList<Place>()) }
     var mapProblem by remember { mutableStateOf<String?>(null) }
@@ -205,14 +241,7 @@ private fun BottomSheetScope.PlaceSearchBody(
             items(mapResults, key = { "map:${it.placeId?.id ?: it.name}:${it.address}" }) { place ->
                 ListRow(place.name, icon = AppIcons.MapPin, supporting = place.address, onClick = { onPick(place.toVenue(language)) })
             }
-            item(key = "attribution") {
-                Text(
-                    "Map data © OpenStreetMap contributors",
-                    Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
+            item(key = "attribution") { SearchAttribution() }
         }
         mapProblem?.let { problem ->
             item(key = "problem") {
@@ -232,13 +261,16 @@ private fun BottomSheetScope.PlaceSearchBody(
 }
 
 @Composable
-private fun BottomSheetScope.SpotPickerBody(
+private fun SpotPickerPage(
     state: AppState,
     centre: Component.Coordinates,
     onMoved: (Component.Coordinates) -> Unit,
     onBack: () -> Unit,
     onPick: (Place) -> Unit,
 ) {
+    SystemBackHandler(enabled = true, handlesEscape = true, onBack = onBack)
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(Unit) { focusManager.clearFocus() }
     var spot by remember { mutableStateOf<Place?>(null) }
     var nearby by remember { mutableStateOf(emptyList<Place>()) }
     var problem by remember { mutableStateOf<String?>(null) }
@@ -254,32 +286,108 @@ private fun BottomSheetScope.SpotPickerBody(
             problem = "Map search failed: ${error.message ?: "no answer"}"
         }
     }
-    ListBody(
-        header = {
-            PickerHeader("Map", onBack = onBack, Modifier.padding(horizontal = Spacing.md))
-            SpotPickerMap(centre, onMoved, Modifier.fillMaxWidth().padding(horizontal = Spacing.md).height(SPOT_MAP_HEIGHT).clip(CardShape))
-        },
-        overlay = {},
-    ) {
-        spot?.let { place ->
-            item(key = "spot") {
-                ListRow(
-                    place.name,
-                    icon = AppIcons.MapPin,
-                    color = MaterialTheme.colorScheme.primary,
-                    supporting = listOfNotNull(place.address, place.coordinates?.shortText()).joinToString(" · "),
-                    onClick = { onPick(place) },
-                )
-            }
+    var query by remember { mutableStateOf("") }
+    val searching = query.trim().length >= MAP_SEARCH_MIN_LENGTH
+    var results by remember { mutableStateOf(emptyList<Place>()) }
+    var searchProblem by remember { mutableStateOf<String?>(null) }
+    val currentCentre by rememberUpdatedState(centre)
+    LaunchedEffect(query) {
+        if (!searching) return@LaunchedEffect
+        delay(MAP_SEARCH_DELAY_MILLIS)
+        try {
+            results = state.places.search(query.trim(), currentCentre)
+            searchProblem = null
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            searchProblem = "Map search failed: ${error.message ?: "no answer"}"
         }
-        problem?.let { item(key = "problem") { FailureRow(it, onRetry = null, Modifier.padding(Spacing.md)) } }
-        if (nearby.isNotEmpty()) {
-            item(key = "nearby") { PlaceSectionTitle("Nearby") }
-            items(nearby, key = { "nearby:${it.placeId?.id ?: it.name}:${it.address}" }) { place ->
-                ListRow(place.name, icon = AppIcons.MapPin, supporting = place.address, onClick = { onPick(place) })
+    }
+    var found by remember { mutableStateOf<Place?>(null) }
+    val spotShown = found?.takeIf { it.coordinates?.isSameSpotAs(centre) == true } ?: spot
+    val panel = rememberPullUpPanelState()
+    LaunchedEffect(searching) { if (searching) panel.raise() }
+    fun showOnMap(place: Place) {
+        val point = place.coordinates ?: return onPick(place)
+        found = place
+        onMoved(point)
+        query = ""
+        focusManager.clearFocus()
+        panel.lower()
+    }
+
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        val density = LocalDensity.current
+        var topBarHeight by remember { mutableStateOf(0.dp) }
+        val keyboardHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+        val navigationBarHeight = WindowInsets.navigationBars.exclude(WindowInsets.ime).asPaddingValues().calculateBottomPadding()
+        val roomForPanel = (maxHeight - topBarHeight - keyboardHeight - Spacing.sm).coerceAtLeast(0.dp)
+        val loweredHeight = minOf(SPOT_PANEL_LOWERED_HEIGHT + navigationBarHeight, roomForPanel)
+        val raisedHeight = minOf(maxHeight * SPOT_PANEL_RAISED_SCREEN_FRACTION, roomForPanel).coerceAtLeast(loweredHeight)
+        val panelHeight = panel.heightBetween(loweredHeight, raisedHeight)
+        SpotPickerMap(centre, onMoved, Modifier.fillMaxSize(), contentPadding = PaddingValues(top = topBarHeight, bottom = panelHeight + keyboardHeight))
+        Row(
+            Modifier
+                .onSizeChanged { topBarHeight = with(density) { it.height.toDp() } }
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(Spacing.sm)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FloatingIconButton(AppIcons.ArrowLeft, "Back", onBack)
+            SearchField(
+                query,
+                onValueChange = { query = it },
+                placeholder = "Search Places",
+                modifier = Modifier.weight(1f),
+                trailing = if (query.isEmpty()) null else ({ IconButton(AppIcons.X, "Clear", onClick = { query = "" }) }),
+            )
+        }
+        PullUpPanel(
+            panel,
+            loweredHeight,
+            raisedHeight,
+            Modifier.align(Alignment.BottomCenter).padding(bottom = keyboardHeight),
+        ) {
+            if (searching) {
+                items(results, key = { "result:${it.placeId?.id ?: it.name}:${it.address}" }) { place ->
+                    ListRow(place.name, icon = AppIcons.MapPin, supporting = place.address, onClick = { showOnMap(place) })
+                }
+                searchProblem?.let { item(key = "search-problem") { FailureRow(it, onRetry = null, Modifier.padding(Spacing.md)) } }
+                if (results.isNotEmpty()) item(key = "attribution") { SearchAttribution() }
+                return@PullUpPanel
+            }
+            spotShown?.let { place ->
+                item(key = "spot") {
+                    ListRow(
+                        place.name,
+                        icon = AppIcons.MapPin,
+                        color = MaterialTheme.colorScheme.primary,
+                        supporting = listOfNotNull(place.address, place.coordinates?.shortText()).joinToString(" · "),
+                        onClick = { onPick(place) },
+                    )
+                }
+            }
+            problem?.let { item(key = "problem") { FailureRow(it, onRetry = null, Modifier.padding(Spacing.md)) } }
+            if (nearby.isNotEmpty()) {
+                item(key = "nearby") { PlaceSectionTitle("Nearby") }
+                items(nearby, key = { "nearby:${it.placeId?.id ?: it.name}:${it.address}" }) { place ->
+                    ListRow(place.name, icon = AppIcons.MapPin, supporting = place.address, onClick = { onPick(place) })
+                }
             }
         }
     }
+}
+
+@Composable
+private fun SearchAttribution() {
+    Text(
+        "Map data © OpenStreetMap contributors",
+        Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.bodySmall,
+    )
 }
 
 @Composable

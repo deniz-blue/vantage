@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.rememberAcrossNavigation
@@ -166,7 +167,12 @@ private fun SpotPin(modifier: Modifier = Modifier) {
 }
 
 @Composable
-actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coordinates) -> Unit, modifier: Modifier) {
+actual fun SpotPickerMap(
+    center: Component.Coordinates,
+    onMoved: (Component.Coordinates) -> Unit,
+    modifier: Modifier,
+    contentPadding: PaddingValues,
+) {
     val currentOnMoved by rememberUpdatedState(onMoved)
     val mapState = rememberMapState(
         baseStyle = BaseStyle.Uri(MAP_STYLE_URL),
@@ -184,8 +190,18 @@ actual fun SpotPickerMap(center: Component.Coordinates, onMoved: (Component.Coor
             mapState.setCameraPosition(mapState.cameraPosition.copy(center = Position(center.longitude, center.latitude)))
         }
     }
+    val layoutDirection = LocalLayoutDirection.current
+    LaunchedEffect(mapState, contentPadding, layoutDirection) {
+        val padding = DpPadding(
+            left = contentPadding.calculateLeftPadding(layoutDirection),
+            top = contentPadding.calculateTopPadding(),
+            right = contentPadding.calculateRightPadding(layoutDirection),
+            bottom = contentPadding.calculateBottomPadding(),
+        )
+        mapState.setCameraPosition(mapState.cameraPosition.copy(padding = padding))
+    }
     MaplibreMap(modifier, state = mapState) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().padding(contentPadding)) {
             Box(Modifier.align(Alignment.Center).size(SPOT_DOT_SIZE).background(Color.Black.copy(alpha = SPOT_DOT_ALPHA), CircleShape))
             SpotPin(Modifier.align(Alignment.Center).offset(y = (SpotPinShape.HEIGHT / 2 - SpotPinShape.TIP_Y).dp))
             ExpandingAttributionButton(Modifier.align(Alignment.BottomEnd).padding(MapOverlay.Spacing))

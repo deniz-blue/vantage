@@ -104,6 +104,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.drop
 import kotlin.math.abs
@@ -140,6 +141,24 @@ private class OpenBottomSheets {
 
 private val LocalOpenBottomSheets = staticCompositionLocalOf { OpenBottomSheets() }
 
+@Stable
+private class PagesAboveSheets {
+    val shown = mutableStateListOf<@Composable () -> Unit>()
+}
+
+private val LocalPagesAboveSheets = staticCompositionLocalOf { PagesAboveSheets() }
+
+@Composable
+fun PageAboveSheets(content: @Composable () -> Unit) {
+    val pages = LocalPagesAboveSheets.current
+    val currentContent by rememberUpdatedState(content)
+    val page = remember { @Composable { currentContent() } }
+    DisposableEffect(pages, page) {
+        pages.shown += page
+        onDispose { pages.shown -= page }
+    }
+}
+
 val LocalScreenOpacity = staticCompositionLocalOf<() -> Float> { { 1f } }
 
 @Composable
@@ -151,7 +170,8 @@ fun rememberAnyBottomSheetOpen(): State<Boolean> {
 @Composable
 fun BottomSheetHost(aboveSheets: @Composable () -> Unit = {}, content: @Composable () -> Unit) {
     val openSheets = remember { OpenBottomSheets() }
-    CompositionLocalProvider(LocalOpenBottomSheets provides openSheets) {
+    val pages = remember { PagesAboveSheets() }
+    CompositionLocalProvider(LocalOpenBottomSheets provides openSheets, LocalPagesAboveSheets provides pages) {
         Box(Modifier.fillMaxSize()) {
             DrawerHost(Modifier.fillMaxSize().background(Color.Black)) {
                 Box(
@@ -164,6 +184,11 @@ fun BottomSheetHost(aboveSheets: @Composable () -> Unit = {}, content: @Composab
                         clip = fraction > 0f
                     },
                 ) { content() }
+            }
+            pages.shown.forEach { page ->
+                key(page) {
+                    Box(Modifier.fillMaxSize().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }) { page() }
+                }
             }
             aboveSheets()
         }
