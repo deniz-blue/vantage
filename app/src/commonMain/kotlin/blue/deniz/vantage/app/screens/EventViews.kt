@@ -111,14 +111,14 @@ fun EventsViewContent(
     val marks = rememberCalendarMarks(state, showsMarkersAndPeriods)
     when (view) {
         EventsView.List -> {
-            val query = remember(search, time, order, state.listsSplitAt) { view.timeShown(time).toQuery(state.listsSplitAt, search, order) }
+            val query = remember(search, time, order, state.listsDayStart) { view.timeShown(time).toQuery(state.listsDayStart, search, order) }
             EventListView(state, screen, events, query, marks, actions, cards, topPadding, bottomPadding + bottomEndClearance, emptyText, listFooter)
         }
         EventsView.Calendar -> Box(Modifier.padding(bottom = bottomPadding)) {
             CalendarView(state, screen, events, marks, actions, cards, topPadding, filtersButton, onNewOnDay, calendarViewPicker)
         }
         EventsView.Map -> {
-            val query = remember(time, state.listsSplitAt) { time.toQuery(state.listsSplitAt) }
+            val query = remember(time, state.listsDayStart) { time.toQuery(state.listsDayStart) }
             val currentActions by rememberUpdatedState(actions)
             EventMap(
                 events,

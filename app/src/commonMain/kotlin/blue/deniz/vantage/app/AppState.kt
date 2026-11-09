@@ -54,6 +54,7 @@ import io.ktor.http.parseUrl
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import blue.deniz.vantage.app.ui.HeldKeys
@@ -85,6 +86,7 @@ class AppState(
     val today by derivedStateOf { now.toLocalDateTime(timeZone).date }
     var listsSplitAt by mutableStateOf(now)
         private set
+    val listsDayStart by derivedStateOf { listsSplitAt.toLocalDateTime(timeZone).date.atStartOfDayIn(timeZone) }
     val formatting by derivedStateOf { EventFormatting(timeZone, today) }
     val preferredLanguages by derivedStateOf { listOf(settings.contentLanguage, DEFAULT_CONTENT_LANGUAGE).distinct() }
     var actionsSheetEventId by mutableStateOf<String?>(null)

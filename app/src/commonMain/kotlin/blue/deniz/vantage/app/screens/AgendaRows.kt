@@ -7,6 +7,7 @@ import blue.deniz.vantage.core.CalendarPeriod
 import blue.deniz.vantage.core.ResolvedEvent
 import directory.evnt.PartialDate
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
@@ -75,6 +76,7 @@ fun agendaOf(
     startOf: (ResolvedEvent) -> PartialDate?,
 ): Agenda {
     val today = now.toLocalDateTime(formatting.timeZone).date
+    val todayStart = today.atStartOfDayIn(formatting.timeZone)
     val rows = mutableListOf<AgendaRow>()
     val rowDays = mutableListOf<LocalDate?>()
     var headingKey: String? = null
@@ -82,8 +84,8 @@ fun agendaOf(
     val usedKeys = mutableMapOf<String, Int>()
     var todayPlaced = false
     val hasPastPart = upcomingFrom != null
-    val (endedPeriods, openPeriods) = periods.partition { hasPastPart && it.endsAt <= now }
-    val (endedMarkers, openMarkers) = markers.partition { hasPastPart && it.endsAt <= now }
+    val (endedPeriods, openPeriods) = periods.partition { hasPastPart && it.endsAt <= todayStart }
+    val (endedMarkers, openMarkers) = markers.partition { hasPastPart && it.endsAt <= todayStart }
     var marks = marksOf(endedPeriods, endedMarkers)
     var placedMarks = 0
     var upcomingStartRow = -1

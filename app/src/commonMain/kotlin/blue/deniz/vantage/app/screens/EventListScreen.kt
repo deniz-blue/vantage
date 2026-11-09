@@ -95,10 +95,10 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
     val scope = rememberCoroutineScope()
     val selecting = state.isSelectingEvents
     val filterValues = listOf(filters.search, filters.time, filters.order, storeFilter)
-    val matchingIds by remember(filterValues, view, selecting, state.listsSplitAt) { if (selecting) state.store.observeIds(filters.toListQuery(state.listsSplitAt, view)) else flowOf(null) }
+    val matchingIds by remember(filterValues, view, selecting, state.listsDayStart) { if (selecting) state.store.observeIds(filters.toListQuery(state.listsDayStart, view)) else flowOf(null) }
         .collectAsState(initial = null)
     if (view == EventsView.List) {
-        SelectAllShortcut(state) { scope.launch { state.selectEvents(state.store.observeIds(filters.toListQuery(state.listsSplitAt, view)).first()) } }
+        SelectAllShortcut(state) { scope.launch { state.selectEvents(state.store.observeIds(filters.toListQuery(state.listsDayStart, view)).first()) } }
     }
 
     val searchFocus = remember { FocusRequester() }
@@ -122,7 +122,7 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
                     Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
                 } else FloatingControls(backdrop = false) {
                     when {
-                        selecting -> EventSelectionBar(state, matchingIds, filters.toListQuery(state.listsSplitAt, view).order)
+                        selecting -> EventSelectionBar(state, matchingIds, filters.toListQuery(state.listsDayStart, view).order)
                         view.searches -> SearchField(
                             value = filters.search,
                             onValueChange = { filters.search = it },
