@@ -32,6 +32,7 @@ import blue.deniz.vantage.app.ui.SpotPickerMap
 import androidx.compose.ui.unit.dp
 import directory.evnt.Component
 import blue.deniz.vantage.app.ui.displayName
+import blue.deniz.vantage.core.Address
 import blue.deniz.vantage.core.Place
 import blue.deniz.vantage.core.ResolvedEvent
 import directory.evnt.Venue
@@ -82,7 +83,7 @@ private data class UsedPlace(val venue: Venue, val name: String, val eventCount:
 
 private fun usedPlacesOf(events: List<ResolvedEvent>, preferredLanguages: List<String>): List<UsedPlace> =
     events.mapNotNull { it.data?.venue }
-        .mapNotNull { venue -> venue.displayName(preferredLanguages)?.let { venue to it } }
+        .mapNotNull { venue -> (venue.displayName(preferredLanguages) ?: venue.address?.takeIf { it.isNotBlank() })?.let { venue to it } }
         .groupBy { (venue, name) -> name.lowercase() to venue.address.orEmpty().lowercase() }
         .map { (_, uses) -> UsedPlace(uses.first().first, uses.first().second, uses.size) }
         .sortedByDescending { it.eventCount }
@@ -129,7 +130,7 @@ private fun BottomSheetScope.PlaceSearchBody(
     var movedMapCentre by remember { mutableStateOf<Component.Coordinates?>(null) }
     val mapCentre = movedMapCentre ?: near ?: state.settings.myLocation?.let { Component.Coordinates(it.latitude, it.longitude) }
         ?: CountryTimeZones.of(state.timeZone.id)?.coordinates ?: Component.Coordinates(0.0, 0.0)
-    var linkedAddress by remember { mutableStateOf<Place?>(null) }
+    var linkedAddress by remember { mutableStateOf<Address?>(null) }
     LaunchedEffect(linked) {
         linkedAddress = null
         val point = linked ?: return@LaunchedEffect
@@ -150,7 +151,7 @@ private fun BottomSheetScope.PlaceSearchBody(
                 onBack = { choosingOnMap = false },
                 onPick = {
                     choosingOnMap = false
-                    onPick(it.toVenue(language))
+                    onPick(it)
                 },
             )
         }
@@ -199,10 +200,10 @@ private fun BottomSheetScope.PlaceSearchBody(
         linked?.let { point ->
             item(key = "link") {
                 ListRow(
-                    linkedAddress?.name ?: point.shortText(),
+                    linkedAddress?.text ?: point.shortText(),
                     icon = AppIcons.MapPin,
                     color = MaterialTheme.colorScheme.primary,
-                    supporting = listOfNotNull(linkedAddress?.address, point.shortText()).joinToString(" · "),
+                    supporting = point.shortText().takeIf { linkedAddress != null },
                     onClick = {
                         movedMapCentre = point
                         choosingOnMap = true
@@ -266,12 +267,13 @@ private fun SpotPickerPage(
     centre: Component.Coordinates,
     onMoved: (Component.Coordinates) -> Unit,
     onBack: () -> Unit,
-    onPick: (Place) -> Unit,
+    onPick: (Venue) -> Unit,
 ) {
     SystemBackHandler(enabled = true, handlesEscape = true, onBack = onBack)
+    val language = state.preferredLanguages.first()
     val focusManager = LocalFocusManager.current
     LaunchedEffect(Unit) { focusManager.clearFocus() }
-    var spot by remember { mutableStateOf<Place?>(null) }
+    var spot by remember { mutableStateOf<Address?>(null) }
     var nearby by remember { mutableStateOf(emptyList<Place>()) }
     var problem by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(centre) {
@@ -304,11 +306,11 @@ private fun SpotPickerPage(
         }
     }
     var found by remember { mutableStateOf<Place?>(null) }
-    val spotShown = found?.takeIf { it.coordinates?.isSameSpotAs(centre) == true } ?: spot
+    val foundHere = found?.takeIf { it.coordinates?.isSameSpotAs(centre) == true }
     val panel = rememberPullUpPanelState()
     LaunchedEffect(searching) { if (searching) panel.raise() }
     fun showOnMap(place: Place) {
-        val point = place.coordinates ?: return onPick(place)
+        val point = place.coordinates ?: return onPick(place.toVenue(language))
         found = place
         onMoved(point)
         query = ""
@@ -358,22 +360,34 @@ private fun SpotPickerPage(
                 if (results.isNotEmpty()) item(key = "attribution") { SearchAttribution() }
                 return@PullUpPanel
             }
-            spotShown?.let { place ->
+            if (foundHere != null) {
                 item(key = "spot") {
                     ListRow(
-                        place.name,
+                        foundHere.name,
                         icon = AppIcons.MapPin,
                         color = MaterialTheme.colorScheme.primary,
-                        supporting = listOfNotNull(place.address, place.coordinates?.shortText()).joinToString(" · "),
-                        onClick = { onPick(place) },
+                        supporting = listOfNotNull(foundHere.address, foundHere.coordinates?.shortText()).joinToString(" · "),
+                        onClick = { onPick(foundHere.toVenue(language)) },
                     )
+                }
+            } else {
+                spot?.let { address ->
+                    item(key = "spot") {
+                        ListRow(
+                            address.text,
+                            icon = AppIcons.MapPin,
+                            color = MaterialTheme.colorScheme.primary,
+                            supporting = address.coordinates.shortText(),
+                            onClick = { onPick(address.toVenue()) },
+                        )
+                    }
                 }
             }
             problem?.let { item(key = "problem") { FailureRow(it, onRetry = null, Modifier.padding(Spacing.md)) } }
             if (nearby.isNotEmpty()) {
                 item(key = "nearby") { PlaceSectionTitle("Nearby") }
                 items(nearby, key = { "nearby:${it.placeId?.id ?: it.name}:${it.address}" }) { place ->
-                    ListRow(place.name, icon = AppIcons.MapPin, supporting = place.address, onClick = { onPick(place) })
+                    ListRow(place.name, icon = AppIcons.MapPin, supporting = place.address, onClick = { onPick(place.toVenue(language)) })
                 }
             }
         }

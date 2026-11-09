@@ -87,7 +87,7 @@ class PlaceSearchTest {
     }
 
     @Test
-    fun namesASpotByTheAddressThereAndKeepsItsExactPoint() = runTest {
+    fun findsTheAddressAtASpotAndKeepsItsExactPoint() = runTest {
         val server = FakeServer(mapOf(
             "https://photon.example/reverse?lat=54.6946&lon=25.2859&limit=5" to {
                 respond(
@@ -102,7 +102,7 @@ class PlaceSearchTest {
         ))
         val spot = Component.Coordinates(54.6946, 25.2859)
         assertEquals(
-            Place("Šeimyniškių g. 16", "Vilnius", "LT", Component.PlaceId("osm", "way/41"), spot),
+            Address("Šeimyniškių g. 16, Vilnius", "LT", Component.PlaceId("osm", "way/41"), spot),
             PlaceSearch(server.client, "https://photon.example/api/").addressAt(spot),
         )
     }

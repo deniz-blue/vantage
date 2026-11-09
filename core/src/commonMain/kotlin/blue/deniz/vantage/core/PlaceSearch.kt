@@ -42,6 +42,15 @@ data class Place(
     )
 }
 
+data class Address(
+    val text: String,
+    val countryCode: String?,
+    val placeId: Component.PlaceId?,
+    val coordinates: Component.Coordinates,
+) {
+    fun toVenue() = Venue(address = text, countryCode = countryCode, components = listOfNotNull(placeId, coordinates))
+}
+
 fun cityNameOfTimeZone(zoneId: String): String? {
     val parts = zoneId.split('/')
     if (parts.size < 2 || parts.first() !in TIME_ZONE_AREAS_NAMED_BY_CITY) return null
@@ -74,11 +83,11 @@ class PlaceSearch(private val client: HttpClient, private val endpoint: String =
         return featuresAt(url).mapNotNull { it.toNamedPlace() }.distinctBy { Triple(it.name, it.address, it.countryCode) }
     }
 
-    suspend fun addressAt(at: Component.Coordinates): Place? {
+    suspend fun addressAt(at: Component.Coordinates): Address? {
         val feature = reverse(at, listOf("limit" to ADDRESS_CANDIDATE_LIMIT.toString())).firstOrNull { it.text("type") in ADDRESS_FEATURE_TYPES }
             ?: return null
-        val name = feature.street ?: feature.text("name") ?: return null
-        return feature.toPlace(name, feature.locality, at)
+        val street = feature.street ?: feature.text("name") ?: return null
+        return feature.toAddress(listOfNotNull(street, feature.locality).joinToString(", "), at)
     }
 
     suspend fun placesNear(at: Component.Coordinates): List<Place> {
@@ -130,6 +139,9 @@ private class PhotonFeature(private val properties: JsonObject, private val geom
 
     fun toPlace(name: String, address: String?, coordinates: Component.Coordinates? = position) =
         Place(name = name, address = address, countryCode = text("countrycode")?.uppercase(), placeId = placeId, coordinates = coordinates)
+
+    fun toAddress(text: String, coordinates: Component.Coordinates) =
+        Address(text = text, countryCode = text("countrycode")?.uppercase(), placeId = placeId, coordinates = coordinates)
 
     fun toNamedPlace(): Place? {
         val street = street
