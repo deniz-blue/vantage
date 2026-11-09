@@ -93,7 +93,7 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
     val filteringTags = tags.filter { it.id in filters.tagIds }
     val hiddenTags = tags.filter { it.id in filters.excludedTagIds }
     val scope = rememberCoroutineScope()
-    val selecting = state.selectedEventIds.isNotEmpty()
+    val selecting = state.isSelectingEvents
     val filterValues = listOf(filters.search, filters.time, filters.order, storeFilter)
     val matchingIds by remember(filterValues, view, selecting, state.listsSplitAt) { if (selecting) state.store.observeIds(filters.toListQuery(state.listsSplitAt, view)) else flowOf(null) }
         .collectAsState(initial = null)
@@ -179,6 +179,7 @@ fun EventListFiltersSheet(state: AppState, visible: Boolean, onDismiss: () -> Un
     val sourceTypes = collectAcrossSession("source types", null) { state.store.observeSourceTypes() }.orEmpty()
     BottomSheet(visible, onDismiss) {
         val view = state.myEventsView
+        if (view == EventsView.List) SelectEventsRow(state::startSelectingEvents, onDismiss)
         if (view.filtersByTime) {
             TitledSection("Filter by") {
                 SegmentedControl(

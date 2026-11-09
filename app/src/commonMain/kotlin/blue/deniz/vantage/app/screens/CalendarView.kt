@@ -330,6 +330,7 @@ private fun DaySheet(
         } else {
             Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.md), verticalAlignment = Alignment.CenterVertically) {
                 SheetTitle(cards.formatting.formatDay(day), Modifier.weight(1f))
+                if (dayEvents.isNotEmpty()) IconButton(AppIcons.SelectAll, "Select Events", onClick = actions::startSelecting)
                 if (onNewOnDay != null) Button("New", onClick = { onNewOnDay(day) }, leadingIcon = AppIcons.Plus)
             }
         }

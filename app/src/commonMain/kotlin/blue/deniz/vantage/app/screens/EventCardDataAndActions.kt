@@ -32,6 +32,8 @@ interface EventCardActions {
 
     fun toggleSelected(event: ResolvedEvent)
 
+    fun startSelecting()
+
     fun selectAll(shown: List<ResolvedEvent>)
 
     fun actionsFor(event: ResolvedEvent): (() -> Unit)?
@@ -43,7 +45,7 @@ interface EventCardActions {
 }
 
 class StoredEventCardActions(private val state: AppState) : EventCardActions {
-    override val isSelecting get() = state.selectedEventIds.isNotEmpty()
+    override val isSelecting get() = state.isSelectingEvents
 
     override fun selectionOf(event: ResolvedEvent) = when {
         !isSelecting -> EventCardSelection.NotSelecting
@@ -61,6 +63,10 @@ class StoredEventCardActions(private val state: AppState) : EventCardActions {
 
     override fun toggleSelected(event: ResolvedEvent) {
         event.id?.let(state::toggleEventSelected)
+    }
+
+    override fun startSelecting() {
+        state.startSelectingEvents()
     }
 
     override fun selectAll(shown: List<ResolvedEvent>) {

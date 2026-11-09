@@ -33,6 +33,7 @@ import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheetFrame
 import blue.deniz.vantage.app.ui.ControlHeight
 import blue.deniz.vantage.app.ui.IconButton
+import blue.deniz.vantage.app.ui.ListRow
 import blue.deniz.vantage.app.ui.Radius
 import blue.deniz.vantage.app.ui.Spacing
 import blue.deniz.vantage.app.ui.Text
@@ -74,6 +75,14 @@ fun EventSelectionBar(state: AppState, matchingIds: List<String>?, order: EventL
 }
 
 @Composable
+fun SelectEventsRow(onStart: () -> Unit, onDismiss: () -> Unit) {
+    ListRow("Select Events", icon = AppIcons.SelectAll, onClick = {
+        onStart()
+        onDismiss()
+    })
+}
+
+@Composable
 fun SelectionBar(
     selectedCount: Int,
     onClear: () -> Unit,
@@ -96,7 +105,7 @@ fun SelectionBar(
             Row(
                 Modifier.weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
-                content = actions,
+                content = if (selectedCount > 0) actions else ({}),
             )
             if (onSelectAll != null) IconButton(AppIcons.SelectAll, "Select All", onClick = onSelectAll)
         }

@@ -188,8 +188,14 @@ class AppState(
 
     var selectedEventIds by mutableStateOf(emptySet<String>())
         private set
+    private var eventSelectionStarted by mutableStateOf(false)
+    val isSelectingEvents get() = eventSelectionStarted || selectedEventIds.isNotEmpty()
     private var selectionAnchorId: String? = null
     private val selectAllActions = mutableListOf<() -> Unit>()
+
+    fun startSelectingEvents() {
+        eventSelectionStarted = true
+    }
 
     fun toggleEventSelected(id: String) {
         selectedEventIds = if (id in selectedEventIds) selectedEventIds - id else selectedEventIds + id
@@ -207,7 +213,7 @@ class AppState(
     fun clickEventCard(id: String, shownIds: List<String>, keys: HeldKeys) {
         when {
             keys.shiftAtLastPress -> selectEventRange(shownIds, id)
-            selectedEventIds.isNotEmpty() || keys.ctrlOrMetaAtLastPress -> toggleEventSelected(id)
+            isSelectingEvents || keys.ctrlOrMetaAtLastPress -> toggleEventSelected(id)
             else -> openEvent(id, fromCard = true)
         }
     }
@@ -230,13 +236,16 @@ class AppState(
 
     fun clearEventSelection() {
         selectedEventIds = emptySet()
+        eventSelectionStarted = false
         selectionAnchorId = null
     }
 
     fun removeEvent(id: String) = removeEvents(setOf(id))
 
     fun removeEvents(ids: Set<String>) {
+        val removesWholeSelection = selectedEventIds.isNotEmpty() && ids.containsAll(selectedEventIds)
         selectedEventIds -= ids
+        if (removesWholeSelection) eventSelectionStarted = false
         appScope.launch {
             val removed = ids.mapNotNull { store.remove(it) }
             if (removed.isEmpty()) return@launch

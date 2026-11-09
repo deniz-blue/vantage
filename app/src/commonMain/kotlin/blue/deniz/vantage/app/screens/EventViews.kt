@@ -252,7 +252,7 @@ private fun EventListView(
                     is AgendaRow.Event -> item(key = row.key) {
                         StyledEventCard(
                             row.event, EventCardStyle.Agenda, cardListing, shown, actions, cards, cardMinHeight, Modifier.animateItem(),
-                            showsDate = !dayLabels, longPressSelects = false, selectionMarkInside = cardMinHeight > 0.dp,
+                            showsDate = !dayLabels, selectionMarkInside = cardMinHeight > 0.dp,
                         )
                     }
                     is AgendaRow.Marker -> item(key = row.key, span = { GridItemSpan(maxLineSpan) }) {
@@ -270,7 +270,7 @@ private fun EventListView(
                 items(shown, key = { it.listKey() }) { event ->
                     StyledEventCard(
                         event, EventCardStyle.Agenda, cardListing, shown, actions, cards, cardMinHeight, Modifier.animateItem(),
-                        longPressSelects = false, selectionMarkInside = cardMinHeight > 0.dp,
+                        selectionMarkInside = cardMinHeight > 0.dp,
                     )
                 }
             }
@@ -317,13 +317,12 @@ fun StyledEventCard(
     minHeight: Dp,
     modifier: Modifier = Modifier,
     showsDate: Boolean = true,
-    longPressSelects: Boolean = true,
     selectionMarkInside: Boolean = true,
 ) {
     val heldKeys = rememberHeldKeys()
     val cardModifier = modifier.growsIntoEventPage(event.id)
     val onClick = { actions.click(event, shown, heldKeys) }
-    val onLongClick = if (longPressSelects) ({ actions.toggleSelected(event) }) else null
+    val onLongClick = if (actions.isSelecting) null else actions.actionsFor(event)
     val fallbackTitle = cards.fallbackTitleOf(event, listing)
     val selection = actions.selectionOf(event)
     when (style) {

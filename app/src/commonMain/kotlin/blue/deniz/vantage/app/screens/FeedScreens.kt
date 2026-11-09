@@ -230,7 +230,7 @@ fun FeedScreen(state: AppState, feed: EventFeed) {
             )
         }
     }
-    FeedFiltersSheet(state, feed, filters, visible = choosingFilters, onDismiss = { choosingFilters = false })
+    FeedFiltersSheet(state, feed, filters, onSelectEvents = selection::startSelecting, visible = choosingFilters, onDismiss = { choosingFilters = false })
     FeedMenuSheet(state, feed, title, visible = showingMenu, onDismiss = { showingMenu = false })
 }
 
@@ -256,10 +256,11 @@ private fun EventListing.countLabel(): String? = when (val count = count) {
 }
 
 @Composable
-private fun FeedFiltersSheet(state: AppState, feed: EventFeed, filters: FeedFilters, visible: Boolean, onDismiss: () -> Unit) {
+private fun FeedFiltersSheet(state: AppState, feed: EventFeed, filters: FeedFilters, onSelectEvents: () -> Unit, visible: Boolean, onDismiss: () -> Unit) {
     val screen = feedScreenKey(feed)
     BottomSheet(visible, onDismiss) {
         val view = state.settings.eventsViewOf(screen, EventsView.List)
+        if (view == EventsView.List) SelectEventsRow(onSelectEvents, onDismiss)
         if (view.filtersByTime) {
             TitledSection("Filter by") {
                 SegmentedControl(
@@ -401,7 +402,8 @@ private class RemoteEventSelection(private val state: AppState) : EventCardActio
     var adding by mutableStateOf<AddProgress?>(null)
         private set
     private var anchor: EventSource? = null
-    override val isSelecting get() = events.isNotEmpty()
+    private var started by mutableStateOf(false)
+    override val isSelecting get() = started || events.isNotEmpty()
 
     fun isSelected(event: ResolvedEvent) = event.source in events
 
@@ -415,12 +417,17 @@ private class RemoteEventSelection(private val state: AppState) : EventCardActio
             events = events.filterKeys { it in failed || it !in batchSources }
             problems = failed
             adding = null
+            if (events.isEmpty()) started = false
         }
     }
 
     override fun toggleSelected(event: ResolvedEvent) {
         events = if (isSelected(event)) events - event.source else events + (event.source to event)
         anchor = event.source
+    }
+
+    override fun startSelecting() {
+        started = true
     }
 
     private fun selectRange(shown: List<ResolvedEvent>, event: ResolvedEvent) {
@@ -453,6 +460,7 @@ private class RemoteEventSelection(private val state: AppState) : EventCardActio
         events = emptyMap()
         problems = emptyMap()
         anchor = null
+        started = false
     }
 
     override fun selectionOf(event: ResolvedEvent) = when {

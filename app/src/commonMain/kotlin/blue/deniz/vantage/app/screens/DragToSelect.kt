@@ -80,9 +80,10 @@ internal fun Modifier.selectsByDragging(
     coroutineScope {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            if (!actions().isSelecting) return@awaitEachGesture
             val start = eventAt(down.position) ?: return@awaitEachGesture
             val checkColumn = checkColumnWidth()
-            val inCheckColumn = checkColumn != null && actions().isSelecting && down.position.x < checkColumn
+            val inCheckColumn = checkColumn != null && down.position.x < checkColumn
             if (inCheckColumn) {
                 down.consume()
             } else {
