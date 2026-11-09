@@ -38,6 +38,12 @@ import blue.deniz.vantage.core.Countries
 import blue.deniz.vantage.core.Country
 import blue.deniz.vantage.core.Languages
 import blue.deniz.vantage.core.timeZoneOffsetLabel
+import blue.deniz.vantage.core.CountryTimeZone
+import blue.deniz.vantage.core.CountryTimeZones
+import blue.deniz.vantage.core.offsetLabelOfQuery
+import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.datetime.offsetAt
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 
@@ -112,23 +118,136 @@ private fun <T> BottomSheetScope.PickerBody(
     }
 }
 
-private val ZONE_REGIONS = setOf("Africa", "America", "Antarctica", "Arctic", "Asia", "Atlantic", "Australia", "Europe", "Indian", "Pacific")
+private const val TIME_ZONE_SUGGESTIONS_SHOWN = 5
+private const val OFFSET_FLAGS_SHOWN = 8
+private val HALF_A_YEAR = 182.days
 
-private fun isRegionZone(id: String) = id == "UTC" || id.substringBefore('/', "") in ZONE_REGIONS
+data class TimeZoneSuggestions(
+    val placeZoneId: String? = null,
+    val placeName: String? = null,
+    val homeZoneId: String? = null,
+    val usedZoneIds: List<String> = emptyList(),
+)
+
+private class ZoneAtOffset(val zone: CountryTimeZone, val offsetLabel: String, val offsetSeconds: Int, val offsetSecondsInHalfAYear: Int)
 
 @Composable
-fun BottomSheetScope.TimeZonePickerBody(title: String, selectedId: String?, now: Instant, onBack: (() -> Unit)? = null, onPick: (String) -> Unit) {
-    val zones = remember(selectedId) { (TimeZone.availableZoneIds.filter(::isRegionZone) + listOfNotNull(selectedId?.takeIf { it in TimeZone.availableZoneIds })).distinct().sorted() }
-    PickerBody(
-        title,
-        onBack,
-        "Search time zones",
-        zones,
-        search = { all, query -> all.filter { it.contains(query.replace(' ', '_'), ignoreCase = true) } },
-        isSelected = { it == selectedId },
-    ) { zone ->
-        val offset = remember(zone) { timeZoneOffsetLabel(TimeZone.of(zone), now) }
-        PickerRow(zone.replace('_', ' '), supporting = null, selected = zone == selectedId, onClick = { onPick(zone) }, trailingText = offset)
+fun BottomSheetScope.TimeZonePickerBody(
+    title: String,
+    selectedId: String?,
+    now: Instant,
+    displayLanguage: String,
+    suggestions: TimeZoneSuggestions = TimeZoneSuggestions(),
+    onBack: (() -> Unit)? = null,
+    onPick: (String) -> Unit,
+) {
+    val available = remember { TimeZone.availableZoneIds }
+    val zones = remember(now) {
+        CountryTimeZones.all.filter { it.id in available }.map {
+            val zone = TimeZone.of(it.id)
+            ZoneAtOffset(it, timeZoneOffsetLabel(zone, now), zone.offsetAt(now).totalSeconds, zone.offsetAt(now + HALF_A_YEAR).totalSeconds)
+        }
+    }
+    val countryNames = remember(displayLanguage) { mutableMapOf<String, String>() }
+    fun countryOf(code: String) = countryNames.getOrPut(code) { countryName(code, displayLanguage) }
+    fun offsetOf(id: String) = zones.firstOrNull { it.zone.id == id }?.offsetLabel ?: timeZoneOffsetLabel(TimeZone.of(id), now)
+    fun oneZonePerCountryAt(label: String) = zones.filter { it.offsetLabel == label }.distinctBy { it.zone.countryCode }.sortedBy { countryOf(it.zone.countryCode) }
+    val homeCountry = suggestions.homeZoneId?.let(CountryTimeZones::of)?.countryCode
+    val offsets = remember(zones) { zones.groupBy { it.offsetSeconds }.toList().sortedBy { it.first }.map { it.second } }
+
+    var query by rememberSaveable { mutableStateOf("") }
+    var browsingOffsets by rememberSaveable { mutableStateOf(false) }
+    var openOffset by rememberSaveable { mutableStateOf<String?>(null) }
+    val text = query.trim()
+    val list = rememberLazyListState()
+    LaunchedEffect(text.isEmpty(), browsingOffsets, openOffset) {
+        val homeOffset = suggestions.homeZoneId?.let(::offsetOf)
+        val showingOffsets = text.isEmpty() && browsingOffsets && openOffset == null
+        list.scrollToItem(if (showingOffsets) (offsets.indexOfFirst { it.first().offsetLabel == homeOffset } - 2).coerceAtLeast(0) else 0)
+    }
+
+    @Composable
+    fun ZoneRow(id: String, supporting: String?, offsetLabel: String?) {
+        val zone = CountryTimeZones.of(id)
+        PickerRow(
+            zone?.let { "${Countries.flagOf(it.countryCode)}  ${it.city}" } ?: id.replace('_', ' '),
+            supporting = supporting,
+            selected = id == selectedId,
+            onClick = { onPick(id) },
+            trailingText = offsetLabel,
+        )
+    }
+
+    @Composable
+    fun NextLevelRow(headline: String, supporting: String?, icon: ImageVector?, onClick: () -> Unit) {
+        ListRow(
+            headline,
+            icon = icon,
+            supporting = supporting,
+            onClick = onClick,
+            trailing = { Icon(AppIcons.ChevronRight, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+        )
+    }
+
+    val shownOffset = openOffset
+    ListBody(
+        header = {
+            PickerHeader(
+                shownOffset ?: if (browsingOffsets) "By Offset" else title,
+                onBack = when {
+                    shownOffset != null -> ({ openOffset = null })
+                    browsingOffsets -> ({ browsingOffsets = false })
+                    else -> onBack
+                },
+                Modifier.padding(horizontal = Spacing.md),
+            )
+        },
+        overlay = {
+            SearchField(
+                query,
+                { query = it },
+                placeholder = "City, Country or +2",
+                modifier = Modifier.fillMaxWidth(),
+                trailing = if (query.isEmpty()) null else ({ IconButton(AppIcons.X, "Clear", onClick = { query = "" }) }),
+            )
+        },
+        state = list,
+    ) {
+        when {
+            text.isNotEmpty() -> {
+                val offsetLabel = offsetLabelOfQuery(text)
+                val found = if (offsetLabel != null) {
+                    oneZonePerCountryAt(offsetLabel)
+                } else {
+                    val byCity = zones.filter { it.zone.city.contains(text, ignoreCase = true) || it.zone.id.contains(text.replace(' ', '_'), ignoreCase = true) }
+                        .sortedBy { if (it.zone.city.startsWith(text, ignoreCase = true)) 0 else 1 }
+                    val byCountry = zones.filter { it.zone.countryCode.equals(text, ignoreCase = true) || countryOf(it.zone.countryCode).contains(text, ignoreCase = true) }
+                        .distinctBy { Triple(it.zone.countryCode, it.offsetSeconds, it.offsetSecondsInHalfAYear) }
+                    (byCity + byCountry).distinctBy { it.zone.id }
+                }
+                if (offsetLabel == "UTC") item(key = "UTC") { ZoneRow("UTC", supporting = null, offsetLabel = "UTC") }
+                items(found, key = { it.zone.id }) { ZoneRow(it.zone.id, countryOf(it.zone.countryCode), it.offsetLabel) }
+            }
+            shownOffset != null -> items(oneZonePerCountryAt(shownOffset), key = { it.zone.id }) {
+                ZoneRow(it.zone.id, countryOf(it.zone.countryCode), offsetLabel = null)
+            }
+            browsingOffsets -> items(offsets, key = { it.first().offsetSeconds }) { group ->
+                val countries = group.map { it.zone.countryCode }.distinct().sortedWith(compareBy({ it != homeCountry }, { countryOf(it) }))
+                val flags = countries.take(OFFSET_FLAGS_SHOWN).joinToString(" ") { Countries.flagOf(it) } +
+                    if (countries.size > OFFSET_FLAGS_SHOWN) "  +${countries.size - OFFSET_FLAGS_SHOWN}" else ""
+                val label = group.first().offsetLabel
+                NextLevelRow(label, flags, icon = null, onClick = { openOffset = label })
+            }
+            else -> {
+                val shortList = (listOfNotNull(suggestions.placeZoneId, selectedId, suggestions.homeZoneId) + suggestions.usedZoneIds)
+                    .filter { it in available }.distinct().take(TIME_ZONE_SUGGESTIONS_SHOWN)
+                items(shortList, key = { it }) { id ->
+                    val supporting = suggestions.placeName?.takeIf { id == suggestions.placeZoneId } ?: CountryTimeZones.of(id)?.let { countryOf(it.countryCode) }
+                    ZoneRow(id, supporting, offsetOf(id))
+                }
+                item(key = "by-offset") { NextLevelRow("By Offset", supporting = null, icon = AppIcons.Clock, onClick = { browsingOffsets = true }) }
+            }
+        }
     }
 }
 

@@ -1,5 +1,9 @@
 package blue.deniz.vantage.app.screens
 
+import blue.deniz.vantage.app.ui.displayName
+import blue.deniz.vantage.app.collectAcrossSession
+import blue.deniz.vantage.core.coordinates
+import blue.deniz.vantage.core.CountryTimeZones
 import blue.deniz.vantage.app.ui.LanguageBar
 import blue.deniz.vantage.app.ui.LanguageChips
 import directory.evnt.languageToEdit
@@ -122,6 +126,18 @@ internal fun EventForm(
     var chosenLanguage by rememberSaveable { mutableStateOf<String?>(null) }
     var nameFocused by remember { mutableStateOf(false) }
     var addingLanguage by rememberSaveable { mutableStateOf(false) }
+    val placeTimeZone = remember(event.venue) { event.venue?.let { CountryTimeZones.ofPlace(it.countryCode, it.coordinates) } }
+    val savedEvents = collectAcrossSession("all events", null) { state.store.observeList() }.orEmpty()
+    val usedTimeZoneIds = remember(savedEvents) {
+        savedEvents.flatMap { it.data?.occurrences.orEmpty() }.mapNotNull { it.start?.timeZoneId }
+            .groupingBy { it }.eachCount().entries.sortedByDescending { it.value }.map { it.key }
+    }
+    val timeZoneSuggestions = TimeZoneSuggestions(
+        placeZoneId = placeTimeZone?.id,
+        placeName = event.venue?.displayName(preferredLanguages),
+        homeZoneId = state.timeZone.id,
+        usedZoneIds = usedTimeZoneIds,
+    )
     val nameLanguage = chosenLanguage ?: event.name.languageToEdit(preferredLanguages)
     val descriptionLanguage = chosenLanguage ?: event.description()?.content.languageToEdit(preferredLanguages)
     val eventLanguages = (event.name.writtenLanguages() + event.description()?.content.writtenLanguages() + listOfNotNull(chosenLanguage)).distinct()
@@ -231,7 +247,7 @@ internal fun EventForm(
                             deviceTimeZoneId = state.timeZone.id,
                             onEdit = { editingDate = it },
                             onRemove = { event = event.withOccurrence(it, null) },
-                            onAdd = { newDate = event.nextOccurrence(PartialDate.Day(state.today, state.timeZone.id)) },
+                            onAdd = { newDate = event.nextOccurrence(PartialDate.Day(state.today, placeTimeZone?.id ?: state.timeZone.id)) },
                         )
                     }
                     ListSection(Modifier.padding(top = Spacing.sm)) {
@@ -305,6 +321,8 @@ internal fun EventForm(
                         event = event.withOccurrence(index, null)
                     },
                     onDone = { editingDate = null },
+                    displayLanguage = preferredLanguages.first(),
+                    timeZoneSuggestions = timeZoneSuggestions,
                 )
             }
         }
@@ -321,6 +339,8 @@ internal fun EventForm(
                     newDate = null
                     event = event.copy(occurrences = event.occurrences.orEmpty() + occurrence)
                 },
+                displayLanguage = preferredLanguages.first(),
+                timeZoneSuggestions = timeZoneSuggestions,
                 doneLabel = "Add",
             )
         }

@@ -36,7 +36,7 @@ import blue.deniz.vantage.app.ui.SheetTitle
 import blue.deniz.vantage.app.ui.TextInput
 import blue.deniz.vantage.core.DeviceCalendar
 import blue.deniz.vantage.core.SubscribedCalendar
-import blue.deniz.vantage.core.timeZoneOffsetLabel
+import blue.deniz.vantage.core.timeZoneDisplayName
 import kotlinx.datetime.toLocalDateTime
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -168,12 +168,12 @@ internal fun LanguageAndRegionRows(state: AppState, openSheet: (SettingsSheet) -
     ListRow(
         "Time Zone",
         icon = AppIcons.World,
-        supporting = "${zone.id.replace('_', ' ')} · ${timeZoneOffsetLabel(zone, now)}",
+        supporting = timeZoneDisplayName(zone, now),
         onClick = { openSheet(SettingsSheet.TimeZone) },
     )
     if (settings.chosenTimeZone != null) {
         ListRow(
-            "Use Detected: ${detected.id} (${timeZoneOffsetLabel(detected, now)})",
+            "Use Detected: ${timeZoneDisplayName(detected, now)}",
             icon = AppIcons.ArrowUp,
             onClick = { settings.changeTimeZone(detected) },
         )
@@ -197,7 +197,13 @@ internal fun LanguageAndRegionSheets(state: AppState, openSheet: SettingsSheet?,
         }
     }
     BottomSheetFrame(visible = openSheet == SettingsSheet.TimeZone, onDismiss = onDismiss) {
-        TimeZonePickerBody("Time Zone", settings.timeZone.id, state.now) { picked ->
+        TimeZonePickerBody(
+            "Time Zone",
+            settings.timeZone.id,
+            state.now,
+            state.preferredLanguages.first(),
+            TimeZoneSuggestions(homeZoneId = settings.detectedTimeZone.id),
+        ) { picked ->
             onDismiss()
             settings.changeTimeZone(TimeZone.of(picked))
         }

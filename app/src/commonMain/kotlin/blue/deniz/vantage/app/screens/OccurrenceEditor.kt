@@ -72,6 +72,7 @@ import blue.deniz.vantage.core.withStart
 import blue.deniz.vantage.core.withEndTimeOfDay
 import blue.deniz.vantage.core.withTimeOfDay
 import blue.deniz.vantage.core.withTimeZone
+import blue.deniz.vantage.core.timeZoneDisplayName
 import blue.deniz.vantage.core.withoutTimeOfDay
 import directory.evnt.Occurrence
 import directory.evnt.PartialDate
@@ -112,13 +113,15 @@ fun BottomSheetScope.OccurrenceEditor(
     onChange: (Occurrence) -> Unit,
     onDelete: (() -> Unit)?,
     onDone: () -> Unit,
+    displayLanguage: String,
+    timeZoneSuggestions: TimeZoneSuggestions,
     doneLabel: String = "Done",
 ) {
     val timeZoneId = occurrence.start?.timeZoneId ?: defaultTimeZoneId
     val start = occurrence.start ?: PartialDate.Day(now.toLocalDateTime(TimeZone.of(timeZoneId)).date, timeZoneId)
     var pickingTimeZone by rememberSaveable { mutableStateOf(false) }
     if (pickingTimeZone) {
-        TimeZonePickerBody("Time Zone", timeZoneId, now, onBack = { pickingTimeZone = false }) { picked ->
+        TimeZonePickerBody("Time Zone", timeZoneId, now, displayLanguage, timeZoneSuggestions, onBack = { pickingTimeZone = false }) { picked ->
             pickingTimeZone = false
             onChange(occurrence.copy(start = start.withTimeZone(picked), end = occurrence.end?.withTimeZone(picked)))
         }
@@ -126,7 +129,7 @@ fun BottomSheetScope.OccurrenceEditor(
     }
     ScrollingBody {
         Column(Modifier.fillMaxWidth().padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            OccurrenceForm(occurrence, start, timeZoneId, formatting, onChange, onDelete, onDone, doneLabel, onPickTimeZone = { pickingTimeZone = true })
+            OccurrenceForm(occurrence, start, timeZoneId, now, formatting, onChange, onDelete, onDone, doneLabel, onPickTimeZone = { pickingTimeZone = true })
         }
     }
 }
@@ -136,6 +139,7 @@ private fun ColumnScope.OccurrenceForm(
     occurrence: Occurrence,
     start: PartialDate,
     timeZoneId: String,
+    now: Instant,
     formatting: EventFormatting,
     onChange: (Occurrence) -> Unit,
     onDelete: (() -> Unit)?,
@@ -220,7 +224,7 @@ private fun ColumnScope.OccurrenceForm(
             onRemove = { onChange(occurrence.copy(end = null)) },
         )
     }
-    PickerBox("Time Zone", timeZoneId, onClick = onPickTimeZone)
+    PickerBox("Time Zone", timeZoneDisplayName(TimeZone.of(timeZoneId), now), onClick = onPickTimeZone)
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (onDelete != null) TextButton(onClick = onDelete) { Text("Remove Date", color = MaterialTheme.colorScheme.error) }
         Spacer(Modifier.weight(1f))
