@@ -54,14 +54,22 @@ class LazyGridScrollStop internal constructor(
 
     val firstReachableIndex: Int get() = if (passed) 0 else stopIndex
 
-    val distancePastStop: Float?
+    private val stopRowOffset: Float?
         get() {
-            if (passed || stopIndex == 0) return null
+            if (stopIndex == 0) return null
             val visible = grid.layoutInfo.visibleItemsInfo
             if (visible.isEmpty()) return null
             visible.firstOrNull { it.index == stopIndex }?.let { return it.offset.y.toFloat() }
             return if (visible.first().index > stopIndex) Float.NEGATIVE_INFINITY else null
         }
+
+    val distancePastStop: Float? get() = if (passed) null else stopRowOffset
+
+    internal val scrolledBelowStopAfterPassing: Boolean get() = passed && (stopRowOffset ?: 0f) < 0f
+
+    internal fun stopAgain() {
+        passed = false
+    }
 
     val armed: Boolean get() = pulledByUser && (distancePastStop ?: 0f) >= threshold
 
@@ -150,6 +158,9 @@ fun rememberLazyGridScrollStop(grid: LazyGridState, resetKey: Any?, ready: Boole
     }
     LaunchedEffect(stop) {
         snapshotFlow { stop.neededEndFillerHeight() }.collect { height -> if (height != null) stop.updateEndFiller(height) }
+    }
+    LaunchedEffect(stop) {
+        snapshotFlow { stop.scrolledBelowStopAfterPassing }.collect { below -> if (below) stop.stopAgain() }
     }
     LaunchedEffect(stop) {
         snapshotFlow { stop.armed }.collect { armed -> if (armed) haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate) }
