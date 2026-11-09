@@ -188,6 +188,12 @@ fun <T : Any> BottomSheetFrame(item: T?, onDismiss: () -> Unit, body: @Composabl
     BottomSheetFrame(visible = item != null, onDismiss = onDismiss) { shownItem?.let { body(it) } }
 }
 
+class SheetAutofocus {
+    var fieldCount = 0
+}
+
+val LocalSheetAutofocus = staticCompositionLocalOf<SheetAutofocus?> { null }
+
 object BottomSheetScope {
     @Composable
     fun ScrollingBody(content: @Composable ColumnScope.() -> Unit) {
@@ -240,6 +246,7 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
     val currentSystemBack by rememberUpdatedState(rememberSystemBack())
     val focusManager = LocalFocusManager.current
     var bodyHasFocus by remember { mutableStateOf(false) }
+    val autofocus = remember { SheetAutofocus() }
     val keyboard = WindowInsets.ime
     val keyboardTarget = WindowInsets.keyboardTarget
     val density = LocalDensity.current
@@ -304,9 +311,8 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
         snapshotFlow { keyboardTarget.getBottom(density) > 0 }.collect { if (it) expand() }
     }
     val keyboardDrag = rememberKeyboardDrag()
-    val keyboardFirst = remember(keyboardDrag, focusManager) {
+    val keyboardFirst = remember(keyboardDrag) {
         SheetDragsMoveKeyboardFirst(keyboardDrag, onKeyboardHidden = { sheetWasDragged ->
-            focusManager.clearFocus()
             if (!sheetWasDragged && sheet.targetValue == BottomSheetHeight.Expanded) sheet.targetValue = BottomSheetHeight.Open
         })
     }
@@ -381,8 +387,12 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
                             LocalOverscrollFactory provides (LocalOverscrollFactory.current ?: StretchOverscrollFactory),
                             LocalListSection provides null,
                             LocalBackdrop provides null,
+                            LocalSheetAutofocus provides autofocus,
                         ) {
                             BottomSheetScope.body()
+                            LaunchedEffect(visible) {
+                                if (visible && autofocus.fieldCount == 0 && !bodyHasFocus) focusManager.clearFocus()
+                            }
                         }
                     }
                 }

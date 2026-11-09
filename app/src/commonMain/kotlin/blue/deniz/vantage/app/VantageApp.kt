@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.asPaddingValues
 import blue.deniz.vantage.app.ui.Backdrop
+import blue.deniz.vantage.app.ui.ClearFocusWhenKeyboardCloses
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -177,6 +178,7 @@ fun VantageApp(state: AppState) {
         keptScreenKeys = stackedScreenKeys
     }
     SystemBackHandler(enabled = navigator.canGoBack) { navigator.goBack() }
+    ClearFocusWhenKeyboardCloses()
     LaunchedEffect(Unit) {
         if (!state.settings.setupFinished && navigator.current is Route.Tab) navigator.open(Route.Setup)
     }

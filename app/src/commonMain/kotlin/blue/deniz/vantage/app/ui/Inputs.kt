@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -202,6 +203,11 @@ private const val SHOWN_FOCUS_ATTEMPTS = 60
 fun Modifier.focusesWhenShown(): Modifier {
     val focus = remember { FocusRequester() }
     var focused by remember { mutableStateOf(false) }
+    val sheetAutofocus = LocalSheetAutofocus.current
+    DisposableEffect(sheetAutofocus) {
+        sheetAutofocus?.let { it.fieldCount++ }
+        onDispose { sheetAutofocus?.let { it.fieldCount-- } }
+    }
     LaunchedEffect(Unit) {
         // A composeunstyled drawer turns canFocus off for its content until it has settled open.
         repeat(SHOWN_FOCUS_ATTEMPTS) {
