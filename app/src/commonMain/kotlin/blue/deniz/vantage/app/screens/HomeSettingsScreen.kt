@@ -211,6 +211,7 @@ internal fun MyLocationSheet(state: AppState, visible: Boolean, onDismiss: () ->
             onDismiss()
             settings.changeMyLocation(null)
         },
+        currentSpot = settings.myLocation?.coordinates,
     )
 }
 
@@ -233,6 +234,7 @@ internal fun WeatherPlaceSheet(state: AppState, tileId: String?, onDismiss: () -
             onDismiss()
             if (tile != null) state.saveHomeTile(tile.copy(place = null))
         },
+        currentSpot = tile?.place?.coordinates,
     )
 }
 

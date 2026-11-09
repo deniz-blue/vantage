@@ -3,6 +3,7 @@ package blue.deniz.vantage.app
 import blue.deniz.vantage.app.ui.displayName
 import blue.deniz.vantage.core.EventFeed
 import blue.deniz.vantage.core.coordinates
+import directory.evnt.Component
 import directory.evnt.OpenEvnt
 import directory.evnt.Venue
 import kotlinx.serialization.json.Json
@@ -43,7 +44,9 @@ sealed interface HomeTile {
     data class AndroidApp(override val id: String) : HomeTile
 }
 
-data class NamedPlace(val name: String, val latitude: Double, val longitude: Double)
+data class NamedPlace(val name: String, val latitude: Double, val longitude: Double) {
+    val coordinates get() = Component.Coordinates(latitude, longitude)
+}
 
 fun Venue.namedPlace(preferredLanguages: List<String>): NamedPlace? =
     coordinates?.let { NamedPlace(displayName(preferredLanguages) ?: address ?: "Unnamed Place", it.latitude, it.longitude) }

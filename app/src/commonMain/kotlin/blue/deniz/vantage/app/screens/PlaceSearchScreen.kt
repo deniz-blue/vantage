@@ -102,9 +102,10 @@ fun PlaceSearchSheet(
     onlyMapped: Boolean = false,
     unsetLabel: String? = null,
     onUnset: () -> Unit = {},
+    currentSpot: Component.Coordinates? = null,
 ) {
     BottomSheetFrame(visible = visible, onDismiss = onDismiss) {
-        PlaceSearchBody(title, state, onPick, onNewPlace, onlyMapped, unsetLabel, onUnset)
+        PlaceSearchBody(title, state, onPick, onNewPlace, onlyMapped, unsetLabel, onUnset, currentSpot)
     }
 }
 
@@ -117,6 +118,7 @@ private fun BottomSheetScope.PlaceSearchBody(
     onlyMapped: Boolean,
     unsetLabel: String?,
     onUnset: () -> Unit,
+    currentSpot: Component.Coordinates?,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val language = state.preferredLanguages.first()
@@ -128,7 +130,7 @@ private fun BottomSheetScope.PlaceSearchBody(
     var choosingOnMap by rememberSaveable { mutableStateOf(false) }
     var showsAllUsed by rememberSaveable { mutableStateOf(false) }
     var movedMapCentre by remember { mutableStateOf<Component.Coordinates?>(null) }
-    val mapCentre = movedMapCentre ?: near ?: state.settings.myLocation?.let { Component.Coordinates(it.latitude, it.longitude) }
+    val mapCentre = movedMapCentre ?: currentSpot ?: near ?: state.settings.myLocation?.coordinates
         ?: CountryTimeZones.of(state.timeZone.id)?.coordinates ?: Component.Coordinates(0.0, 0.0)
     var linkedAddress by remember { mutableStateOf<Address?>(null) }
     LaunchedEffect(linked) {

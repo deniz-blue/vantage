@@ -389,6 +389,7 @@ internal fun EventForm(
                 event = event.copy(venue = Venue(name = null.withEditedText(preferredLanguages, name)))
                 editingPlace = true
             },
+            currentSpot = event.venue?.coordinates,
         )
     }
 }
