@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -302,7 +302,7 @@ internal fun DayPicker(title: String, initial: LocalDate, onBack: () -> Unit, on
             .collect { currentOnPick(Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date) }
     }
     PickerHeader(title, onBack)
-    DatePicker(pickerState, title = null, headline = null, showModeToggle = false, colors = DatePickerDefaults.colors(containerColor = Color.Transparent))
+    DatePicker(pickerState, title = null, headline = null, showModeToggle = false, colors = DatePickerDefaults.colors(containerColor = BottomSheetDefaults.ContainerColor))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
