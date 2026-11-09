@@ -339,24 +339,24 @@ internal fun ColumnScope.TimePickerPage(title: String, hour: Int, minute: Int, o
         return true
     }
 
-    PickerHeader(title, onBack)
+    PickerHeader(title, onBack) {
+        Button("Set", onClick = { onPick(pickerState.hour, pickerState.minute) }, primary = true)
+    }
     TimePicker(pickerState, Modifier.align(Alignment.CenterHorizontally).onKeyEvent(::onKey).focusRequester(focus).focusTarget())
-    Button("Set", onClick = { onPick(pickerState.hour, pickerState.minute) }, Modifier.align(Alignment.End), primary = true)
 }
 
 @Composable
 private fun ColumnScope.MonthPicker(title: String, initialYear: Int, initialMonth: Int?, onBack: () -> Unit, onPick: (year: Int, month: Int?) -> Unit) {
     var year by remember { mutableIntStateOf(initialYear) }
-    PickerHeader(title, onBack)
+    PickerHeader(title, onBack) {
+        if (initialMonth == null) Button("Set", onClick = { onPick(year, null) }, primary = true)
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(AppIcons.ChevronLeft, "Previous Year", onClick = { year-- })
         Text(year.toString(), Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleLarge)
         IconButton(AppIcons.ChevronRight, "Next Year", onClick = { year++ })
     }
-    if (initialMonth == null) {
-        Button("Set", onClick = { onPick(year, null) }, Modifier.align(Alignment.End), primary = true)
-        return
-    }
+    if (initialMonth == null) return
     for (row in MonthNames.ENGLISH_ABBREVIATED.names.withIndex().chunked(MONTHS_PER_ROW)) {
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             for ((index, name) in row) {

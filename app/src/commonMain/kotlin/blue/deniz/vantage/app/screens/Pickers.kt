@@ -2,6 +2,7 @@ package blue.deniz.vantage.app.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -69,19 +70,22 @@ internal fun PickerRow(
 }
 
 @Composable
-internal fun PickerHeader(title: String, onBack: (() -> Unit)?, modifier: Modifier = Modifier) {
+internal fun PickerHeader(title: String, onBack: (() -> Unit)?, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
     if (onBack == null) {
         SheetTitle(title, modifier)
         return
     }
     SystemBackHandler(enabled = true, onBack = onBack)
-    Row(
-        modifier.offset(x = -IconButtonInset),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-    ) {
-        IconButton(AppIcons.ArrowLeft, "Back", onBack)
-        SheetTitle(title)
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.weight(1f).offset(x = -IconButtonInset),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+        ) {
+            IconButton(AppIcons.ArrowLeft, "Back", onBack)
+            SheetTitle(title)
+        }
+        actions()
     }
 }
 
