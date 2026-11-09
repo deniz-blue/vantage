@@ -115,9 +115,14 @@ internal fun StatusRow(status: OpenEvnt.Status?, onSelect: (OpenEvnt.Status?) ->
     ListRow(
         "Status",
         icon = status.icon,
-        supporting = STATUS_OPTIONS.first { it.first == status }.second,
-        color = if (status == OpenEvnt.Status.Cancelled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
         onClick = { open = true },
+        trailing = {
+            Text(
+                STATUS_OPTIONS.first { it.first == status }.second,
+                color = if (status == OpenEvnt.Status.Cancelled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        },
     )
     BottomSheet(visible = open, onDismiss = { open = false }) {
         SheetTitle("Status", Modifier.padding(horizontal = Spacing.md))

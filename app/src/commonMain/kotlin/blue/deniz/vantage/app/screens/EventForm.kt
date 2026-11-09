@@ -210,6 +210,8 @@ internal fun EventForm(
                     destinationRow?.let { row -> ListSection(Modifier.padding(top = Spacing.md)) { row() } }
                     ListSection(Modifier.padding(top = Spacing.md), title = "Time & Place") {
                         StatusRow(event.status, onSelect = { event = event.copy(status = it) })
+                    }
+                    ListSection(Modifier.padding(top = Spacing.sm)) {
                         DateRows(
                             event.occurrences.orEmpty(),
                             formatting,
@@ -221,6 +223,8 @@ internal fun EventForm(
                                 event = event.withNextOccurrence(PartialDate.Day(state.today, state.timeZone.id))
                             },
                         )
+                    }
+                    ListSection(Modifier.padding(top = Spacing.sm)) {
                         PlaceRow(
                             event.venue,
                             state.preferredLanguages,
@@ -236,6 +240,8 @@ internal fun EventForm(
                             onEditingChange = { editingDescription = it },
                             onLinkClick = state::openLinkActionsSheet,
                         )
+                    }
+                    ListSection(Modifier.padding(top = Spacing.sm)) {
                         CoverImageRow(
                             event.backgroundSplashMedia(),
                             state.preferredLanguages,
