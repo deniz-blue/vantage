@@ -12,6 +12,7 @@ data class EventListQuery(
     val search: String? = null,
     val hasError: Boolean? = null,
     val sourceTypes: Set<EventSourceType> = emptySet(),
+    val excludedSourceTypes: Set<EventSourceType> = emptySet(),
     val onlyTestEvents: Boolean = false,
     val format: EventFormat? = null,
     val from: Instant? = null,
@@ -31,6 +32,9 @@ data class EventListQuery(
 private fun escapeLike(text: String) = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 private fun placeholders(count: Int) = List(count) { "?" }.joinToString(", ")
+
+private fun firstRangeColumn(column: String, window: String, rangeOrder: String) =
+    "(SELECT r.$column FROM event_time_ranges r WHERE r.eventId = e.id$window ORDER BY $rangeOrder, r.endsAt LIMIT 1)"
 
 internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): RoomRawQuery {
     val conditions = mutableListOf<String>()
@@ -55,6 +59,10 @@ internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): Roo
     if (sourceTypes.isNotEmpty()) {
         conditions += "json_extract(e.source, '$.type') IN (${placeholders(sourceTypes.size)})"
         arguments.addAll(sourceTypes.map { it.serialName })
+    }
+    if (excludedSourceTypes.isNotEmpty()) {
+        conditions += "json_extract(e.source, '$.type') NOT IN (${placeholders(excludedSourceTypes.size)})"
+        arguments.addAll(excludedSourceTypes.map { it.serialName })
     }
     when {
         onlyTestEvents -> conditions += "json_extract(e.source, '$.isTestEvent') = 1"
@@ -111,13 +119,12 @@ internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): Roo
         EventListQuery.Order.RecentlyAdded -> "e.addedAt DESC"
         EventListQuery.Order.Name -> "c.title COLLATE NOCASE NULLS LAST"
         EventListQuery.Order.Start -> {
-            val window = from?.let {
-                arguments += it.toEpochMilliseconds()
-                " AND r.endsAt > ?"
-            } ?: ""
-            "(SELECT MIN(r.startsAt) FROM event_time_ranges r WHERE r.eventId = e.id$window) NULLS LAST"
+            val window = if (from == null) "" else " AND r.endsAt > ?"
+            from?.let { start -> repeat(2) { arguments += start.toEpochMilliseconds() } }
+            "${firstRangeColumn("startsAt", window, "r.startsAt")} NULLS LAST, ${firstRangeColumn("endsAt", window, "r.startsAt")}"
         }
-        EventListQuery.Order.StartDescending -> "(SELECT MAX(r.startsAt) FROM event_time_ranges r WHERE r.eventId = e.id) DESC NULLS LAST"
+        EventListQuery.Order.StartDescending ->
+            "${firstRangeColumn("startsAt", "", "r.startsAt DESC")} DESC NULLS LAST, ${firstRangeColumn("endsAt", "", "r.startsAt DESC")}"
     }
 
     val sql = buildString {

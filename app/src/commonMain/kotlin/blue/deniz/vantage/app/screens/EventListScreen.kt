@@ -35,11 +35,16 @@ import blue.deniz.vantage.app.ui.FloatingText
 import blue.deniz.vantage.app.ui.SearchField
 import blue.deniz.vantage.app.ui.SegmentedControl
 import blue.deniz.vantage.app.ui.TitledSection
-import blue.deniz.vantage.app.ui.SourceTypeChip
-import blue.deniz.vantage.app.ui.SourceTypeFilterChips
+import blue.deniz.vantage.app.ui.SourceChoicePills
+import blue.deniz.vantage.app.ui.label
 import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.TagChip
-import blue.deniz.vantage.app.ui.TagFilterChips
+import blue.deniz.vantage.app.ui.TagChoicePills
+import blue.deniz.vantage.app.ui.ChoicePill
+import blue.deniz.vantage.app.ui.InclusionChoice
+import blue.deniz.vantage.app.ui.InclusionFilter
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
+import blue.deniz.vantage.app.ui.tagColor
 import blue.deniz.vantage.core.EventSourceType
 import blue.deniz.vantage.core.TimeFilter
 import blue.deniz.vantage.app.timeShown
@@ -66,17 +71,17 @@ class EventListFilters {
     var search by mutableStateOf("")
     var time by mutableStateOf(TimeFilter.Future)
     var order by mutableStateOf(EventOrder.Start)
-    var tagIds by mutableStateOf(emptySet<String>())
+    var tags by mutableStateOf(InclusionFilter<String>())
     var matchesAllTags by mutableStateOf(false)
-    var excludedTagIds by mutableStateOf(emptySet<String>())
-    var sourceTypes by mutableStateOf(emptySet<EventSourceType>())
+    var sources by mutableStateOf(InclusionFilter<EventSourceType>())
 
     val storeFilter: EventListQuery
         get() = EventListQuery(
-            allTagIds = tagIds.takeIf { matchesAllTags }.orEmpty(),
-            anyTagIds = tagIds.takeUnless { matchesAllTags }.orEmpty(),
-            excludedTagIds = excludedTagIds,
-            sourceTypes = sourceTypes,
+            allTagIds = tags.only.takeIf { matchesAllTags }.orEmpty(),
+            anyTagIds = tags.only.takeUnless { matchesAllTags }.orEmpty(),
+            excludedTagIds = tags.hidden,
+            sourceTypes = sources.only,
+            excludedSourceTypes = sources.hidden,
         )
 
     fun toListQuery(now: Instant, view: EventsView) = storeFilter.narrowedTo(view.timeShown(time).toQuery(now, search, order), limit = null)
@@ -90,8 +95,8 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
     val events = remember(storeFilter) { state.store.eventsMatching(storeFilter) }
     val actions = remember(state) { StoredEventCardActions(state) }
     val tags = collectAcrossSession("tags", null) { state.store.observeTags() }.orEmpty()
-    val filteringTags = tags.filter { it.id in filters.tagIds }
-    val hiddenTags = tags.filter { it.id in filters.excludedTagIds }
+    val filteringTags = tags.filter { it.id in filters.tags.only }
+    val hiddenTags = tags.filter { it.id in filters.tags.hidden }
     val scope = rememberCoroutineScope()
     val selecting = state.isSelectingEvents
     val filterValues = listOf(filters.search, filters.time, filters.order, storeFilter)
@@ -109,7 +114,7 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
         }
     }
 
-    val filtering = filteringTags.isNotEmpty() || hiddenTags.isNotEmpty() || filters.sourceTypes.isNotEmpty()
+    val filtering = filteringTags.isNotEmpty() || hiddenTags.isNotEmpty() || !filters.sources.isEmpty
     val floatingFiltersButton = !selecting && !view.searches && view != EventsView.Calendar
     val changeView = { chosen: EventsView -> state.settings.changeEventsView(MY_EVENTS_SCREEN, chosen) }
     val openNewEntry = { state.openNewEntrySheet() }
@@ -134,12 +139,14 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
                     if (filtering || floatingFiltersButton) {
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.Top) {
                             FlowRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(Spacing.sm), itemVerticalAlignment = Alignment.CenterVertically) {
-                                for (type in filters.sourceTypes) SourceTypeChip(type, onClick = { filters.sourceTypes -= type })
+                                for (type in filters.sources.only + filters.sources.hidden) {
+                                    FilterRowPill(type.label, filters.sources.choiceOf(type), MaterialTheme.colorScheme.primary, onRemove = { filters.sources = filters.sources.without(type) })
+                                }
                                 filteringTags.forEachIndexed { index, tag ->
                                     if (index > 0) FloatingText(if (filters.matchesAllTags) "and" else "or")
-                                    TagChip(tag, onClick = { filters.tagIds -= tag.id }, trailingIcon = AppIcons.X, floating = true)
+                                    FilterRowPill(tag.name, InclusionChoice.Only, tagColor(tag.color), onRemove = { filters.tags = filters.tags.without(tag.id) })
                                 }
-                                for (tag in hiddenTags) TagChip(tag, onClick = { filters.excludedTagIds -= tag.id }, trailingIcon = AppIcons.X, hidden = true, floating = true)
+                                for (tag in hiddenTags) FilterRowPill(tag.name, InclusionChoice.Hidden, tagColor(tag.color), onRemove = { filters.tags = filters.tags.without(tag.id) })
                             }
                             if (floatingFiltersButton) FloatingIconButton(AppIcons.Filter, "Filters", onOpenFilters)
                         }
@@ -161,7 +168,7 @@ fun MyEventsScreen(state: AppState, onOpenFilters: () -> Unit) {
                 bottomPadding = LocalTabBarHeight.current,
                 filtersButton = { IconButton(AppIcons.Filter, "Filters", onOpenFilters) },
                 onNewOnDay = state::openNewEntrySheet,
-                showsMarkersAndPeriods = filters.tagIds.isEmpty() && filters.sourceTypes.isEmpty(),
+                showsMarkersAndPeriods = filters.tags.only.isEmpty() && filters.sources.only.isEmpty(),
                 bottomEndClearance = EventsViewControlsClearance,
                 calendarViewPicker = { EventsViewControls(eventsViewsOn(MY_EVENTS_SCREEN), view, changeView, onNew = openNewEntryOnSelectedDay) },
             )
@@ -198,16 +205,16 @@ fun EventListFiltersSheet(state: AppState, visible: Boolean, onDismiss: () -> Un
                 )
             }
         }
-        if (sourceTypes.size > 1 || filters.sourceTypes.isNotEmpty()) {
+        if (sourceTypes.size > 1 || !filters.sources.isEmpty) {
             TitledSection("Sources") {
-                SourceTypeFilterChips((sourceTypes + filters.sourceTypes).distinct(), filters.sourceTypes, onToggle = { type -> filters.sourceTypes = filters.sourceTypes.toggled(type) })
+                SourceChoicePills((sourceTypes + filters.sources.only + filters.sources.hidden).distinct(), filters.sources, onTap = { type -> filters.sources = filters.sources.withNextChoice(type) })
             }
         }
         if (tags.isNotEmpty()) {
             TitledSection("Tags") {
-                TagFilterChips(tags, filters.tagIds, onToggle = { tag -> filters.tagIds = filters.tagIds.toggled(tag.id) })
+                TagChoicePills(tags, filters.tags, onTap = { tag -> filters.tags = filters.tags.withNextChoice(tag.id) })
             }
-            if (filters.tagIds.size > 1) {
+            if (filters.tags.only.size > 1) {
                 TitledSection("Match") {
                     SegmentedControl(
                         options = listOf(false to "Any", true to "All"),
@@ -216,11 +223,11 @@ fun EventListFiltersSheet(state: AppState, visible: Boolean, onDismiss: () -> Un
                     )
                 }
             }
-            TitledSection("Hide Tags") {
-                TagFilterChips(tags, filters.excludedTagIds, onToggle = { tag -> filters.excludedTagIds = filters.excludedTagIds.toggled(tag.id) }, chosenIcon = AppIcons.Hidden)
-            }
         }
     }
 }
 
-private fun <T> Set<T>.toggled(item: T) = if (item in this) this - item else this + item
+@Composable
+private fun FilterRowPill(label: String, choice: InclusionChoice, accent: Color, onRemove: () -> Unit) {
+    ChoicePill(label, choice, accent, onClick = onRemove, trailingIcon = AppIcons.X, floating = true)
+}

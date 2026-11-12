@@ -39,6 +39,7 @@ import blue.deniz.vantage.app.screens.MarkSheetTarget
 import blue.deniz.vantage.app.screens.EventListFilters
 
 import blue.deniz.vantage.app.ui.EventFormatting
+import blue.deniz.vantage.app.ui.InclusionFilter
 import blue.deniz.vantage.core.AppSchemes
 import blue.deniz.vantage.core.DeviceCalendars
 import blue.deniz.vantage.core.EventFeedReader
@@ -307,7 +308,7 @@ class AppState(
 
     fun showEventsTagged(tagId: String) {
         myEventsFilters.search = ""
-        myEventsFilters.tagIds = setOf(tagId)
+        myEventsFilters.tags = InclusionFilter(only = setOf(tagId))
         openMyEvents(EventsView.List)
     }
 

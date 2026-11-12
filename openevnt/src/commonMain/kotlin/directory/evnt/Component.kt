@@ -92,6 +92,20 @@ sealed interface Component {
 
         companion object {
             const val TYPE_ID = "directory.evnt.component.relation#0"
+            const val PARENT = "parent"
+            const val CHILD = "child"
+            const val ALTERNATE = "alternate"
+
+            private val EXTENSION_TYPE_PATTERN = Regex("""[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)+""")
+
+            fun isValidType(type: String) = type == PARENT || type == CHILD || type == ALTERNATE || EXTENSION_TYPE_PATTERN.matches(type)
+
+            fun reverseOf(type: String): String? = when (type) {
+                PARENT -> CHILD
+                CHILD -> PARENT
+                ALTERNATE -> ALTERNATE
+                else -> null
+            }
         }
     }
 

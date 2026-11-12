@@ -80,6 +80,7 @@ import io.ktor.http.parseUrl
 import kotlin.math.roundToInt
 import kotlinx.datetime.format.DayOfWeekNames
 import androidx.compose.ui.graphics.Color
+import blue.deniz.vantage.app.ui.InclusionFilter
 import blue.deniz.vantage.app.ui.ContentMaxWidth
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.layout.layout
@@ -353,7 +354,7 @@ private fun UpcomingEventsTile(state: AppState, tile: HomeTile.UpcomingEvents, t
     val upcoming = collectAcrossSession("upcoming ${tile.id}", query) { state.store.observeList(query) }
     TileHeader(title, "See All" to {
         state.myEventsFilters.time = TimeFilter.Future
-        state.myEventsFilters.tagIds = tile.tagIds
+        state.myEventsFilters.tags = InclusionFilter(only = tile.tagIds.toSet())
         state.openMyEvents(EventsView.List)
     })
     val events = upcoming ?: return

@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,7 +37,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.rememberShareText
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.BottomSheetFrame
@@ -52,7 +50,9 @@ import blue.deniz.vantage.app.ui.ScreenHeader
 import blue.deniz.vantage.app.ui.SearchField
 import blue.deniz.vantage.app.ui.FieldFrame
 import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.TagChip
+import blue.deniz.vantage.app.ui.ChoicePill
+import blue.deniz.vantage.app.ui.InclusionChoice
+import blue.deniz.vantage.app.ui.PillIconButton
 import blue.deniz.vantage.app.ui.TagPalette
 import blue.deniz.vantage.app.ui.Text
 import blue.deniz.vantage.app.ui.TextInput
@@ -81,25 +81,13 @@ private fun List<TagEntity>.matching(query: String) = filter { it.name.contains(
 private fun List<TagEntity>.named(name: String) = find { it.name.equals(name, ignoreCase = true) }
 
 @Composable
-fun EventTags(state: AppState, eventId: String, shareLink: String?) {
-    val share = rememberShareText()
+fun EventTags(state: AppState, eventId: String) {
     val tagsByEvent = collectAcrossSession("tags by event", null) { state.store.observeTagsByEvent() }
     var choosing by rememberSaveable { mutableStateOf(false) }
     val shown = (tagsByEvent ?: return)[eventId].orEmpty()
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-        for (tag in shown) TagChip(tag, onClick = { choosing = true })
-        AssistChip(
-            onClick = { choosing = true },
-            label = { Text("Add Tag", maxLines = 1) },
-            leadingIcon = { Icon(AppIcons.Plus, size = IconSize.xs, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-        )
-        if (shareLink != null) {
-            AssistChip(
-                onClick = { share(shareLink) },
-                label = { Text("Share", maxLines = 1) },
-                leadingIcon = { Icon(AppIcons.Share, size = IconSize.xs, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-            )
-        }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+        for (tag in shown) ChoicePill(tag.name, InclusionChoice.Off, tagColor(tag.color), onClick = { choosing = true })
+        PillIconButton(AppIcons.Plus, "Add Tag", onClick = { choosing = true })
     }
     BottomSheetFrame(visible = choosing, onDismiss = { choosing = false }) { EventTagPickerBody(state, setOf(eventId)) }
 }

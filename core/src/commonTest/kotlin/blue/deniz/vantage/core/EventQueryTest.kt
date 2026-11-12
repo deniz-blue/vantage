@@ -41,6 +41,9 @@ private fun eventOnDays(name: String, vararg days: String) = ResolvedEvent(
     ),
 )
 
+private fun eventStarting(name: String, start: PartialDate) =
+    ResolvedEvent(data = OpenEvnt(id = "urn:uuid:$name", name = mapOf("en" to name), occurrences = listOf(Occurrence(start = start))))
+
 private const val THREE_ITEMS = """[{"href":"/old.evnt.json"},{"href":"/gala.evnt.json","name":{"en":"Gala"}},{"href":"/picnic.evnt.json"}]"""
 
 class EventQueryTest {
@@ -143,5 +146,18 @@ class EventQueryTest {
         val server = FakeServer(mapOf(INDEX_URL to { respond("""{"version":9,"items":[]}""") }))
         val events = EventFeedReader(server.client, server.resolver()).eventsOf(EventFeed.OpenEvntIndex(INDEX_URL), listOf("en"))
         assertIs<EventListingStatus.Failed>(events.list(EventQuery(), limit = 10).last().status)
+    }
+
+    @Test
+    fun aMorePreciseDateComesFirstWhenTwoStartTogether() {
+        val events = listOf(
+            eventStarting("Year", PartialDate.Year(2027, "Europe/Vilnius")),
+            eventStarting("Month", PartialDate.Month(2027, 1, "Europe/Vilnius")),
+            eventStarting("Day", PartialDate.Day(LocalDate(2027, 1, 1), "Europe/Vilnius")),
+        )
+        val upcoming = EventQuery(from = NOW, order = EventOrder.Start).filterAndSort(events, listOf("en"))
+        assertEquals(listOf("Day", "Month", "Year"), upcoming.map { it.englishName() })
+        val past = EventQuery(order = EventOrder.StartDescending).filterAndSort(events, listOf("en"))
+        assertEquals(listOf("Day", "Month", "Year"), past.map { it.englishName() })
     }
 }

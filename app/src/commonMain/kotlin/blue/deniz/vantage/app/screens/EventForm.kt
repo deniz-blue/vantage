@@ -75,7 +75,7 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
 import blue.deniz.vantage.app.ui.ContentMaxWidth
 
-private const val NEW_LINK = -1
+private const val NEW_COMPONENT = -1
 
 private fun OpenEvnt.description() = components.orEmpty().filterIsInstance<Component.MarkdownText>().firstOrNull()
 
@@ -119,6 +119,7 @@ internal fun EventForm(
     var editingDate by rememberSaveable { mutableStateOf<Int?>(null) }
     var newDate by rememberSaveable(stateSaver = OccurrenceSaver) { mutableStateOf<Occurrence?>(null) }
     var editingLink by rememberSaveable { mutableStateOf<Int?>(null) }
+    var editingRelation by rememberSaveable { mutableStateOf<Int?>(null) }
     var editingCover by rememberSaveable { mutableStateOf(false) }
     var searchingPlace by rememberSaveable { mutableStateOf(false) }
     var editingPlace by rememberSaveable { mutableStateOf(false) }
@@ -283,8 +284,17 @@ internal fun EventForm(
                             onEdit = { editingLink = it },
                             onRemove = { event = event.withComponent(it, null) },
                             onMove = { from, to -> event = event.copy(components = event.components.orEmpty().withLinkMoved(from, to)) },
-                            onAdd = { editingLink = NEW_LINK },
+                            onAdd = { editingLink = NEW_COMPONENT },
                             onLongPress = state::openLinkActionsSheet,
+                        )
+                    }
+                    ListSection(Modifier.padding(top = Spacing.md), title = "Related") {
+                        RelatedRows(
+                            state,
+                            event,
+                            onEdit = { editingRelation = it },
+                            onRemove = { event = event.withComponent(it, null) },
+                            onAdd = { editingRelation = NEW_COMPONENT },
                         )
                     }
                     Spacer(Modifier.navigationBarsPadding().height(Spacing.xl))
@@ -353,6 +363,11 @@ internal fun EventForm(
                     event = if (link == null) event.copy(components = event.components.orEmpty() + saved) else event.withComponent(index, saved)
                 }
             }
+        }
+
+        RelatedEventSheet(state, event, editingRelation, onDismiss = { editingRelation = null }) { index, saved ->
+            editingRelation = null
+            event = if (index == null) event.copy(components = event.components.orEmpty() + saved) else event.withComponent(index, saved)
         }
 
         BottomSheet(visible = editingCover, onDismiss = { editingCover = false }) {

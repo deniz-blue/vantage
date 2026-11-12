@@ -147,7 +147,7 @@ fun EventDetailsScreen(state: AppState, id: String) {
             }
             IconButton(AppIcons.DotsVertical, "More", onClick = { current?.let(state::openActionsSheet) ?: state.openActionsSheet(id) })
         },
-        tags = { EventTags(state, id, shareLink = current?.let { EventsLink.shareLinkTo(it.source) }) },
+        tags = { EventTags(state, id) },
         changes = { UnseenChanges(state, id) },
         onRefresh = if (current?.source is EventSource.Remote) ::refresh else null,
         refreshing = refreshing,
@@ -428,6 +428,7 @@ private fun EventPageBody(
             importAction()
         }
         val links = data?.components.orEmpty().filterIsInstance<Component.Link>()
+        val related = rememberRelatedEvents(state, event)
         val whenAndWhere = @Composable {
             ListSection(Modifier.padding(top = Spacing.sm)) {
                 OccurrenceRows(state, data?.translatedName(preferredLanguages) ?: UNTITLED_EVENT, data, occurrences, marks)
@@ -441,13 +442,15 @@ private fun EventPageBody(
                     data?.let { Description(it, preferredLanguages, onOpenLinkActions) }
                 }
                 Column(Modifier.weight(1f)) {
-                    LinkSection(links, preferredLanguages, onOpenLinkActions, atColumnTop = true)
-                    DataSection(event, formatting, onOpenLinkActions, atColumnTop = links.isEmpty())
+                    RelatedSection(state, related, atColumnTop = true)
+                    LinkSection(links, preferredLanguages, onOpenLinkActions, atColumnTop = related.isEmpty())
+                    DataSection(event, formatting, onOpenLinkActions, atColumnTop = links.isEmpty() && related.isEmpty())
                 }
             }
         } else {
             whenAndWhere()
             data?.let { Description(it, preferredLanguages, onOpenLinkActions) }
+            RelatedSection(state, related)
             LinkSection(links, preferredLanguages, onOpenLinkActions)
             DataSection(event, formatting, onOpenLinkActions)
         }

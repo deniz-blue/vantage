@@ -49,8 +49,11 @@ data class EventQuery(
         val matching = events.filter { matches(it, listedNames[it.source]) }
         return when (order) {
             EventOrder.Listed -> matching
-            EventOrder.Start -> matching.sortedWith(compareBy(nullsLast()) { it.data?.nextStartAt(from ?: Instant.DISTANT_PAST) })
-            EventOrder.StartDescending -> matching.sortedWith(compareBy(nullsLast(reverseOrder())) { event -> event.data?.timeRanges()?.maxOfOrNull { it.start } })
+            EventOrder.Start -> matching.sortedWith(compareBy(nullsLast()) { it.data?.nextTimeRangeAt(from ?: Instant.DISTANT_PAST) })
+            EventOrder.StartDescending -> matching.sortedWith(
+                compareBy<ResolvedEvent, Instant?>(nullsLast(reverseOrder())) { it.data?.latestTimeRange()?.start }
+                    .thenBy(nullsLast()) { it.data?.latestTimeRange()?.end },
+            )
             EventOrder.Name -> matching.sortedBy { it.nameIn(preferredLanguages, listedNames[it.source]).lowercase() }
         }
     }
