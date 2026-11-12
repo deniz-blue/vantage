@@ -251,8 +251,8 @@ private fun ColumnScope.MarkForm(state: AppState, target: MarkSheetTarget, edito
         }
     }
 
-    SystemBackHandler(enabled = !isNew) { editor.stopEditing() }
-    SystemBackHandler(enabled = editor.picking != null) { editor.picking = null }
+    SystemBackHandler(enabled = !isNew, handlesEscape = true) { editor.stopEditing() }
+    SystemBackHandler(enabled = editor.picking != null, handlesEscape = true) { editor.picking = null }
     LaunchedEffect(Unit) { if (isNew && draft.label.isEmpty()) nameFocus.requestFocus() }
 
     Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.md), verticalAlignment = Alignment.CenterVertically) {

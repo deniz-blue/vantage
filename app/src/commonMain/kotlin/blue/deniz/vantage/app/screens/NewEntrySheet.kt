@@ -48,7 +48,7 @@ fun NewEntrySheet(state: AppState) {
 
     BottomSheet(visible = state.newEntrySheetOpen, onDismiss = state::closeNewEntrySheet) {
         if (inferringFromText) {
-            SystemBackHandler(enabled = state.newEntrySheetOpen) { inferringFromText = false }
+            SystemBackHandler(enabled = state.newEntrySheetOpen, handlesEscape = true) { inferringFromText = false }
             InferFromTextForm { text ->
                 val draft = newBlankEvent(day, state.timeZone.id).filledFromText(text, state.today, state.timeZone.id, state.preferredLanguages)
                 state.closeNewEntrySheet()

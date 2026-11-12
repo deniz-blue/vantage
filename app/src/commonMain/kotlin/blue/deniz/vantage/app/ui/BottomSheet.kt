@@ -81,7 +81,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.SystemBackHandler
-import blue.deniz.vantage.app.rememberSystemBack
 import com.composeunstyled.DragHandle
 import com.composeunstyled.DrawerHost
 import com.composeunstyled.DrawerPresentation
@@ -90,7 +89,6 @@ import com.composeunstyled.DrawerSnapPoint
 import com.composeunstyled.DrawerSnapPoints
 import com.composeunstyled.Overlay
 import com.composeunstyled.Panel
-import com.composeunstyled.DrawerValueChange
 import com.composeunstyled.UnstyledDrawer
 import com.composeunstyled.UnstyledDrawerState
 import com.composeunstyled.Viewport
@@ -265,10 +263,9 @@ private fun sheetBottomInsets() = WindowInsets.navigationBars.exclude(WindowInse
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable BottomSheetScope.() -> Unit) {
-    SystemBackHandler(enabled = visible, onBack = onDismiss)
+    SystemBackHandler(enabled = visible, handlesEscape = true, onBack = onDismiss)
     val currentVisible by rememberUpdatedState(visible)
     val currentOnDismiss by rememberUpdatedState(onDismiss)
-    val currentSystemBack by rememberUpdatedState(rememberSystemBack())
     val focusManager = LocalFocusManager.current
     var bodyHasFocus by remember { mutableStateOf(false) }
     val autofocus = remember { SheetAutofocus() }
@@ -286,12 +283,8 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
             },
             animationSpec = SheetMotion,
             confirmValueChange = { change ->
-                if (change.reason == DrawerValueChange.Reason.NavigateBack && currentSystemBack()) {
-                    false
-                } else {
-                    if (change.targetValue == BottomSheetHeight.Closed && currentVisible) currentOnDismiss()
-                    true
-                }
+                if (change.targetValue == BottomSheetHeight.Closed && currentVisible) currentOnDismiss()
+                true
             },
         )
     }
@@ -369,6 +362,7 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
     UnstyledDrawer(
         state = sheet,
         presentation = DrawerPresentation.Overlay,
+        dismissOnNavigateBack = false,
         overlay = {
             Overlay {
                 val dismissOnTap = if (currentVisible) Modifier.pointerInput(Unit) { detectTapGestures { currentOnDismiss() } } else Modifier

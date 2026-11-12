@@ -99,9 +99,6 @@ object BrowserBackDispatcher {
 actual fun handleEscapeKey(): Boolean = BrowserBackDispatcher.backFromEscape()
 
 @Composable
-actual fun rememberSystemBack(): () -> Boolean = BrowserBackDispatcher::back
-
-@Composable
 actual fun SystemBackHandler(enabled: Boolean, handlesEscape: Boolean, onBack: () -> Unit) {
     val currentOnBack by rememberUpdatedState(onBack)
     val handler = remember(handlesEscape) { BrowserBackDispatcher.Handler(handlesEscape) { currentOnBack() } }

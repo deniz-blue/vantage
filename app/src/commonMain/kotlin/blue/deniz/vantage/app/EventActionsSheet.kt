@@ -88,13 +88,13 @@ private fun EventActions(state: AppState, id: String?, event: ResolvedEvent, sco
     val source = event.source
     val shareLink = EventsLink.shareLinkTo(source)
 
-    SystemBackHandler(enabled = viewedData != null) { viewedData = null }
+    SystemBackHandler(enabled = viewedData != null, handlesEscape = true) { viewedData = null }
     EventTitle(event, state.preferredLanguages, Modifier.padding(horizontal = Spacing.md))
     viewedData?.let { text ->
         DataView(text)
         return
     }
-    SystemBackHandler(enabled = confirmingUpload && !uploading) { confirmingUpload = false }
+    SystemBackHandler(enabled = confirmingUpload && !uploading, handlesEscape = true) { confirmingUpload = false }
     if (id != null && confirmingUpload) {
         FolioUploadConfirmation(
             uploading = uploading,

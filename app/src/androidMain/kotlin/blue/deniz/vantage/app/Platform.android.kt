@@ -9,7 +9,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ColorScheme
@@ -55,21 +54,6 @@ import androidx.compose.material3.CalendarLocale
 actual fun SystemBackHandler(enabled: Boolean, handlesEscape: Boolean, onBack: () -> Unit) = key(enabled) { BackHandler(enabled, onBack) }
 
 actual fun handleEscapeKey(): Boolean = false
-
-@Composable
-actual fun rememberSystemBack(): () -> Boolean {
-    val dispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    return remember(dispatcher) {
-        {
-            if (dispatcher == null || !dispatcher.hasEnabledCallbacks()) {
-                false
-            } else {
-                dispatcher.onBackPressed()
-                true
-            }
-        }
-    }
-}
 
 @Composable
 actual fun rememberShareText(): (String) -> Unit {

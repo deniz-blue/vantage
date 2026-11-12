@@ -81,7 +81,7 @@ internal fun PickerHeader(title: String, onBack: (() -> Unit)?, modifier: Modifi
         SheetTitle(title, modifier)
         return
     }
-    SystemBackHandler(enabled = true, onBack = onBack)
+    SystemBackHandler(enabled = true, handlesEscape = true, onBack = onBack)
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Row(
             Modifier.weight(1f).offset(x = -IconButtonInset),
