@@ -1,7 +1,6 @@
-New icon.
-A short setup when you first open Vantage.
-Home shows the weather and what's next at a glance.
-My Events has a day line, and markers stay listed until their day is over.
-Formatting buttons for event descriptions, and names and descriptions in other languages edit correctly.
-The map opens on your My Location.
-Event links on vantage.tsx.lt open in the app.
+Pull down at the top of My Events to see past events.
+Long-press events to select several.
+An event over several days shows its hours, and one with its own activities opens as a page.
+The map opens full screen with search, and a picked spot can fill in just the address.
+Open a venue in any maps app on your phone.
+Markers have Show in List, and My Events opens at Today.
