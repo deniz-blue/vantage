@@ -1,6 +1,19 @@
-Pull down at the top of My Events to see past events.
-Long-press events to select several.
-An event over several days shows its hours, and one with its own activities opens as a page.
-The map opens full screen with search, and a picked spot can fill in just the address.
-Open a venue in any maps app on your phone.
-Markers have Show in List, and My Events opens at Today.
+Added
+• Related events (Parent, Child, Main Version)
+• Full-screen place picker with search
+• Language bar above the keyboard
+• Tag filters: only or hide
+• Open a venue in any maps app
+• Show in List on markers
+
+Changed
+• Long-press an event for its menu
+• Past events sit above Today
+• Time zones show flag, city and offset
+• Map picks fill in only the address
+
+Fixed
+• Today showing twice
+• My Events not opening at Today
+• A crash on Back in sheets
+• The keyboard reopening as a sheet closes
