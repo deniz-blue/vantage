@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import blue.deniz.vantage.app.ui.TypographyStyle
+import blue.deniz.vantage.ui.TypographyStyle
 import blue.deniz.vantage.core.SubscribedCalendar
 import kotlinx.datetime.IllegalTimeZoneException
 import kotlinx.datetime.TimeZone

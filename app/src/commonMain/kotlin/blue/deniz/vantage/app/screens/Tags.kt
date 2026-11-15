@@ -37,31 +37,31 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.BottomSheet
-import blue.deniz.vantage.app.ui.BottomSheetFrame
-import blue.deniz.vantage.app.ui.BottomSheetScope
-import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.IconSize
-import blue.deniz.vantage.app.ui.ListRow
-import blue.deniz.vantage.app.ui.ListUnderOverlay
-import blue.deniz.vantage.app.ui.MenuItem
-import blue.deniz.vantage.app.ui.ScreenHeader
-import blue.deniz.vantage.app.ui.SearchField
-import blue.deniz.vantage.app.ui.FieldFrame
-import blue.deniz.vantage.app.ui.Spacing
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.BottomSheet
+import blue.deniz.vantage.ui.BottomSheetFrame
+import blue.deniz.vantage.ui.BottomSheetScope
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.ListRow
+import blue.deniz.vantage.ui.ListUnderOverlay
+import blue.deniz.vantage.ui.MenuItem
+import blue.deniz.vantage.ui.ScreenHeader
+import blue.deniz.vantage.ui.SearchField
+import blue.deniz.vantage.ui.FieldFrame
+import blue.deniz.vantage.ui.Spacing
 import blue.deniz.vantage.app.ui.ChoicePill
 import blue.deniz.vantage.app.ui.InclusionChoice
 import blue.deniz.vantage.app.ui.PillIconButton
 import blue.deniz.vantage.app.ui.TagPalette
-import blue.deniz.vantage.app.ui.Text
-import blue.deniz.vantage.app.ui.TextInput
+import blue.deniz.vantage.ui.Text
+import blue.deniz.vantage.ui.TextInput
 import blue.deniz.vantage.app.ui.leastUsedTagColor
 import blue.deniz.vantage.app.ui.tagColor
 import blue.deniz.vantage.app.ui.tagColorOrNull
 import blue.deniz.vantage.storage.TagEntity
 import kotlinx.coroutines.launch
-import blue.deniz.vantage.app.ui.ContentMaxWidth
+import blue.deniz.vantage.ui.ContentMaxWidth
 
 private val TagSwatchMaxSize = 44.dp
 

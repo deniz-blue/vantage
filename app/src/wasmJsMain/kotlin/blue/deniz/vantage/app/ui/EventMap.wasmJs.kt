@@ -21,6 +21,7 @@ import blue.deniz.vantage.core.GeoArea
 import blue.deniz.vantage.core.EventCollection
 import blue.deniz.vantage.core.EventQuery
 import blue.deniz.vantage.core.ResolvedEvent
+import blue.deniz.vantage.ui.rememberAnyBottomSheetOpen
 import kotlinx.browser.document
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

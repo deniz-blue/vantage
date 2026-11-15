@@ -1,6 +1,6 @@
 package blue.deniz.vantage.app.screens
 
-import blue.deniz.vantage.app.ui.LoadingSpinner
+import blue.deniz.vantage.ui.LoadingSpinner
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.Route
-import blue.deniz.vantage.app.SystemBackHandler
+import blue.deniz.vantage.ui.SystemBackHandler
 import blue.deniz.vantage.app.actionsSheetEventKey
 import blue.deniz.vantage.app.latestAcrossSession
 import blue.deniz.vantage.app.rememberSendEditReply
@@ -27,11 +27,11 @@ import blue.deniz.vantage.core.EventsLink
 import blue.deniz.vantage.core.ResolvedEvent
 import androidx.compose.runtime.produceState
 import androidx.compose.foundation.layout.ColumnScope
-import blue.deniz.vantage.app.ui.Card
-import blue.deniz.vantage.app.ui.Radius
-import blue.deniz.vantage.app.ui.ScreenHeader
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.Card
+import blue.deniz.vantage.ui.Radius
+import blue.deniz.vantage.ui.ScreenHeader
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import blue.deniz.vantage.core.isEditableHere
 import blue.deniz.vantage.core.findEventLink
 import directory.evnt.OpenEvnt
@@ -39,7 +39,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
-import blue.deniz.vantage.app.ui.ContentMaxWidth
+import blue.deniz.vantage.ui.ContentMaxWidth
 
 @Composable
 fun CreateEventScreen(state: AppState, sharedText: String?, day: LocalDate?, draft: OpenEvnt?) {

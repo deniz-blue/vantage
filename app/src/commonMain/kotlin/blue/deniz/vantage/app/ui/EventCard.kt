@@ -54,6 +54,13 @@ import blue.deniz.vantage.core.backgroundSplashMedia
 import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.storage.TagEntity
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Card
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconButton
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import directory.evnt.Media
 
 private val ACCENT_WIDTH = 4.dp

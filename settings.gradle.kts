@@ -18,5 +18,6 @@ dependencyResolutionManagement {
 include(":openevnt")
 include(":core")
 include(":storage")
+include(":ui")
 include(":app")
 include(":androidApp")

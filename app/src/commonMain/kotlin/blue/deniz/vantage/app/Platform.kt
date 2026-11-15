@@ -8,11 +8,6 @@ import blue.deniz.vantage.core.MapPlace
 import androidx.compose.material3.CalendarLocale
 
 @Composable
-expect fun SystemBackHandler(enabled: Boolean, handlesEscape: Boolean = false, onBack: () -> Unit)
-
-expect fun handleEscapeKey(): Boolean
-
-@Composable
 expect fun rememberShareText(): (String) -> Unit
 
 @Composable

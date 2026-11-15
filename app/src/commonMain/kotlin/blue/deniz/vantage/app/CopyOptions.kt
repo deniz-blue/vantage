@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import blue.deniz.vantage.app.screens.PickerHeader
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.MenuItem
-import blue.deniz.vantage.app.ui.Spacing
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.MenuItem
+import blue.deniz.vantage.ui.Spacing
 
 class CopyOption(val label: String, val supportingText: String? = null, val text: () -> String)
 

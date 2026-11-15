@@ -5,7 +5,7 @@ import blue.deniz.vantage.core.shownOccurrences
 import blue.deniz.vantage.core.isCancelledOn
 
 
-import blue.deniz.vantage.app.ui.Card
+import blue.deniz.vantage.ui.Card
 
 import blue.deniz.vantage.app.ui.AgendaMarkerLine
 
@@ -73,24 +73,24 @@ import androidx.compose.ui.unit.sp
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.latestAcrossSession
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.ui.ListPlaceholder
-import blue.deniz.vantage.app.ui.SheetTitle
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.Button
-import blue.deniz.vantage.app.ui.BottomSheet
+import blue.deniz.vantage.ui.ListPlaceholder
+import blue.deniz.vantage.ui.SheetTitle
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Button
+import blue.deniz.vantage.ui.BottomSheet
 import blue.deniz.vantage.app.collectAcrossNavigation
 import blue.deniz.vantage.app.ui.EventFormatting
-import blue.deniz.vantage.app.ui.IconButton
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
-import blue.deniz.vantage.app.ui.contentColorOn
+import blue.deniz.vantage.ui.IconButton
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
+import blue.deniz.vantage.ui.contentColorOn
 import blue.deniz.vantage.app.ui.translatedName
 import blue.deniz.vantage.core.CalendarGrid
 import blue.deniz.vantage.core.DaySpan
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.app.EventCardStyle
-import blue.deniz.vantage.app.ui.FailureRow
-import blue.deniz.vantage.app.ui.LoadingSpinner
+import blue.deniz.vantage.ui.FailureRow
+import blue.deniz.vantage.ui.LoadingSpinner
 import blue.deniz.vantage.core.EventCollection
 import blue.deniz.vantage.core.EventListing
 import blue.deniz.vantage.core.EventListingStatus

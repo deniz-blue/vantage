@@ -39,6 +39,11 @@ import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.core.MarkdownBlock
 import blue.deniz.vantage.core.MarkdownListItem
 import blue.deniz.vantage.core.MarkdownSpan
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.Radius
+import blue.deniz.vantage.ui.Spacing
 
 private val QUOTE_BAR_WIDTH = 3.dp
 private val LIST_MARKER_WIDTH = 24.dp

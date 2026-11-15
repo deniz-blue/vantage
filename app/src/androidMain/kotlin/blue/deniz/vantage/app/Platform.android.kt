@@ -9,14 +9,12 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import java.io.File
 import java.io.IOException
@@ -50,11 +48,6 @@ import java.util.IllformedLocaleException
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import androidx.compose.material3.CalendarLocale
-
-@Composable
-actual fun SystemBackHandler(enabled: Boolean, handlesEscape: Boolean, onBack: () -> Unit) = key(enabled) { BackHandler(enabled, onBack) }
-
-actual fun handleEscapeKey(): Boolean = false
 
 @Composable
 actual fun rememberShareText(): (String) -> Unit {

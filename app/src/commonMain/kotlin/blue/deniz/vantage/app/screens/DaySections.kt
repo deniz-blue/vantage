@@ -3,8 +3,8 @@ package blue.deniz.vantage.app.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.ListRow
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.ListRow
 import blue.deniz.vantage.core.CalendarPeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil

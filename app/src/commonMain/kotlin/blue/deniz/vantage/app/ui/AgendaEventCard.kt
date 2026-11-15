@@ -61,6 +61,16 @@ import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.core.backgroundSplashMedia
 import blue.deniz.vantage.core.complexity
 import blue.deniz.vantage.storage.TagEntity
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Card
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.Radius
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
+import blue.deniz.vantage.ui.floatingBorder
+import blue.deniz.vantage.ui.floatingSurface
+import blue.deniz.vantage.ui.glassTint
 import directory.evnt.Media
 import directory.evnt.PartialDate
 import kotlinx.datetime.LocalDate

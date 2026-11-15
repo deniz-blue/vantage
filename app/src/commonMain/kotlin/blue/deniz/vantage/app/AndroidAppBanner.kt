@@ -14,11 +14,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.app.screens.ANDROID_EARLY_ACCESS_URL
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.IconSize
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 
 @Composable
 fun AndroidAppBanner() {

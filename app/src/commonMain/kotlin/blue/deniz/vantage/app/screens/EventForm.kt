@@ -4,8 +4,8 @@ import blue.deniz.vantage.app.ui.displayName
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.core.coordinates
 import blue.deniz.vantage.core.CountryTimeZones
-import blue.deniz.vantage.app.ui.LanguageBar
-import blue.deniz.vantage.app.ui.LanguageChips
+import blue.deniz.vantage.ui.LanguageBar
+import blue.deniz.vantage.ui.LanguageChips
 import directory.evnt.languageToEdit
 import directory.evnt.textIn
 import directory.evnt.withTextIn
@@ -50,15 +50,15 @@ import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.LocalStackDepth
 import blue.deniz.vantage.app.OccurrenceSaver
 import blue.deniz.vantage.app.OpenEvntSaver
-import blue.deniz.vantage.app.SystemBackHandler
-import blue.deniz.vantage.app.ui.FailureRow
-import blue.deniz.vantage.app.ui.BottomSheet
-import blue.deniz.vantage.app.ui.BottomSheetFrame
-import blue.deniz.vantage.app.ui.MarkdownToolbar
-import blue.deniz.vantage.app.ui.HeaderButton
-import blue.deniz.vantage.app.ui.ListSection
-import blue.deniz.vantage.app.ui.ScreenHeader
-import blue.deniz.vantage.app.ui.Spacing
+import blue.deniz.vantage.ui.SystemBackHandler
+import blue.deniz.vantage.ui.FailureRow
+import blue.deniz.vantage.ui.BottomSheet
+import blue.deniz.vantage.ui.BottomSheetFrame
+import blue.deniz.vantage.ui.MarkdownToolbar
+import blue.deniz.vantage.ui.HeaderButton
+import blue.deniz.vantage.ui.ListSection
+import blue.deniz.vantage.ui.ScreenHeader
+import blue.deniz.vantage.ui.Spacing
 import blue.deniz.vantage.core.backgroundSplashMedia
 import blue.deniz.vantage.core.findEventLink
 import blue.deniz.vantage.core.withBackgroundSplashMedia
@@ -73,7 +73,7 @@ import directory.evnt.withEditedText
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
-import blue.deniz.vantage.app.ui.ContentMaxWidth
+import blue.deniz.vantage.ui.ContentMaxWidth
 
 private const val NEW_COMPONENT = -1
 

@@ -9,7 +9,7 @@ import blue.deniz.vantage.app.ui.UNTITLED_EVENT
 
 import blue.deniz.vantage.storage.HiddenCalendarEvent
 
-import blue.deniz.vantage.app.ui.LoadingSpinner
+import blue.deniz.vantage.ui.LoadingSpinner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -28,12 +28,12 @@ import blue.deniz.vantage.app.rememberCalendarPermissionRequest
 import blue.deniz.vantage.app.rememberNotificationPermissionRequest
 import blue.deniz.vantage.app.rememberAppLabel
 import blue.deniz.vantage.app.BuildInfo
-import blue.deniz.vantage.app.ui.CheckBoxIcon
-import blue.deniz.vantage.app.ui.Button
-import blue.deniz.vantage.app.ui.IconButton
-import blue.deniz.vantage.app.ui.SectionTitle
-import blue.deniz.vantage.app.ui.SheetTitle
-import blue.deniz.vantage.app.ui.TextInput
+import blue.deniz.vantage.ui.CheckBoxIcon
+import blue.deniz.vantage.ui.Button
+import blue.deniz.vantage.ui.IconButton
+import blue.deniz.vantage.ui.SectionTitle
+import blue.deniz.vantage.ui.SheetTitle
+import blue.deniz.vantage.ui.TextInput
 import blue.deniz.vantage.core.DeviceCalendar
 import blue.deniz.vantage.core.SubscribedCalendar
 import blue.deniz.vantage.core.timeZoneDisplayName
@@ -71,25 +71,25 @@ import blue.deniz.vantage.app.CalendarSync
 import blue.deniz.vantage.app.DEFAULT_CONTENT_LANGUAGE
 import blue.deniz.vantage.app.Route
 import blue.deniz.vantage.app.contentLanguage
-import blue.deniz.vantage.app.ui.AppIcons
+import blue.deniz.vantage.ui.AppIcons
 import blue.deniz.vantage.app.ThemeAccent
-import blue.deniz.vantage.app.ui.BottomSheet
+import blue.deniz.vantage.ui.BottomSheet
 import blue.deniz.vantage.app.ui.accentColor
 import blue.deniz.vantage.app.ui.isWallpaperAccentAvailable
-import blue.deniz.vantage.app.ui.BottomSheetFrame
-import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.ListRow
-import blue.deniz.vantage.app.ui.ListSection
-import blue.deniz.vantage.app.ui.LocalTabBarHeight
-import blue.deniz.vantage.app.ui.backdropSource
-import blue.deniz.vantage.app.ui.LocalBackdrop
-import blue.deniz.vantage.app.ui.ContentUnderOverlay
-import blue.deniz.vantage.app.ui.MenuItem
-import blue.deniz.vantage.app.ui.ScreenHeader
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.BottomSheetFrame
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.ListRow
+import blue.deniz.vantage.ui.ListSection
+import blue.deniz.vantage.ui.LocalTabBarHeight
+import blue.deniz.vantage.ui.backdropSource
+import blue.deniz.vantage.ui.LocalBackdrop
+import blue.deniz.vantage.ui.ContentUnderOverlay
+import blue.deniz.vantage.ui.MenuItem
+import blue.deniz.vantage.ui.ScreenHeader
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import kotlinx.datetime.TimeZone
-import blue.deniz.vantage.app.ui.ContentMaxWidth
+import blue.deniz.vantage.ui.ContentMaxWidth
 import kotlinx.coroutines.flow.flow
 
 internal enum class SettingsSheet { Language, TimeZone, MyLocation }

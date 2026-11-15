@@ -58,7 +58,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
-import blue.deniz.vantage.app.ui.HeldKeys
+import blue.deniz.vantage.ui.HeldKeys
+import blue.deniz.vantage.ui.handleEscapeKey
 
 private val PHONE_CALENDAR_COPY_DELAY = 2.seconds
 

@@ -12,7 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.ui.layout.ContentScale
-import blue.deniz.vantage.app.SystemBackHandler
+import blue.deniz.vantage.ui.SystemBackHandler
 import blue.deniz.vantage.app.ui.BACKGROUND_DIM_ALPHA
 import blue.deniz.vantage.app.ui.OpenEvntImage
 import androidx.compose.animation.core.animateDpAsState
@@ -22,7 +22,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.text.font.FontWeight
-import blue.deniz.vantage.app.ui.Spinner
+import blue.deniz.vantage.ui.Spinner
 import blue.deniz.vantage.app.ui.EventBackground
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -66,22 +66,22 @@ import blue.deniz.vantage.core.nextOrLastOccurrenceAt
 import directory.evnt.sortedByStart
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.Route
-import blue.deniz.vantage.app.ui.FailureRow
+import blue.deniz.vantage.ui.FailureRow
 import blue.deniz.vantage.app.ui.describe
 import blue.deniz.vantage.app.rememberShareText
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.Button
-import blue.deniz.vantage.app.ui.Card
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Button
+import blue.deniz.vantage.ui.Card
 import blue.deniz.vantage.app.ui.EventFormatting
-import blue.deniz.vantage.app.ui.IconButton
-import blue.deniz.vantage.app.ui.IconSize
-import blue.deniz.vantage.app.ui.ListSection
+import blue.deniz.vantage.ui.IconButton
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.ListSection
 import blue.deniz.vantage.app.ui.MarkdownView
-import blue.deniz.vantage.app.ui.ScreenHeader
-import blue.deniz.vantage.app.ui.SectionTitle
-import blue.deniz.vantage.app.ui.Spacing
+import blue.deniz.vantage.ui.ScreenHeader
+import blue.deniz.vantage.ui.SectionTitle
+import blue.deniz.vantage.ui.Spacing
 import blue.deniz.vantage.app.ui.UNTITLED_EVENT
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.Text
 import blue.deniz.vantage.core.backgroundSplashMedia
 import blue.deniz.vantage.app.ui.label
 import blue.deniz.vantage.app.ui.translatedName
@@ -104,7 +104,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.draw.alpha
-import blue.deniz.vantage.app.ui.ContentMaxWidth
+import blue.deniz.vantage.ui.ContentMaxWidth
 
 private val COVER_HEIGHT = 80.dp
 private val PULL_STRETCH_AT_THRESHOLD = 160.dp

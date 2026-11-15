@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import blue.deniz.vantage.app.countryName
 import blue.deniz.vantage.core.Countries
 import blue.deniz.vantage.core.shownOccurrences
+import blue.deniz.vantage.ui.AppIcons
 import directory.evnt.Component
 import directory.evnt.OpenEvnt
 import directory.evnt.Venue

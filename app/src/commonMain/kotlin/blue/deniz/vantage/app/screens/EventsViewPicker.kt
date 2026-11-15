@@ -1,7 +1,7 @@
 package blue.deniz.vantage.app.screens
 
-import blue.deniz.vantage.app.ui.SELECTED_TINT_ALPHA
-import blue.deniz.vantage.app.ui.floatingSurface
+import blue.deniz.vantage.ui.SELECTED_TINT_ALPHA
+import blue.deniz.vantage.ui.floatingSurface
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -23,12 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import blue.deniz.vantage.app.EventsView
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.floatingBorder
-import blue.deniz.vantage.app.ui.ControlHeight
-import blue.deniz.vantage.app.ui.FloatingIconButton
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.floatingBorder
+import blue.deniz.vantage.ui.ControlHeight
+import blue.deniz.vantage.ui.FloatingIconButton
 
 @Composable
 fun EventsViewControls(views: List<EventsView>, selected: EventsView, onSelect: (EventsView) -> Unit, onNew: (() -> Unit)?, modifier: Modifier = Modifier) {

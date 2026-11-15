@@ -10,7 +10,7 @@ import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.ui.EventCardSelection
 import blue.deniz.vantage.app.ui.EventFormatting
-import blue.deniz.vantage.app.ui.HeldKeys
+import blue.deniz.vantage.ui.HeldKeys
 import blue.deniz.vantage.app.ui.shortLabel
 import blue.deniz.vantage.core.EventListing
 import blue.deniz.vantage.core.EventSource

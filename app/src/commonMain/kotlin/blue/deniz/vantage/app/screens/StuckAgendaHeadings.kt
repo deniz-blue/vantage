@@ -3,7 +3,7 @@ package blue.deniz.vantage.app.screens
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.core.Animatable
-import blue.deniz.vantage.app.ui.floatingSurface
+import blue.deniz.vantage.ui.floatingSurface
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -38,8 +38,8 @@ import blue.deniz.vantage.app.ui.AgendaGroupLabelText
 import blue.deniz.vantage.app.ui.AgendaLabelGap
 import blue.deniz.vantage.app.ui.AgendaLabelHeight
 import blue.deniz.vantage.app.ui.EventFormatting
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.floatingBorder
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.floatingBorder
 
 @Composable
 internal fun StickyAgendaHeading(grid: LazyGridState, agenda: Agenda, topPadding: Dp, cardsStart: Dp, firstReachableRow: () -> Int) {

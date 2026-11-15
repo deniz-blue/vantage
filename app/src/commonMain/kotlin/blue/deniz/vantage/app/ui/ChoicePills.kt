@@ -27,6 +27,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.core.EventSourceType
 import blue.deniz.vantage.storage.TagEntity
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
+import blue.deniz.vantage.ui.floatingBorder
+import blue.deniz.vantage.ui.floatingSurface
 
 enum class InclusionChoice { Off, Only, Hidden }
 

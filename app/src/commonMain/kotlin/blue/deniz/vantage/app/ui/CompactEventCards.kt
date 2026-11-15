@@ -26,6 +26,11 @@ import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.core.backgroundSplashMedia
 import blue.deniz.vantage.core.nextOrLastOccurrenceAt
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.AtLeastAsTallAs
+import blue.deniz.vantage.ui.Card
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import directory.evnt.Occurrence
 import kotlin.time.Instant
 

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.EventSourceType
 import blue.deniz.vantage.core.type
+import blue.deniz.vantage.ui.AppIcons
 
 val EventSourceType.icon: ImageVector
     get() = when (this) {

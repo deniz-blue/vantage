@@ -36,12 +36,12 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(project(":storage"))
+            implementation(project(":ui"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.compose.material3)
             implementation(libs.compose.material.icons.extended)
-            implementation(libs.compose.components.resources)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
             implementation(libs.reorderable)
@@ -62,10 +62,6 @@ kotlin {
             implementation(npm("maplibre-gl", libs.versions.maplibre.gl.get()))
         }
     }
-}
-
-compose.resources {
-    packageOfResClass = "blue.deniz.vantage.app.resources"
 }
 
 abstract class GenerateBuildInfo : DefaultTask() {

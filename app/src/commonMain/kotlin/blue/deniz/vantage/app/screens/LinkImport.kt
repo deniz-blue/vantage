@@ -1,6 +1,6 @@
 package blue.deniz.vantage.app.screens
 
-import blue.deniz.vantage.app.ui.Spinner
+import blue.deniz.vantage.ui.Spinner
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -25,16 +25,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.Route
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.Button
-import blue.deniz.vantage.app.ui.Card
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.Button
+import blue.deniz.vantage.ui.Card
 import blue.deniz.vantage.app.ui.EventCard
-import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.IconButton
-import blue.deniz.vantage.app.ui.IconButtonInset
-import blue.deniz.vantage.app.ui.IconSize
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.IconButton
+import blue.deniz.vantage.ui.IconButtonInset
+import blue.deniz.vantage.ui.IconSize
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.storage.LinkPreview
 import kotlinx.coroutines.delay

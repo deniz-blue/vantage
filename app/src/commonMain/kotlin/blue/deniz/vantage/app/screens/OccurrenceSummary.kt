@@ -10,8 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import directory.evnt.Occurrence
 import directory.evnt.PartialDate
 import kotlinx.coroutines.delay

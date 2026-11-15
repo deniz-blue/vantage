@@ -17,6 +17,7 @@ import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
 import blue.deniz.vantage.storage.EventStore
 import blue.deniz.vantage.storage.VantageDatabase
+import blue.deniz.vantage.ui.BrowserBackDispatcher
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Worker

@@ -3,20 +3,21 @@ package blue.deniz.vantage.app
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.asPaddingValues
-import blue.deniz.vantage.app.ui.Backdrop
-import blue.deniz.vantage.app.ui.ClearFocusWhenKeyboardCloses
-import blue.deniz.vantage.app.ui.LocalKeyboardDrag
-import blue.deniz.vantage.app.ui.rememberKeyboardDrag
+import blue.deniz.vantage.ui.Backdrop
+import blue.deniz.vantage.ui.ClearFocusWhenKeyboardCloses
+import blue.deniz.vantage.ui.LocalKeyboardDrag
+import blue.deniz.vantage.ui.rememberKeyboardDrag
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import blue.deniz.vantage.app.ui.EventPageGrowingFromCard
-import blue.deniz.vantage.app.ui.LocalScreenTransition
-import blue.deniz.vantage.app.ui.ScreenTransition
+import blue.deniz.vantage.ui.EventPageGrowingFromCard
+import blue.deniz.vantage.ui.LocalScreenTransition
+import blue.deniz.vantage.ui.ScreenTransition
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterExitState
@@ -31,10 +32,10 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.ui.Alignment
-import blue.deniz.vantage.app.ui.LocalTabBarHeight
-import blue.deniz.vantage.app.ui.rememberBackdrop
-import blue.deniz.vantage.app.ui.LocalBackdrop
-import blue.deniz.vantage.app.ui.glassBar
+import blue.deniz.vantage.ui.LocalTabBarHeight
+import blue.deniz.vantage.ui.rememberBackdrop
+import blue.deniz.vantage.ui.LocalBackdrop
+import blue.deniz.vantage.ui.glassBar
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.geometry.Offset
@@ -104,14 +105,16 @@ import blue.deniz.vantage.app.screens.BackupSettingsScreen
 import blue.deniz.vantage.app.screens.SetupScreen
 import blue.deniz.vantage.app.screens.SettingsScreen
 import blue.deniz.vantage.app.screens.TagSettingsScreen
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.BottomSheetHost
-import blue.deniz.vantage.app.ui.LocalScreenOpacity
-import blue.deniz.vantage.app.ui.Icon
-import blue.deniz.vantage.app.ui.SnackbarHost
-import blue.deniz.vantage.app.ui.rememberAnyBottomSheetOpen
-import blue.deniz.vantage.app.ui.Text
-import blue.deniz.vantage.app.ui.VantageTheme
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.BottomSheetHost
+import blue.deniz.vantage.ui.LocalScreenOpacity
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.SnackbarHost
+import blue.deniz.vantage.ui.rememberAnyBottomSheetOpen
+import blue.deniz.vantage.ui.Text
+import blue.deniz.vantage.ui.VantageTheme
+import blue.deniz.vantage.app.ui.accentColor
+import blue.deniz.vantage.ui.SystemBackHandler
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.DisposableEffect
 
@@ -188,7 +191,7 @@ fun VantageApp(state: AppState) {
     }
     val tabBackdrop = rememberBackdrop()
     CompositionLocalProvider(LocalSessionValues provides sessionValues, LocalKeyboardDrag provides keyboardDrag) {
-        VantageTheme(state.settings.themeAccent, state.settings.fontSizes) {
+        VantageTheme(accentColor(state.settings.themeAccent, isSystemInDarkTheme()), state.settings.fontSizes) {
             KeyboardShortcutHost(onShortcut = state::handleShortcut) {
                 BottomSheetHost(aboveSheets = { SnackbarsOutsideTabBar(state, onTab = navigator.current is Route.Tab) }) {
                     Surface(Modifier.fillMaxSize()) {

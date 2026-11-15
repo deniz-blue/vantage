@@ -2,9 +2,9 @@ package blue.deniz.vantage.app.screens
 
 import blue.deniz.vantage.app.ui.removal
 
-import blue.deniz.vantage.app.ui.floatingContainer
-import blue.deniz.vantage.app.ui.floatingBorder
-import blue.deniz.vantage.app.ui.floatingSurface
+import blue.deniz.vantage.ui.floatingContainer
+import blue.deniz.vantage.ui.floatingBorder
+import blue.deniz.vantage.ui.floatingSurface
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -26,17 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import blue.deniz.vantage.app.collectAcrossSession
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.SystemBackHandler
+import blue.deniz.vantage.ui.SystemBackHandler
 import blue.deniz.vantage.app.rememberCopyText
 import blue.deniz.vantage.app.rememberShareText
-import blue.deniz.vantage.app.ui.AppIcons
-import blue.deniz.vantage.app.ui.BottomSheetFrame
-import blue.deniz.vantage.app.ui.ControlHeight
-import blue.deniz.vantage.app.ui.IconButton
-import blue.deniz.vantage.app.ui.ListRow
-import blue.deniz.vantage.app.ui.Radius
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.Text
+import blue.deniz.vantage.ui.AppIcons
+import blue.deniz.vantage.ui.BottomSheetFrame
+import blue.deniz.vantage.ui.ControlHeight
+import blue.deniz.vantage.ui.IconButton
+import blue.deniz.vantage.ui.ListRow
+import blue.deniz.vantage.ui.Radius
+import blue.deniz.vantage.ui.Spacing
+import blue.deniz.vantage.ui.Text
 import blue.deniz.vantage.app.ui.markdownSummary
 import blue.deniz.vantage.core.EventsLink
 import blue.deniz.vantage.storage.EventListQuery
