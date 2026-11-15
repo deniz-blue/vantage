@@ -17,11 +17,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import blue.deniz.vantage.app.CopyMenuItem
-import blue.deniz.vantage.app.mapsAppLink
+import blue.deniz.vantage.app.CopyOption
+import blue.deniz.vantage.app.CopyOptionsPage
+import blue.deniz.vantage.app.CopyOptionsRow
+import blue.deniz.vantage.app.rememberMapApps
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.addressLine
 import blue.deniz.vantage.app.ui.addressLineWithFlag
@@ -63,35 +64,47 @@ internal fun VenueCard(venue: Venue, preferredLanguages: List<String>) {
     BottomSheet(visible = showingDetails, onDismiss = { showingDetails = false }) { VenueDetails(venue, name, venue.addressLineWithFlag(preferredLanguages)) }
 }
 
+private enum class VenuePage { Maps, Copy }
+
 @Composable
 private fun VenueDetails(venue: Venue, name: String?, addressLine: String?) {
     val uriHandler = LocalUriHandler.current
     val place = remember(venue, name) { MapPlace.of(venue, name) }
     val coordinates = venue.coordinates?.let { "${it.latitude}, ${it.longitude}" }
-    Column(Modifier.padding(horizontal = Spacing.md)) {
-        SheetTitle(name ?: addressLine ?: "Unnamed Place")
-        if (name != null) addressLine?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium) }
-        coordinates?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall) }
-    }
-    Column {
-        if (place != null) {
-            MenuItem("Open in Maps", onClick = { uriHandler.openMapLink(place) }, leadingIcon = AppIcons.MapPin)
-            MenuItem("Directions", onClick = { uriHandler.openUri(MapLinks.directions(place)) }, leadingIcon = AppIcons.Directions)
-            if (mapsAppLink(place) != MapLinks.googleMaps(place)) {
-                MenuItem("Google Maps", onClick = { uriHandler.openUri(MapLinks.googleMaps(place)) }, leadingIcon = AppIcons.ExternalLink)
+    val copyOptions = listOfNotNull(
+        venue.address?.let { address -> CopyOption("Address", address) { address } },
+        coordinates?.let { CopyOption("Coordinates", it) { it } },
+    )
+    var page by rememberSaveable { mutableStateOf<VenuePage?>(null) }
+    when (page) {
+        VenuePage.Maps -> if (place != null) OpenInMapsPage(place, onBack = { page = null })
+        VenuePage.Copy -> CopyOptionsPage(copyOptions, onBack = { page = null })
+        null -> {
+            Column(Modifier.padding(horizontal = Spacing.md)) {
+                SheetTitle(name ?: addressLine ?: "Unnamed Place")
+                if (name != null) addressLine?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium) }
+                coordinates?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall) }
             }
-            MenuItem("OpenStreetMap", onClick = { uriHandler.openUri(MapLinks.openStreetMap(place)) }, leadingIcon = AppIcons.ExternalLink)
+            Column {
+                if (place != null) {
+                    MenuItem("Open in Maps", onClick = { page = VenuePage.Maps }, leadingIcon = AppIcons.MapPin, trailingIcon = AppIcons.ChevronRight)
+                    MenuItem("Directions", onClick = { uriHandler.openUri(MapLinks.directions(place)) }, leadingIcon = AppIcons.Directions)
+                }
+                CopyOptionsRow(copyOptions, onOpenPage = { page = VenuePage.Copy })
+            }
         }
-        venue.address?.let { address -> CopyMenuItem("Copy Address", supportingText = address) { address } }
-        coordinates?.let { CopyMenuItem("Copy Coordinates", supportingText = it) { it } }
     }
 }
 
-private fun UriHandler.openMapLink(place: MapPlace) {
-    try {
-        openUri(mapsAppLink(place))
-    } catch (_: IllegalArgumentException) {
-        openUri(MapLinks.googleMaps(place))
+@Composable
+private fun OpenInMapsPage(place: MapPlace, onBack: () -> Unit) {
+    val uriHandler = LocalUriHandler.current
+    val otherApps = rememberMapApps().filterNot { it.isGoogleMaps }
+    PickerHeader("Open in Maps", onBack, Modifier.padding(horizontal = Spacing.md))
+    Column {
+        for (app in otherApps) MenuItem(app.name, onClick = { app.open(place) }, leadingIcon = AppIcons.Map, trailingIcon = AppIcons.ExternalLink)
+        MenuItem("Google Maps", onClick = { uriHandler.openUri(MapLinks.googleMaps(place)) }, leadingIcon = AppIcons.Map, trailingIcon = AppIcons.ExternalLink)
+        MenuItem("OpenStreetMap", onClick = { uriHandler.openUri(MapLinks.openStreetMap(place)) }, leadingIcon = AppIcons.Map, trailingIcon = AppIcons.ExternalLink)
     }
 }
 

@@ -15,6 +15,13 @@
         android:label="add, change and remove your Vantage events"
         android:protectionLevel="dangerous" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+    </queries>
+
     <application
         android:name=".VantageApplication"
         android:label="${appLabel}"

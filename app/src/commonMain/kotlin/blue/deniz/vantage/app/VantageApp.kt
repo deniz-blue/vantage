@@ -6,6 +6,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.asPaddingValues
 import blue.deniz.vantage.app.ui.Backdrop
 import blue.deniz.vantage.app.ui.ClearFocusWhenKeyboardCloses
+import blue.deniz.vantage.app.ui.LocalKeyboardDrag
+import blue.deniz.vantage.app.ui.rememberKeyboardDrag
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -87,6 +89,7 @@ import blue.deniz.vantage.app.screens.EditEventScreen
 import blue.deniz.vantage.app.screens.EventDetailsScreen
 import blue.deniz.vantage.app.screens.EditFromLinkScreen
 import blue.deniz.vantage.app.screens.EventFromLinkScreen
+import blue.deniz.vantage.app.screens.EventOccurrenceScreen
 import blue.deniz.vantage.app.screens.EventListFiltersSheet
 
 import blue.deniz.vantage.app.screens.FeedScreen
@@ -178,12 +181,13 @@ fun VantageApp(state: AppState) {
         keptScreenKeys = stackedScreenKeys
     }
     SystemBackHandler(enabled = navigator.canGoBack) { navigator.goBack() }
-    ClearFocusWhenKeyboardCloses()
+    val keyboardDrag = rememberKeyboardDrag()
+    ClearFocusWhenKeyboardCloses(keyboardDrag)
     LaunchedEffect(Unit) {
         if (!state.settings.setupFinished && navigator.current is Route.Tab) navigator.open(Route.Setup)
     }
     val tabBackdrop = rememberBackdrop()
-    CompositionLocalProvider(LocalSessionValues provides sessionValues) {
+    CompositionLocalProvider(LocalSessionValues provides sessionValues, LocalKeyboardDrag provides keyboardDrag) {
         VantageTheme(state.settings.themeAccent, state.settings.fontSizes) {
             KeyboardShortcutHost(onShortcut = state::handleShortcut) {
                 BottomSheetHost(aboveSheets = { SnackbarsOutsideTabBar(state, onTab = navigator.current is Route.Tab) }) {
@@ -217,6 +221,7 @@ fun VantageApp(state: AppState) {
                                                     } else {
                                                         EventDetailsScreen(state, route.id)
                                                     }
+                                                    is Route.EventOccurrence -> EventOccurrenceScreen(state, route.event, route.occurrence)
                                                     is Route.EventFromLink -> EventFromLinkScreen(state, route.intent)
                                                     is Route.Feed -> FeedScreen(state, route.feed)
                                                     is Route.CreateEvent -> CreateEventScreen(state, route.sharedText, route.day, route.draft)

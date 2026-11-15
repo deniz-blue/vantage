@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import blue.deniz.vantage.core.EventFeed
 import blue.deniz.vantage.core.EventsLink
+import directory.evnt.Occurrence
 import directory.evnt.OpenEvnt
 import kotlinx.datetime.LocalDate
 
@@ -14,6 +15,7 @@ sealed interface Route {
     data object MyEvents : Tab
     data object Settings : Tab
     data class EventDetails(val id: String, val openedFromCard: Boolean = false) : Route
+    data class EventOccurrence(val event: OpenEvnt, val occurrence: Occurrence) : Route
     data class EventFromLink(val intent: EventsLink.Intent) : Route
     data class Feed(val feed: EventFeed) : Route
     data class CreateEvent(val sharedText: String? = null, val day: LocalDate? = null, val draft: OpenEvnt? = null) : Form

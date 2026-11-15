@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -120,7 +121,25 @@ actual fun rememberOpenTextFile(onOpened: (text: String) -> Unit): () -> Unit {
     return remember(launcher) { { launcher.launch(arrayOf("*/*")) } }
 }
 
-actual fun mapsAppLink(place: MapPlace): String = MapLinks.geo(place)
+private const val GOOGLE_MAPS_PACKAGE = "com.google.android.apps.maps"
+
+@Composable
+actual fun rememberMapApps(): List<MapApp> {
+    val context = LocalContext.current
+    return remember(context) {
+        val packageManager = context.packageManager
+        packageManager.queryIntentActivities(Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0")), 0)
+            .distinctBy { it.activityInfo.packageName }
+            .filter { it.activityInfo.packageName != context.packageName }
+            .map { info ->
+                val packageName = info.activityInfo.packageName
+                MapApp(info.loadLabel(packageManager).toString(), packageName == GOOGLE_MAPS_PACKAGE) { place ->
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(MapLinks.geo(place))).setPackage(packageName)
+                    context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+    }
+}
 
 actual fun imageBitmapFromArgb(pixels: IntArray, width: Int, height: Int): ImageBitmap =
     Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888).asImageBitmap()

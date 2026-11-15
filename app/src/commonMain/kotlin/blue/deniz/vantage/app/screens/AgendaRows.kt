@@ -120,13 +120,15 @@ fun agendaOf(
     }
 
     fun place(start: PartialDate?, row: AgendaRow) {
-        val firstDay = start?.let(formatting::firstDayOf)
+        val startDay = start?.let(formatting::firstDayOf)
+        val startedBeforeToday = hasPastPart && upcomingStartRow >= 0 && startDay != null && startDay < today
+        val firstDay = if (startedBeforeToday) today else startDay
+        val exactDay = firstDay?.takeIf { startedBeforeToday || start is PartialDate.Day || start is PartialDate.Time }
         if (!todayPlaced && (firstDay == null || firstDay >= today)) {
-            val labelledAsToday = dayLabels && firstDay == today && (start is PartialDate.Day || start is PartialDate.Time)
-            if (labelledAsToday) todayPlaced = true else placeToday()
+            if (dayLabels && exactDay == today) todayPlaced = true else placeToday()
         }
-        val exactDay = firstDay?.takeIf { start is PartialDate.Day || start is PartialDate.Time }
-        if (dayLabels && exactDay != null) headingKey = null else addHeading(headingOf(start, firstDay, today))
+        val heading = if (startedBeforeToday) monthHeadingOf(today, today) else headingOf(start, firstDay, today)
+        if (dayLabels && exactDay != null) headingKey = null else addHeading(heading)
         when {
             !dayLabels -> Unit
             exactDay != null -> addDayLabel(exactDay)

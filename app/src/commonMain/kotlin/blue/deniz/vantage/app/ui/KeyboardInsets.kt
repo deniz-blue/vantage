@@ -13,13 +13,13 @@ expect val WindowInsets.Companion.keyboardTarget: WindowInsets
     @Composable get
 
 @Composable
-fun ClearFocusWhenKeyboardCloses() {
+fun ClearFocusWhenKeyboardCloses(keyboardDrag: KeyboardDrag?) {
     val keyboard = WindowInsets.ime
     val keyboardTarget = WindowInsets.keyboardTarget
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
-    LaunchedEffect(keyboard, keyboardTarget, density, focusManager) {
-        snapshotFlow { keyboard.getBottom(density) > 0 || keyboardTarget.getBottom(density) > 0 }
+    LaunchedEffect(keyboard, keyboardTarget, density, focusManager, keyboardDrag) {
+        snapshotFlow { keyboard.getBottom(density) > 0 || keyboardTarget.getBottom(density) > 0 || keyboardDrag?.isControllingKeyboard == true }
             .drop(1)
             .collect { open -> if (!open) focusManager.clearFocus() }
     }

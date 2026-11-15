@@ -328,7 +328,8 @@ fun BottomSheetFrame(visible: Boolean, onDismiss: () -> Unit, body: @Composable 
     LaunchedEffect(keyboardTarget, density) {
         snapshotFlow { keyboardTarget.getBottom(density) > 0 }.collect { if (it) expand() }
     }
-    val keyboardDrag = rememberKeyboardDrag()
+    val keyboardDrag = LocalKeyboardDrag.current
+    DisposableEffect(keyboardDrag) { onDispose { keyboardDrag?.release() } }
     val keyboardFirst = remember(keyboardDrag) {
         SheetDragsMoveKeyboardFirst(keyboardDrag, onKeyboardHidden = { sheetWasDragged ->
             if (!sheetWasDragged && sheet.targetValue == BottomSheetHeight.Expanded) sheet.targetValue = BottomSheetHeight.Open

@@ -68,6 +68,7 @@ import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.Route
 import blue.deniz.vantage.app.ui.FailureRow
 import blue.deniz.vantage.app.ui.describe
+import blue.deniz.vantage.app.rememberShareText
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.Button
 import blue.deniz.vantage.app.ui.Card
@@ -145,6 +146,7 @@ fun EventDetailsScreen(state: AppState, id: String) {
             if (current?.source?.isEditableHere == true) {
                 IconButton(AppIcons.Pencil, "Edit", onClick = { state.navigator.open(Route.EditEvent(id)) })
             }
+            ShareButton(current?.source)
             IconButton(AppIcons.DotsVertical, "More", onClick = { current?.let(state::openActionsSheet) ?: state.openActionsSheet(id) })
         },
         tags = { EventTags(state, id) },
@@ -152,6 +154,13 @@ fun EventDetailsScreen(state: AppState, id: String) {
         onRefresh = if (current?.source is EventSource.Remote) ::refresh else null,
         refreshing = refreshing,
     )
+}
+
+@Composable
+private fun ShareButton(source: EventSource?) {
+    val share = rememberShareText()
+    val link = source?.let(EventsLink::shareLinkTo) ?: return
+    IconButton(AppIcons.Share, "Share", onClick = { share(link) })
 }
 
 @Composable
@@ -204,6 +213,7 @@ private fun RemoteEventDetails(state: AppState, linked: ResolvedEvent, onStoredC
     }
     LaunchedEffect(event) { event?.let { state.store.findStoredCopyId(it) }?.let(onStoredCopyFound) }
     EventDetailsLayout(state, event, actions = {
+        ShareButton(event?.source)
         event?.let { resolved -> IconButton(AppIcons.DotsVertical, "More", onClick = { state.openActionsSheet(resolved) }) }
     }, importAction = {
         event?.let { resolved -> AddToMyEventsButton(state, resolved) }

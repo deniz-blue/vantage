@@ -8,8 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import blue.deniz.vantage.core.EventsLink
-import blue.deniz.vantage.core.MapLinks
-import blue.deniz.vantage.core.MapPlace
 import kotlinx.serialization.json.Json
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorType
@@ -97,7 +95,8 @@ object BrowserLocalStorage : KeyValueStorage {
 @Composable
 actual fun wallpaperColorScheme(dark: Boolean): ColorScheme? = null
 
-actual fun mapsAppLink(place: MapPlace): String = MapLinks.googleMaps(place)
+@Composable
+actual fun rememberMapApps(): List<MapApp> = emptyList()
 
 actual fun imageBitmapFromArgb(pixels: IntArray, width: Int, height: Int): ImageBitmap {
     val bytes = ByteArray(pixels.size * 4)

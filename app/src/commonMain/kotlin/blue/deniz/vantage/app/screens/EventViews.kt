@@ -6,6 +6,7 @@ import blue.deniz.vantage.app.ui.backdropSource
 import blue.deniz.vantage.app.ui.LocalBackdrop
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -201,6 +202,25 @@ private fun EventListView(
         }
         val stopIndex = agenda.upcomingStartRow
         SideEffect { scrollStop.stopIndex = stopIndex }
+        val markerToShow = state.markerToShowInList.takeIf { screen == MY_EVENTS_SCREEN && inDateOrder }
+        LaunchedEffect(markerToShow, agenda) {
+            val id = markerToShow ?: return@LaunchedEffect
+            val row = agenda.rows.indexOfFirst { it is AgendaRow.Marker && it.marker.id == id }
+            if (row >= 0) {
+                state.forgetMarkerToShowInList()
+                val dayLabelRow = if (dayLabels) (row downTo 0).firstOrNull { agenda.rows[it] is AgendaRow.Day } else null
+                scrollStop.scrollToItem(dayLabelRow ?: row)
+                return@LaunchedEffect
+            }
+            val marker = marks.markers.find { it.id == id }
+            val listing = past?.takeIf { marker != null && marker.endsAt <= now } ?: paged
+            when {
+                marker == null || !showsMarks -> state.forgetMarkerToShowInList()
+                listing.wantsMore -> listing.loadMore()
+                listing.listing?.status.let { it == null || it == EventListingStatus.HasMore || it is EventListingStatus.Loading } -> Unit
+                else -> state.forgetMarkerToShowInList()
+            }
+        }
         val labelGapPx = with(LocalDensity.current) { AgendaLabelGap.roundToPx() }
         val pinnedLabelRow = remember(grid, agenda, labelGapPx) {
             derivedStateOf {

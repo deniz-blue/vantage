@@ -118,7 +118,7 @@ fun ContentUnderOverlay(
         val overlayHeight = overlayPlaceable.height.toDp()
         val contentPlaceable = subcompose(ContentUnderOverlaySlot.Content) { Box { content(overlayHeight) } }
             .single().measure(constraints.copy(minHeight = 0))
-        layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, maxOf(constraints.minHeight, contentPlaceable.height, overlayPlaceable.height)) {
             contentPlaceable.place(0, 0)
             overlayPlaceable.place(0, 0)
         }

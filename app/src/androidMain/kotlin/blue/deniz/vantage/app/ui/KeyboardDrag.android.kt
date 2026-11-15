@@ -13,7 +13,10 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -34,12 +37,15 @@ actual fun rememberKeyboardDrag(): KeyboardDrag? {
 @RequiresApi(Build.VERSION_CODES.R)
 private class ControlledKeyboardDrag(private val view: View, private val flingSpeed: Float) : KeyboardDrag, WindowInsetsAnimationControlListener {
     private var controller: WindowInsetsAnimationController? = null
-    private var request: CancellationSignal? = null
+    private var request: CancellationSignal? by mutableStateOf(null)
     private var lowerWhenReady = 0f
     private var bottom = 0f
 
     override val height: Int
         get() = controller?.currentInsets?.bottom ?: view.rootWindowInsets?.getInsets(WindowInsets.Type.ime())?.bottom ?: 0
+
+    override val isControllingKeyboard: Boolean
+        get() = request != null
 
     override fun lowerBy(px: Float): Float {
         val controller = controller
@@ -86,7 +92,7 @@ private class ControlledKeyboardDrag(private val view: View, private val flingSp
         if (this.controller === controller) controller.finish(toShown)
     }
 
-    fun release() {
+    override fun release() {
         request?.cancel()
         controller?.let { it.finish(bottom > (it.shownStateInsets.bottom + it.hiddenStateInsets.bottom) / 2f) }
         clear()

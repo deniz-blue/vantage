@@ -347,6 +347,19 @@ class AppState(
         markSheetOpen = false
     }
 
+    var markerToShowInList by mutableStateOf<String?>(null)
+        private set
+
+    fun showMarkerInList(id: String) {
+        closeMarkSheet()
+        markerToShowInList = id
+        openMyEvents(EventsView.List)
+    }
+
+    fun forgetMarkerToShowInList() {
+        markerToShowInList = null
+    }
+
     var newEntryDay by mutableStateOf<LocalDate?>(null)
         private set
     var chooseFeedSheetOpen by mutableStateOf(false)
@@ -397,6 +410,8 @@ class AppState(
     }
 
     fun showsCalendar(route: Route) = route == Route.MyEvents && myEventsView == EventsView.Calendar
+
+    fun showsEventList(route: Route) = route == Route.MyEvents && myEventsView == EventsView.List
 
     fun focusEventSearch() {
         if (navigator.current != Route.MyEvents || !myEventsView.searches) openMyEvents(EventsView.List)

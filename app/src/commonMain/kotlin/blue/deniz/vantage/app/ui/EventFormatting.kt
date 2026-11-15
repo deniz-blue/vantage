@@ -119,6 +119,14 @@ class EventFormatting(val timeZone: TimeZone, private val today: LocalDate) {
 
     fun formatWeekdayAndDay(date: LocalDate): String = date.format(weekdayAndDay)
 
+    fun formatLongDayRange(first: LocalDate, last: LocalDate): String {
+        val sameYear = first.year == last.year
+        val firstMonth = if (first.month == last.month && sameYear) "" else " ${MonthNames.ENGLISH_FULL.names[first.month.ordinal]}"
+        val firstYear = if (sameYear) "" else " ${first.year}"
+        val lastYear = if (last.year == today.year && sameYear) "" else " ${last.year}"
+        return "${first.format(weekdayAndDay)}$firstMonth$firstYear – ${last.format(weekdayAndDay)} ${MonthNames.ENGLISH_FULL.names[last.month.ordinal]}$lastYear"
+    }
+
     fun formatDayLabel(date: LocalDate): DayLabelText {
         val nearDay = when (today.daysUntil(date)) {
             -1 -> "Yesterday, "
@@ -201,6 +209,15 @@ class EventFormatting(val timeZone: TimeZone, private val today: LocalDate) {
         val parts = listOf(seconds / 86_400 to "d", seconds % 86_400 / 3_600 to "h", seconds % 3_600 / 60 to "min", seconds % 60 to "s")
         return parts.filter { (amount, _) -> amount != 0L }.ifEmpty { parts.takeLast(1) }.joinToString(" ") { (amount, unit) -> "$amount $unit" }
     }
+
+    fun formatHours(duration: Duration): String {
+        val minutes = duration.inWholeMinutes
+        val parts = listOf(minutes / 60 to "h", minutes % 60 to "min").filter { (amount, _) -> amount != 0L }
+        return parts.ifEmpty { listOf(0L to "min") }.joinToString(" ") { (amount, unit) -> "$amount $unit" }
+    }
+
+    fun formatWeekdayAndTime(time: PartialDate.Time): String =
+        "${DayOfWeekNames.ENGLISH_ABBREVIATED.names[localDateOf(time).dayOfWeek.ordinal]} ${formatTime(time)}"
 
     fun formatTimeFromNow(now: Instant, start: Instant, end: Instant?): String = when {
         now < start -> "Starts in ${formatDuration(start - now)}"

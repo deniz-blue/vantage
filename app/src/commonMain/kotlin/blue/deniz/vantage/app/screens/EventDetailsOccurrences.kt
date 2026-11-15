@@ -1,20 +1,14 @@
 package blue.deniz.vantage.app.screens
 
-import kotlinx.datetime.daysUntil
-import blue.deniz.vantage.app.EventsView
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -25,29 +19,21 @@ import blue.deniz.vantage.core.isCancelled
 import blue.deniz.vantage.core.isCancelledOn
 import blue.deniz.vantage.core.CalendarPeriod
 import blue.deniz.vantage.app.AppState
-import blue.deniz.vantage.app.CopyMenuItem
+import blue.deniz.vantage.app.CopyOptionsPage
+import blue.deniz.vantage.app.CopyOptionsRow
+import blue.deniz.vantage.app.Route
 import blue.deniz.vantage.app.ui.AppIcons
 import blue.deniz.vantage.app.ui.BottomSheet
 import blue.deniz.vantage.app.ui.EventFormatting
 import blue.deniz.vantage.app.ui.Icon
 import blue.deniz.vantage.app.ui.ListRow
-import blue.deniz.vantage.app.ui.ListSection
-import blue.deniz.vantage.app.ui.SectionTitle
-import blue.deniz.vantage.app.ui.SheetTitle
-import blue.deniz.vantage.app.ui.Spacing
-import blue.deniz.vantage.app.ui.MenuItem
 import blue.deniz.vantage.app.ui.Text
 import blue.deniz.vantage.app.ui.label
-import directory.evnt.Activity
 import directory.evnt.Occurrence
 import directory.evnt.OpenEvnt
-import directory.evnt.PartialDate
-import directory.evnt.translate
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import blue.deniz.vantage.app.ui.Radius
-import kotlin.time.Duration.Companion.days
-import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.number
@@ -59,7 +45,10 @@ internal fun OccurrenceRows(state: AppState, eventTitle: String, eventData: Open
     var shownIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     for ((index, occurrence) in occurrences.withIndex()) {
         val periods = remember(occurrence, marks) { occurrence.start?.let { marks.periodsOn(it, occurrence.end) }.orEmpty() }
-        OccurrenceCard(occurrence, state.formatting, periods) { shownIndex = index }
+        OccurrenceCard(occurrence, state.formatting, periods) {
+            if (eventData != null && occurrence.activities.orEmpty().isNotEmpty()) state.navigator.open(Route.EventOccurrence(eventData, occurrence))
+            else shownIndex = index
+        }
     }
     val shown = shownIndex?.let { index -> occurrences.getOrNull(index)?.let { IndexedValue(index, it) } }
     BottomSheet(item = shown, onDismiss = { shownIndex = null }) { (index, occurrence) ->
@@ -124,84 +113,13 @@ private fun OccurrenceDetails(
     marks: CalendarMarks,
     onClose: () -> Unit,
 ) {
-    val formatting = state.formatting
-    val preferredLanguages = state.preferredLanguages
-    Column(Modifier.fillMaxWidth().padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        SheetTitle(eventTitle)
-        Text(listOfNotNull("Date", position).joinToString(" "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-        if (cancelled) Text("Cancelled", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelLarge)
-    }
-    val start = occurrence.start
-    if (start == null) {
-        ActivityRows(occurrence.activities.orEmpty(), preferredLanguages)
-        return
-    }
-    val end = occurrence.end
-    val firstDay = formatting.localDateOrNull(start)
-    val lastDay = end?.let(formatting::localDateOrNull)?.takeIf { firstDay != null && it > firstDay } ?: firstDay
-    val endInstant = end?.endInstant ?: start.takeIf { it !is PartialDate.Time }?.endInstant
-    val now by produceState(state.clock.now(), state.clock) {
-        while (true) {
-            delay(1_000 - value.toEpochMilliseconds() % 1_000)
-            value = state.clock.now()
-        }
-    }
-    ListSection {
-        if (end != null && firstDay != null && lastDay != null && lastDay > firstDay) {
-            ListRow(formatting.formatLongDate(start), icon = AppIcons.Calendar, supporting = "Starts")
-            ListRow(formatting.formatLongDate(end), icon = AppIcons.Calendar, supporting = "Ends")
-            val days = firstDay.daysUntil(lastDay) + 1
-            ListRow("$days days", icon = AppIcons.DateRange, supporting = periodProgressText(state.today, firstDay, lastDay))
-        } else {
-            ListRow(formatting.formatLongDate(start), icon = AppIcons.Calendar, supporting = firstDay?.let { daysAwayText(state.today, it) })
-        }
-        val time = formatting.occurrenceTimeText(occurrence, showsStatedTime = false)
-        if (time != null) {
-            val length = (end as? PartialDate.Time)?.let { formatting.formatDuration(it.startInstant - start.startInstant) }
-            ListRow(listOfNotNull(time, length).joinToString(" · "), icon = AppIcons.Clock, supporting = if (cancelled) null else formatting.formatTimeFromNow(now, start.startInstant, endInstant))
-        }
-        (start as? PartialDate.Time)?.let(formatting::statedTimeText)?.let { ListRow(it, icon = AppIcons.World, supporting = "Local Time There") }
-    }
-    PeriodsSection(state, remember(start, end, marks) { marks.periodsOn(start, end) }, firstDay, beforeOpening = onClose)
-    ActivityRows(occurrence.activities.orEmpty(), preferredLanguages)
+    var copying by rememberSaveable { mutableStateOf(false) }
+    val copyOptions = occurrenceCopyOptions(state.formatting, eventTitle, occurrence)
+    if (copying) return CopyOptionsPage(copyOptions, onBack = { copying = false })
+    OccurrenceSummary(state, eventTitle, occurrence, position, cancelled)
+    OccurrencePeriods(state, occurrence, marks, beforeOpening = onClose)
     Column {
-        if (firstDay != null) {
-            MenuItem("Show in Calendar", onClick = {
-                onClose()
-                state.calendarSelection.select(firstDay)
-                state.openMyEvents(EventsView.Calendar)
-            }, leadingIcon = AppIcons.Calendar)
-        }
-        if (start is PartialDate.Time) {
-            val timestamp = discordTimestamp(start, end as? PartialDate.Time)
-            val countdown = "<t:${start.startInstant.epochSeconds}:R>"
-            CopyMenuItem("Copy Discord Timestamp", supportingText = timestamp) { timestamp }
-            CopyMenuItem("Copy Discord Countdown", supportingText = countdown) { countdown }
-        }
-        val text = formatting.occurrenceText(occurrence)
-        CopyMenuItem("Copy as Text") { listOfNotNull(eventTitle, text.headline, text.supporting).joinToString(" · ") }
+        ShowInCalendarItem(state, occurrence, beforeOpening = onClose)
+        CopyOptionsRow(copyOptions, onOpenPage = { copying = true })
     }
-}
-
-@Composable
-private fun ActivityRows(activities: List<Activity>, preferredLanguages: List<String>) {
-    if (activities.isEmpty()) return
-    Column(Modifier.padding(horizontal = Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        SectionTitle("Activities", Modifier.padding(top = Spacing.md))
-        for (activity in activities) {
-            val cancelled = activity.status == Activity.Status.Cancelled
-            ListRow(
-                activity.name.translate(preferredLanguages),
-                supporting = "Cancelled".takeIf { cancelled },
-                color = if (cancelled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-private fun discordTimestamp(start: PartialDate.Time, end: PartialDate.Time?): String {
-    val from = "<t:${start.startInstant.epochSeconds}:F>"
-    if (end == null) return from
-    val endStyle = if (end.startInstant - start.startInstant < 1.days) "t" else "F"
-    return "$from – <t:${end.startInstant.epochSeconds}:$endStyle>"
 }

@@ -34,7 +34,10 @@ expect fun countryName(code: String, displayLanguage: String): String
 @Composable
 expect fun wallpaperColorScheme(dark: Boolean): ColorScheme?
 
-expect fun mapsAppLink(place: MapPlace): String
+class MapApp(val name: String, val isGoogleMaps: Boolean, val open: (MapPlace) -> Unit)
+
+@Composable
+expect fun rememberMapApps(): List<MapApp>
 
 expect fun imageBitmapFromArgb(pixels: IntArray, width: Int, height: Int): ImageBitmap
 

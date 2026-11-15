@@ -41,7 +41,7 @@ import kotlin.time.Instant
 private val NAMED_RELATION_TYPES = listOf(
     Component.Relation.PARENT to "Parent",
     Component.Relation.CHILD to "Child",
-    Component.Relation.ALTERNATE to "Same Event",
+    Component.Relation.CANONICAL to "Main Version",
 )
 
 fun relationTypeLabel(type: String): String = NAMED_RELATION_TYPES.firstOrNull { it.first == type }?.second ?: type

@@ -120,6 +120,12 @@ class LazyGridScrollStop internal constructor(
 
     internal val untouched: Boolean get() = scrolls == 0 && !held
 
+    suspend fun scrollToItem(index: Int) {
+        scrolls++
+        if (index < stopIndex) passed = true
+        grid.animateScrollToItem(index)
+    }
+
     internal suspend fun keepAtStopUntilTouched() {
         snapshotFlow { if (untouched) Triple(stopIndex, distancePastStop, grid.canScrollForward) else null }
             .takeWhile { it != null }

@@ -30,6 +30,7 @@ val Route.webAddress: String?
         is Route.EditFromLink -> with(request) {
             withQuery("/edit", "url" to event.url, "at" to event.at, "data" to event.data, "return" to returnUrl, "state" to state)
         }
+        is Route.EventOccurrence -> null
         is Route.EventFromLink -> withQuery("/event", "url" to intent.url, "at" to intent.at, "data" to intent.data)
         is Route.CreateEvent -> withQuery("/new", "text" to sharedText, "day" to day?.toString())
         Route.Setup -> "/setup"

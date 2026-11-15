@@ -50,7 +50,6 @@ import blue.deniz.vantage.core.withoutTimeOfDay
 import directory.evnt.PartialDate
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import blue.deniz.vantage.app.EventsView
 import kotlinx.datetime.plus
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.atStartOfDayIn
@@ -145,7 +144,7 @@ private fun ColumnScope.MarkSheetBody(state: AppState, target: MarkSheetTarget, 
             Modifier.padding(horizontal = Spacing.md),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        else -> MarkView(state, marks, target.kind, id, stored, onEdit = { editor.edit(stored) })
+        else -> MarkView(state, target.kind, id, stored, onEdit = { editor.edit(stored) })
     }
 }
 
@@ -162,7 +161,7 @@ private fun EventFormatting.markDateText(start: PartialDate, end: PartialDate?):
 }
 
 @Composable
-private fun MarkView(state: AppState, marks: CalendarMarks, kind: MarkKind, id: String, stored: MarkDraft, onEdit: () -> Unit) {
+private fun MarkView(state: AppState, kind: MarkKind, id: String, stored: MarkDraft, onEdit: () -> Unit) {
     val scope = rememberCoroutineScope()
     val formatting = state.formatting
     val today = state.today
@@ -185,11 +184,10 @@ private fun MarkView(state: AppState, marks: CalendarMarks, kind: MarkKind, id: 
             }
         }
     }
-    if (kind == MarkKind.Marker) PeriodsSection(state, marks.periodsOn(stored.start), firstDay, beforeOpening = state::closeMarkSheet)
-    if (firstDay != null && lastDay != null) {
-        EventsSection(state, if (kind == MarkKind.Marker) "That Day" else "During These Days", firstDay, lastDay, exceptEventId = null, beforeOpening = state::closeMarkSheet)
-    }
     Column {
+        if (kind == MarkKind.Marker && !state.showsEventList(state.navigator.current)) {
+            MenuItem("Show in List", onClick = { state.showMarkerInList(id) }, leadingIcon = AppIcons.List)
+        }
         MenuItem("Edit", onClick = onEdit, leadingIcon = AppIcons.Pencil)
         MenuItem("Delete", onClick = {
             state.closeMarkSheet()
