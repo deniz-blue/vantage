@@ -80,6 +80,26 @@ class DatabaseMigrationTest {
     }
 
     @Test
+    fun movingToVersionSixKeepsWhenEachEventWasCreated() = runTest {
+        val file = File.createTempFile("vantage-v5", ".db").apply { delete() }
+        try {
+            createVersion(5, file.path)
+            BundledSQLiteDriver().open(file.path).apply {
+                execSQL("INSERT INTO events (id, source, format, addedAt) VALUES ('e1', ${ColumnConverters.sourceToJson(EventSource.Local()).quoted()}, ${ColumnConverters.formatToName(EventFormat.OpenEvnt).quoted()}, 1794475263250)")
+                close()
+            }
+            val database = Room.databaseBuilder<VantageDatabase>(file.path)
+                .setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .build()
+            assertEquals(Instant.fromEpochMilliseconds(1794475263250), database.events().findEvent("e1")?.event?.createdAt)
+            database.close()
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
     fun opensADatabaseFromTheFirstVersion() = runTest {
         val file = File.createTempFile("vantage-v1", ".db").apply { delete() }
         try {

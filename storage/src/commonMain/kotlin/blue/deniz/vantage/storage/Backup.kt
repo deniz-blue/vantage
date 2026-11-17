@@ -10,10 +10,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNames
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.time.Instant
 
-const val BACKUP_FORMAT_VERSION = 1
+const val BACKUP_FORMAT_VERSION = 2
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -34,12 +35,13 @@ data class Backup(
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class BackupEvent(
     val id: String,
     val source: EventSource,
     val format: EventFormat,
-    val addedAt: Instant,
+    @JsonNames("addedAt") val createdAt: Instant,
     val document: JsonElement? = null,
     val tags: List<String> = emptyList(),
 )

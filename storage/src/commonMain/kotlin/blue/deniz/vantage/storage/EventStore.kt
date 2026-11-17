@@ -100,7 +100,7 @@ class EventStore(
     suspend fun add(event: ResolvedEvent): String {
         val id = Uuid.random().toString()
         events.insertEventWithCache(
-            EventEntity(id = id, source = event.source, format = event.format, addedAt = clock.now()),
+            EventEntity(id = id, source = event.source, format = event.format, createdAt = clock.now()),
             cacheOf(id, event),
             timeRangesOf(id, event),
         )
@@ -172,7 +172,7 @@ class EventStore(
                 existing == null -> {
                     val id = Uuid.random().toString()
                     added += EventWrite(
-                        EventEntity(id = id, source = event.source, format = event.format, addedAt = now),
+                        EventEntity(id = id, source = event.source, format = event.format, createdAt = now),
                         cacheOf(id, event),
                         timeRangesOf(id, event),
                     )
@@ -399,7 +399,7 @@ class EventStore(
                     id = stored.event.id,
                     source = stored.event.source,
                     format = stored.event.format,
-                    addedAt = stored.event.addedAt,
+                    createdAt = stored.event.createdAt,
                     document = stored.cache?.raw?.let(::documentOf),
                     tags = tagIdsByEvent[stored.event.id].orEmpty(),
                 )
@@ -427,7 +427,7 @@ class EventStore(
             )
             if (events.findEvent(event.id) == null) {
                 events.insertEventWithCache(
-                    EventEntity(event.id, event.source, resolved.format, event.addedAt),
+                    EventEntity(event.id, event.source, resolved.format, event.createdAt),
                     cacheOf(event.id, resolved),
                     timeRangesOf(event.id, resolved),
                 )

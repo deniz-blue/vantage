@@ -116,7 +116,7 @@ internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): Roo
     }
 
     val orderBy = when (order) {
-        EventListQuery.Order.RecentlyAdded -> "e.addedAt DESC"
+        EventListQuery.Order.RecentlyAdded -> "e.createdAt DESC"
         EventListQuery.Order.Name -> "c.title COLLATE NOCASE NULLS LAST"
         EventListQuery.Order.Start -> {
             val window = if (from == null) "" else " AND r.endsAt > ?"

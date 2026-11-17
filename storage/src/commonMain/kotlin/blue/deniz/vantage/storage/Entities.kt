@@ -20,7 +20,7 @@ data class EventEntity(
     @PrimaryKey val id: String,
     val source: EventSource,
     val format: EventFormat,
-    val addedAt: Instant,
+    val createdAt: Instant,
 )
 
 @Entity(

@@ -201,15 +201,15 @@ class EventStoreTest {
         pages["https://example.com/picnic.json"] = openEvnt("Picnic", "2026-11-11[Europe/Vilnius]")
         pages["https://example.com/gala.json"] = openEvnt("Gala", "2026-07-11[Europe/Vilnius]")
         assertEquals(emptyList(), store.refreshDueRemoteEvents())
-        val addedAt = FixedClock.now
+        val createdAt = FixedClock.now
         try {
-            FixedClock.now = addedAt + 1.days
+            FixedClock.now = createdAt + 1.days
             val changed = store.refreshDueRemoteEvents().single()
             assertEquals(picnic, changed.id)
             assertIs<EventDifference.OccurrenceMoved>(changed.differences.single())
             assertEquals(emptyList(), store.refreshDueRemoteEvents())
         } finally {
-            FixedClock.now = addedAt
+            FixedClock.now = createdAt
         }
     }
 
@@ -219,12 +219,12 @@ class EventStoreTest {
         val meetup = assertNotNull(store.addFromLink("https://example.com/meetup.json"))
         pages["https://example.com/meetup.json"] = openEvnt("Meetup", "2026-10-20[Europe/Vilnius]")
         assertEquals(emptyList(), store.refreshDueRemoteEvents())
-        val addedAt = FixedClock.now
+        val createdAt = FixedClock.now
         try {
-            FixedClock.now = addedAt + 2.days
+            FixedClock.now = createdAt + 2.days
             assertEquals(meetup, store.refreshDueRemoteEvents().single().id)
         } finally {
-            FixedClock.now = addedAt
+            FixedClock.now = createdAt
         }
     }
 

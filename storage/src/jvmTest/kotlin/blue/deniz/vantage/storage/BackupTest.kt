@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Instant
 
 private fun document(name: String, start: String) =
     """{"v":"0.2","id":"urn:example:${name.filter(Char::isLetterOrDigit)}","name":{"en":"$name"},"occurrences":[{"start":"$start"}]}"""
@@ -80,6 +81,13 @@ class BackupTest {
         assertEquals(listOf(marker), importing.observeMarkers().first())
         assertEquals(listOf(period), importing.observePeriods().first())
         assertEquals(listOf("Cancelled Lab"), importing.observeHiddenCalendarEvents().first().map { it.title })
+    }
+
+    @Test
+    fun aBackupFromBeforeTheRenameStillGivesEventsTheirCreationTime() {
+        val text = """{"vantageBackup":1,"exportedAt":"2026-11-01T00:00:00Z","events":[{"id":"e1","source":{"type":"local"},"format":"directory.evnt.event","addedAt":"2026-10-01T09:00:00Z"}]}"""
+
+        assertEquals(Instant.parse("2026-10-01T09:00:00Z"), Backup.fromJson(text).events.single().createdAt)
     }
 
     @Test
