@@ -12,6 +12,7 @@ private val SETTINGS_PAGES = mapOf(
     "appearance" to Route.AppearanceSettings,
     "notifications" to Route.NotificationSettings,
     "backup" to Route.BackupSettings,
+    "sync" to Route.SyncSettings,
     "home" to Route.HomeSettings,
     "tags" to Route.TagSettings,
     "calendars" to Route.SystemCalendarSettings,
@@ -34,7 +35,7 @@ val Route.webAddress: String?
         is Route.EventFromLink -> withQuery("/event", "url" to intent.url, "at" to intent.at, "data" to intent.data)
         is Route.CreateEvent -> withQuery("/new", "text" to sharedText, "day" to day?.toString())
         Route.Setup -> "/setup"
-        Route.AppearanceSettings, Route.NotificationSettings, Route.BackupSettings,
+        Route.AppearanceSettings, Route.NotificationSettings, Route.BackupSettings, Route.SyncSettings,
         Route.HomeSettings, Route.TagSettings, Route.SystemCalendarSettings, Route.FollowingSettings, Route.About, Route.DeveloperTools -> "/settings/" + SETTINGS_PAGES.entries.first { it.value == this }.key
         is Route.Feed -> when (val feed = feed) {
             is EventFeed.OpenEvntIndex -> withQuery("/feed", "type" to "index", "url" to feed.url)

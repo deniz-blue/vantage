@@ -43,6 +43,8 @@ import blue.deniz.vantage.storage.EventStore
 import blue.deniz.vantage.storage.MoveFolioEditTokensToCredentials
 import blue.deniz.vantage.storage.VantageDatabase
 import io.ktor.client.HttpClient
+import blue.deniz.vantage.core.SmallsyncClient
+import blue.deniz.vantage.storage.StoreSync
 import io.ktor.client.engine.okhttp.OkHttp
 import okhttp3.Cache
 import java.util.IllformedLocaleException
@@ -173,8 +175,9 @@ fun createAppState(context: Context, backgroundChecks: BackgroundEventChecks? = 
     }
     val resolver = EventResolver(EventFetcher(client))
     val previews = EventPreviews(resolver)
+    val store = EventStore(database, resolver, FolioClient(client))
     return AppState(
-        EventStore(database, resolver, FolioClient(client)),
+        store,
         EventFeedReader(client, resolver, previews = previews, snapshots = StoredFeedSnapshots(settingsStorage::read, settingsStorage::write, resolver)),
         previews,
         PlaceSearch(client),
@@ -184,6 +187,7 @@ fun createAppState(context: Context, backgroundChecks: BackgroundEventChecks? = 
         AndroidDeviceCalendars(context),
         AndroidPhoneCalendarCopy(context),
         backgroundChecks,
+        storeSync = StoreSync(database, store, SmallsyncClient(client)),
     )
 }
 

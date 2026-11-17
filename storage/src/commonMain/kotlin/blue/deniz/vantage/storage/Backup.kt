@@ -73,14 +73,12 @@ internal fun documentOf(raw: String): JsonElement = try {
     JsonPrimitive(raw)
 }
 
-internal val BackupEvent.raw: String?
-    get() = when (val document = document) {
-        null -> null
-        is JsonPrimitive -> if (document.isString) document.content else document.toString()
-        else -> document.toString()
-    }
+internal fun rawOf(document: JsonElement): String =
+    if (document is JsonPrimitive && document.isString) document.content else document.toString()
 
-internal fun EventSource.isKeptInBackup() = when (this) {
+internal val BackupEvent.raw: String? get() = document?.let(::rawOf)
+
+internal fun EventSource.isPortable() = when (this) {
     is EventSource.Calendar -> false
     is EventSource.Local -> !isTestEvent
     else -> true

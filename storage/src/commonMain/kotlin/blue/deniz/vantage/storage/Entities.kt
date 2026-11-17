@@ -117,3 +117,17 @@ data class HiddenCalendarEventEntity(@PrimaryKey val source: EventSource, val ti
 
 @Entity(tableName = "periods", indices = [Index("startsAt"), Index("endsAt")])
 data class PeriodEntity(@PrimaryKey val id: String, val label: String, val start: PartialDate, val end: PartialDate, val startsAt: Instant, val endsAt: Instant)
+
+@Entity(tableName = "sync_store")
+data class SyncStoreEntity(
+    @PrimaryKey val url: String,
+    val token: String,
+    val storeUuid: String?,
+    val lastSeq: Long,
+    val lastSyncedAt: Instant?,
+)
+
+@Entity(tableName = "synced_records", primaryKeys = ["type", "id"])
+data class SyncedRecordEntity(val type: String, val id: String, val value: String, val isAppliedHere: Boolean)
+
+data class SyncedRecordCount(val type: String, val count: Int)

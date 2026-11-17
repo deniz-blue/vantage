@@ -102,6 +102,7 @@ import blue.deniz.vantage.app.screens.HomeSettingsScreen
 import blue.deniz.vantage.app.screens.AppearanceSettingsScreen
 import blue.deniz.vantage.app.screens.NotificationSettingsScreen
 import blue.deniz.vantage.app.screens.BackupSettingsScreen
+import blue.deniz.vantage.app.screens.SyncSettingsScreen
 import blue.deniz.vantage.app.screens.SetupScreen
 import blue.deniz.vantage.app.screens.SettingsScreen
 import blue.deniz.vantage.app.screens.TagSettingsScreen
@@ -233,6 +234,7 @@ fun VantageApp(state: AppState) {
                                                     Route.AppearanceSettings -> AppearanceSettingsScreen(state)
                                                     Route.NotificationSettings -> NotificationSettingsScreen(state)
                                                     Route.BackupSettings -> BackupSettingsScreen(state)
+                                                    Route.SyncSettings -> SyncSettingsScreen(state)
                                                     Route.Setup -> SetupScreen(state)
                                                     Route.HomeSettings -> HomeSettingsScreen(state)
                                                     Route.TagSettings -> TagSettingsScreen(state)

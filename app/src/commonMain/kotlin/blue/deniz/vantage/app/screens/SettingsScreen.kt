@@ -138,6 +138,19 @@ fun SettingsScreen(state: AppState) {
             }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {
+            state.storeSync?.let { sync ->
+                val reading = collectAcrossSession("store sync status", sync) { sync.observeStatusReadings() }
+                val status = reading?.status
+                SubpageRow(
+                    "Sync",
+                    AppIcons.Cloud,
+                    supporting = when {
+                        reading == null -> null
+                        status == null -> "Off"
+                        else -> "${storeLabel(status.storeUrl).substringBefore('/')} · ${status.problem ?: if (status.lastSyncedAt == null) "Not Synced Yet" else "Up to Date"}"
+                    },
+                ) { state.navigator.open(Route.SyncSettings) }
+            }
             SubpageRow("Backup", AppIcons.Database, supporting = "Export and import") { state.navigator.open(Route.BackupSettings) }
         }
         ListSection(Modifier.padding(top = Spacing.md)) {

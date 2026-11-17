@@ -8,6 +8,7 @@ import androidx.room3.Query
 import androidx.room3.RawQuery
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
+import androidx.room3.Update
 import androidx.room3.Upsert
 import blue.deniz.vantage.core.EventFormat
 import blue.deniz.vantage.core.EventSource
@@ -21,6 +22,9 @@ abstract class EventDao {
 
     @Query("UPDATE events SET format = :format WHERE id = :id")
     abstract suspend fun updateFormat(id: String, format: EventFormat)
+
+    @Update
+    abstract suspend fun updateEvent(event: EventEntity)
 
     @Query("UPDATE events SET source = :source WHERE id = :id")
     abstract suspend fun updateSource(id: String, source: EventSource)
@@ -135,6 +139,18 @@ interface TagDao {
     @Query("SELECT * FROM tags WHERE id = :id")
     suspend fun find(id: String): TagEntity?
 
+    @Query("SELECT * FROM tags")
+    suspend fun all(): List<TagEntity>
+
+    @Query("SELECT * FROM tag_parents")
+    suspend fun allParentLinks(): List<TagParentEntity>
+
+    @Query("SELECT * FROM event_tags")
+    suspend fun allEventLinks(): List<EventTagEntity>
+
+    @Query("DELETE FROM tag_parents WHERE childId = :tagId")
+    suspend fun removeParentsOf(tagId: String)
+
     @Upsert
     suspend fun upsert(tag: TagEntity)
 
@@ -186,6 +202,9 @@ interface CredentialDao {
     @Query("SELECT * FROM credentials WHERE substr(:url, 1, length(url)) = url ORDER BY length(url) DESC")
     suspend fun matching(url: String): List<CredentialEntity>
 
+    @Query("SELECT * FROM credentials")
+    suspend fun all(): List<CredentialEntity>
+
     @Query("SELECT * FROM credentials WHERE url = :url")
     suspend fun findByUrl(url: String): CredentialEntity?
 
@@ -200,6 +219,9 @@ interface CredentialDao {
 interface MarkerDao {
     @Query("SELECT * FROM markers ORDER BY atInstant")
     fun observeAll(): Flow<List<MarkerEntity>>
+
+    @Query("SELECT * FROM markers")
+    suspend fun all(): List<MarkerEntity>
 
     @Query("SELECT * FROM markers WHERE id = :id")
     suspend fun find(id: String): MarkerEntity?
@@ -234,6 +256,9 @@ interface PeriodDao {
     @Query("SELECT * FROM periods ORDER BY startsAt")
     fun observeAll(): Flow<List<PeriodEntity>>
 
+    @Query("SELECT * FROM periods")
+    suspend fun all(): List<PeriodEntity>
+
     @Query("SELECT * FROM periods WHERE id = :id")
     suspend fun find(id: String): PeriodEntity?
 
@@ -242,4 +267,34 @@ interface PeriodDao {
 
     @Query("DELETE FROM periods WHERE id = :id")
     suspend fun delete(id: String)
+}
+
+@Dao
+interface SyncDao {
+    @Query("SELECT * FROM sync_store LIMIT 1")
+    suspend fun store(): SyncStoreEntity?
+
+    @Query("SELECT * FROM sync_store LIMIT 1")
+    fun observeStore(): Flow<SyncStoreEntity?>
+
+    @Upsert
+    suspend fun saveStore(store: SyncStoreEntity)
+
+    @Query("DELETE FROM sync_store")
+    suspend fun deleteStore()
+
+    @Query("SELECT * FROM synced_records")
+    suspend fun allRecords(): List<SyncedRecordEntity>
+
+    @Query("SELECT type, COUNT(*) AS count FROM synced_records GROUP BY type")
+    fun observeRecordCounts(): Flow<List<SyncedRecordCount>>
+
+    @Upsert
+    suspend fun saveRecords(records: List<SyncedRecordEntity>)
+
+    @Query("DELETE FROM synced_records WHERE type = :type AND id = :id")
+    suspend fun deleteRecord(type: String, id: String)
+
+    @Query("DELETE FROM synced_records")
+    suspend fun deleteAllRecords()
 }

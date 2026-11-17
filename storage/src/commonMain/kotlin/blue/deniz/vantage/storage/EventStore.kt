@@ -90,7 +90,7 @@ class EventStore(
             testEventsShownState.value = value
         }
 
-    private fun cacheOf(id: String, event: ResolvedEvent) = EventCacheEntity(
+    internal fun cacheOf(id: String, event: ResolvedEvent) = EventCacheEntity(
         eventId = id,
         raw = event.raw,
         data = event.data,
@@ -101,7 +101,7 @@ class EventStore(
         fetchedAt = event.updatedAt,
     )
 
-    private fun timeRangesOf(id: String, event: ResolvedEvent) =
+    internal fun timeRangesOf(id: String, event: ResolvedEvent) =
         event.data?.timeRanges().orEmpty().map { EventTimeRangeEntity(id, it.start, it.end) }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -427,7 +427,7 @@ class EventStore(
         val parentIdsByTag = tags.observeParents().first().groupBy({ it.childId }, { it.parentId })
         return Backup(
             exportedAt = clock.now(),
-            events = events.allEvents().filter { it.event.source.isKeptInBackup() }.map { stored ->
+            events = events.allEvents().filter { it.event.source.isPortable() }.map { stored ->
                 BackupEvent(
                     id = stored.event.id,
                     source = stored.event.source,
@@ -448,7 +448,7 @@ class EventStore(
         backup.tags.forEach { tags.upsert(TagEntity(it.id, it.name, it.color, it.updatedAt)) }
         val tagIds = tags.observeAll().first().mapTo(HashSet()) { it.id }
         backup.tags.forEach { tag -> tag.parents.filter { it in tagIds }.forEach { tags.addParent(TagParentEntity(it, tag.id)) } }
-        for (event in backup.events.filter { it.source.isKeptInBackup() }) {
+        for (event in backup.events.filter { it.source.isPortable() }) {
             val resolved = resolver.parse(
                 ResolvedEvent(
                     id = event.id,

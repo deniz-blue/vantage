@@ -51,6 +51,12 @@ import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
 import blue.deniz.vantage.storage.Backup
 import blue.deniz.vantage.storage.EventStore
+import blue.deniz.vantage.storage.StoreSync
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.merge
 import io.ktor.http.parseUrl
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
@@ -62,7 +68,10 @@ import blue.deniz.vantage.ui.HeldKeys
 import blue.deniz.vantage.ui.handleEscapeKey
 
 private val PHONE_CALENDAR_COPY_DELAY = 2.seconds
+private val STORE_SYNC_INTERVAL = 30.seconds
+private val STORE_SYNC_DELAY = 2.seconds
 
+@OptIn(FlowPreview::class)
 @Stable
 class AppState(
     val store: EventStore,
@@ -75,6 +84,7 @@ class AppState(
     deviceCalendars: DeviceCalendars?,
     val phoneCalendarCopy: PhoneCalendarCopy? = null,
     val backgroundChecks: BackgroundEventChecks? = null,
+    val storeSync: StoreSync? = null,
     val clock: Clock = Clock.System,
 ) {
     val navigator = Navigator()
@@ -120,6 +130,17 @@ class AppState(
             while (true) {
                 loadCatching { store.refreshDueRemoteEvents() }
                 delay(SHORTEST_REFRESH_INTERVAL)
+            }
+        }
+        storeSync?.let { sync ->
+            appScope.launch {
+                val ticks = flow {
+                    while (true) {
+                        emit(Unit)
+                        delay(STORE_SYNC_INTERVAL)
+                    }
+                }
+                merge(ticks, sync.observeLocalChanges().debounce(STORE_SYNC_DELAY)).conflate().collect { sync.sync() }
             }
         }
         appScope.launch {

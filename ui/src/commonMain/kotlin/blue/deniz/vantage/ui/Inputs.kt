@@ -106,6 +106,7 @@ fun TextInput(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     container: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     val interactions = remember { MutableInteractionSource() }
     val focused by interactions.collectIsFocusedAsState()
@@ -150,6 +151,7 @@ fun TextInput(
             maxLines = maxLines,
             minLines = minLines,
             interactionSource = interactions,
+            visualTransformation = visualTransformation,
             decorationBox = { innerTextField ->
                 Row(Modifier.background(container, InputShape).heightIn(min = ControlHeight.lg), verticalAlignment = Alignment.CenterVertically) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
@@ -160,7 +162,7 @@ fun TextInput(
                                 innerTextField = innerTextField,
                                 enabled = true,
                                 singleLine = singleLine,
-                                visualTransformation = VisualTransformation.None,
+                                visualTransformation = visualTransformation,
                                 interactionSource = interactions,
                                 isError = showsError,
                                 placeholder = placeholder?.let { { Text(it, style = textStyle, maxLines = 1) } },

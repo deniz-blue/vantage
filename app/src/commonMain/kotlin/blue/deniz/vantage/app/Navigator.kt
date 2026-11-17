@@ -24,6 +24,7 @@ sealed interface Route {
     data object AppearanceSettings : Route
     data object NotificationSettings : Route
     data object BackupSettings : Route
+    data object SyncSettings : Route
     data object Setup : Route
     data object HomeSettings : Route
     data object TagSettings : Route

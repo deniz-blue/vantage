@@ -16,6 +16,8 @@ import blue.deniz.vantage.core.CalendarLinkReader
 import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
 import blue.deniz.vantage.storage.EventStore
+import blue.deniz.vantage.storage.StoreSync
+import blue.deniz.vantage.core.SmallsyncClient
 import blue.deniz.vantage.storage.MoveFolioEditTokensToCredentials
 import blue.deniz.vantage.storage.VantageDatabase
 import blue.deniz.vantage.ui.BrowserBackDispatcher
@@ -51,8 +53,9 @@ fun main() {
     val client = browserHttpClient()
     val resolver = EventResolver(EventFetcher(client))
     val previews = EventPreviews(resolver)
+    val store = EventStore(database, resolver, FolioClient(client))
     val state = AppState(
-        EventStore(database, resolver, FolioClient(client)),
+        store,
         EventFeedReader(client, resolver, previews = previews, snapshots = StoredFeedSnapshots(BrowserLocalStorage::read, BrowserLocalStorage::write, resolver)),
         previews,
         PlaceSearch(client),
@@ -60,6 +63,7 @@ fun main() {
         BrowserLocalStorage,
         CalendarLinkReader(client),
         deviceCalendars = null,
+        storeSync = StoreSync(database, store, SmallsyncClient(client)),
     )
     state.openLink(window.location.href)
     keepKeyboardFocusOnCompose()
