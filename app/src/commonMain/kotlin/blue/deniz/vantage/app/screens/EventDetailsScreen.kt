@@ -67,6 +67,11 @@ import directory.evnt.sortedByStart
 import blue.deniz.vantage.app.AppState
 import blue.deniz.vantage.app.Route
 import blue.deniz.vantage.ui.FailureRow
+import blue.deniz.vantage.storage.PendingUploadKind
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import blue.deniz.vantage.ui.Icon
+import blue.deniz.vantage.ui.Radius
 import blue.deniz.vantage.app.ui.describe
 import blue.deniz.vantage.app.rememberShareText
 import blue.deniz.vantage.ui.AppIcons
@@ -150,7 +155,10 @@ fun EventDetailsScreen(state: AppState, id: String) {
             IconButton(AppIcons.DotsVertical, "More", onClick = { current?.let(state::openActionsSheet) ?: state.openActionsSheet(id) })
         },
         tags = { EventTags(state, id) },
-        changes = { UnseenChanges(state, id) },
+        changes = {
+            PendingUploadRow(state, id)
+            UnseenChanges(state, id)
+        },
         onRefresh = if (current?.source is EventSource.Remote) ::refresh else null,
         refreshing = refreshing,
     )
@@ -161,6 +169,51 @@ private fun ShareButton(source: EventSource?) {
     val share = rememberShareText()
     val link = source?.let(EventsLink::shareLinkTo) ?: return
     IconButton(AppIcons.Share, "Share", onClick = { share(link) })
+}
+
+@Composable
+private fun PendingUploadRow(state: AppState, id: String) {
+    val pending = collectAcrossSession("pending upload $id", id) { state.store.observePendingUpload(id) } ?: return
+    val scope = rememberCoroutineScope()
+    var retrying by remember(id) { mutableStateOf(false) }
+
+    fun retry() {
+        if (retrying) return
+        retrying = true
+        scope.launch {
+            try {
+                state.store.retryUpload(id)
+            } finally {
+                retrying = false
+            }
+        }
+    }
+
+    if (pending.isStuck) {
+        FailureRow("Folio Refused: ${pending.problem}", ::retry, retrying = retrying)
+        Button(
+            if (pending.kind == PendingUploadKind.Create) "Keep on This Device" else "Discard Edit",
+            onClick = { scope.launch { state.store.discardPendingUpload(id) } },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        return
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(Radius.md))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(start = Spacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+    ) {
+        Icon(AppIcons.CloudOff, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(Modifier.weight(1f).padding(vertical = Spacing.sm)) {
+            Text("Not Uploaded", style = MaterialTheme.typography.bodyMedium)
+            pending.problem?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall) }
+        }
+        IconButton(AppIcons.Refresh, if (retrying) "Retrying" else "Retry", onClick = ::retry, enabled = !retrying, busy = retrying)
+    }
 }
 
 @Composable

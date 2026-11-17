@@ -131,3 +131,17 @@ data class SyncStoreEntity(
 data class SyncedRecordEntity(val type: String, val id: String, val value: String, val isAppliedHere: Boolean)
 
 data class SyncedRecordCount(val type: String, val count: Int)
+
+enum class PendingUploadKind { Create, Replace }
+
+@Entity(
+    tableName = "pending_uploads",
+    foreignKeys = [ForeignKey(EventEntity::class, ["id"], ["eventId"], onDelete = ForeignKey.CASCADE)],
+)
+data class PendingUploadEntity(
+    @PrimaryKey val eventId: String,
+    val kind: PendingUploadKind,
+    val queuedAt: Instant,
+    val problem: String? = null,
+    val isStuck: Boolean = false,
+)

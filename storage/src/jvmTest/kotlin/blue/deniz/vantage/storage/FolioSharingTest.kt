@@ -26,11 +26,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
+import java.io.IOException
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 private const val FOLIO = "https://folio.test"
@@ -41,8 +43,10 @@ private class FakeFolio {
     val documents = mutableMapOf<String, String>()
     val requests = mutableListOf<String>()
     var refusesUploads = false
+    var isUnreachable = false
 
     fun MockRequestHandleScope.answer(request: HttpRequestData) = when {
+        isUnreachable -> throw IOException("Unable to resolve host")
         request.method == HttpMethod.Post && refusesUploads ->
             respond("""{"error":"Invalid evnt schema payload","details":[{"path":["name"],"message":"Required"}]}""", HttpStatusCode.BadRequest)
         request.method == HttpMethod.Post && request.url.toString() == "$FOLIO/events" -> {
@@ -153,5 +157,62 @@ class FolioSharingTest {
         val id = store.addTestEvent(made("Test"))
         assertFailsWith<IllegalStateException> { store.uploadToFolio(id) }
         assertEquals(emptyList(), folio.requests)
+    }
+
+    @Test
+    fun anEditMadeWithoutAConnectionIsKeptAndUploadedLater() = runTest {
+        val id = store.addLocal(made("Movie night"))
+        store.uploadToFolio(id)
+        folio.isUnreachable = true
+
+        store.saveEdited(id, made("Movie night, moved"))
+        store.refresh(id)
+        store.uploadPending()
+
+        assertEquals("Movie night, moved", store.find(id)?.data?.name?.get("en"))
+        assertEquals("Unable to resolve host", store.observePendingUpload(id).first()?.problem)
+        folio.isUnreachable = false
+        store.uploadPending()
+        assertEquals(listOf("POST", "PUT"), folio.requests)
+        assertTrue(folio.documents.getValue(SHARED_URL).contains("Movie night, moved"))
+        assertNull(store.observePendingUpload(id).first())
+    }
+
+    @Test
+    fun anEventMadeOnFolioWithoutAConnectionBecomesAFolioEventOnceUploaded() = runTest {
+        folio.isUnreachable = true
+        val id = store.addToFolio(made("Movie night"))
+        store.saveEdited(id, made("Movie night, moved"))
+        assertEquals(EventSource.Local(), store.find(id)?.source)
+        assertEquals(PendingUploadKind.Create, store.observePendingUpload(id).first()?.kind)
+
+        folio.isUnreachable = false
+        store.uploadPending()
+
+        val uploaded = assertNotNull(store.find(id))
+        assertEquals(EventSource.Folio("f1", FOLIO), uploaded.source)
+        assertEquals(EDIT_TOKEN, uploaded.editToken)
+        assertEquals(listOf("POST"), folio.requests)
+        assertTrue(folio.documents.getValue(SHARED_URL).contains("Movie night, moved"))
+        assertNull(store.observePendingUpload(id).first())
+    }
+
+    @Test
+    fun anEditRefusedOnceTheConnectionIsBackStopsRetryingAndCanBeDiscarded() = runTest {
+        folio.documents[SHARED_URL] = """{"v":"0.2","id":"$SHARED_URL","name":{"en":"Movie night"},"occurrences":[{"start":"2026-11-07T19:00[Europe/Vilnius]"}]}"""
+        val id = store.add(store.resolver.resolve(ResolvedEvent(source = EventSource.Folio("f1", FOLIO), format = EventFormat.OpenEvnt, editToken = "wrong")))
+        folio.isUnreachable = true
+        store.saveEdited(id, made("Hijacked"))
+        folio.isUnreachable = false
+
+        store.uploadPending()
+        val refused = assertNotNull(store.observePendingUpload(id).first())
+        assertTrue(refused.isStuck)
+        assertEquals("Invalid edit token", refused.problem)
+        assertEquals("Hijacked", store.find(id)?.data?.name?.get("en"))
+
+        store.discardPendingUpload(id)
+        assertNull(store.observePendingUpload(id).first())
+        assertEquals("Movie night", store.find(id)?.data?.name?.get("en"))
     }
 }

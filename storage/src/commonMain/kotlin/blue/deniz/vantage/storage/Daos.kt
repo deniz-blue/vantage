@@ -298,3 +298,30 @@ interface SyncDao {
     @Query("DELETE FROM synced_records")
     suspend fun deleteAllRecords()
 }
+
+@Dao
+interface PendingUploadDao {
+    @Query("SELECT * FROM pending_uploads ORDER BY queuedAt")
+    suspend fun all(): List<PendingUploadEntity>
+
+    @Query("SELECT * FROM pending_uploads WHERE eventId = :eventId")
+    suspend fun find(eventId: String): PendingUploadEntity?
+
+    @Query("SELECT * FROM pending_uploads WHERE eventId = :eventId")
+    fun observe(eventId: String): Flow<PendingUploadEntity?>
+
+    @Query("SELECT eventId FROM pending_uploads")
+    fun observeEventIds(): Flow<List<String>>
+
+    @Upsert
+    suspend fun save(upload: PendingUploadEntity)
+
+    @Query("DELETE FROM pending_uploads WHERE eventId = :eventId")
+    suspend fun delete(eventId: String)
+
+    @Query("DELETE FROM pending_uploads WHERE eventId = :eventId AND queuedAt = :queuedAt")
+    suspend fun deleteIfQueuedAt(eventId: String, queuedAt: Instant)
+
+    @Query("UPDATE pending_uploads SET kind = :kind WHERE eventId = :eventId")
+    suspend fun changeKind(eventId: String, kind: PendingUploadKind)
+}

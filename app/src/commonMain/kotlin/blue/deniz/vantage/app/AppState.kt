@@ -70,6 +70,7 @@ import blue.deniz.vantage.ui.handleEscapeKey
 private val PHONE_CALENDAR_COPY_DELAY = 2.seconds
 private val STORE_SYNC_INTERVAL = 30.seconds
 private val STORE_SYNC_DELAY = 2.seconds
+private val PENDING_UPLOAD_INTERVAL = 30.seconds
 
 @OptIn(FlowPreview::class)
 @Stable
@@ -130,6 +131,12 @@ class AppState(
             while (true) {
                 loadCatching { store.refreshDueRemoteEvents() }
                 delay(SHORTEST_REFRESH_INTERVAL)
+            }
+        }
+        appScope.launch {
+            while (true) {
+                loadCatching { store.uploadPending() }
+                delay(PENDING_UPLOAD_INTERVAL)
             }
         }
         storeSync?.let { sync ->

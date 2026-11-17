@@ -7,6 +7,7 @@ import blue.deniz.vantage.core.isDueForRefresh
 import blue.deniz.vantage.core.CalendarEntry
 import blue.deniz.vantage.core.CalendarMarker
 import blue.deniz.vantage.core.CalendarPeriod
+import blue.deniz.vantage.core.EventException
 import blue.deniz.vantage.core.EventFormat
 import blue.deniz.vantage.core.EventResolver
 import blue.deniz.vantage.core.EventSource
@@ -20,6 +21,7 @@ import blue.deniz.vantage.core.SubscribedCalendar
 import blue.deniz.vantage.core.timeRanges
 import directory.evnt.OpenEvnt
 import directory.evnt.translate
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +29,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -35,6 +39,12 @@ private fun ResolvedEvent.withEditTokenFrom(credentials: List<CredentialEntity>)
     val source = source as? EventSource.Folio ?: return this
     val secret = credentials.firstOrNull { it.url == source.location }?.secret as? CredentialSecret.Token
     return copy(editToken = secret?.token)
+}
+
+private fun Exception.meansNoAnswer(): Boolean = when (this) {
+    is EventException -> error.status.let { it != null && (it >= 500 || it == 408 || it == 429) }
+    is IllegalStateException, is IllegalArgumentException -> false
+    else -> true
 }
 
 internal fun StoredEvent.toResolvedEvent() = ResolvedEvent(
@@ -82,6 +92,8 @@ class EventStore(
     private val tags get() = database.tags()
     private val hiddenCalendarEvents get() = database.hiddenCalendarEvents()
     private val credentials get() = database.credentials()
+    private val pendingUploads get() = database.pendingUploads()
+    private val uploading = Mutex()
     private val testEventsShownState = MutableStateFlow(false)
 
     var testEventsShown: Boolean
@@ -171,7 +183,12 @@ class EventStore(
     suspend fun addTestEvent(data: OpenEvnt): String = add(localEventOf(data, isTestEvent = true))
 
     suspend fun addToFolio(data: OpenEvnt): String {
-        val uploaded = folio.create(data.toJson().toString())
+        val uploaded = try {
+            folio.create(data.toJson().toString())
+        } catch (failed: Exception) {
+            if (!failed.meansNoAnswer()) throw failed
+            return addLocal(data).also { queueUpload(it, PendingUploadKind.Create, failed) }
+        }
         return add(resolver.resolve(ResolvedEvent(source = uploaded.source, format = EventFormat.OpenEvnt, editToken = uploaded.editToken)))
     }
 
@@ -249,31 +266,108 @@ class EventStore(
     suspend fun saveEdited(id: String, data: OpenEvnt) {
         val stored = checkNotNull(events.findEvent(id)) { "No event with id $id" }
         when (val source = stored.event.source) {
-            is EventSource.Local -> save(localEventOf(data).copy(id = id))
-            is EventSource.Folio -> save(savedOnFolio(id, source, data))
+            is EventSource.Local -> {
+                save(localEventOf(data).copy(id = id))
+                if (pendingUploads.find(id) != null) queueUpload(id, PendingUploadKind.Create)
+            }
+            is EventSource.Folio -> saveEditedOnFolio(id, source, data)
             else -> error("Only an event made on this device can be edited")
         }
     }
 
-    private suspend fun savedOnFolio(id: String, source: EventSource.Folio, data: OpenEvnt): ResolvedEvent {
+    private suspend fun saveEditedOnFolio(id: String, source: EventSource.Folio, data: OpenEvnt) {
         val editToken = checkNotNull(storedEditTokenOf(source)) { "This event has no editing token here" }
-        val raw = folio.replace(source, editToken, data.toJson().toString())
-        return resolver.parse(ResolvedEvent(id, source, EventFormat.OpenEvnt, raw, updatedAt = clock.now()))
+        val json = data.toJson().toString()
+        if (pendingUploads.find(id) != null) {
+            save(folioEventOf(id, source, json))
+            queueUpload(id, PendingUploadKind.Replace)
+            return
+        }
+        try {
+            save(folioEventOf(id, source, folio.replace(source, editToken, json)))
+        } catch (failed: Exception) {
+            if (!failed.meansNoAnswer()) throw failed
+            save(folioEventOf(id, source, json))
+            queueUpload(id, PendingUploadKind.Replace, failed)
+        }
     }
 
-    suspend fun uploadToFolio(id: String): EventSource.Folio {
+    private fun folioEventOf(id: String, source: EventSource.Folio, raw: String): ResolvedEvent =
+        resolver.parse(ResolvedEvent(id, source, EventFormat.OpenEvnt, raw, updatedAt = clock.now()))
+
+    suspend fun uploadToFolio(id: String): EventSource.Folio = uploading.withLock {
         val stored = checkNotNull(events.findEvent(id)) { "No event with id $id" }
+        (stored.event.source as? EventSource.Folio)?.let { return@withLock it }
         check(stored.event.source.canUploadToFolio) { "Only an event made on this device can be uploaded" }
-        val raw = checkNotNull(stored.cache?.raw) { "This event has no data to upload" }
+        createOnFolio(id, checkNotNull(stored.cache?.raw) { "This event has no data to upload" }, pendingUploads.find(id)?.queuedAt)
+    }
+
+    private suspend fun createOnFolio(id: String, raw: String, queuedAt: Instant?): EventSource.Folio {
         val uploaded = folio.create(raw)
         events.updateSource(id, uploaded.source)
         uploaded.editToken?.let { saveEditToken(uploaded.source, it) }
+        if (queuedAt != null) pendingUploads.deleteIfQueuedAt(id, queuedAt)
+        pendingUploads.changeKind(id, PendingUploadKind.Replace)
         refresh(id)
         return uploaded.source
     }
 
+    private suspend fun queueUpload(eventId: String, kind: PendingUploadKind, failed: Exception? = null) {
+        val queuedKind = if (pendingUploads.find(eventId)?.kind == PendingUploadKind.Create) PendingUploadKind.Create else kind
+        pendingUploads.save(PendingUploadEntity(eventId, queuedKind, clock.now(), failed?.message))
+    }
+
+    fun observePendingUpload(eventId: String): Flow<PendingUploadEntity?> = pendingUploads.observe(eventId)
+
+    fun observePendingUploadIds(): Flow<Set<String>> = pendingUploads.observeEventIds().map { it.toSet() }
+
+    suspend fun uploadPending() = uploading.withLock {
+        for (pending in pendingUploads.all()) {
+            if (pending.isStuck) continue
+            try {
+                upload(pending)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failed: Exception) {
+                val current = pendingUploads.find(pending.eventId) ?: continue
+                pendingUploads.save(current.copy(problem = failed.message ?: "No answer", isStuck = !failed.meansNoAnswer()))
+            }
+        }
+    }
+
+    private suspend fun upload(pending: PendingUploadEntity) {
+        val id = pending.eventId
+        val stored = events.findEvent(id) ?: return pendingUploads.delete(id)
+        val raw = checkNotNull(stored.cache?.raw) { "This event has no data to upload" }
+        val source = stored.event.source
+        when {
+            source is EventSource.Folio -> {
+                val editToken = checkNotNull(storedEditTokenOf(source)) { "This event has no editing token here" }
+                val answer = folio.replace(source, editToken, raw)
+                if (pendingUploads.find(id)?.queuedAt != pending.queuedAt) return
+                save(folioEventOf(id, source, answer))
+                pendingUploads.deleteIfQueuedAt(id, pending.queuedAt)
+            }
+            source.canUploadToFolio -> createOnFolio(id, raw, pending.queuedAt)
+            else -> pendingUploads.delete(id)
+        }
+    }
+
+    suspend fun retryUpload(eventId: String) {
+        val pending = pendingUploads.find(eventId) ?: return
+        pendingUploads.save(pending.copy(isStuck = false))
+        uploadPending()
+    }
+
+    suspend fun discardPendingUpload(eventId: String) {
+        val pending = pendingUploads.find(eventId) ?: return
+        pendingUploads.delete(eventId)
+        if (pending.kind == PendingUploadKind.Replace) refresh(eventId)
+    }
+
     suspend fun refresh(id: String): ResolvedEvent? {
         val stored = events.findEvent(id) ?: return null
+        if (pendingUploads.find(id) != null) return stored.toResolvedEvent()
         val refreshed = resolver.refresh(stored.toResolvedEvent())
         events.updateFormat(id, refreshed.format)
         events.saveCacheKeepingSeenVersion(cacheOf(id, refreshed), timeRangesOf(id, refreshed), replacedAt = clock.now())
