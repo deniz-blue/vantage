@@ -5,10 +5,14 @@ import blue.deniz.vantage.app.ui.shownOccurrence
 import blue.deniz.vantage.core.CalendarMarker
 import blue.deniz.vantage.core.CalendarPeriod
 import blue.deniz.vantage.core.ResolvedEvent
+import blue.deniz.vantage.core.sortsAt
 import directory.evnt.PartialDate
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
@@ -120,11 +124,13 @@ fun agendaOf(
     }
 
     fun place(start: PartialDate?, row: AgendaRow) {
+        val isExact = start is PartialDate.Day || start is PartialDate.Time
         val startDay = start?.let(formatting::firstDayOf)
-        val startedBeforeToday = hasPastPart && upcomingStartRow >= 0 && startDay != null && startDay < today
+        val startedBeforeToday = hasPastPart && upcomingStartRow >= 0 && isExact && startDay != null && startDay < today
         val firstDay = if (startedBeforeToday) today else startDay
-        val exactDay = firstDay?.takeIf { startedBeforeToday || start is PartialDate.Day || start is PartialDate.Time }
-        if (!todayPlaced && (firstDay == null || firstDay >= today)) {
+        val exactDay = firstDay?.takeIf { isExact }
+        val rowDay = if (isExact) firstDay else start?.let(formatting::lastDayOf)
+        if (!todayPlaced && (rowDay == null || rowDay >= today)) {
             if (dayLabels && exactDay == today) todayPlaced = true else placeToday()
         }
         val heading = if (startedBeforeToday) monthHeadingOf(today, today) else headingOf(start, firstDay, today)
@@ -134,7 +140,7 @@ fun agendaOf(
             exactDay != null -> addDayLabel(exactDay)
             else -> labelledDay = null
         }
-        add(row, firstDay)
+        add(row, rowDay)
     }
 
     fun placeMarksBefore(instant: Instant?) {
@@ -157,7 +163,7 @@ fun agendaOf(
     for ((index, event) in events.withIndex()) {
         if (index == (upcomingFrom ?: 0)) startUpcoming()
         val start = startOf(event)
-        placeMarksBefore(start?.startInstant)
+        placeMarksBefore(start?.sortsAt)
         place(start, AgendaRow.Event(event))
     }
     if (upcomingStartRow < 0) startUpcoming()
@@ -201,6 +207,13 @@ private fun timesOf(rowDays: List<LocalDate?>, today: LocalDate): List<AgendaTim
 private fun EventFormatting.firstDayOf(start: PartialDate): LocalDate = when (start) {
     is PartialDate.Year -> LocalDate(start.year, 1, 1)
     is PartialDate.Month -> LocalDate(start.year, start.month, 1)
+    is PartialDate.Day -> start.toLocalDate()
+    is PartialDate.Time -> localDateOf(start)
+}
+
+private fun EventFormatting.lastDayOf(start: PartialDate): LocalDate = when (start) {
+    is PartialDate.Year -> LocalDate(start.year, 12, 31)
+    is PartialDate.Month -> LocalDate(start.year, start.month, 1).plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
     is PartialDate.Day -> start.toLocalDate()
     is PartialDate.Time -> localDateOf(start)
 }

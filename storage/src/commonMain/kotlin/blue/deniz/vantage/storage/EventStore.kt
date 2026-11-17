@@ -114,7 +114,7 @@ class EventStore(
     )
 
     internal fun timeRangesOf(id: String, event: ResolvedEvent) =
-        event.data?.timeRanges().orEmpty().map { EventTimeRangeEntity(id, it.start, it.end) }
+        event.data?.timeRanges().orEmpty().map { EventTimeRangeEntity(id, it.start, it.end, it.sortsAt) }
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun add(event: ResolvedEvent): String {

@@ -50,7 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import blue.deniz.vantage.core.backgroundSplashMedia
+import blue.deniz.vantage.core.shownSplashMedia
 import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.storage.TagEntity
@@ -194,7 +194,7 @@ fun EventCard(
 ) {
     val lines = remember(event.data, formatting, preferredLanguages) { event.data?.cardLines(formatting, preferredLanguages).orEmpty() }
     val status = remember(event.data) { event.data?.let { data -> data.statusOn(data.shownOccurrences().firstOrNull()) } }
-    val splash = remember(event.data) { event.data?.backgroundSplashMedia() }
+    val splash = remember(event.data) { event.data?.shownSplashMedia() }
     val hasTrailingControl = selection != EventCardSelection.NotSelecting || onOpenActions != null
     Card(
         modifier = modifier,

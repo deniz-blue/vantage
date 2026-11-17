@@ -1,5 +1,6 @@
 package blue.deniz.vantage.storage
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
@@ -44,7 +45,7 @@ data class EventCacheEntity(
     foreignKeys = [ForeignKey(EventEntity::class, ["id"], ["eventId"], onDelete = ForeignKey.CASCADE)],
     indices = [Index("startsAt"), Index("endsAt")],
 )
-data class EventTimeRangeEntity(val eventId: String, val startsAt: Instant, val endsAt: Instant)
+data class EventTimeRangeEntity(val eventId: String, val startsAt: Instant, val endsAt: Instant, @ColumnInfo(defaultValue = "0") val sortsAt: Instant)
 
 @Entity(
     tableName = "seen_event_versions",

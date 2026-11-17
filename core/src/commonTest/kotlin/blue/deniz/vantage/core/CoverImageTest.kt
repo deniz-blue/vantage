@@ -20,6 +20,16 @@ class CoverImageTest {
     }
 
     @Test
+    fun theShownMediaIsTheBackgroundThenTheBannerThenMediaWithoutRoles() {
+        val background = Media(listOf(Media.Source("https://a.example/background.jpg")))
+        val plain = Media(listOf(Media.Source("https://a.example/plain.jpg")))
+        assertEquals(background, event(Component.SplashMedia(banner, listOf("banner")), Component.SplashMedia(background, listOf("background"))).shownSplashMedia())
+        assertEquals(banner, event(Component.SplashMedia(plain), Component.SplashMedia(banner, listOf("banner"))).shownSplashMedia())
+        assertEquals(plain, event(Component.SplashMedia(poster, listOf("poster")), Component.SplashMedia(plain)).shownSplashMedia())
+        assertNull(event(Component.SplashMedia(poster, listOf("poster")), link).shownSplashMedia())
+    }
+
+    @Test
     fun settingACoverAddsBackgroundSplashMedia() {
         assertEquals(event(link, Component.SplashMedia(banner, listOf("background"))), event(link).withBackgroundSplashMedia(banner))
     }

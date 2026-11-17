@@ -2,17 +2,28 @@ package blue.deniz.vantage.core
 
 import directory.evnt.Occurrence
 import directory.evnt.OpenEvnt
+import directory.evnt.PartialDate
 import kotlin.time.Instant
 
-data class TimeRange(val start: Instant, val end: Instant) : Comparable<TimeRange> {
+data class TimeRange(val start: Instant, val end: Instant, val sortsAt: Instant = start) : Comparable<TimeRange> {
     operator fun contains(instant: Instant) = instant >= start && instant < end
 
-    override fun compareTo(other: TimeRange) = compareValuesBy(this, other, TimeRange::start, TimeRange::end)
+    override fun compareTo(other: TimeRange) = ORDER.compare(this, other)
+
+    private companion object {
+        val ORDER = compareBy(TimeRange::sortsAt).thenBy(TimeRange::end).thenByDescending(TimeRange::start)
+    }
 }
+
+val PartialDate.sortsAt: Instant
+    get() = when (this) {
+        is PartialDate.Year, is PartialDate.Month -> endInstant
+        is PartialDate.Day, is PartialDate.Time -> startInstant
+    }
 
 fun Occurrence.timeRange(): TimeRange? {
     val start = this.start ?: return null
-    return TimeRange(start.startInstant, (end ?: start).endInstant)
+    return TimeRange(start.startInstant, (end ?: start).endInstant, start.sortsAt)
 }
 
 val Occurrence.isCancelled: Boolean get() = status == Occurrence.Status.Cancelled
@@ -45,7 +56,7 @@ fun OpenEvnt.nextTimeRangeAt(now: Instant): TimeRange? = nextOccurrenceAt(now)?.
 
 fun OpenEvnt.nextStartAt(now: Instant): Instant? = nextTimeRangeAt(now)?.start
 
-fun OpenEvnt.latestTimeRange(): TimeRange? = timeRanges().maxWithOrNull(compareBy<TimeRange> { it.start }.thenByDescending { it.end })
+fun OpenEvnt.latestTimeRange(): TimeRange? = timeRanges().maxOrNull()
 
 fun OpenEvnt.nextOrLastOccurrenceAt(now: Instant): Occurrence? = nextOccurrenceAt(now) ?: shownOccurrences().latest()
 

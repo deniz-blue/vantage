@@ -127,6 +127,31 @@ class DatabaseMigrationTest {
     }
 
     @Test
+    fun movingToVersionTenSortsAMonthAtItsEnd() = runTest {
+        val file = File.createTempFile("vantage-v9", ".db").apply { delete() }
+        val month = PartialDate.Month(2027, 1, "UTC")
+        val event = OpenEvnt(id = "urn:uuid:test", name = mapOf("en" to "January"), occurrences = listOf(Occurrence(start = month)))
+        try {
+            createVersion(9, file.path)
+            BundledSQLiteDriver().open(file.path).apply {
+                execSQL("INSERT INTO events (id, source, format, createdAt) VALUES ('e1', ${ColumnConverters.sourceToJson(EventSource.Local()).quoted()}, ${ColumnConverters.formatToName(EventFormat.OpenEvnt).quoted()}, 0)")
+                execSQL("INSERT INTO event_cache (eventId, data, revision) VALUES ('e1', ${ColumnConverters.eventToJson(event).quoted()}, ${ColumnConverters.revisionToJson(Revision()).quoted()})")
+                execSQL("INSERT INTO event_time_ranges (eventId, startsAt, endsAt) VALUES ('e1', ${month.startInstant.toEpochMilliseconds()}, ${month.endInstant.toEpochMilliseconds()})")
+                close()
+            }
+            val database = Room.databaseBuilder<VantageDatabase>(file.path)
+                .addMigrations(MoveFolioEditTokensToCredentials)
+                .setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .build()
+            assertEquals(listOf(Instant.parse("2027-02-01T00:00:00Z")), database.events().timeRangesOf("e1").map { it.sortsAt })
+            database.close()
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
     fun opensADatabaseFromTheFirstVersion() = runTest {
         val file = File.createTempFile("vantage-v1", ".db").apply { delete() }
         try {

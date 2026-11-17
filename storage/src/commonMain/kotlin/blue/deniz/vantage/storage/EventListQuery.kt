@@ -33,8 +33,11 @@ private fun escapeLike(text: String) = text.replace("\\", "\\\\").replace("%", "
 
 private fun placeholders(count: Int) = List(count) { "?" }.joinToString(", ")
 
+private const val RANGE_ORDER = "r.sortsAt, r.endsAt, r.startsAt DESC"
+private const val RANGE_ORDER_DESCENDING = "r.sortsAt DESC, r.endsAt DESC, r.startsAt"
+
 private fun firstRangeColumn(column: String, window: String, rangeOrder: String) =
-    "(SELECT r.$column FROM event_time_ranges r WHERE r.eventId = e.id$window ORDER BY $rangeOrder, r.endsAt LIMIT 1)"
+    "(SELECT r.$column FROM event_time_ranges r WHERE r.eventId = e.id$window ORDER BY $rangeOrder LIMIT 1)"
 
 internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): RoomRawQuery {
     val conditions = mutableListOf<String>()
@@ -120,11 +123,13 @@ internal fun EventListQuery.toRawQuery(includesTestEvents: Boolean = false): Roo
         EventListQuery.Order.Name -> "c.title COLLATE NOCASE NULLS LAST"
         EventListQuery.Order.Start -> {
             val window = if (from == null) "" else " AND r.endsAt > ?"
-            from?.let { start -> repeat(2) { arguments += start.toEpochMilliseconds() } }
-            "${firstRangeColumn("startsAt", window, "r.startsAt")} NULLS LAST, ${firstRangeColumn("endsAt", window, "r.startsAt")}"
+            from?.let { start -> repeat(3) { arguments += start.toEpochMilliseconds() } }
+            "${firstRangeColumn("sortsAt", window, RANGE_ORDER)} NULLS LAST, ${firstRangeColumn("endsAt", window, RANGE_ORDER)}," +
+                " ${firstRangeColumn("startsAt", window, RANGE_ORDER)} DESC"
         }
         EventListQuery.Order.StartDescending ->
-            "${firstRangeColumn("startsAt", "", "r.startsAt DESC")} DESC NULLS LAST, ${firstRangeColumn("endsAt", "", "r.startsAt DESC")}"
+            "${firstRangeColumn("sortsAt", "", RANGE_ORDER_DESCENDING)} DESC NULLS LAST, ${firstRangeColumn("endsAt", "", RANGE_ORDER_DESCENDING)} DESC," +
+                " ${firstRangeColumn("startsAt", "", RANGE_ORDER_DESCENDING)}"
     }
 
     val sql = buildString {

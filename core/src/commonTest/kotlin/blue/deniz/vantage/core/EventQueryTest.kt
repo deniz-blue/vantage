@@ -149,7 +149,7 @@ class EventQueryTest {
     }
 
     @Test
-    fun aMorePreciseDateComesFirstWhenTwoStartTogether() {
+    fun aLessPreciseDateComesAfterTheMorePreciseOnes() {
         val events = listOf(
             eventStarting("Year", PartialDate.Year(2027, "Europe/Vilnius")),
             eventStarting("Month", PartialDate.Month(2027, 1, "Europe/Vilnius")),
@@ -158,6 +158,6 @@ class EventQueryTest {
         val upcoming = EventQuery(from = NOW, order = EventOrder.Start).filterAndSort(events, listOf("en"))
         assertEquals(listOf("Day", "Month", "Year"), upcoming.map { it.englishName() })
         val past = EventQuery(order = EventOrder.StartDescending).filterAndSort(events, listOf("en"))
-        assertEquals(listOf("Day", "Month", "Year"), past.map { it.englishName() })
+        assertEquals(listOf("Year", "Month", "Day"), past.map { it.englishName() })
     }
 }

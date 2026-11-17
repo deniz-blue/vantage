@@ -41,6 +41,17 @@ class TimeRangeTest {
     }
 
     @Test
+    fun aMonthOrYearSortsAtItsEnd() {
+        val month = Occurrence(start = PartialDate.Month(2027, 1, "UTC"))
+        val year = Occurrence(start = PartialDate.Year(2027, "UTC"))
+        val day = Occurrence(start = PartialDate.Day(2027, 1, 2, "UTC"))
+        assertEquals(Instant.parse("2027-02-01T00:00:00Z"), month.timeRange()?.sortsAt)
+        assertEquals(Instant.parse("2028-01-01T00:00:00Z"), year.timeRange()?.sortsAt)
+        assertEquals(listOf(day, month, year), listOf(year, month, day).sortedBy { it.timeRange() })
+        assertEquals(month, eventOn(year, month).nextOccurrenceAt(now))
+    }
+
+    @Test
     fun aTimeWithoutAnEndEndsWhenItStarts() {
         val occurrence = Occurrence(start = PartialDate.fromInstant(now, "Europe/Vilnius"))
         assertEquals(TimeRange(now, now), occurrence.timeRange())

@@ -5,11 +5,20 @@ import directory.evnt.Media
 import directory.evnt.OpenEvnt
 
 const val BACKGROUND_ROLE = "background"
+const val BANNER_ROLE = "banner"
 
 private fun Component.isBackgroundSplash() = this is Component.SplashMedia && BACKGROUND_ROLE in roles.orEmpty()
 
 fun OpenEvnt.backgroundSplashMedia(): Media? =
     components.orEmpty().firstOrNull { it.isBackgroundSplash() }?.let { (it as Component.SplashMedia).media }
+
+fun OpenEvnt.shownSplashMedia(): Media? {
+    val splashes = components.orEmpty().filterIsInstance<Component.SplashMedia>()
+    val shown = splashes.firstOrNull { BACKGROUND_ROLE in it.roles.orEmpty() }
+        ?: splashes.firstOrNull { BANNER_ROLE in it.roles.orEmpty() }
+        ?: splashes.firstOrNull { it.roles.isNullOrEmpty() }
+    return shown?.media
+}
 
 fun OpenEvnt.withBackgroundSplashMedia(media: Media?): OpenEvnt {
     val current = components.orEmpty()

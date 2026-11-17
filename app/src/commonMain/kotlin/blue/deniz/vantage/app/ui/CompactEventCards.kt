@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import blue.deniz.vantage.core.ResolvedEvent
-import blue.deniz.vantage.core.backgroundSplashMedia
+import blue.deniz.vantage.core.shownSplashMedia
 import blue.deniz.vantage.core.nextOrLastOccurrenceAt
 import blue.deniz.vantage.ui.AppIcons
 import blue.deniz.vantage.ui.AtLeastAsTallAs
@@ -96,7 +96,7 @@ fun EventPosterCard(
     fallbackTitle: String? = null,
 ) {
     val occurrence = remember(event.data, now) { event.shownOccurrence(now) }
-    val splash = remember(event.data) { event.data?.backgroundSplashMedia() }
+    val splash = remember(event.data) { event.data?.shownSplashMedia() }
     val venue = remember(event.data, preferredLanguages, formatting) { event.data?.venueLine(preferredLanguages) }
     Card(modifier.width(POSTER_WIDTH), onClick = onClick, onLongClick = onLongClick, border = selection.border(), contentPadding = PaddingValues()) {
         Column {

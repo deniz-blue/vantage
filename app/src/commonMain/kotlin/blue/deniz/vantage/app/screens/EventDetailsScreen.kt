@@ -87,7 +87,7 @@ import blue.deniz.vantage.ui.SectionTitle
 import blue.deniz.vantage.ui.Spacing
 import blue.deniz.vantage.app.ui.UNTITLED_EVENT
 import blue.deniz.vantage.ui.Text
-import blue.deniz.vantage.core.backgroundSplashMedia
+import blue.deniz.vantage.core.shownSplashMedia
 import blue.deniz.vantage.app.ui.label
 import blue.deniz.vantage.app.ui.translatedName
 import blue.deniz.vantage.core.EventError
@@ -314,7 +314,7 @@ private fun EventDetailsLayout(
 ) {
     val formatting = state.formatting
     val marks = rememberCalendarMarks(state, shown = true)
-    val cover = remember(event?.data) { event?.data?.backgroundSplashMedia() }
+    val cover = remember(event?.data) { event?.data?.shownSplashMedia() }
     val title = event?.data?.translatedName(state.preferredLanguages) ?: UNTITLED_EVENT.takeIf { event != null }
     val scroll = rememberScrollState()
     val density = LocalDensity.current

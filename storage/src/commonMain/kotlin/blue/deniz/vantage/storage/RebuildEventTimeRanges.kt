@@ -25,11 +25,12 @@ private suspend fun SQLiteConnection.replaceTimeRanges(eventId: String, ranges: 
         delete.bindText(1, eventId)
         delete.step()
     }
-    prepare("INSERT OR IGNORE INTO event_time_ranges (eventId, startsAt, endsAt) VALUES (?, ?, ?)").closing { insert ->
+    prepare("INSERT OR IGNORE INTO event_time_ranges (eventId, startsAt, endsAt, sortsAt) VALUES (?, ?, ?, ?)").closing { insert ->
         for (range in ranges) {
             insert.bindText(1, eventId)
             insert.bindLong(2, range.start.toEpochMilliseconds())
             insert.bindLong(3, range.end.toEpochMilliseconds())
+            insert.bindLong(4, range.sortsAt.toEpochMilliseconds())
             insert.step()
             insert.reset()
         }

@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import blue.deniz.vantage.core.EventComplexity
 import blue.deniz.vantage.core.ResolvedEvent
-import blue.deniz.vantage.core.backgroundSplashMedia
+import blue.deniz.vantage.core.shownSplashMedia
 import blue.deniz.vantage.core.complexity
 import blue.deniz.vantage.storage.TagEntity
 import blue.deniz.vantage.ui.AppIcons
@@ -115,7 +115,7 @@ fun AgendaEventCard(
     showsSelectionMark: Boolean = true,
 ) {
     val occurrence = remember(event.data, now) { event.shownOccurrence(now) }
-    val splash = remember(event.data) { event.data?.backgroundSplashMedia() }
+    val splash = remember(event.data) { event.data?.shownSplashMedia() }
     val title = event.data?.translatedName(preferredLanguages) ?: fallbackTitle
     val details = remember(occurrence, event.data, preferredLanguages, formatting, showsDate) {
         listOfNotNull(

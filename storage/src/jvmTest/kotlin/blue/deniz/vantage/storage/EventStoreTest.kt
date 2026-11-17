@@ -272,6 +272,22 @@ class EventStoreTest {
     }
 
     @Test
+    fun lessPreciseDatesComeAfterThePreciseOnesInsideThem() = runTest {
+        local("Year", "2027[UTC]")
+        local("March", "2027-03-03[UTC]")
+        local("January", "2027-01[UTC]")
+        local("December", "2027-12[UTC]")
+        local("Second", "2027-01-02[UTC]")
+        local("Twentieth", "2027-01-20[UTC]")
+        local("First of February", "2027-02-01[UTC]")
+        val upcoming = EventListQuery(from = Instant.parse("2026-10-21T00:00:00Z"), order = EventListQuery.Order.Start)
+        val order = listOf("Second", "Twentieth", "January", "First of February", "March", "December", "Year")
+        assertEquals(order, names(upcoming))
+        val ended = EventListQuery(endedBy = Instant.parse("2028-02-01T00:00:00Z"), order = EventListQuery.Order.StartDescending)
+        assertEquals(order.asReversed(), names(ended))
+    }
+
+    @Test
     fun listsEndedEventsNewestFirst() = runTest {
         local("Older", "2026-01-05[UTC]")
         local("Weekly", "2026-10-01[UTC]", "2026-10-29[UTC]")

@@ -11,7 +11,7 @@ enum class EventComplexity { Line, Plain, Full }
 fun OpenEvnt.complexity(): EventComplexity {
     val occurrences = occurrences.orEmpty()
     return when {
-        backgroundSplashMedia() != null -> EventComplexity.Full
+        shownSplashMedia() != null -> EventComplexity.Full
         occurrences.any { it.activities.orEmpty().isNotEmpty() || it.spansDays() } -> EventComplexity.Full
         occurrences.runBackToBack() -> EventComplexity.Full
         status != null || occurrences.any { it.isCancelled } -> EventComplexity.Plain

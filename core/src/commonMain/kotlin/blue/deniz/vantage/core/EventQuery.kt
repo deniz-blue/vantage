@@ -50,10 +50,7 @@ data class EventQuery(
         return when (order) {
             EventOrder.Listed -> matching
             EventOrder.Start -> matching.sortedWith(compareBy(nullsLast()) { it.data?.nextTimeRangeAt(from ?: Instant.DISTANT_PAST) })
-            EventOrder.StartDescending -> matching.sortedWith(
-                compareBy<ResolvedEvent, Instant?>(nullsLast(reverseOrder())) { it.data?.latestTimeRange()?.start }
-                    .thenBy(nullsLast()) { it.data?.latestTimeRange()?.end },
-            )
+            EventOrder.StartDescending -> matching.sortedWith(compareBy(nullsLast(reverseOrder())) { it.data?.latestTimeRange() })
             EventOrder.Name -> matching.sortedBy { it.nameIn(preferredLanguages, listedNames[it.source]).lowercase() }
         }
     }
