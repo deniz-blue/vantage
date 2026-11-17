@@ -36,7 +36,7 @@ private suspend fun SQLiteConnection.replaceTimeRanges(eventId: String, ranges: 
     }
 }
 
-private inline fun <T> SQLiteStatement.closing(block: (SQLiteStatement) -> T): T =
+internal inline fun <T> SQLiteStatement.closing(block: (SQLiteStatement) -> T): T =
     try {
         block(this)
     } finally {

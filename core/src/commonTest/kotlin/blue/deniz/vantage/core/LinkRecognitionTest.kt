@@ -25,8 +25,9 @@ class LinkRecognitionTest {
     fun recognizesAFolioEventWithItsEditToken() {
         assertEquals(
             ResolvedEvent(
-                source = EventSource.Folio(id = "e1", baseUrl = "https://folio.denizblue.workers.dev", editToken = "t0k"),
+                source = EventSource.Folio(id = "e1", baseUrl = "https://folio.denizblue.workers.dev"),
                 format = EventFormat.OpenEvnt,
+                editToken = "t0k",
             ),
             ResolvedEvent.fromLink("https://folio.denizblue.workers.dev/events/e1?token=t0k"),
         )
@@ -110,10 +111,12 @@ class EventSourceTest {
 
     @Test
     fun aFolioEditLinkOpensTheSameEventAgain() {
-        val source = EventSource.Folio("e1", editToken = "t0k")
-        assertEquals("https://folio.denizblue.workers.dev/events/e1.evnt.json?token=t0k", source.editLink)
-        assertEquals(source, ResolvedEvent.fromLink(source.editLink!!)?.source)
-        assertNull(EventSource.Folio("e1").editLink)
+        val source = EventSource.Folio("e1")
+        val link = source.editLink("t0k")
+        assertEquals("https://folio.denizblue.workers.dev/events/e1.evnt.json?token=t0k", link)
+        val opened = ResolvedEvent.fromLink(link)
+        assertEquals(source, opened?.source)
+        assertEquals("t0k", opened?.editToken)
     }
 
     @Test
@@ -122,7 +125,7 @@ class EventSourceTest {
             "https://eventsl.ink/e?at=at%3A%2F%2Fdid%3Aplc%3Aabc%2Fdirectory.evnt.event%2F1",
             EventsLink.shareLinkTo(EventSource.At(AtUri("did:plc:abc", "directory.evnt.event", "1"))),
         )
-        assertEquals("https://eventsl.ink/e?url=https%3A%2F%2Ffolio.denizblue.workers.dev%2Fevents%2Fe1.evnt.json", EventsLink.shareLinkTo(EventSource.Folio("e1", editToken = "secret")))
+        assertEquals("https://eventsl.ink/e?url=https%3A%2F%2Ffolio.denizblue.workers.dev%2Fevents%2Fe1.evnt.json", EventsLink.shareLinkTo(EventSource.Folio("e1")))
         assertNull(EventsLink.shareLinkTo(EventSource.Local()))
     }
 

@@ -36,10 +36,10 @@ sealed interface EventSource {
 
     @Serializable
     @SerialName("folio")
-    data class Folio(val id: String, val baseUrl: String = DEFAULT_BASE_URL, val editToken: String? = null) : Remote {
+    data class Folio(val id: String, val baseUrl: String = DEFAULT_BASE_URL) : Remote {
         override val location get() = URLBuilder(baseUrl).apply { path("events", "$id.evnt.json") }.buildString()
 
-        val editLink get() = editToken?.let { token -> URLBuilder(location).apply { parameters.append("token", token) }.buildString() }
+        fun editLink(editToken: String) = URLBuilder(location).apply { parameters.append("token", editToken) }.buildString()
 
         companion object {
             const val DEFAULT_BASE_URL = "https://folio.denizblue.workers.dev"
@@ -84,9 +84,6 @@ val EventSource.type: EventSourceType
         is EventSource.WebDav -> EventSourceType.WebDav
         is EventSource.Calendar -> EventSourceType.Calendar
     }
-
-val EventSource.isEditableHere: Boolean
-    get() = this is EventSource.Local || (this is EventSource.Folio && editToken != null)
 
 val EventSource.canUploadToFolio: Boolean
     get() = this is EventSource.Local && !isTestEvent

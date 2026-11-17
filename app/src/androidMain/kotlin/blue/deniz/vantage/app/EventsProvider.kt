@@ -117,7 +117,7 @@ class EventsProvider : ContentProvider() {
         val data = eventFrom(values)
         val updated = runBlocking {
             val stored = store.find(target.id)
-            if (stored?.source?.isEditableHere != true) return@runBlocking false
+            if (stored?.isEditableHere != true) return@runBlocking false
             store.saveEdited(target.id, data)
             true
         }

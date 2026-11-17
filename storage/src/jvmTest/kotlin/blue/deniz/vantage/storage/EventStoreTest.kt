@@ -443,10 +443,10 @@ class EventStoreTest {
     @Test
     fun findsTheCredentialWithTheLongestMatchingPrefix() = runTest {
         val credentials = database.credentials()
-        credentials.upsert(CredentialEntity("1", "https://dav.example/", "a", "x", FixedClock.now))
-        credentials.upsert(CredentialEntity("2", "https://dav.example/team/", "b", "y", FixedClock.now))
-        credentials.upsert(CredentialEntity("3", "https://other.example/", "c", "z", FixedClock.now))
-        assertEquals(listOf("b", "a"), credentials.matching("https://dav.example/team/cal.ics").map { it.username })
+        credentials.upsert(CredentialEntity("1", "https://dav.example/", CredentialSecret.Login("a", "x"), FixedClock.now))
+        credentials.upsert(CredentialEntity("2", "https://dav.example/team/", CredentialSecret.Login("b", "y"), FixedClock.now))
+        credentials.upsert(CredentialEntity("3", "https://other.example/", CredentialSecret.Login("c", "z"), FixedClock.now))
+        assertEquals(listOf("2", "1"), credentials.matching("https://dav.example/team/cal.ics").map { it.id })
         assertEquals(emptyList(), credentials.matching("https://dav.example"))
     }
 

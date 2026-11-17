@@ -186,6 +186,9 @@ interface CredentialDao {
     @Query("SELECT * FROM credentials WHERE substr(:url, 1, length(url)) = url ORDER BY length(url) DESC")
     suspend fun matching(url: String): List<CredentialEntity>
 
+    @Query("SELECT * FROM credentials WHERE url = :url")
+    suspend fun findByUrl(url: String): CredentialEntity?
+
     @Upsert
     suspend fun upsert(credential: CredentialEntity)
 

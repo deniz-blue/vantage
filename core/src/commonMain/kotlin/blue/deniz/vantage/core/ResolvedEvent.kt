@@ -13,6 +13,7 @@ data class ResolvedEvent(
     val parseError: EventError? = null,
     val revision: Revision = Revision(),
     val updatedAt: Instant? = null,
+    val editToken: String? = null,
 ) {
     val error get() = fetchError ?: parseError
 
@@ -22,3 +23,9 @@ data class ResolvedEvent(
         fun fromEventsLinkIntent(intent: EventsLink.Intent): ResolvedEvent? = recognizeEventsLinkIntent(intent)
     }
 }
+
+val ResolvedEvent.isEditableHere: Boolean
+    get() = source is EventSource.Local || (source is EventSource.Folio && editToken != null)
+
+val ResolvedEvent.editLink: String?
+    get() = (source as? EventSource.Folio)?.let { folio -> editToken?.let(folio::editLink) }

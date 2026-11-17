@@ -18,17 +18,19 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
+data class FolioUpload(val source: EventSource.Folio, val editToken: String?)
+
 class FolioClient(private val client: HttpClient, private val baseUrl: String = EventSource.Folio.DEFAULT_BASE_URL) {
-    suspend fun create(eventJson: String): EventSource.Folio {
+    suspend fun create(eventJson: String): FolioUpload {
         val url = URLBuilder(baseUrl).apply { path("events") }.buildString()
         val created = parseJsonObject(bodyOf(client.post(url) { jsonBody(eventJson) }), "Folio's answer")
         val id = created["id"].stringOrNull() ?: failure(EventError.Kind.Fetch, "Folio gave the event no id")
-        return EventSource.Folio(id, baseUrl, created["edit_token"].stringOrNull())
+        return FolioUpload(EventSource.Folio(id, baseUrl), created["edit_token"].stringOrNull())
     }
 
-    suspend fun replace(source: EventSource.Folio, eventJson: String): String =
+    suspend fun replace(source: EventSource.Folio, editToken: String, eventJson: String): String =
         bodyOf(client.put(source.location) {
-            source.editToken?.let(::bearerAuth)
+            bearerAuth(editToken)
             jsonBody(eventJson)
         })
 

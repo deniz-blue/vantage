@@ -42,8 +42,9 @@ private fun recognizeFolio(url: Url): ResolvedEvent? {
     if (segments.getOrNull(0) != "events") return null
     val id = segments.getOrNull(1)?.removeSuffix(".evnt.json")?.removeSuffix(".json") ?: return null
     return ResolvedEvent(
-        source = EventSource.Folio(id = id, baseUrl = url.protocolWithAuthority, editToken = url.parameters["token"]),
+        source = EventSource.Folio(id = id, baseUrl = url.protocolWithAuthority),
         format = EventFormat.OpenEvnt,
+        editToken = url.parameters["token"],
     )
 }
 

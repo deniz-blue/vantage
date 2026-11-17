@@ -23,12 +23,19 @@ import directory.evnt.translate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+
+private fun ResolvedEvent.withEditTokenFrom(credentials: List<CredentialEntity>): ResolvedEvent {
+    val source = source as? EventSource.Folio ?: return this
+    val secret = credentials.firstOrNull { it.url == source.location }?.secret as? CredentialSecret.Token
+    return copy(editToken = secret?.token)
+}
 
 internal fun StoredEvent.toResolvedEvent() = ResolvedEvent(
     id = event.id,
@@ -74,6 +81,7 @@ class EventStore(
     private val events get() = database.events()
     private val tags get() = database.tags()
     private val hiddenCalendarEvents get() = database.hiddenCalendarEvents()
+    private val credentials get() = database.credentials()
     private val testEventsShownState = MutableStateFlow(false)
 
     var testEventsShown: Boolean
@@ -104,7 +112,28 @@ class EventStore(
             cacheOf(id, event),
             timeRangesOf(id, event),
         )
+        saveEditTokenOf(event)
         return id
+    }
+
+    private suspend fun saveEditTokenOf(event: ResolvedEvent) {
+        val source = event.source as? EventSource.Folio ?: return
+        saveEditToken(source, event.editToken ?: return)
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun saveEditToken(source: EventSource.Folio, editToken: String) {
+        val url = source.location
+        val id = credentials.findByUrl(url)?.id ?: Uuid.random().toString()
+        credentials.upsert(CredentialEntity(id, url, CredentialSecret.Token(editToken), clock.now()))
+    }
+
+    private suspend fun storedEditTokenOf(source: EventSource.Folio): String? =
+        (credentials.findByUrl(source.location)?.secret as? CredentialSecret.Token)?.token
+
+    private suspend fun ResolvedEvent.withStoredEditToken(): ResolvedEvent {
+        val source = source as? EventSource.Folio ?: return this
+        return copy(editToken = storedEditTokenOf(source))
     }
 
     suspend fun addFromLink(text: String): String? =
@@ -143,7 +172,7 @@ class EventStore(
 
     suspend fun addToFolio(data: OpenEvnt): String {
         val uploaded = folio.create(data.toJson().toString())
-        return add(resolver.resolve(ResolvedEvent(source = uploaded, format = EventFormat.OpenEvnt)))
+        return add(resolver.resolve(ResolvedEvent(source = uploaded.source, format = EventFormat.OpenEvnt, editToken = uploaded.editToken)))
     }
 
     suspend fun removeTestEvents() {
@@ -227,7 +256,8 @@ class EventStore(
     }
 
     private suspend fun savedOnFolio(id: String, source: EventSource.Folio, data: OpenEvnt): ResolvedEvent {
-        val raw = folio.replace(source, data.toJson().toString())
+        val editToken = checkNotNull(storedEditTokenOf(source)) { "This event has no editing token here" }
+        val raw = folio.replace(source, editToken, data.toJson().toString())
         return resolver.parse(ResolvedEvent(id, source, EventFormat.OpenEvnt, raw, updatedAt = clock.now()))
     }
 
@@ -235,10 +265,11 @@ class EventStore(
         val stored = checkNotNull(events.findEvent(id)) { "No event with id $id" }
         check(stored.event.source.canUploadToFolio) { "Only an event made on this device can be uploaded" }
         val raw = checkNotNull(stored.cache?.raw) { "This event has no data to upload" }
-        val shared = folio.create(raw)
-        events.updateSource(id, shared)
+        val uploaded = folio.create(raw)
+        events.updateSource(id, uploaded.source)
+        uploaded.editToken?.let { saveEditToken(uploaded.source, it) }
         refresh(id)
-        return shared
+        return uploaded.source
     }
 
     suspend fun refresh(id: String): ResolvedEvent? {
@@ -316,7 +347,7 @@ class EventStore(
 
     suspend fun removeAll() = events.deleteAllEvents()
 
-    suspend fun find(id: String): ResolvedEvent? = events.findEvent(id)?.toResolvedEvent()
+    suspend fun find(id: String): ResolvedEvent? = events.findEvent(id)?.toResolvedEvent()?.withStoredEditToken()
 
     suspend fun findStoredCopyId(event: ResolvedEvent): String? = when (event.source) {
         EventSource.Unknown -> null
@@ -326,10 +357,12 @@ class EventStore(
 
     private suspend fun storedPreviewOf(event: ResolvedEvent): LinkPreview.AlreadyStored? {
         val id = findStoredCopyId(event) ?: return null
+        saveEditTokenOf(event)
         return LinkPreview.AlreadyStored(id, find(id) ?: return null)
     }
 
-    fun observe(id: String): Flow<ResolvedEvent?> = events.observeEvent(id).map { it?.toResolvedEvent() }
+    fun observe(id: String): Flow<ResolvedEvent?> =
+        events.observeEvent(id).combine(credentials.observeAll()) { stored, all -> stored?.toResolvedEvent()?.withEditTokenFrom(all) }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeList(query: EventListQuery = EventListQuery()): Flow<List<ResolvedEvent>> =

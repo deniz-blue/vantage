@@ -86,9 +86,10 @@ class FolioSharingTest {
     @Test
     fun uploadingKeepsTheEditToken() = runTest {
         val id = store.addLocal(made("Movie night"))
-        assertEquals(EventSource.Folio("f1", FOLIO, EDIT_TOKEN), store.uploadToFolio(id))
+        assertEquals(EventSource.Folio("f1", FOLIO), store.uploadToFolio(id))
         val shared = assertNotNull(store.find(id))
-        assertEquals(EventSource.Folio("f1", FOLIO, EDIT_TOKEN), shared.source)
+        assertEquals(EventSource.Folio("f1", FOLIO), shared.source)
+        assertEquals(EDIT_TOKEN, shared.editToken)
         assertEquals(SHARED_URL, shared.data?.id)
         assertEquals("Movie night", shared.data?.name?.get("en"))
     }
@@ -107,7 +108,7 @@ class FolioSharingTest {
 
     @Test
     fun aRefusedEditKeepsTheEventAsItWas() = runTest {
-        val id = store.add(ResolvedEvent(source = EventSource.Folio("f1", FOLIO, "wrong"), format = EventFormat.OpenEvnt))
+        val id = store.add(ResolvedEvent(source = EventSource.Folio("f1", FOLIO), format = EventFormat.OpenEvnt, editToken = "wrong"))
         val before = store.find(id)
         val failure = assertFailsWith<EventException> { store.saveEdited(id, made("Hijacked")) }
         assertEquals("Invalid edit token", failure.message)
@@ -120,9 +121,23 @@ class FolioSharingTest {
         val id = store.addToFolio(made("Movie night"))
         assertEquals(listOf("POST"), folio.requests)
         val made = assertNotNull(store.find(id))
-        assertEquals(EventSource.Folio("f1", FOLIO, EDIT_TOKEN), made.source)
+        assertEquals(EventSource.Folio("f1", FOLIO), made.source)
+        assertEquals(EDIT_TOKEN, made.editToken)
         assertEquals(SHARED_URL, made.data?.id)
         assertEquals("Movie night", made.data?.name?.get("en"))
+    }
+
+    @Test
+    fun openingTheEditLinkOfAFollowedEventGivesItTheTokenInsteadOfAddingACopy() = runTest {
+        val followed = EventSource.Folio("f1")
+        val id = store.add(ResolvedEvent(source = followed, format = EventFormat.OpenEvnt))
+        assertEquals(null, store.find(id)?.editToken)
+
+        val preview = store.previewLink(followed.editLink(EDIT_TOKEN))
+
+        assertEquals(id, (preview as LinkPreview.AlreadyStored).id)
+        assertEquals(EDIT_TOKEN, store.find(id)?.editToken)
+        assertEquals(1, store.observeList().first().size)
     }
 
     @Test

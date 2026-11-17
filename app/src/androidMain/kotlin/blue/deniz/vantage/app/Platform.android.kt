@@ -40,6 +40,7 @@ import blue.deniz.vantage.core.MapPlace
 import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
 import blue.deniz.vantage.storage.EventStore
+import blue.deniz.vantage.storage.MoveFolioEditTokensToCredentials
 import blue.deniz.vantage.storage.VantageDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -162,6 +163,7 @@ private const val HTTP_CACHE_BYTES = 20L * 1024 * 1024
 
 fun createAppState(context: Context, backgroundChecks: BackgroundEventChecks? = null): AppState {
     val database = Room.databaseBuilder<VantageDatabase>(context, context.getDatabasePath("vantage.db").absolutePath)
+        .addMigrations(MoveFolioEditTokensToCredentials)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

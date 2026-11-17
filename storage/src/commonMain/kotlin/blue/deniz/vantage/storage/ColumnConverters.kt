@@ -27,6 +27,12 @@ object ColumnConverters {
     fun jsonToSource(value: String): EventSource = json.decodeFromString(EventSource.serializer(), value)
 
     @ColumnTypeConverter
+    fun secretToJson(value: CredentialSecret): String = json.encodeToString(CredentialSecret.serializer(), value)
+
+    @ColumnTypeConverter
+    fun jsonToSecret(value: String): CredentialSecret = json.decodeFromString(CredentialSecret.serializer(), value)
+
+    @ColumnTypeConverter
     fun formatToName(value: EventFormat): String = value.serialName
 
     @ColumnTypeConverter

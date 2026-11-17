@@ -141,7 +141,7 @@ fun EditEventScreen(state: AppState, id: String, draft: OpenEvnt?) {
     val problem = when {
         reading -> null
         current == null -> "This event is gone"
-        !current.source.isEditableHere -> "Only events made on this device can be edited"
+        !current.isEditableHere -> "Only events made on this device can be edited"
         current.data == null -> "This event has no data to edit"
         else -> null
     }

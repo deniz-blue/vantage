@@ -39,6 +39,7 @@ import blue.deniz.vantage.core.EventSource
 import blue.deniz.vantage.core.EventsLink
 import blue.deniz.vantage.core.ResolvedEvent
 import blue.deniz.vantage.core.canUploadToFolio
+import blue.deniz.vantage.core.editLink
 import blue.deniz.vantage.core.isEditableHere
 import blue.deniz.vantage.ui.SystemBackHandler
 import kotlinx.coroutines.CancellationException
@@ -173,10 +174,8 @@ private fun EventActions(state: AppState, id: String?, event: ResolvedEvent, sco
         event.data?.let { data ->
             CopyMenuItem("Copy Summary") { data.markdownSummary(formatting, state.preferredLanguages) }
         }
-        if (source is EventSource.Folio) {
-            source.editLink?.let { link -> ActionButton("Share Editing Link", AppIcons.UserEdit) { share(link) } }
-        }
-        if (id != null && source.isEditableHere) {
+        event.editLink?.let { link -> ActionButton("Share Editing Link", AppIcons.UserEdit) { share(link) } }
+        if (id != null && event.isEditableHere) {
             ActionButton("Edit", AppIcons.Pencil) {
                 state.closeActionsSheet()
                 state.navigator.open(Route.EditEvent(id))

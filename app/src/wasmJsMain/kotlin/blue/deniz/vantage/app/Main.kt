@@ -16,6 +16,7 @@ import blue.deniz.vantage.core.CalendarLinkReader
 import blue.deniz.vantage.core.PlaceSearch
 import blue.deniz.vantage.core.WeatherForecasts
 import blue.deniz.vantage.storage.EventStore
+import blue.deniz.vantage.storage.MoveFolioEditTokensToCredentials
 import blue.deniz.vantage.storage.VantageDatabase
 import blue.deniz.vantage.ui.BrowserBackDispatcher
 import kotlinx.browser.document
@@ -44,6 +45,7 @@ private fun keepKeyboardFocusOnCompose() {
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     val database = Room.databaseBuilder<VantageDatabase>("vantage.db")
+        .addMigrations(MoveFolioEditTokensToCredentials)
         .setDriver(WebWorkerSQLiteDriver(createSqliteWorker()))
         .build()
     val client = browserHttpClient()

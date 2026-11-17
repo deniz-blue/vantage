@@ -68,6 +68,7 @@ class DatabaseMigrationTest {
                 close()
             }
             val database = Room.databaseBuilder<VantageDatabase>(file.path)
+                .addMigrations(MoveFolioEditTokensToCredentials)
                 .setDriver(BundledSQLiteDriver())
                 .setQueryCoroutineContext(Dispatchers.IO)
                 .build()
@@ -89,10 +90,36 @@ class DatabaseMigrationTest {
                 close()
             }
             val database = Room.databaseBuilder<VantageDatabase>(file.path)
+                .addMigrations(MoveFolioEditTokensToCredentials)
                 .setDriver(BundledSQLiteDriver())
                 .setQueryCoroutineContext(Dispatchers.IO)
                 .build()
             assertEquals(Instant.fromEpochMilliseconds(1794475263250), database.events().findEvent("e1")?.event?.createdAt)
+            database.close()
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    fun movingToVersionSevenTakesFolioEditTokensOutOfTheSource() = runTest {
+        val file = File.createTempFile("vantage-v6", ".db").apply { delete() }
+        try {
+            createVersion(6, file.path)
+            BundledSQLiteDriver().open(file.path).apply {
+                execSQL("""INSERT INTO events (id, source, format, createdAt) VALUES ('e1', '{"type":"folio","id":"f1","editToken":"t0k"}', ${ColumnConverters.formatToName(EventFormat.OpenEvnt).quoted()}, 0)""")
+                execSQL("INSERT INTO credentials (id, url, username, password, updatedAt) VALUES ('c1', 'https://dav.example/', 'a', 'x', 0)")
+                close()
+            }
+            val database = Room.databaseBuilder<VantageDatabase>(file.path)
+                .addMigrations(MoveFolioEditTokensToCredentials)
+                .setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .build()
+            val folio = EventSource.Folio("f1")
+            assertEquals("e1", database.events().findEventIdBySource(folio))
+            assertEquals(CredentialSecret.Token("t0k"), database.credentials().findByUrl(folio.location)?.secret)
+            assertEquals(CredentialSecret.Login("a", "x"), database.credentials().findByUrl("https://dav.example/")?.secret)
             database.close()
         } finally {
             file.delete()
@@ -105,6 +132,7 @@ class DatabaseMigrationTest {
         try {
             createFirstVersion(file.path)
             val database = Room.databaseBuilder<VantageDatabase>(file.path)
+                .addMigrations(MoveFolioEditTokensToCredentials)
                 .setDriver(BundledSQLiteDriver())
                 .setQueryCoroutineContext(Dispatchers.IO)
                 .build()

@@ -92,8 +92,7 @@ data class EventTagEntity(val eventId: String, val tagId: String)
 data class CredentialEntity(
     @PrimaryKey val id: String,
     val url: String,
-    val username: String,
-    val password: String,
+    val secret: CredentialSecret,
     val updatedAt: Instant,
 )
 

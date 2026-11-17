@@ -143,7 +143,7 @@ fun EventDetailsScreen(state: AppState, id: String) {
         state,
         current,
         actions = {
-            if (current?.source?.isEditableHere == true) {
+            if (current?.isEditableHere == true) {
                 IconButton(AppIcons.Pencil, "Edit", onClick = { state.navigator.open(Route.EditEvent(id)) })
             }
             ShareButton(current?.source)
